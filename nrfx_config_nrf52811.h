@@ -32,14 +32,18 @@
 #ifndef NRFX_CONFIG_NRF52811_H__
 #define NRFX_CONFIG_NRF52811_H__
 
+#ifndef NRFX_CONFIG_H__
+#error "Do not include this file directly, only through nrfx_config.h."
+#endif
+
 // <<< Use Configuration Wizard in Context Menu >>>\n
 
 // <h> nRF_Drivers
 
 // <e> NRFX_CLOCK_ENABLED - nrfx_clock - CLOCK peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_CLOCK
-#define NRFX_CLOCK_ENABLED 1
+#ifndef NRFX_CLOCK_ENABLED
+#define NRFX_CLOCK_ENABLED 0
 #endif
 // <o> NRFX_CLOCK_CONFIG_LF_SRC  - LF Clock Source
 
@@ -268,8 +272,8 @@
 
 // <e> NRFX_GPIOTE_ENABLED - nrfx_gpiote - GPIOTE peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_GPIOTE
-#define NRFX_GPIOTE_ENABLED 1
+#ifndef NRFX_GPIOTE_ENABLED
+#define NRFX_GPIOTE_ENABLED 0
 #endif
 // <o> NRFX_GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS - Number of lower power input pins
 #ifndef NRFX_GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS
@@ -346,8 +350,8 @@
 
 // <e> NRFX_NVMC_ENABLED - nrfx_nvmc - NVMC peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_NVMC
-#define NRFX_NVMC_ENABLED 1
+#ifndef NRFX_NVMC_ENABLED
+#define NRFX_NVMC_ENABLED 0
 #endif
 
 // </e>
@@ -495,8 +499,8 @@
 
 // <e> NRFX_PPI_ENABLED - nrfx_ppi - PPI peripheral allocator
 //==========================================================
-#ifdef CONFIG_NRFX_PPI
-#define NRFX_PPI_ENABLED 1
+#ifndef NRFX_PPI_ENABLED
+#define NRFX_PPI_ENABLED 0
 #endif
 // <e> NRFX_PPI_CONFIG_LOG_ENABLED - Enables logging in the module.
 //==========================================================
@@ -633,14 +637,14 @@
 
 // <e> NRFX_PWM_ENABLED - nrfx_pwm - PWM peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_PWM
-#define NRFX_PWM_ENABLED 1
+#ifndef NRFX_PWM_ENABLED
+#define NRFX_PWM_ENABLED 0
 #endif
 // <q> NRFX_PWM0_ENABLED  - Enable PWM0 instance
 
 
-#ifdef CONFIG_PWM_0
-#define NRFX_PWM0_ENABLED 1
+#ifndef NRFX_PWM0_ENABLED
+#define NRFX_PWM0_ENABLED 0
 #endif
 
 // <o> NRFX_PWM_DEFAULT_CONFIG_OUT0_PIN - Out0 pin  <0-31>
@@ -790,8 +794,8 @@
 
 // <e> NRFX_QDEC_ENABLED - nrfx_qdec - QDEC peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_QDEC
-#define NRFX_QDEC_ENABLED 1
+#ifndef NRFX_QDEC_ENABLED
+#define NRFX_QDEC_ENABLED 0
 #endif
 // <o> NRFX_QDEC_CONFIG_REPORTPER  - Report period
 
@@ -1022,21 +1026,21 @@
 
 // <e> NRFX_RTC_ENABLED - nrfx_rtc - RTC peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_RTC
-#define NRFX_RTC_ENABLED 1
+#ifndef NRFX_RTC_ENABLED
+#define NRFX_RTC_ENABLED 0
 #endif
 // <q> NRFX_RTC0_ENABLED  - Enable RTC0 instance
 
 
-#ifdef CONFIG_NRFX_RTC0
-#define NRFX_RTC0_ENABLED 1
+#ifndef NRFX_RTC0_ENABLED
+#define NRFX_RTC0_ENABLED 0
 #endif
 
 // <q> NRFX_RTC1_ENABLED  - Enable RTC1 instance
 
 
-#ifdef CONFIG_NRFX_RTC1
-#define NRFX_RTC1_ENABLED 1
+#ifndef NRFX_RTC1_ENABLED
+#define NRFX_RTC1_ENABLED 0
 #endif
 
 // <o> NRFX_RTC_MAXIMUM_LATENCY_US - Maximum possible time[us] in highest priority interrupt
@@ -1128,8 +1132,8 @@
 
 // <e> NRFX_SAADC_ENABLED - nrfx_saadc - SAADC peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_SAADC
-#define NRFX_SAADC_ENABLED 1
+#ifndef NRFX_SAADC_ENABLED
+#define NRFX_SAADC_ENABLED 0
 #endif
 // <o> NRFX_SAADC_CONFIG_RESOLUTION  - Resolution
 
@@ -1235,21 +1239,18 @@
 
 // <e> NRFX_SPIM_ENABLED - nrfx_spim - SPIM peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_SPIM
-#define NRFX_SPIM_ENABLED 1
+#ifndef NRFX_SPIM_ENABLED
+#define NRFX_SPIM_ENABLED 0
 #endif
 // <q> NRFX_SPIM0_ENABLED  - Enable SPIM0 instance
 
 
-#ifdef CONFIG_SPI_0_NRF_SPIM
-#define NRFX_SPIM0_ENABLED 1
+#ifndef NRFX_SPIM0_ENABLED
+#define NRFX_SPIM0_ENABLED 0
 #endif
 
-// <q> NRFX_SPIM1_ENABLED  - Enable SPIM1 instance
-
-
-#ifdef CONFIG_SPI_1_NRF_SPIM
-#define NRFX_SPIM1_ENABLED 1
+#ifndef NRFX_SPIM1_ENABLED
+#define NRFX_SPIM1_ENABLED 0
 #endif
 
 // <o> NRFX_SPIM_MISO_PULL_CFG  - MISO pin pull configuration.
@@ -1258,16 +1259,8 @@
 // <1=> NRF_GPIO_PIN_PULLDOWN
 // <3=> NRF_GPIO_PIN_PULLUP
 
-#ifdef CONFIG_SPI_NRFX_SPIM_MISO_NO_PULL
-#define NRFX_SPIM_MISO_PULL_CFG 0
-#endif
-
-#ifdef CONFIG_SPI_NRFX_SPIM_MISO_PULL_DOWN
+#ifndef NRFX_SPIM_MISO_PULL_CFG
 #define NRFX_SPIM_MISO_PULL_CFG 1
-#endif
-
-#ifdef CONFIG_SPI_NRFX_SPIM_MISO_PULL_UP
-#define NRFX_SPIM_MISO_PULL_CFG 3
 #endif
 
 // <o> NRFX_SPIM_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
@@ -1340,21 +1333,18 @@
 
 // <e> NRFX_SPIS_ENABLED - nrfx_spis - SPIS peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_SPIS
-#define NRFX_SPIS_ENABLED 1
+#ifndef NRFX_SPIS_ENABLED
+#define NRFX_SPIS_ENABLED 0
 #endif
 // <q> NRFX_SPIS0_ENABLED  - Enable SPIS0 instance
 
 
-#ifdef CONFIG_SPI_0_NRF_SPIS
-#define NRFX_SPIS0_ENABLED 1
+#ifndef NRFX_SPIS0_ENABLED
+#define NRFX_SPIS0_ENABLED 0
 #endif
 
-// <q> NRFX_SPIS1_ENABLED  - Enable SPIS1 instance
-
-
-#ifdef CONFIG_SPI_1_NRF_SPIS
-#define NRFX_SPIS1_ENABLED 1
+#ifndef NRFX_SPIS1_ENABLED
+#define NRFX_SPIS1_ENABLED 0
 #endif
 
 // <o> NRFX_SPIS_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
@@ -1441,22 +1431,23 @@
 
 // <e> NRFX_SPI_ENABLED - nrfx_spi - SPI peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_SPI
-#define NRFX_SPI_ENABLED 1
+#ifndef NRFX_SPI_ENABLED
+#define NRFX_SPI_ENABLED 0
 #endif
 // <q> NRFX_SPI0_ENABLED  - Enable SPI0 instance
 
 
-#ifdef CONFIG_SPI_0_NRF_SPI
-#define NRFX_SPI0_ENABLED 1
+#ifndef NRFX_SPI0_ENABLED
+#define NRFX_SPI0_ENABLED 0
 #endif
 
 // <q> NRFX_SPI1_ENABLED  - Enable SPI1 instance
 
 
-#ifdef CONFIG_SPI_1_NRF_SPI
-#define NRFX_SPI1_ENABLED 1
+#ifndef NRFX_SPI1_ENABLED
+#define NRFX_SPI1_ENABLED 0
 #endif
+
 
 // <o> NRFX_SPI_MISO_PULL_CFG  - MISO pin pull configuration.
 
@@ -1464,16 +1455,8 @@
 // <1=> NRF_GPIO_PIN_PULLDOWN
 // <3=> NRF_GPIO_PIN_PULLUP
 
-#ifdef CONFIG_SPI_NRFX_SPI_MISO_NO_PULL
-#define NRFX_SPI_MISO_PULL_CFG 0
-#endif
-
-#ifdef CONFIG_SPI_NRFX_SPI_MISO_PULL_DOWN
+#ifndef NRFX_SPI_MISO_PULL_CFG
 #define NRFX_SPI_MISO_PULL_CFG 1
-#endif
-
-#ifdef CONFIG_SPI_NRFX_SPI_MISO_PULL_UP
-#define NRFX_SPI_MISO_PULL_CFG 3
 #endif
 
 // <o> NRFX_SPI_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
@@ -1683,28 +1666,28 @@
 
 // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver
 //==========================================================
-#ifdef CONFIG_NRFX_TIMER
-#define NRFX_TIMER_ENABLED 1
+#ifndef NRFX_TIMER_ENABLED
+#define NRFX_TIMER_ENABLED 0
 #endif
 // <q> NRFX_TIMER0_ENABLED  - Enable TIMER0 instance
 
 
-#ifdef CONFIG_NRFX_TIMER0
-#define NRFX_TIMER0_ENABLED 1
+#ifndef NRFX_TIMER0_ENABLED
+#define NRFX_TIMER0_ENABLED 0
 #endif
 
 // <q> NRFX_TIMER1_ENABLED  - Enable TIMER1 instance
 
 
-#ifdef CONFIG_NRFX_TIMER1
-#define NRFX_TIMER1_ENABLED 1
+#ifndef NRFX_TIMER1_ENABLED
+#define NRFX_TIMER1_ENABLED 0
 #endif
 
 // <q> NRFX_TIMER2_ENABLED  - Enable TIMER2 instance
 
 
-#ifdef CONFIG_NRFX_TIMER2
-#define NRFX_TIMER2_ENABLED 1
+#ifndef NRFX_TIMER2_ENABLED
+#define NRFX_TIMER2_ENABLED 0
 #endif
 
 // <o> NRFX_TIMER_DEFAULT_CONFIG_FREQUENCY  - Timer frequency if in Timer mode
@@ -1814,14 +1797,14 @@
 
 // <e> NRFX_TWIM_ENABLED - nrfx_twim - TWIM peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_TWIM
-#define NRFX_TWIM_ENABLED 1
+#ifndef NRFX_TWIM_ENABLED
+#define NRFX_TWIM_ENABLED 0
 #endif
 // <q> NRFX_TWIM0_ENABLED  - Enable TWIM0 instance
 
 
-#ifdef CONFIG_I2C_0_NRF_TWIM
-#define NRFX_TWIM0_ENABLED 1
+#ifndef NRFX_TWIM0_ENABLED
+#define NRFX_TWIM0_ENABLED 0
 #endif
 
 // <o> NRFX_TWIM_DEFAULT_CONFIG_FREQUENCY  - Frequency
@@ -2039,14 +2022,14 @@
 
 // <e> NRFX_TWI_ENABLED - nrfx_twi - TWI peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_TWI
-#define NRFX_TWI_ENABLED 1
+#ifndef NRFX_TWI_ENABLED
+#define NRFX_TWI_ENABLED 0
 #endif
 // <q> NRFX_TWI0_ENABLED  - Enable TWI0 instance
 
 
-#ifdef CONFIG_I2C_0_NRF_TWI
-#define NRFX_TWI0_ENABLED 1
+#ifndef NRFX_TWI0_ENABLED
+#define NRFX_TWI0_ENABLED 0
 #endif
 
 
@@ -2137,12 +2120,12 @@
 
 // <e> NRFX_UARTE_ENABLED - nrfx_uarte - UARTE peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_UARTE
-#define NRFX_UARTE_ENABLED 1
+#ifndef NRFX_UARTE_ENABLED
+#define NRFX_UARTE_ENABLED 0
 #endif
 // <q> NRFX_UARTE0_ENABLED - Enable UARTE0 instance
-#ifdef CONFIG_NRFX_UARTE0
-#define NRFX_UARTE0_ENABLED 1
+#ifndef NRFX_UARTE0_ENABLED
+#define NRFX_UARTE0_ENABLED 0
 #endif
 
 // <o> NRFX_UARTE_DEFAULT_CONFIG_HWFC  - Hardware Flow Control
@@ -2258,12 +2241,12 @@
 
 // <e> NRFX_UART_ENABLED - nrfx_uart - UART peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_UART
-#define NRFX_UART_ENABLED 1
+#ifndef NRFX_UART_ENABLED
+#define NRFX_UART_ENABLED 0
 #endif
 // <q> NRFX_UART0_ENABLED - Enable UART0 instance
-#ifdef CONFIG_NRFX_UART
-#define NRFX_UART0_ENABLED 1
+#ifndef NRFX_UART0_ENABLED
+#define NRFX_UART0_ENABLED 0
 #endif
 
 // <o> NRFX_UART_DEFAULT_CONFIG_HWFC  - Hardware Flow Control
@@ -2379,8 +2362,8 @@
 
 // <e> NRFX_WDT_ENABLED - nrfx_wdt - WDT peripheral driver
 //==========================================================
-#ifdef CONFIG_NRFX_WDT
-#define NRFX_WDT_ENABLED 1
+#ifndef NRFX_WDT_ENABLED
+#define NRFX_WDT_ENABLED 0
 #endif
 // <o> NRFX_WDT_CONFIG_BEHAVIOUR  - WDT behavior in CPU SLEEP or HALT mode
 
