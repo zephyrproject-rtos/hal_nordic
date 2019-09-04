@@ -48,12 +48,24 @@
 #define NRFX_CLOCK_ENABLED 1
 #endif
 
+#ifdef CONFIG_NRFX_COMP
+#define NRFX_COMP_ENABLED 1
+#endif
+
 #ifdef CONFIG_NRFX_DPPI
 #define NRFX_DPPI_ENABLED 1
 #endif
 
 #ifdef CONFIG_NRFX_GPIOTE
 #define NRFX_GPIOTE_ENABLED 1
+#endif
+
+#ifdef CONFIG_NRFX_I2S
+#define NRFX_I2S_ENABLED 1
+#endif
+
+#ifdef CONFIG_NRFX_LPCOMP
+#define NRFX_LPCOMP_ENABLED 1
 #endif
 
 #ifdef CONFIG_NRFX_NFCT
@@ -64,8 +76,35 @@
 #define NRFX_NVMC_ENABLED 1
 #endif
 
+#ifdef CONFIG_NRFX_PDM
+#define NRFX_PDM_ENABLED 1
+#endif
+
+#ifdef CONFIG_NRFX_POWER
+#define NRFX_POWER_ENABLED 1
+#endif
+
 #ifdef CONFIG_NRFX_PPI
 #define NRFX_PPI_ENABLED 1
+#endif
+
+#ifdef CONFIG_NRFX_PRS
+#define NRFX_PRS_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_PRS_BOX_0
+#define NRFX_PRS_BOX_0_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_PRS_BOX_1
+#define NRFX_PRS_BOX_1_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_PRS_BOX_2
+#define NRFX_PRS_BOX_2_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_PRS_BOX_3
+#define NRFX_PRS_BOX_3_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_PRS_BOX_4
+#define NRFX_PRS_BOX_4_ENABLED 1
 #endif
 
 #ifdef CONFIG_NRFX_PWM
@@ -86,6 +125,14 @@
 
 #ifdef CONFIG_NRFX_QDEC
 #define NRFX_QDEC_ENABLED 1
+#endif
+
+#ifdef CONFIG_NRFX_QSPI
+#define NRFX_QSPI_ENABLED 1
+#endif
+
+#ifdef CONFIG_NRFX_RNG
+#define NRFX_RNG_ENABLED 1
 #endif
 
 #ifdef CONFIG_NRFX_RTC
@@ -176,8 +223,16 @@
 #define NRFX_SPIS3_ENABLED 1
 #endif
 
+#ifdef CONFIG_NRFX_SWI
+#define NRFX_SWI_ENABLED 1
+#endif
+
 #ifdef CONFIG_NRFX_SYSTICK
 #define NRFX_SYSTICK_ENABLED 1
+#endif
+
+#ifdef CONFIG_NRFX_TEMP
+#define NRFX_TEMP_ENABLED 1
 #endif
 
 #ifdef CONFIG_NRFX_TIMER
@@ -223,6 +278,22 @@
 #endif
 #ifdef CONFIG_NRFX_TWIM3
 #define NRFX_TWIM3_ENABLED 1
+#endif
+
+#ifdef CONFIG_NRFX_TWIS
+#define NRFX_TWIS_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_TWIS0
+#define NRFX_TWIS0_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_TWIS1
+#define NRFX_TWIS1_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_TWIS2
+#define NRFX_TWIS2_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_TWIS3
+#define NRFX_TWIS3_ENABLED 1
 #endif
 
 #ifdef CONFIG_NRFX_UART
