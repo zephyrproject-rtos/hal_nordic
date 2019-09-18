@@ -328,6 +328,21 @@
 #endif
 
 
+/*
+ * For chips with TrustZone support, MDK provides CMSIS-Core peripheral
+ * accessing symbols in two flavors, with secure and non-secure base address
+ * mappings. Their names contain the suffix _S or _NS, respectively.
+ * Because nrfx HALs and drivers require these peripheral accessing symbols
+ * without any suffixes, the following macro is provided that will translate
+ * their names according to the kind of the target that is built.
+ */
+#if defined(NRF_TRUSTZONE_NONSECURE)
+#define NRF_PERIPH(P) P##_NS
+#else
+#define NRF_PERIPH(P) P##_S
+#endif
+
+
 #if defined(NRF51)
     #include <nrfx_config_nrf51.h>
 #elif defined(NRF52810_XXAA)
