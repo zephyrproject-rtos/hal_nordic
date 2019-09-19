@@ -2,7 +2,7 @@ zephyr_include_directories(.)
 zephyr_include_directories(rsch)
 zephyr_include_directories(rsch/raal)
 
-zephyr_sources(
+zephyr_library_sources(
   nrf_802154_ack_pending_bit.c
   nrf_802154_core_hooks.c
   nrf_802154_core.c
