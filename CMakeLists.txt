@@ -5,7 +5,6 @@ endif()
 if(CONFIG_HAS_NRFX)
   zephyr_include_directories(nrfx)
   zephyr_include_directories(nrfx/drivers/include)
-  zephyr_include_directories(nrfx/hal)
   zephyr_include_directories(nrfx/mdk)
   zephyr_include_directories(.)
 
