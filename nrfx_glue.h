@@ -132,8 +132,6 @@ extern "C" {
 
 //------------------------------------------------------------------------------
 
-#include <kernel.h>
-
 /**
  * @brief When set to a non-zero value, this macro specifies that
  *        @ref nrfx_coredep_delay_us uses a precise DWT-based solution.
