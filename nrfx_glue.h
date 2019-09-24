@@ -240,14 +240,14 @@ extern "C" {
 #define NRFX_PPI_CHANNELS_USED  (NRFX_PPI_CHANNELS_USED_BY_BT_CTLR | \
                                  NRFX_PPI_CHANNELS_USED_BY_PWM_SW)
 
-#if IS_ENABLED(CONFIG_BT_CTLR)
+#if defined(CONFIG_BT_CTLR)
 extern const u32_t z_bt_ctlr_used_nrf_ppi_channels;
 #define NRFX_PPI_CHANNELS_USED_BY_BT_CTLR   z_bt_ctlr_used_nrf_ppi_channels
 #else
 #define NRFX_PPI_CHANNELS_USED_BY_BT_CTLR   0
 #endif
 
-#if IS_ENABLED(CONFIG_PWM_NRF5_SW)
+#if defined(CONFIG_PWM_NRF5_SW)
 #define NRFX_PPI_CHANNELS_USED_BY_PWM_SW \
     (BIT_MASK(DT_INST_0_NORDIC_NRF_SW_PWM_CHANNEL_COUNT * 2) \
          << DT_INST_0_NORDIC_NRF_SW_PWM_PPI_BASE)
@@ -258,7 +258,7 @@ extern const u32_t z_bt_ctlr_used_nrf_ppi_channels;
 /** @brief Bitmask that defines PPI groups that are reserved for use outside of the nrfx library. */
 #define NRFX_PPI_GROUPS_USED    NRFX_PPI_GROUPS_USED_BY_BT_CTLR
 
-#if IS_ENABLED(CONFIG_BT_CTLR)
+#if defined(CONFIG_BT_CTLR)
 extern const u32_t z_bt_ctlr_used_nrf_ppi_groups;
 #define NRFX_PPI_GROUPS_USED_BY_BT_CTLR     z_bt_ctlr_used_nrf_ppi_groups
 #else
