@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018, Nordic Semiconductor ASA
+ * Copyright (c) 2018 - 2019, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -95,15 +95,9 @@
 
 #define NRF_GPIOTE  NRF_GPIOTE1_NS
 
-// Fixup for the nrfx_gpiote driver.
-#define GPIOTE_IRQn GPIOTE1_IRQn
-
 #else
 
 #define NRF_GPIOTE  NRF_GPIOTE0_S
-
-// Fixup for the nrfx_gpiote driver.
-#define GPIOTE_IRQn GPIOTE0_IRQn
 
 #endif // defined(NRF_TRUSTZONE_NONSECURE)
 
