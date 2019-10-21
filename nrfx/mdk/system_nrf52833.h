@@ -30,8 +30,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef SYSTEM_NRF52840_H
-#define SYSTEM_NRF52840_H
+#ifndef SYSTEM_NRF52833_H
+#define SYSTEM_NRF52833_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,4 +43,4 @@ extern "C" {
 }
 #endif
 
-#endif /* SYSTEM_NRF52840_H */
+#endif /* SYSTEM_NRF52833_H */

@@ -66,4 +66,11 @@ if(CONFIG_HAS_NRFX)
   zephyr_library_sources_ifdef(CONFIG_NRFX_UARTE   nrfx/drivers/src/nrfx_uarte.c)
   zephyr_library_sources_ifdef(CONFIG_NRFX_USBD    nrfx/drivers/src/nrfx_usbd.c)
   zephyr_library_sources_ifdef(CONFIG_NRFX_WDT     nrfx/drivers/src/nrfx_wdt.c)
+
+  if(CONFIG_NRFX_TWI OR CONFIG_NRFX_TWIM)
+    zephyr_library_sources(nrfx/drivers/src/nrfx_twi_twim.c)
+    # Temporary workaround for missing hal/ in the inclusion of nrf_gpio.h
+    # in the above file.
+    zephyr_include_directories(nrfx/hal)
+  endif()
 endif()

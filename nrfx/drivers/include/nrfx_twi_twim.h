@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 - 2019, Nordic Semiconductor ASA
+ * Copyright (c) 2019, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,12 +29,19 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NRFX_H__
-#define NRFX_H__
+#ifndef NRFX_TWI_TWIM_H
+#define NRFX_TWI_TWIM_H
 
-#include <nrfx_config.h>
-#include <drivers/nrfx_common.h>
-#include <nrfx_glue.h>
-#include <drivers/nrfx_errors.h>
+#include <nrfx.h>
 
-#endif // NRFX_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+nrfx_err_t nrfx_twi_twim_bus_recover(uint32_t scl_pin, uint32_t sda_pin);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // NRFX_TWI_TWIM_H
