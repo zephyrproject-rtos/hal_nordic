@@ -145,7 +145,9 @@ extern "C" {
  *
  * @param us_time Number of microseconds to wait.
  */
-#define NRFX_DELAY_US(us_time)  k_busy_wait(us_time)
+#define NRFX_DELAY_US(us_time)  nrfx_busy_wait(us_time)
+/* This is a k_busy_wait wrapper, added to avoid the inclusion of kernel.h */
+void nrfx_busy_wait(u32_t usec_to_wait);
 
 //------------------------------------------------------------------------------
 
