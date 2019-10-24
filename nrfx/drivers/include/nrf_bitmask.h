@@ -57,14 +57,15 @@ extern "C" {
  * @param[in] bit    Bit index.
  * @param[in] p_mask Pointer to mask with bit fields.
  *
- * @return 0 if bit is not set, positive value otherwise.
+ * @retval true   If the specified bit is set.
+ * @retval false  If the specified bit is cleared.
  */
-__STATIC_INLINE uint32_t nrf_bitmask_bit_is_set(uint32_t bit, void const * p_mask)
+__STATIC_INLINE bool nrf_bitmask_bit_is_set(uint32_t bit, void const * p_mask)
 {
     uint8_t const * p_mask8 = (uint8_t const *)p_mask;
     uint32_t byte_idx = BITMASK_BYTE_GET(bit);
     bit = BITMASK_RELBIT_GET(bit);
-    return (1 << bit) & p_mask8[byte_idx];
+    return ((1U << bit) & p_mask8[byte_idx]) != 0U;
 }
 
 /**

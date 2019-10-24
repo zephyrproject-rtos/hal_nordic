@@ -205,10 +205,12 @@ typedef void (*nrfx_gpiote_evt_handler_t)(nrfx_gpiote_pin_t pin, nrf_gpiote_pola
  * @details Only static configuration is supported to prevent the shared
  * resource being customized by the initiator.
  *
+ * @param[in] interrupt_priority Interrupt priority.
+ *
  * @retval NRFX_SUCCESS             Initialization was successful.
  * @retval NRFX_ERROR_INVALID_STATE The driver was already initialized.
  */
-nrfx_err_t nrfx_gpiote_init(void);
+nrfx_err_t nrfx_gpiote_init(uint8_t interrupt_priority);
 
 /**
  * @brief Function for checking if the GPIOTE module is initialized.
@@ -294,7 +296,7 @@ void nrfx_gpiote_out_task_disable(nrfx_gpiote_pin_t pin);
  *
  * @return OUT task associated with the specified output pin.
  */
-nrf_gpiote_tasks_t nrfx_gpiote_out_task_get(nrfx_gpiote_pin_t pin);
+nrf_gpiote_task_t nrfx_gpiote_out_task_get(nrfx_gpiote_pin_t pin);
 
 /**
  * @brief Function for getting the address of the OUT task for the specified output pin.
@@ -316,7 +318,7 @@ uint32_t nrfx_gpiote_out_task_addr_get(nrfx_gpiote_pin_t pin);
  *
  * @return SET task associated with the specified output pin.
  */
-nrf_gpiote_tasks_t nrfx_gpiote_set_task_get(nrfx_gpiote_pin_t pin);
+nrf_gpiote_task_t nrfx_gpiote_set_task_get(nrfx_gpiote_pin_t pin);
 
 /**
  * @brief Function for getting the address of the SET task for the specified output pin.
@@ -339,7 +341,7 @@ uint32_t nrfx_gpiote_set_task_addr_get(nrfx_gpiote_pin_t pin);
  *
  * @return CLR task associated with the specified output pin.
  */
-nrf_gpiote_tasks_t nrfx_gpiote_clr_task_get(nrfx_gpiote_pin_t pin);
+nrf_gpiote_task_t nrfx_gpiote_clr_task_get(nrfx_gpiote_pin_t pin);
 
 /**
  * @brief Function for getting the address of the SET task for the specified output pin.
@@ -427,7 +429,7 @@ bool nrfx_gpiote_in_is_set(nrfx_gpiote_pin_t pin);
  *
  * @return Event associated with the specified input pin.
  */
-nrf_gpiote_events_t nrfx_gpiote_in_event_get(nrfx_gpiote_pin_t pin);
+nrf_gpiote_event_t nrfx_gpiote_in_event_get(nrfx_gpiote_pin_t pin);
 
 /**
  * @brief Function for getting the address of a GPIOTE input pin event.
