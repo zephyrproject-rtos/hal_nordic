@@ -64,6 +64,10 @@
 #define NRFX_I2S_ENABLED 1
 #endif
 
+#ifdef CONFIG_NRFX_IPC
+#define NRFX_IPC_ENABLED 1
+#endif
+
 #ifdef CONFIG_NRFX_LPCOMP
 #define NRFX_LPCOMP_ENABLED 1
 #endif
@@ -328,6 +332,12 @@
 
 #ifdef CONFIG_NRFX_WDT
 #define NRFX_WDT_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_WDT0
+#define NRFX_WDT0_ENABLED 1
+#endif
+#ifdef CONFIG_NRFX_WDT1
+#define NRFX_WDT1_ENABLED 1
 #endif
 
 
