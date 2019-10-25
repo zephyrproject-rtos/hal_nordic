@@ -239,7 +239,7 @@ static uint32_t overflow_counter_get(void)
         bool increasing = false;
 
         // Check if interrupt was handled already.
-        if (nrf_rtc_event_pending(NRF_802154_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW))
+        if (nrf_rtc_event_check(NRF_802154_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW))
         {
             m_offset_counter++;
             increasing = true;
@@ -274,8 +274,8 @@ static uint32_t overflow_counter_get(void)
     else
     {
         // Failed to acquire mutex.
-        if (nrf_rtc_event_pending(NRF_802154_RTC_INSTANCE,
-                                  NRF_RTC_EVENT_OVERFLOW) || (m_offset_counter & 0x01))
+        if (nrf_rtc_event_check(NRF_802154_RTC_INSTANCE,
+                                NRF_RTC_EVENT_OVERFLOW) || (m_offset_counter & 0x01))
         {
             // Lower priority context is currently incrementing m_offset_counter variable.
             offset = (m_offset_counter + 2) / 2;
@@ -499,7 +499,7 @@ void nrf_802154_lp_timer_start(uint32_t t0, uint32_t dt)
 
 bool nrf_802154_lp_timer_is_running(void)
 {
-    return nrf_rtc_int_is_enabled(NRF_802154_RTC_INSTANCE, m_cmp_ch[LP_TIMER_CHANNEL].int_mask);
+    return nrf_rtc_int_enable_check(NRF_802154_RTC_INSTANCE, m_cmp_ch[LP_TIMER_CHANNEL].int_mask);
 }
 
 void nrf_802154_lp_timer_stop(void)
@@ -557,7 +557,7 @@ void nrf_802154_clock_lfclk_ready(void)
 void NRF_802154_RTC_IRQ_HANDLER(void)
 {
     // Handle overflow.
-    if (nrf_rtc_event_pending(NRF_802154_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW))
+    if (nrf_rtc_event_check(NRF_802154_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW))
     {
         // Disable OVERFLOW interrupt to prevent lock-up in interrupt context while mutex is locked from lower priority context
         // and OVERFLOW event flag is stil up.
@@ -570,14 +570,14 @@ void NRF_802154_RTC_IRQ_HANDLER(void)
     }
 
     // Handle compare match.
-    if (nrf_rtc_int_is_enabled(NRF_802154_RTC_INSTANCE, m_cmp_ch[LP_TIMER_CHANNEL].int_mask) &&
-        nrf_rtc_event_pending(NRF_802154_RTC_INSTANCE, m_cmp_ch[LP_TIMER_CHANNEL].event))
+    if (nrf_rtc_int_enable_check(NRF_802154_RTC_INSTANCE, m_cmp_ch[LP_TIMER_CHANNEL].int_mask) &&
+        nrf_rtc_event_check(NRF_802154_RTC_INSTANCE, m_cmp_ch[LP_TIMER_CHANNEL].event))
     {
         handle_compare_match(false);
     }
 
-    if (nrf_rtc_int_is_enabled(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].int_mask) &&
-        nrf_rtc_event_pending(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].event))
+    if (nrf_rtc_int_enable_check(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].int_mask) &&
+        nrf_rtc_event_check(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].event))
     {
         nrf_rtc_event_clear(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].event);
         nrf_rtc_event_disable(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].event_mask);

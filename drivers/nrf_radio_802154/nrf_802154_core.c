@@ -386,7 +386,7 @@ static bool psdu_is_being_received(void)
 #if NRF_802154_DISABLE_BCC_MATCHING
     nrf_timer_task_trigger(NRF_802154_COUNTER_TIMER_INSTANCE,
                            nrf_timer_capture_task_get(NRF_TIMER_CC_CHANNEL0));
-    uint32_t counter = nrf_timer_cc_read(NRF_802154_COUNTER_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL0);
+    uint32_t counter = nrf_timer_cc_get(NRF_802154_COUNTER_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL0);
 
     assert(counter <= 1);
 
@@ -738,24 +738,28 @@ static void ppis_for_egu_and_ramp_up_set(nrf_radio_task_t ramp_up_task, bool sel
 {
     if (self_disabling)
     {
-        nrf_ppi_channel_and_fork_endpoint_setup(PPI_EGU_RAMP_UP,
+        nrf_ppi_channel_and_fork_endpoint_setup(NRF_PPI,
+                                                PPI_EGU_RAMP_UP,
                                                 (uint32_t)nrf_egu_event_address_get(
                                                     NRF_802154_SWI_EGU_INSTANCE,
                                                     EGU_EVENT),
                                                 (uint32_t)nrf_radio_task_address_get(ramp_up_task),
                                                 (uint32_t)nrf_ppi_task_address_get(
+                                                    NRF_PPI,
                                                     PPI_CHGRP0_DIS_TASK));
     }
     else
     {
-        nrf_ppi_channel_endpoint_setup(PPI_EGU_RAMP_UP,
+        nrf_ppi_channel_endpoint_setup(NRF_PPI,
+                                       PPI_EGU_RAMP_UP,
                                        (uint32_t)nrf_egu_event_address_get(
                                            NRF_802154_SWI_EGU_INSTANCE,
                                            EGU_EVENT),
                                        (uint32_t)nrf_radio_task_address_get(ramp_up_task));
     }
 
-    nrf_ppi_channel_endpoint_setup(PPI_DISABLED_EGU,
+    nrf_ppi_channel_endpoint_setup(NRF_PPI,
+                                   PPI_DISABLED_EGU,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_DISABLED),
                                    (uint32_t)nrf_egu_task_address_get(
                                        NRF_802154_SWI_EGU_INSTANCE,
@@ -763,11 +767,11 @@ static void ppis_for_egu_and_ramp_up_set(nrf_radio_task_t ramp_up_task, bool sel
 
     if (self_disabling)
     {
-        nrf_ppi_channel_include_in_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
+        nrf_ppi_channel_include_in_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
     }
 
-    nrf_ppi_channel_enable(PPI_EGU_RAMP_UP);
-    nrf_ppi_channel_enable(PPI_DISABLED_EGU);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_DISABLED_EGU);
 }
 
 /** Configure FEM to set LNA at appropriate time. */
@@ -794,7 +798,7 @@ static void fem_for_lna_reset(nrf_timer_short_mask_t timer_short_mask)
 {
     nrf_fem_control_ppi_disable(NRF_FEM_CONTROL_LNA_PIN);
     nrf_fem_control_timer_reset(NRF_FEM_CONTROL_LNA_PIN, timer_short_mask);
-    nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_TIMER_START);
 }
 
 /** Configure FEM to set PA at appropriate time. */
@@ -860,11 +864,11 @@ static void fem_for_tx_reset(bool disable_ppi_egu_timer_start)
                                 (nrf_timer_short_mask_t)(NRF_TIMER_SHORT_COMPARE0_STOP_MASK |
                                                          NRF_TIMER_SHORT_COMPARE1_STOP_MASK));
     nrf_fem_control_ppi_fork_clear(NRF_FEM_CONTROL_ANY_PIN, PPI_CCAIDLE_FEM);
-    nrf_ppi_channel_disable(PPI_CCAIDLE_FEM);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_CCAIDLE_FEM);
 
     if (disable_ppi_egu_timer_start)
     {
-        nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
+        nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_TIMER_START);
     }
 }
 
@@ -872,7 +876,7 @@ static void fem_for_tx_reset(bool disable_ppi_egu_timer_start)
 static void rx_restart(bool set_shorts)
 {
     // Disable PPIs on DISABLED event to control TIMER.
-    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
 
     if (set_shorts)
     {
@@ -889,7 +893,7 @@ static void rx_restart(bool set_shorts)
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
     // Enable self-disabled PPI or PPI disabled by CRCOK
-    nrf_ppi_channel_enable(PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_RAMP_UP);
 
     rx_flags_clear();
 #if !NRF_802154_DISABLE_BCC_MATCHING
@@ -899,7 +903,7 @@ static void rx_restart(bool set_shorts)
 
     // Enable PPIs on DISABLED event and clear event to detect if PPI worked
     nrf_egu_event_clear(NRF_802154_SWI_EGU_INSTANCE, EGU_EVENT);
-    nrf_ppi_channel_enable(PPI_DISABLED_EGU);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_DISABLED_EGU);
 
     // Prepare the timer coordinator to get a precise timestamp of the CRCOK event.
     nrf_802154_timer_coord_timestamp_prepare(
@@ -967,24 +971,24 @@ static void rx_terminate(void)
 {
     uint32_t ints_to_disable = 0;
 
-    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
-    nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_TIMER_START);
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_disable(PPI_CRCERROR_CLEAR);
-    nrf_ppi_channel_disable(PPI_CRCOK_DIS_PPI);
-    nrf_ppi_channel_disable(PPI_ADDRESS_COUNTER_COUNT);
-    nrf_ppi_channel_disable(PPI_CRCERROR_COUNTER_CLEAR);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_CRCERROR_CLEAR);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_CRCOK_DIS_PPI);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_ADDRESS_COUNTER_COUNT);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_CRCERROR_COUNTER_CLEAR);
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
     nrf_fem_control_ppi_disable(NRF_FEM_CONTROL_LNA_PIN);
 
-    nrf_ppi_channel_remove_from_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    nrf_ppi_channel_remove_from_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
 
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_fork_endpoint_setup(PPI_EGU_TIMER_START, 0);
+    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_TIMER_START, 0);
 #else // NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_fork_endpoint_setup(PPI_EGU_RAMP_UP, 0);
+    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_RAMP_UP, 0);
 #endif  // NRF_802154_DISABLE_BCC_MATCHING
 
     // Anomaly 78: use SHUTDOWN instead of STOP and CLEAR.
@@ -1019,19 +1023,19 @@ static void tx_ack_terminate(void)
 {
     uint32_t ints_to_disable = 0;
 
-    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
-    nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_TIMER_START);
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_disable(PPI_CRCERROR_CLEAR);
-    nrf_ppi_channel_disable(PPI_CRCOK_DIS_PPI);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_CRCERROR_CLEAR);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_CRCOK_DIS_PPI);
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
     nrf_fem_control_ppi_disable(NRF_FEM_CONTROL_PA_PIN);
 
-    nrf_ppi_channel_remove_from_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    nrf_ppi_channel_remove_from_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
 #if !NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_fork_endpoint_setup(PPI_EGU_RAMP_UP, 0);
+    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_RAMP_UP, 0);
 #endif // !NRF_802154_DISABLE_BCC_MATCHING
 
     // Anomaly 78: use SHUTDOWN instead of STOP and CLEAR.
@@ -1065,13 +1069,13 @@ static void tx_terminate(void)
 {
     uint32_t ints_to_disable;
 
-    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
 
     fem_for_tx_reset(true);
 
-    nrf_ppi_channel_remove_from_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
-    nrf_ppi_fork_endpoint_setup(PPI_EGU_RAMP_UP, 0);
+    nrf_ppi_channel_remove_from_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_RAMP_UP, 0);
 
     if (timeslot_is_granted())
     {
@@ -1092,13 +1096,13 @@ static void tx_terminate(void)
 /** Terminate RX ACK procedure. */
 static void rx_ack_terminate(void)
 {
-    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
 
     fem_for_lna_reset(NRF_TIMER_SHORT_COMPARE2_STOP_MASK);
 
-    nrf_ppi_channel_remove_from_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
-    nrf_ppi_fork_endpoint_setup(PPI_EGU_RAMP_UP, 0);
+    nrf_ppi_channel_remove_from_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_RAMP_UP, 0);
 
     if (timeslot_is_granted())
     {
@@ -1113,13 +1117,13 @@ static void rx_ack_terminate(void)
 /** Terminate ED procedure. */
 static void ed_terminate(void)
 {
-    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
 
     fem_for_lna_reset(NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
 
-    nrf_ppi_channel_remove_from_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
-    nrf_ppi_fork_endpoint_setup(PPI_EGU_RAMP_UP, 0);
+    nrf_ppi_channel_remove_from_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_RAMP_UP, 0);
 
     if (timeslot_is_granted())
     {
@@ -1133,13 +1137,13 @@ static void ed_terminate(void)
 /** Terminate CCA procedure. */
 static void cca_terminate(void)
 {
-    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
 
     fem_for_lna_reset(NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
 
-    nrf_ppi_channel_remove_from_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
-    nrf_ppi_fork_endpoint_setup(PPI_EGU_RAMP_UP, 0);
+    nrf_ppi_channel_remove_from_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_RAMP_UP, 0);
 
     if (timeslot_is_granted())
     {
@@ -1153,8 +1157,8 @@ static void cca_terminate(void)
 /** Terminate Continuous Carrier procedure. */
 static void continuous_carrier_terminate(void)
 {
-    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
 
     fem_for_pa_reset();
 
@@ -1410,17 +1414,17 @@ static void rx_init(bool disabled_was_triggered)
     nrf_timer_shorts_enable(NRF_802154_TIMER_INSTANCE,
                             NRF_TIMER_SHORT_COMPARE0_STOP_MASK |
                             NRF_TIMER_SHORT_COMPARE2_STOP_MASK);
-    nrf_timer_cc_write(NRF_802154_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL0, lna_target_time);
-    nrf_timer_cc_write(NRF_802154_TIMER_INSTANCE,
-                       NRF_TIMER_CC_CHANNEL1,
-                       lna_target_time + ACK_IFS - TXRU_TIME - EVENT_LAT);
-    nrf_timer_cc_write(NRF_802154_TIMER_INSTANCE,
-                       NRF_TIMER_CC_CHANNEL2,
-                       lna_target_time + ACK_IFS - TXRU_TIME - EVENT_LAT + pa_target_time);
+    nrf_timer_cc_set(NRF_802154_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL0, lna_target_time);
+    nrf_timer_cc_set(NRF_802154_TIMER_INSTANCE,
+                     NRF_TIMER_CC_CHANNEL1,
+                     lna_target_time + ACK_IFS - TXRU_TIME - EVENT_LAT);
+    nrf_timer_cc_set(NRF_802154_TIMER_INSTANCE,
+                     NRF_TIMER_CC_CHANNEL2,
+                     lna_target_time + ACK_IFS - TXRU_TIME - EVENT_LAT + pa_target_time);
 
 #if NRF_802154_DISABLE_BCC_MATCHING
     nrf_timer_shorts_enable(NRF_802154_COUNTER_TIMER_INSTANCE, NRF_TIMER_SHORT_COMPARE1_STOP_MASK);
-    nrf_timer_cc_write(NRF_802154_COUNTER_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL1, 1);
+    nrf_timer_cc_set(NRF_802154_COUNTER_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL1, 1);
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
     // Clr event EGU
@@ -1428,12 +1432,14 @@ static void rx_init(bool disabled_was_triggered)
 
     // Set PPIs
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_endpoint_setup(PPI_EGU_RAMP_UP,
+    nrf_ppi_channel_endpoint_setup(NRF_PPI,
+                                   PPI_EGU_RAMP_UP,
                                    (uint32_t)nrf_egu_event_address_get(
                                        NRF_802154_SWI_EGU_INSTANCE,
                                        EGU_EVENT),
                                    (uint32_t)nrf_radio_task_address_get(NRF_RADIO_TASK_RXEN));
-    nrf_ppi_channel_and_fork_endpoint_setup(PPI_EGU_TIMER_START,
+    nrf_ppi_channel_and_fork_endpoint_setup(NRF_PPI,
+                                            PPI_EGU_TIMER_START,
                                             (uint32_t)nrf_egu_event_address_get(
                                                 NRF_802154_SWI_EGU_INSTANCE,
                                                 EGU_EVENT),
@@ -1444,24 +1450,31 @@ static void rx_init(bool disabled_was_triggered)
                                                 NRF_802154_COUNTER_TIMER_INSTANCE,
                                                 NRF_TIMER_TASK_START));
     // Anomaly 78: use SHUTDOWN instead of CLEAR.
-    nrf_ppi_channel_endpoint_setup(PPI_CRCERROR_CLEAR,
+    nrf_ppi_channel_endpoint_setup(NRF_PPI,
+                                   PPI_CRCERROR_CLEAR,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_CRCERROR),
                                    (uint32_t)nrf_timer_task_address_get(
                                        NRF_802154_TIMER_INSTANCE,
                                        NRF_TIMER_TASK_SHUTDOWN));
-    nrf_ppi_channel_endpoint_setup(PPI_CRCOK_DIS_PPI,
+    nrf_ppi_channel_endpoint_setup(NRF_PPI,
+                                   PPI_CRCOK_DIS_PPI,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_CRCOK),
-                                   (uint32_t)nrf_ppi_task_address_get(PPI_CHGRP0_DIS_TASK));
+                                   (uint32_t)nrf_ppi_task_address_get(
+                                       NRF_PPI,
+                                       PPI_CHGRP0_DIS_TASK));
 #else // NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_and_fork_endpoint_setup(PPI_EGU_RAMP_UP,
+    nrf_ppi_channel_and_fork_endpoint_setup(NRF_PPI,
+                                            PPI_EGU_RAMP_UP,
                                             (uint32_t)nrf_egu_event_address_get(
                                                 NRF_802154_SWI_EGU_INSTANCE,
                                                 EGU_EVENT),
                                             (uint32_t)nrf_radio_task_address_get(
                                                 NRF_RADIO_TASK_RXEN),
                                             (uint32_t)nrf_ppi_task_address_get(
+                                                NRF_PPI,
                                                 PPI_CHGRP0_DIS_TASK));
-    nrf_ppi_channel_endpoint_setup(PPI_EGU_TIMER_START,
+    nrf_ppi_channel_endpoint_setup(NRF_PPI,
+                                   PPI_EGU_TIMER_START,
                                    (uint32_t)nrf_egu_event_address_get(
                                        NRF_802154_SWI_EGU_INSTANCE,
                                        EGU_EVENT),
@@ -1469,36 +1482,39 @@ static void rx_init(bool disabled_was_triggered)
                                        NRF_802154_TIMER_INSTANCE,
                                        NRF_TIMER_TASK_START));
 #endif // NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_include_in_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    nrf_ppi_channel_include_in_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
 
-    nrf_ppi_channel_endpoint_setup(PPI_DISABLED_EGU,
+    nrf_ppi_channel_endpoint_setup(NRF_PPI,
+                                   PPI_DISABLED_EGU,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_DISABLED),
                                    (uint32_t)nrf_egu_task_address_get(
                                        NRF_802154_SWI_EGU_INSTANCE,
                                        EGU_TASK));
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_endpoint_setup(PPI_ADDRESS_COUNTER_COUNT,
+    nrf_ppi_channel_endpoint_setup(NRF_PPI,
+                                   PPI_ADDRESS_COUNTER_COUNT,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_ADDRESS),
                                    (uint32_t)nrf_timer_task_address_get(
                                        NRF_802154_COUNTER_TIMER_INSTANCE,
                                        NRF_TIMER_TASK_COUNT));
     // Anomaly 78: use SHUTDOWN instead of CLEAR.
-    nrf_ppi_channel_endpoint_setup(PPI_CRCERROR_COUNTER_CLEAR,
+    nrf_ppi_channel_endpoint_setup(NRF_PPI,
+                                   PPI_CRCERROR_COUNTER_CLEAR,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_CRCERROR),
                                    (uint32_t)nrf_timer_task_address_get(
                                        NRF_802154_COUNTER_TIMER_INSTANCE,
                                        NRF_TIMER_TASK_SHUTDOWN));
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
-    nrf_ppi_channel_enable(PPI_EGU_RAMP_UP);
-    nrf_ppi_channel_enable(PPI_EGU_TIMER_START);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_TIMER_START);
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_enable(PPI_CRCERROR_CLEAR);
-    nrf_ppi_channel_enable(PPI_CRCOK_DIS_PPI);
-    nrf_ppi_channel_enable(PPI_ADDRESS_COUNTER_COUNT);
-    nrf_ppi_channel_enable(PPI_CRCERROR_COUNTER_CLEAR);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_CRCERROR_CLEAR);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_CRCOK_DIS_PPI);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_ADDRESS_COUNTER_COUNT);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_CRCERROR_COUNTER_CLEAR);
 #endif // NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_enable(PPI_DISABLED_EGU);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_DISABLED_EGU);
 
     // Configure the timer coordinator to get a timestamp of the CRCOK event.
     nrf_802154_timer_coord_timestamp_prepare(
@@ -2000,13 +2016,14 @@ static void irq_crcok_state_rx(void)
 
 #if NRF_802154_DISABLE_BCC_MATCHING
             // Disable PPIs for PSDU detection
-            nrf_ppi_fork_endpoint_setup(PPI_EGU_TIMER_START, 0);
-            nrf_ppi_channel_disable(PPI_ADDRESS_COUNTER_COUNT);
-            nrf_ppi_channel_disable(PPI_CRCERROR_COUNTER_CLEAR);
+            nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_TIMER_START, 0);
+            nrf_ppi_channel_disable(NRF_PPI, PPI_ADDRESS_COUNTER_COUNT);
+            nrf_ppi_channel_disable(NRF_PPI, PPI_CRCERROR_COUNTER_CLEAR);
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
             // Set PPIs
-            nrf_ppi_channel_endpoint_setup(PPI_TIMER_TX_ACK,
+            nrf_ppi_channel_endpoint_setup(NRF_PPI,
+                                           PPI_TIMER_TX_ACK,
                                            (uint32_t)nrf_timer_event_address_get(
                                                NRF_802154_TIMER_INSTANCE,
                                                NRF_TIMER_EVENT_COMPARE1),
@@ -2014,7 +2031,7 @@ static void irq_crcok_state_rx(void)
                                                NRF_RADIO_TASK_TXEN));
 
 #if !NRF_802154_DISABLE_BCC_MATCHING
-            nrf_ppi_channel_enable(PPI_TIMER_TX_ACK);
+            nrf_ppi_channel_enable(NRF_PPI, PPI_TIMER_TX_ACK);
 #endif // !NRF_802154_DISABLE_BCC_MATCHING
 
             // Set FEM PPIs
@@ -2023,8 +2040,8 @@ static void irq_crcok_state_rx(void)
 
             // Detect if PPI worked (timer is counting or TIMER event is marked)
             nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_CAPTURE3);
-            if (nrf_timer_cc_read(NRF_802154_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL3) <
-                nrf_timer_cc_read(NRF_802154_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL1))
+            if (nrf_timer_cc_get(NRF_802154_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL3) <
+                nrf_timer_cc_get(NRF_802154_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL1))
             {
                 wait_for_phyend = true;
             }
@@ -2084,7 +2101,7 @@ static void irq_crcok_state_rx(void)
                 mp_current_rx_buffer->free = false;
 
 #if !NRF_802154_DISABLE_BCC_MATCHING
-                nrf_ppi_channel_disable(PPI_TIMER_TX_ACK);
+                nrf_ppi_channel_disable(NRF_PPI, PPI_TIMER_TX_ACK);
 #endif // !NRF_802154_DISABLE_BCC_MATCHING
 
                 // RX uses the same peripherals as TX_ACK until RADIO ints are updated.
@@ -2156,7 +2173,7 @@ static void irq_phyend_state_tx_ack(void)
     uint32_t  ints_to_disable = 0;
 
     // Disable PPIs on DISABLED event to control TIMER.
-    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
 
     // Set FEM PPIs
     nrf_fem_control_ppi_disable(NRF_FEM_CONTROL_PA_PIN);
@@ -2203,30 +2220,32 @@ static void irq_phyend_state_tx_ack(void)
 #error Invalid PPI configuration
 #endif
     // Anomaly 78: use SHUTDOWN instead of CLEAR.
-    nrf_ppi_channel_endpoint_setup(PPI_CRCERROR_CLEAR,
+    nrf_ppi_channel_endpoint_setup(NRF_PPI,
+                                   PPI_CRCERROR_CLEAR,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_CRCERROR),
                                    (uint32_t)nrf_timer_task_address_get(
                                        NRF_802154_TIMER_INSTANCE,
                                        NRF_TIMER_TASK_SHUTDOWN));
 
-    nrf_ppi_fork_endpoint_setup(PPI_EGU_TIMER_START,
+    nrf_ppi_fork_endpoint_setup(NRF_PPI,
+                                PPI_EGU_TIMER_START,
                                 (uint32_t)nrf_timer_task_address_get(
                                     NRF_802154_COUNTER_TIMER_INSTANCE,
                                     NRF_TIMER_TASK_START));
 #else // NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_disable(PPI_TIMER_TX_ACK);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_TIMER_TX_ACK);
 #endif  // NRF_802154_DISABLE_BCC_MATCHING
 
     // Enable PPI disabled by CRCOK
-    nrf_ppi_channel_enable(PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_RAMP_UP);
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_enable(PPI_ADDRESS_COUNTER_COUNT);
-    nrf_ppi_channel_enable(PPI_CRCERROR_COUNTER_CLEAR);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_ADDRESS_COUNTER_COUNT);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_CRCERROR_COUNTER_CLEAR);
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
     // Enable PPIs on DISABLED event and clear event to detect if PPI worked
     nrf_egu_event_clear(NRF_802154_SWI_EGU_INSTANCE, EGU_EVENT);
-    nrf_ppi_channel_enable(PPI_DISABLED_EGU);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_DISABLED_EGU);
 
     // Prepare the timer coordinator to get a precise timestamp of the CRCOK event.
     nrf_802154_timer_coord_timestamp_prepare(
@@ -2277,7 +2296,7 @@ static void irq_phyend_state_tx_frame(void)
                                   (SHORTS_RX_ACK | SHORTS_RX_FREE_BUFFER) : SHORTS_RX_ACK;
 
         // Disable EGU PPI to prevent unsynchronized PPIs
-        nrf_ppi_channel_disable(PPI_DISABLED_EGU);
+        nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
 
         nrf_radio_shorts_set(shorts);
 
@@ -2304,22 +2323,24 @@ static void irq_phyend_state_tx_frame(void)
         // Set PPIs necessary in rx_ack state
         fem_for_lna_set(NRF_TIMER_CC_CHANNEL2, NRF_TIMER_SHORT_COMPARE2_STOP_MASK);
 
-        nrf_ppi_channel_and_fork_endpoint_setup(PPI_EGU_RAMP_UP,
+        nrf_ppi_channel_and_fork_endpoint_setup(NRF_PPI,
+                                                PPI_EGU_RAMP_UP,
                                                 (uint32_t)nrf_egu_event_address_get(
                                                     NRF_802154_SWI_EGU_INSTANCE,
                                                     EGU_EVENT),
                                                 (uint32_t)nrf_radio_task_address_get(
                                                     NRF_RADIO_TASK_RXEN),
                                                 (uint32_t)nrf_ppi_task_address_get(
+                                                    NRF_PPI,
                                                     PPI_CHGRP0_DIS_TASK));
 
         nrf_egu_event_clear(NRF_802154_SWI_EGU_INSTANCE, EGU_EVENT);
 
         // Enable PPI disabled by DISABLED event
-        nrf_ppi_channel_enable(PPI_EGU_RAMP_UP);
+        nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_RAMP_UP);
 
         // Enable EGU PPI to start all PPIs synchronously
-        nrf_ppi_channel_enable(PPI_DISABLED_EGU);
+        nrf_ppi_channel_enable(NRF_PPI, PPI_DISABLED_EGU);
 
         state_set(RADIO_STATE_RX_ACK);
 

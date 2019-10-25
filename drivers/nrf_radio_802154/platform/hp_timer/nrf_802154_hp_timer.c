@@ -71,7 +71,7 @@ static uint32_t m_unexpected_sync;
 static inline uint32_t timer_time_get(void)
 {
     nrf_timer_task_trigger(TIMER, TIMER_CC_CAPTURE_TASK);
-    return nrf_timer_cc_read(TIMER, TIMER_CC_CAPTURE);
+    return nrf_timer_cc_get(TIMER, TIMER_CC_CAPTURE);
 }
 
 void nrf_802154_hp_timer_init(void)
@@ -111,13 +111,13 @@ void nrf_802154_hp_timer_sync_prepare(void)
     uint32_t past_time = timer_time_get() - 1;
 
     m_unexpected_sync = past_time;
-    nrf_timer_cc_write(TIMER, TIMER_CC_SYNC, past_time);
+    nrf_timer_cc_set(TIMER, TIMER_CC_SYNC, past_time);
 }
 
 bool nrf_802154_hp_timer_sync_time_get(uint32_t * p_timestamp)
 {
     bool     result    = false;
-    uint32_t sync_time = nrf_timer_cc_read(TIMER, TIMER_CC_SYNC);
+    uint32_t sync_time = nrf_timer_cc_get(TIMER, TIMER_CC_SYNC);
 
     assert(p_timestamp != NULL);
 
@@ -137,5 +137,5 @@ uint32_t nrf_802154_hp_timer_timestamp_task_get(void)
 
 uint32_t nrf_802154_hp_timer_timestamp_get(void)
 {
-    return nrf_timer_cc_read(TIMER, TIMER_CC_EVT);
+    return nrf_timer_cc_get(TIMER, TIMER_CC_EVT);
 }
