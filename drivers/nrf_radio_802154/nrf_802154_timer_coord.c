@@ -91,21 +91,21 @@ void nrf_802154_timer_coord_init(void)
     sync_event = nrf_802154_lp_timer_sync_event_get();
     sync_task  = nrf_802154_hp_timer_sync_task_get();
 
-    nrf_ppi_channel_endpoint_setup(PPI_SYNC, sync_event, sync_task);
-    nrf_ppi_channel_enable(PPI_SYNC);
+    nrf_ppi_channel_endpoint_setup(NRF_PPI, PPI_SYNC, sync_event, sync_task);
+    nrf_ppi_channel_enable(NRF_PPI, PPI_SYNC);
 
-    nrf_ppi_channel_include_in_group(PPI_TIMESTAMP, PPI_TIMESTAMP_GROUP);
+    nrf_ppi_channel_include_in_group(NRF_PPI, PPI_TIMESTAMP, PPI_TIMESTAMP_GROUP);
 }
 
 void nrf_802154_timer_coord_uninit(void)
 {
     nrf_802154_hp_timer_deinit();
 
-    nrf_ppi_channel_disable(PPI_SYNC);
-    nrf_ppi_channel_endpoint_setup(PPI_SYNC, 0, 0);
+    nrf_ppi_channel_disable(NRF_PPI, PPI_SYNC);
+    nrf_ppi_channel_endpoint_setup(NRF_PPI, PPI_SYNC, 0, 0);
 
-    nrf_ppi_group_disable(PPI_TIMESTAMP_GROUP);
-    nrf_ppi_channel_and_fork_endpoint_setup(PPI_TIMESTAMP, 0, 0, 0);
+    nrf_ppi_group_disable(NRF_PPI, PPI_TIMESTAMP_GROUP);
+    nrf_ppi_channel_and_fork_endpoint_setup(NRF_PPI, PPI_TIMESTAMP, 0, 0, 0);
 }
 
 void nrf_802154_timer_coord_start(void)
@@ -124,13 +124,15 @@ void nrf_802154_timer_coord_stop(void)
 
 void nrf_802154_timer_coord_timestamp_prepare(uint32_t event_addr)
 {
-    nrf_ppi_channel_and_fork_endpoint_setup(PPI_TIMESTAMP,
+    nrf_ppi_channel_and_fork_endpoint_setup(NRF_PPI, 
+                                            PPI_TIMESTAMP,
                                             event_addr,
                                             nrf_802154_hp_timer_timestamp_task_get(),
-                                            (uint32_t)nrf_ppi_task_group_disable_address_get(
+                                            nrf_ppi_task_group_disable_address_get(
+                                                NRF_PPI,
                                                 PPI_TIMESTAMP_GROUP));
 
-    nrf_ppi_group_enable(PPI_TIMESTAMP_GROUP);
+    nrf_ppi_group_enable(NRF_PPI, PPI_TIMESTAMP_GROUP);
 }
 
 bool nrf_802154_timer_coord_timestamp_get(uint32_t * p_timestamp)
