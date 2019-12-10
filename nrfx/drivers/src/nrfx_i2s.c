@@ -377,12 +377,18 @@ void nrfx_i2s_irq_handler(void)
         nrf_i2s_disable(NRF_I2S);
 
         // When stopped, release all buffers, including these scheduled for
-        // the next transfer.
-        m_cb.handler(&m_cb.current_buffers, 0);
-        m_cb.handler(&m_cb.next_buffers, 0);
+        // the next part of the transfer, and signal that the transfer has
+        // finished.
 
+        m_cb.handler(&m_cb.current_buffers, 0);
+
+        // Change the state of the driver before calling the handler with
+        // the flag signaling that the transfer has finished, so that it is
+        // possible to start a new transfer directly from the handler function.
         m_cb.state = NRFX_DRV_STATE_INITIALIZED;
         NRFX_LOG_INFO("Stopped.");
+
+        m_cb.handler(&m_cb.next_buffers, NRFX_I2S_STATUS_TRANSFER_STOPPED);
     }
     else
     {
