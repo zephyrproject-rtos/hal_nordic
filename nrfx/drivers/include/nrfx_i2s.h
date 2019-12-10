@@ -120,12 +120,16 @@ typedef struct
     .ratio        = NRF_I2S_RATIO_32X,                                                  \
 }
 
-#define NRFX_I2S_STATUS_NEXT_BUFFERS_NEEDED  (1UL << 0)
+#define NRFX_I2S_STATUS_NEXT_BUFFERS_NEEDED (1UL << 0)
     /**< The application must provide buffers that are to be used in the next
      *   part of the transfer. A call to @ref nrfx_i2s_next_buffers_set must
      *   be done before the currently used buffers are completely processed
      *   (that is, the time remaining for supplying the next buffers depends on
      *   the used size of the buffers). */
+
+#define NRFX_I2S_STATUS_TRANSFER_STOPPED    (1UL << 1)
+    /**< The I2S peripheral has been stopped and all buffers that were passed
+     *   to the driver have been released. */
 
 /**
  * @brief I2S driver data handler type.
@@ -155,14 +159,22 @@ typedef struct
  *                        Both pointers in this structure are NULL when the
  *                        handler is called for the first time after a transfer
  *                        is started, because no data has been transferred yet
- *                        at this point. In all successive calls the pointers
+ *                        at this point. In all successive calls, the pointers
  *                        specify what has been sent (TX) and what has been
- *                        received (RX) in the part of transfer that has just
- *                        been completed (provided that a given direction is
- *                        enabled, see @ref nrfx_i2s_start).
+ *                        received (RX) in the part of the transfer that has
+ *                        just been completed (provided that a given direction
+ *                        is enabled, see @ref nrfx_i2s_start).
+ *                        @note Since the peripheral is stopped asynchronously,
+ *                              buffers that are released after the call to
+ *                              @ref nrfx_i2s_stop are not used entirely.
+ *                              In this case, only a part (if any) of the TX
+ *                              buffer has been actually transmitted and only
+ *                              a part (if any) of the RX buffer is filled with
+ *                              received data.
  * @param[in] status  Bit field describing the current status of the transfer.
  *                    It can be 0 or a combination of the following flags:
  *                    - @ref NRFX_I2S_STATUS_NEXT_BUFFERS_NEEDED
+ *                    - @ref NRFX_I2S_STATUS_TRANSFER_STOPPED
  */
 typedef void (* nrfx_i2s_data_handler_t)(nrfx_i2s_buffers_t const * p_released,
                                          uint32_t                   status);
