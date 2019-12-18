@@ -58,12 +58,12 @@ void nrf_802154_clock_deinit(void)
 
 void nrf_802154_clock_hfclk_start(void)
 {
-    struct device *clk_m16;
+    struct device *clk;
 
-    clk_m16 = device_get_binding(DT_INST_0_NORDIC_NRF_CLOCK_LABEL "_16M");
-    __ASSERT_NO_MSG(clk_m16 != NULL);
+    clk = device_get_binding(DT_INST_0_NORDIC_NRF_CLOCK_LABEL);
+    __ASSERT_NO_MSG(clk != NULL);
 
-    clock_control_on(clk_m16, (void *)1); /* Blocking call. */
+    clock_control_on(clk, CLOCK_CONTROL_NRF_SUBSYS_HF); /* Blocking call. */
 
     hfclk_is_running = true;
 
@@ -72,14 +72,14 @@ void nrf_802154_clock_hfclk_start(void)
 
 void nrf_802154_clock_hfclk_stop(void)
 {
-    struct device *clk_m16;
+    struct device *clk;
 
-    clk_m16 = device_get_binding(DT_INST_0_NORDIC_NRF_CLOCK_LABEL "_16M");
-    __ASSERT_NO_MSG(clk_m16 != NULL);
+    clk = device_get_binding(DT_INST_0_NORDIC_NRF_CLOCK_LABEL);
+    __ASSERT_NO_MSG(clk != NULL);
 
     hfclk_is_running = false;
 
-    clock_control_off(clk_m16, NULL);
+    clock_control_off(clk, CLOCK_CONTROL_NRF_SUBSYS_HF);
 }
 
 bool nrf_802154_clock_hfclk_is_running(void)
@@ -89,12 +89,12 @@ bool nrf_802154_clock_hfclk_is_running(void)
 
 void nrf_802154_clock_lfclk_start(void)
 {
-    struct device *clk_k32;
+    struct device *clk;
 
-    clk_k32 = device_get_binding(DT_INST_0_NORDIC_NRF_CLOCK_LABEL "_32K");
-    __ASSERT_NO_MSG(clk_k32 != NULL);
+    clk = device_get_binding(DT_INST_0_NORDIC_NRF_CLOCK_LABEL);
+    __ASSERT_NO_MSG(clk != NULL);
 
-    clock_control_on(clk_k32, (void *)CLOCK_CONTROL_NRF_K32SRC);
+    clock_control_on(clk, CLOCK_CONTROL_NRF_SUBSYS_LF);
 
     lfclk_is_running = true;
 
@@ -103,14 +103,14 @@ void nrf_802154_clock_lfclk_start(void)
 
 void nrf_802154_clock_lfclk_stop(void)
 {
-    struct device *clk_k32;
+    struct device *clk;
 
-    clk_k32 = device_get_binding(DT_INST_0_NORDIC_NRF_CLOCK_LABEL "_32K");
-    __ASSERT_NO_MSG(clk_k32 != NULL);
+    clk = device_get_binding(DT_INST_0_NORDIC_NRF_CLOCK_LABEL);
+    __ASSERT_NO_MSG(clk != NULL);
 
     lfclk_is_running = false;
 
-    clock_control_off(clk_k32, NULL);
+    clock_control_off(clk, CLOCK_CONTROL_NRF_SUBSYS_LF);
 }
 
 bool nrf_802154_clock_lfclk_is_running(void)
