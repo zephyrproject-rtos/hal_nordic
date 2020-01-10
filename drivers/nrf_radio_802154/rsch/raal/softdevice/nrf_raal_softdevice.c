@@ -42,13 +42,13 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include <hal/nrf_timer.h>
-#include <nrf_raal_api.h>
 #include <nrf_802154.h>
 #include <nrf_802154_const.h>
-#include <nrf_802154_debug.h>
+#include "nrf_802154_debug.h"
 #include <nrf_802154_procedures_duration.h>
 #include <nrf_802154_utils.h>
+#include <nrf_timer.h>
+#include <rsch/raal/nrf_raal_api.h>
 
 #if defined(__GNUC__)
 _Pragma("GCC diagnostic push")
@@ -71,16 +71,27 @@ _Pragma("GCC diagnostic pop")
  **************************************************************************************************/
 
 /*
- * @brief Defines the minimum version of the SoftDevice that supports configuration of BLE advertising
+ * @brief Defines the only version of the SoftDevice that supports configuration of BLE advertising
  *        role scheduling.
  *
- *        The first SoftDevice that supports this option is S140 6.1.1 (6001001). The full version
+ *        The only SoftDevice that supports this option is S140 6.1.1 (6001001). The full version
  *        number for the SoftDevice binary is a decimal number in the form Mmmmbbb, where:
  *           - M is major version (one or more digits)
  *           - mmm is minor version (three digits)
  *           - bbb is bugfix version (three digits).
  */
-#define BLE_ADV_SCHED_CFG_SUPPORT_MIN_SD_VERSION     (6001001)
+#define BLE_ADV_SCHED_CFG_SUPPORT_SD_VERSION         (6001001)
+
+/*
+ * @brief Defines the minimum version of the SoftDevice that correctly handles timeslot releasing.
+ *
+ *        The first SoftDevice that supports this option is S140 6.1.0 (6001000). The full version
+ *        number for the SoftDevice binary is a decimal number in the form Mmmmbbb, where:
+ *           - M is major version (one or more digits)
+ *           - mmm is minor version (three digits)
+ *           - bbb is bugfix version (three digits).
+ */
+#define TIMESLOT_RELEASE_SUPPORT_MIN_SD_VERSION      (6001000)
 
 /**@brief Enable Request and End on timeslot safety interrupt. */
 #define ENABLE_REQUEST_AND_END_ON_TIMESLOT_END       0
@@ -161,6 +172,9 @@ static uint16_t m_extension_interval;
 /**@brief Number of already performed extentions tries on failed event. */
 static volatile uint16_t m_timeslot_extend_tries;
 
+/**@brief Defines if timeslot releasing works correctly on given SoftDevice version. */
+static bool m_timeslot_releasing;
+
 /***************************************************************************************************
  * @section Drift calculations
  **************************************************************************************************/
@@ -188,7 +202,7 @@ static void timer_start(void)
     nrf_timer_task_trigger(RAAL_TIMER, NRF_TIMER_TASK_STOP);
     nrf_timer_task_trigger(RAAL_TIMER, NRF_TIMER_TASK_CLEAR);
     nrf_timer_bit_width_set(RAAL_TIMER, NRF_TIMER_BIT_WIDTH_32);
-    nrf_timer_cc_set(RAAL_TIMER, TIMER_CC_ACTION, 0);
+    nrf_timer_cc_write(RAAL_TIMER, TIMER_CC_ACTION, 0);
 
     nrf_timer_task_trigger(RAAL_TIMER, NRF_TIMER_TASK_START);
     NVIC_EnableIRQ(RAAL_TIMER_IRQn);
@@ -197,16 +211,19 @@ static void timer_start(void)
 /**@brief Reset timer. */
 static void timer_reset(void)
 {
+    NVIC_DisableIRQ(RAAL_TIMER_IRQn);
+    __DSB();
+    __ISB();
+
     nrf_timer_task_trigger(RAAL_TIMER, NRF_TIMER_TASK_STOP);
     nrf_timer_event_clear(RAAL_TIMER, TIMER_CC_ACTION_EVENT);
-    NVIC_ClearPendingIRQ(RAAL_TIMER_IRQn);
 }
 
 /**@brief Get current time on RAAL Timer. */
 static inline uint32_t timer_time_get(void)
 {
     nrf_timer_task_trigger(RAAL_TIMER, TIMER_CC_CAPTURE_TASK);
-    return nrf_timer_cc_get(RAAL_TIMER, TIMER_CC_CAPTURE);
+    return nrf_timer_cc_read(RAAL_TIMER, TIMER_CC_CAPTURE);
 }
 
 /**@brief Check if timer is set to margin.
@@ -260,7 +277,7 @@ static inline void timer_to_margin_set(void)
     m_timer_action = TIMER_ACTION_MARGIN;
 
     nrf_timer_event_clear(RAAL_TIMER, TIMER_CC_ACTION_EVENT);
-    nrf_timer_cc_set(RAAL_TIMER, TIMER_CC_ACTION, margin_cc);
+    nrf_timer_cc_write(RAAL_TIMER, TIMER_CC_ACTION, margin_cc);
     nrf_timer_int_enable(RAAL_TIMER, TIMER_CC_ACTION_INT);
 }
 
@@ -278,10 +295,10 @@ static void timer_on_extend_update(void)
 
     if (timer_is_set_to_margin())
     {
-        uint32_t margin_cc = nrf_timer_cc_get(RAAL_TIMER, TIMER_CC_ACTION);
+        uint32_t margin_cc = nrf_timer_cc_read(RAAL_TIMER, TIMER_CC_ACTION);
 
         margin_cc += m_timeslot_length;
-        nrf_timer_cc_set(RAAL_TIMER, TIMER_CC_ACTION, margin_cc);
+        nrf_timer_cc_write(RAAL_TIMER, TIMER_CC_ACTION, margin_cc);
     }
     else
     {
@@ -289,8 +306,8 @@ static void timer_on_extend_update(void)
                                       m_extension_interval :
                                       time_corrected_for_drift_get(m_prev_timeslot_length);
 
-        nrf_timer_cc_set(RAAL_TIMER, TIMER_CC_ACTION,
-                           nrf_timer_cc_get(RAAL_TIMER, TIMER_CC_ACTION) + extension_interval);
+        nrf_timer_cc_write(RAAL_TIMER, TIMER_CC_ACTION,
+                           nrf_timer_cc_read(RAAL_TIMER, TIMER_CC_ACTION) + extension_interval);
         nrf_timer_int_enable(RAAL_TIMER, TIMER_CC_ACTION_INT);
     }
 }
@@ -443,7 +460,7 @@ static void timer_irq_handle(void)
             nrf_timer_event_clear(RAAL_TIMER, TIMER_CC_ACTION_EVENT);
 
             if (m_continuous &&
-                (nrf_timer_cc_get(RAAL_TIMER, TIMER_CC_ACTION) +
+                (nrf_timer_cc_read(RAAL_TIMER, TIMER_CC_ACTION) +
                  m_config.timeslot_length < m_config.timeslot_max_length))
             {
                 // Try to extend timeslot.
@@ -486,9 +503,8 @@ static nrf_radio_signal_callback_return_param_t * signal_handler(uint8_t signal_
 
         m_timeslot_state = TIMESLOT_STATE_IDLE;
 
-        // TODO: Change to NRF_RADIO_SIGNAL_CALLBACK_ACTION_END (KRKNWK-937)
-        m_ret_param.callback_action = NRF_RADIO_SIGNAL_CALLBACK_ACTION_NONE;
-        timer_reset();
+        m_ret_param.callback_action = m_timeslot_releasing ? NRF_RADIO_SIGNAL_CALLBACK_ACTION_END :
+                                      NRF_RADIO_SIGNAL_CALLBACK_ACTION_NONE;
 
         nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_RAAL_SIG_EVENT_ENDED);
         nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_RAAL_SIG_HANDLER);
@@ -697,9 +713,9 @@ void nrf_raal_init(void)
     assert(err_code == NRF_SUCCESS);
     (void)err_code;
 
-#if (SD_VERSION >= BLE_ADV_SCHED_CFG_SUPPORT_MIN_SD_VERSION)
+#if (SD_VERSION == BLE_ADV_SCHED_CFG_SUPPORT_SD_VERSION)
     // Ensure that correct SoftDevice version is flashed.
-    if (SD_VERSION_GET(MBR_SIZE) >= BLE_ADV_SCHED_CFG_SUPPORT_MIN_SD_VERSION)
+    if (SD_VERSION_GET(MBR_SIZE) == BLE_ADV_SCHED_CFG_SUPPORT_SD_VERSION)
     {
         // Use improved Advertiser Role Scheduling configuration.
         ble_opt_t opt;
@@ -713,6 +729,12 @@ void nrf_raal_init(void)
         (void)err_code;
     }
 #endif
+
+    // Ensure that correct SoftDevice version is flashed.
+    if (SD_VERSION_GET(MBR_SIZE) >= TIMESLOT_RELEASE_SUPPORT_MIN_SD_VERSION)
+    {
+        m_timeslot_releasing = true;
+    }
 
     m_initialized = true;
 }
@@ -757,12 +779,24 @@ void nrf_raal_continuous_mode_exit(void)
     assert(m_initialized);
     assert(m_continuous);
 
-    m_continuous = false;
-
-    // Emulate signal interrupt to inform SD about end of continuous mode.
     if (timeslot_is_granted())
     {
-        NVIC_SetPendingIRQ(RAAL_TIMER_IRQn);
+        // Reset timer prior marking exiting continuous mode to prevent timeslot release caused by
+        // the timer
+        timer_reset();
+
+        m_continuous = false;
+        __DMB();
+
+        nrf_raal_timeslot_ended();
+
+        // Emulate signal interrupt to inform SD about end of continuous mode.
+        NVIC_SetPendingIRQ(RADIO_IRQn);
+        NVIC_EnableIRQ(RADIO_IRQn);
+    }
+    else
+    {
+        m_continuous = false;
     }
 
     nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_RAAL_CONTINUOUS_EXIT);
@@ -792,5 +826,5 @@ bool nrf_raal_timeslot_request(uint32_t length_us)
 
 uint32_t nrf_raal_timeslot_us_left_get(void)
 {
-    return safe_time_to_timeslot_end_get();
+    return timeslot_is_granted() ? safe_time_to_timeslot_end_get() : 0;
 }

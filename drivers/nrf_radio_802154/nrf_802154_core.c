@@ -42,26 +42,31 @@
 #include <string.h>
 
 #include "nrf_802154.h"
-#include "nrf_802154_ack_pending_bit.h"
 #include "nrf_802154_config.h"
 #include "nrf_802154_const.h"
 #include "nrf_802154_critical_section.h"
 #include "nrf_802154_debug.h"
 #include "nrf_802154_notification.h"
+#include "nrf_802154_peripherals.h"
 #include "nrf_802154_pib.h"
 #include "nrf_802154_procedures_duration.h"
-#include "nrf_802154_revision.h"
 #include "nrf_802154_rssi.h"
 #include "nrf_802154_rx_buffer.h"
+#include "nrf_802154_utils.h"
 #include "nrf_802154_timer_coord.h"
 #include "nrf_802154_types.h"
-#include "fem/nrf_fem_control_api.h"
-#include "hal/nrf_egu.h"
-#include "hal/nrf_ppi.h"
-#include "hal/nrf_radio.h"
-#include "hal/nrf_timer.h"
+#include "nrf_802154_utils.h"
+#include "nrf_egu.h"
+#include "nrf_error.h"
+#include "nrf_ppi.h"
+#include "nrf_radio.h"
+#include "nrf_timer.h"
+#include "fem/nrf_fem_protocol_api.h"
 #include "mac_features/nrf_802154_delayed_trx.h"
 #include "mac_features/nrf_802154_filter.h"
+#include "mac_features/nrf_802154_frame_parser.h"
+#include "mac_features/ack_generator/nrf_802154_ack_data.h"
+#include "mac_features/ack_generator/nrf_802154_ack_generator.h"
 #include "rsch/nrf_802154_rsch.h"
 #include "rsch/nrf_802154_rsch_crit_sect.h"
 
@@ -69,39 +74,21 @@
 
 #define EGU_EVENT                  NRF_EGU_EVENT_TRIGGERED15
 #define EGU_TASK                   NRF_EGU_TASK_TRIGGER15
-#define PPI_CH0                    NRF_PPI_CHANNEL6
-#define PPI_CH1                    NRF_PPI_CHANNEL7
-#define PPI_CH2                    NRF_PPI_CHANNEL8
-#define PPI_CH3                    NRF_PPI_CHANNEL9
-#define PPI_CH4                    NRF_PPI_CHANNEL10
-#define PPI_CH5                    NRF_PPI_CHANNEL11
-#define PPI_CH6                    NRF_PPI_CHANNEL12
-#define PPI_CHGRP0                 NRF_PPI_CHANNEL_GROUP0 ///< PPI group used to disable self-disabling PPIs
-#define PPI_CHGRP0_DIS_TASK        NRF_PPI_TASK_CHG0_DIS  ///< PPI task used to disable self-disabling PPIs
+#define PPI_CHGRP0                 NRF_802154_PPI_CORE_GROUP                     ///< PPI group used to disable self-disabling PPIs
+#define PPI_CHGRP0_DIS_TASK        NRF_PPI_TASK_CHG0_DIS                         ///< PPI task used to disable self-disabling PPIs
 
-#define PPI_DISABLED_EGU           PPI_CH0                ///< PPI that connects RADIO DISABLED event with EGU task
-#define PPI_EGU_RAMP_UP            PPI_CH1                ///< PPI that connects EGU event with RADIO TXEN or RXEN task
-#define PPI_EGU_TIMER_START        PPI_CH2                ///< PPI that connects EGU event with TIMER START task
-#define PPI_CRCERROR_CLEAR         PPI_CH3                ///< PPI that connects RADIO CRCERROR event with TIMER CLEAR task
-#define PPI_CCAIDLE_FEM            PPI_CH3                ///< PPI that connects RADIO CCAIDLE event with GPIOTE tasks used by FEM
-#define PPI_TIMER_TX_ACK           PPI_CH3                ///< PPI that connects TIMER COMPARE event with RADIO TXEN task
-#define PPI_CRCOK_DIS_PPI          PPI_CH4                ///< PPI that connects RADIO CRCOK event with task that disables PPI group
+#define PPI_DISABLED_EGU           NRF_802154_PPI_RADIO_DISABLED_TO_EGU          ///< PPI that connects RADIO DISABLED event with EGU task
+#define PPI_EGU_RAMP_UP            NRF_802154_PPI_EGU_TO_RADIO_RAMP_UP           ///< PPI that connects EGU event with RADIO TXEN or RXEN task
+#define PPI_EGU_TIMER_START        NRF_802154_PPI_EGU_TO_TIMER_START             ///< PPI that connects EGU event with TIMER START task
+#define PPI_CRCERROR_CLEAR         NRF_802154_PPI_RADIO_CRCERROR_TO_TIMER_CLEAR  ///< PPI that connects RADIO CRCERROR event with TIMER CLEAR task
+#define PPI_CCAIDLE_FEM            NRF_802154_PPI_RADIO_CCAIDLE_TO_FEM_GPIOTE    ///< PPI that connects RADIO CCAIDLE event with GPIOTE tasks used by FEM
+#define PPI_TIMER_TX_ACK           NRF_802154_PPI_TIMER_COMPARE_TO_RADIO_TXEN    ///< PPI that connects TIMER COMPARE event with RADIO TXEN task
+#define PPI_CRCOK_DIS_PPI          NRF_802154_PPI_RADIO_CRCOK_TO_PPI_GRP_DISABLE ///< PPI that connects RADIO CRCOK event with task that disables PPI group
 
 #if NRF_802154_DISABLE_BCC_MATCHING
-#define PPI_ADDRESS_COUNTER_COUNT  PPI_CH5                ///< PPI that connects RADIO ADDRESS event with TIMER COUNT task
-#define PPI_CRCERROR_COUNTER_CLEAR PPI_CH6                ///< PPI that connects RADIO CRCERROR event with TIMER CLEAR task
+#define PPI_ADDRESS_COUNTER_COUNT  NRF_802154_PPI_RADIO_ADDR_TO_COUNTER_COUNT    ///< PPI that connects RADIO ADDRESS event with TIMER COUNT task
+#define PPI_CRCERROR_COUNTER_CLEAR NRF_802154_PPI_RADIO_CRCERROR_COUNTER_CLEAR   ///< PPI that connects RADIO CRCERROR event with TIMER CLEAR task
 #endif  // NRF_802154_DISABLE_BCC_MATCHING
-
-/// Workaround for missing PHYEND event in older chip revision.
-static inline uint32_t short_phyend_disable_mask_get(void)
-{
-    if (nrf_802154_revision_has_phyend_event())
-    {
-        return NRF_RADIO_SHORT_PHYEND_DISABLE_MASK;
-    }
-
-    return NRF_RADIO_SHORT_END_DISABLE_MASK;
-}
 
 #if NRF_802154_DISABLE_BCC_MATCHING
 #define SHORT_ADDRESS_BCSTART 0UL
@@ -120,16 +107,16 @@ static inline uint32_t short_phyend_disable_mask_get(void)
 #define SHORTS_RX_FREE_BUFFER   (NRF_RADIO_SHORT_RXREADY_START_MASK)
 
 #define SHORTS_TX_ACK           (NRF_RADIO_SHORT_TXREADY_START_MASK | \
-                                 short_phyend_disable_mask_get())
+                                 NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
 
 #define SHORTS_CCA_TX           (NRF_RADIO_SHORT_RXREADY_CCASTART_MASK | \
                                  NRF_RADIO_SHORT_CCABUSY_DISABLE_MASK |  \
                                  NRF_RADIO_SHORT_CCAIDLE_TXEN_MASK |     \
                                  NRF_RADIO_SHORT_TXREADY_START_MASK |    \
-                                 short_phyend_disable_mask_get())
+                                 NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
 
 #define SHORTS_TX               (NRF_RADIO_SHORT_TXREADY_START_MASK | \
-                                 short_phyend_disable_mask_get())
+                                 NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
 
 #define SHORTS_RX_ACK           (NRF_RADIO_SHORT_ADDRESS_RSSISTART_MASK | \
                                  NRF_RADIO_SHORT_END_DISABLE_MASK)
@@ -166,7 +153,7 @@ static inline uint32_t short_phyend_disable_mask_get(void)
 /** Get LQI of given received packet. If CRC is calculated by hardware LQI is included instead of CRC
  *  in the frame. Length is stored in byte with index 0; CRC is 2 last bytes.
  */
-#define RX_FRAME_LQI(psdu)      ((psdu)[(psdu)[0] - 1])
+#define RX_FRAME_LQI(data)      ((data)[(data)[0] - 1])
 
 #if NRF_802154_RX_BUFFERS > 1
 /// Pointer to currently used receive buffer.
@@ -178,12 +165,53 @@ static rx_buffer_t * const mp_current_rx_buffer = &nrf_802154_rx_buffers[0];
 
 #endif
 
-static uint8_t         m_ack_psdu[IMM_ACK_LENGTH + 1]; ///< ACK frame buffer.
-static const uint8_t * mp_tx_data;                     ///< Pointer to the data to transmit.
-static uint32_t        m_ed_time_left;                 ///< Remaining time of the current energy detection procedure [us].
-static uint8_t         m_ed_result;                    ///< Result of the current energy detection procedure.
+static const uint8_t * mp_ack;         ///< Pointer to Ack frame buffer.
+static const uint8_t * mp_tx_data;     ///< Pointer to the data to transmit.
+static uint32_t        m_ed_time_left; ///< Remaining time of the current energy detection procedure [us].
+static uint8_t         m_ed_result;    ///< Result of the current energy detection procedure.
 
-static volatile radio_state_t m_state;                 ///< State of the radio driver.
+static volatile radio_state_t m_state; ///< State of the radio driver.
+
+/// Common parameters for the FAL handling.
+static const nrf_802154_fal_event_t m_deactivate_on_disable =
+{
+    .type                           = NRF_802154_FAL_EVENT_TYPE_GENERIC,
+    .override_ppi                   = false,
+    .event.generic.register_address =
+        ((uint32_t)NRF_RADIO_BASE + (uint32_t)NRF_RADIO_EVENT_DISABLED)
+};
+
+static const nrf_802154_fal_event_t m_activate_rx_cc0 =
+{
+    .type         = NRF_802154_FAL_EVENT_TYPE_TIMER,
+    .override_ppi = false,
+    .event.timer  =
+    {
+        .p_timer_instance     = NRF_802154_TIMER_INSTANCE,
+        .counter_value        = RX_RAMP_UP_TIME,
+        .compare_channel_mask = ((1 << NRF_TIMER_CC_CHANNEL0) | (1 << NRF_TIMER_CC_CHANNEL2)),
+    },
+};
+
+static const nrf_802154_fal_event_t m_activate_tx_cc0 =
+{
+    .type         = NRF_802154_FAL_EVENT_TYPE_TIMER,
+    .override_ppi = false,
+    .event.timer  =
+    {
+        .p_timer_instance     = NRF_802154_TIMER_INSTANCE,
+        .counter_value        = TX_RAMP_UP_TIME,
+        .compare_channel_mask = ((1 << NRF_TIMER_CC_CHANNEL0) | (1 << NRF_TIMER_CC_CHANNEL2)),
+    },
+};
+
+static const nrf_802154_fal_event_t m_ccaidle =
+{
+    .type                           = NRF_802154_FAL_EVENT_TYPE_GENERIC,
+    .override_ppi                   = true,
+    .ppi_ch_id                      = PPI_CCAIDLE_FEM,
+    .event.generic.register_address = ((uint32_t)NRF_RADIO_BASE + (uint32_t)NRF_RADIO_EVENT_CCAIDLE)
+};
 
 typedef struct
 {
@@ -195,11 +223,12 @@ typedef struct
 
 #endif  // !NRF_802154_DISABLE_BCC_MATCHING
 #if NRF_802154_TX_STARTED_NOTIFY_ENABLED
-    bool tx_started : 1; ///< If requested transmission has started.
+    bool tx_started   : 1; ///< If the requested transmission has started.
 
 #endif  // NRF_802154_TX_STARTED_NOTIFY_ENABLED
+    bool rssi_started : 1;
 } nrf_802154_flags_t;
-static nrf_802154_flags_t m_flags;               ///< Flags used to store current driver state.
+static nrf_802154_flags_t m_flags;               ///< Flags used to store the current driver state.
 
 static volatile bool m_rsch_timeslot_is_granted; ///< State of the RSCH timeslot.
 
@@ -228,9 +257,27 @@ static void rx_flags_clear(void)
 #endif // !NRF_802154_DISABLE_BCC_MATCHING
 }
 
-/** Get result of last RSSI measurement.
+/** Request the RSSI measurement. */
+static void rssi_measure(void)
+{
+    m_flags.rssi_started = true;
+    nrf_radio_event_clear(NRF_RADIO_EVENT_RSSIEND);
+    nrf_radio_task_trigger(NRF_RADIO_TASK_RSSISTART);
+}
+
+/** Wait for the RSSI measurement. */
+static void rssi_measurement_wait(void)
+{
+    while (!nrf_radio_event_check(NRF_RADIO_EVENT_RSSIEND))
+    {
+        // Intentionally empty: This function is called from a critical section.
+        // WFE would not be waken up by a RADIO event.
+    }
+}
+
+/** Get the result of the last RSSI measurement.
  *
- * @returns  Result of last RSSI measurement [dBm].
+ * @returns  Result of the last RSSI measurement in dBm.
  */
 static int8_t rssi_last_measurement_get(void)
 {
@@ -262,19 +309,19 @@ static uint8_t lqi_get(const uint8_t * p_data)
     return (uint8_t)lqi;
 }
 
-static void received_frame_notify(uint8_t * p_psdu)
+static void received_frame_notify(uint8_t * p_data)
 {
-    nrf_802154_notify_received(p_psdu,                      // data
+    nrf_802154_notify_received(p_data,                      // data
                                rssi_last_measurement_get(), // rssi
-                               lqi_get(p_psdu));            // lqi
+                               lqi_get(p_data));            // lqi
 }
 
 /** Allow nesting critical sections and notify MAC layer that a frame was received. */
-static void received_frame_notify_and_nesting_allow(uint8_t * p_psdu)
+static void received_frame_notify_and_nesting_allow(uint8_t * p_data)
 {
     nrf_802154_critical_section_nesting_allow();
 
-    received_frame_notify(p_psdu);
+    received_frame_notify(p_data);
 
     nrf_802154_critical_section_nesting_deny();
 }
@@ -305,13 +352,15 @@ static void transmit_started_notify(void)
 /** Notify that reception of a frame has started. */
 static void receive_started_notify(void)
 {
-    nrf_802154_core_hooks_rx_started();
+    const uint8_t * p_frame = mp_current_rx_buffer->data;
+
+    nrf_802154_core_hooks_rx_started(p_frame);
 }
 
 #endif
 
 /** Notify MAC layer that a frame was transmitted. */
-static void transmitted_frame_notify(uint8_t * p_ack, int8_t power, int8_t lqi)
+static void transmitted_frame_notify(uint8_t * p_ack, int8_t power, uint8_t lqi)
 {
     const uint8_t * p_frame = mp_tx_data;
 
@@ -370,11 +419,10 @@ static void cca_configuration_update(void)
     nrf_802154_cca_cfg_t cca_cfg;
 
     nrf_802154_pib_cca_cfg_get(&cca_cfg);
-    nrf_radio_cca_mode_set(cca_cfg.mode);
-    nrf_radio_cca_ed_threshold_set(
-        nrf_802154_rssi_cca_ed_threshold_corrected_get(cca_cfg.ed_threshold));
-    nrf_radio_cca_corr_threshold_set(cca_cfg.corr_threshold);
-    nrf_radio_cca_corr_counter_set(cca_cfg.corr_limit);
+    nrf_radio_cca_configure(cca_cfg.mode,
+                            nrf_802154_rssi_cca_ed_threshold_corrected_get(cca_cfg.ed_threshold),
+                            cca_cfg.corr_threshold,
+                            cca_cfg.corr_limit);
 }
 
 /** Check if PSDU is currently being received.
@@ -386,7 +434,7 @@ static bool psdu_is_being_received(void)
 #if NRF_802154_DISABLE_BCC_MATCHING
     nrf_timer_task_trigger(NRF_802154_COUNTER_TIMER_INSTANCE,
                            nrf_timer_capture_task_get(NRF_TIMER_CC_CHANNEL0));
-    uint32_t counter = nrf_timer_cc_get(NRF_802154_COUNTER_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL0);
+    uint32_t counter = nrf_timer_cc_read(NRF_802154_COUNTER_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL0);
 
     assert(counter <= 1);
 
@@ -406,7 +454,7 @@ static bool transmission_has_started(void)
 #if NRF_802154_TX_STARTED_NOTIFY_ENABLED
     return m_flags.tx_started;
 #else // NRF_802154_TX_STARTED_NOTIFY_ENABLED
-    return nrf_radio_event_get(NRF_RADIO_EVENT_ADDRESS);
+    return nrf_radio_event_check(NRF_RADIO_EVENT_ADDRESS);
 #endif  // NRF_802154_TX_STARTED_NOTIFY_ENABLED
 }
 
@@ -453,7 +501,7 @@ static bool rx_buffer_is_available(void)
  */
 static uint8_t * rx_buffer_get(void)
 {
-    return rx_buffer_is_available() ? mp_current_rx_buffer->psdu : NULL;
+    return rx_buffer_is_available() ? mp_current_rx_buffer->data : NULL;
 }
 
 /***************************************************************************************************
@@ -468,30 +516,12 @@ static void channel_set(uint8_t channel)
 {
     assert(channel >= 11 && channel <= 26);
 
-    nrf_radio_frequency_set(5 + (5 * (channel - 11)));
+    nrf_radio_frequency_set(2405 + 5 * (channel - 11));
 }
 
 /***************************************************************************************************
  * @section ACK transmission management
  **************************************************************************************************/
-
-/// Set valid sequence number in ACK frame.
-static void ack_prepare(void)
-{
-    // Copy sequence number from received frame to ACK frame.
-    m_ack_psdu[DSN_OFFSET] = mp_current_rx_buffer->psdu[DSN_OFFSET];
-}
-
-/// Set pending bit in ACK frame.
-static void ack_pending_bit_set(void)
-{
-    m_ack_psdu[FRAME_PENDING_OFFSET] = ACK_HEADER_WITH_PENDING;
-
-    if (!nrf_802154_ack_pending_bit_should_be_set(mp_current_rx_buffer->psdu))
-    {
-        m_ack_psdu[FRAME_PENDING_OFFSET] = ACK_HEADER_WITHOUT_PENDING;
-    }
-}
 
 /** Check if ACK is requested in given frame.
  *
@@ -502,7 +532,7 @@ static void ack_pending_bit_set(void)
  */
 static bool ack_is_requested(const uint8_t * p_frame)
 {
-    return (p_frame[ACK_REQUEST_OFFSET] & ACK_REQUEST_BIT) ? true : false;
+    return nrf_802154_frame_parser_ar_bit_is_set(p_frame);
 }
 
 /***************************************************************************************************
@@ -532,8 +562,8 @@ static void ack_matching_disable(void)
  */
 static bool ack_is_matched(void)
 {
-    return (nrf_radio_event_get(NRF_RADIO_EVENT_MHRMATCH)) &&
-           (nrf_radio_crc_status_get() == NRF_RADIO_CRC_STATUS_OK);
+    return (nrf_radio_event_check(NRF_RADIO_EVENT_MHRMATCH)) &&
+           (nrf_radio_crc_status_check());
 }
 
 /***************************************************************************************************
@@ -543,17 +573,21 @@ static bool ack_is_matched(void)
 /** Initialize radio peripheral. */
 static void nrf_radio_init(void)
 {
+    nrf_radio_packet_conf_t packet_conf;
+
     nrf_radio_mode_set(NRF_RADIO_MODE_IEEE802154_250KBIT);
-    nrf_radio_config_length_field_length_set(8);
-    nrf_radio_config_preamble_length_set(NRF_RADIO_PREAMBLE_LENGTH_32BIT_ZERO);
-    nrf_radio_config_crc_included_set(true);
-    nrf_radio_config_max_length_set(MAX_PACKET_SIZE);
-    nrf_radio_ramp_up_mode_set(NRF_RADIO_RAMP_UP_MODE_FAST);
+
+    memset(&packet_conf, 0, sizeof(packet_conf));
+    packet_conf.lflen  = 8;
+    packet_conf.plen   = NRF_RADIO_PREAMBLE_LENGTH_32BIT_ZERO;
+    packet_conf.crcinc = true;
+    packet_conf.maxlen = MAX_PACKET_SIZE;
+    nrf_radio_packet_configure(&packet_conf);
+
+    nrf_radio_modecnf0_set(true, 0);
 
     // Configure CRC
-    nrf_radio_crc_length_set(CRC_LENGTH);
-    nrf_radio_crc_includes_address_set(NRF_RADIO_CRC_INCLUDES_ADDR_IEEE802154);
-    nrf_radio_crc_polynominal_set(CRC_POLYNOMIAL);
+    nrf_radio_crc_configure(CRC_LENGTH, NRF_RADIO_CRC_ADDR_IEEE802154, CRC_POLYNOMIAL);
 
     // Configure CCA
     cca_configuration_update();
@@ -578,6 +612,9 @@ static void nrf_radio_reset(void)
 /** Initialize interrupts for radio peripheral. */
 static void irq_init(void)
 {
+#if !NRF_IS_IRQ_PRIORITY_ALLOWED(NRF_802154_IRQ_PRIORITY)
+#error NRF_802154_IRQ_PRIORITY value out of the allowed range.
+#endif
     NVIC_SetPriority(RADIO_IRQn, NRF_802154_IRQ_PRIORITY);
     NVIC_ClearPendingIRQ(RADIO_IRQn);
 }
@@ -601,7 +638,7 @@ static void irq_deinit(void)
 static void nrf_timer_init(void)
 {
     nrf_timer_mode_set(NRF_802154_TIMER_INSTANCE, NRF_TIMER_MODE_TIMER);
-    nrf_timer_bit_width_set(NRF_802154_TIMER_INSTANCE, NRF_TIMER_BIT_WIDTH_16);
+    nrf_timer_bit_width_set(NRF_802154_TIMER_INSTANCE, NRF_TIMER_BIT_WIDTH_32);
     nrf_timer_frequency_set(NRF_802154_TIMER_INSTANCE, NRF_TIMER_FREQ_1MHz);
 
 #if NRF_802154_DISABLE_BCC_MATCHING
@@ -738,137 +775,163 @@ static void ppis_for_egu_and_ramp_up_set(nrf_radio_task_t ramp_up_task, bool sel
 {
     if (self_disabling)
     {
-        nrf_ppi_channel_and_fork_endpoint_setup(NRF_PPI,
-                                                PPI_EGU_RAMP_UP,
-                                                nrf_egu_event_address_get(
+        nrf_ppi_channel_and_fork_endpoint_setup(PPI_EGU_RAMP_UP,
+                                                (uint32_t)nrf_egu_event_address_get(
                                                     NRF_802154_SWI_EGU_INSTANCE,
                                                     EGU_EVENT),
                                                 (uint32_t)nrf_radio_task_address_get(ramp_up_task),
-                                                nrf_ppi_task_address_get(
-                                                    NRF_PPI,
+                                                (uint32_t)nrf_ppi_task_address_get(
                                                     PPI_CHGRP0_DIS_TASK));
     }
     else
     {
-        nrf_ppi_channel_endpoint_setup(NRF_PPI,
-                                       PPI_EGU_RAMP_UP,
-                                       nrf_egu_event_address_get(
+        nrf_ppi_channel_endpoint_setup(PPI_EGU_RAMP_UP,
+                                       (uint32_t)nrf_egu_event_address_get(
                                            NRF_802154_SWI_EGU_INSTANCE,
                                            EGU_EVENT),
                                        (uint32_t)nrf_radio_task_address_get(ramp_up_task));
     }
 
-    nrf_ppi_channel_endpoint_setup(NRF_PPI,
-                                   PPI_DISABLED_EGU,
+    nrf_ppi_channel_endpoint_setup(PPI_DISABLED_EGU,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_DISABLED),
-                                   nrf_egu_task_address_get(
+                                   (uint32_t)nrf_egu_task_address_get(
                                        NRF_802154_SWI_EGU_INSTANCE,
                                        EGU_TASK));
 
     if (self_disabling)
     {
-        nrf_ppi_channel_include_in_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
+        nrf_ppi_channel_include_in_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
     }
 
-    nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_RAMP_UP);
-    nrf_ppi_channel_enable(NRF_PPI, PPI_DISABLED_EGU);
+    nrf_ppi_channel_enable(PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_enable(PPI_DISABLED_EGU);
 }
 
 /** Configure FEM to set LNA at appropriate time. */
-static void fem_for_lna_set(nrf_timer_cc_channel_t cc_channel,
-                            nrf_timer_short_mask_t short_mask)
+static void fem_for_lna_set(void)
 {
-    nrf_fem_control_ppi_enable(NRF_FEM_CONTROL_LNA_PIN, cc_channel);
-    nrf_fem_control_timer_set(NRF_FEM_CONTROL_LNA_PIN, cc_channel, short_mask);
-    nrf_fem_control_ppi_task_setup(NRF_FEM_CONTROL_LNA_PIN,
-                                   PPI_EGU_TIMER_START,
-                                   nrf_egu_event_address_get(
-                                       NRF_802154_SWI_EGU_INSTANCE,
-                                       EGU_EVENT),
-                                   nrf_timer_task_address_get(
-                                       NRF_802154_TIMER_INSTANCE,
-                                       NRF_TIMER_TASK_START));
+    if (nrf_802154_fal_lna_configuration_set(&m_activate_rx_cc0, NULL) == NRF_SUCCESS)
+    {
+        uint32_t event_addr = (uint32_t)nrf_egu_event_address_get(NRF_802154_SWI_EGU_INSTANCE,
+                                                                  EGU_EVENT);
+        uint32_t task_addr = (uint32_t)nrf_timer_task_address_get(NRF_802154_TIMER_INSTANCE,
+                                                                  NRF_TIMER_TASK_START);
+
+        nrf_timer_shorts_enable(m_activate_rx_cc0.event.timer.p_timer_instance,
+                                NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+        nrf_ppi_channel_endpoint_setup(PPI_EGU_TIMER_START, event_addr, task_addr);
+        nrf_ppi_channel_enable(PPI_EGU_TIMER_START);
+    }
 }
 
 /** Reset FEM configuration for LNA.
  *
  * @param[in]  timer_short_mask  Mask of shorts that should be disabled on FEM timer.
  */
-static void fem_for_lna_reset(nrf_timer_short_mask_t timer_short_mask)
+static void fem_for_lna_reset(void)
 {
-    nrf_fem_control_ppi_disable(NRF_FEM_CONTROL_LNA_PIN);
-    nrf_fem_control_timer_reset(NRF_FEM_CONTROL_LNA_PIN, timer_short_mask);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_TIMER_START);
+    nrf_802154_fal_lna_configuration_clear(&m_activate_rx_cc0, NULL);
+    nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
+    nrf_timer_shorts_disable(NRF_802154_TIMER_INSTANCE, NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+    nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
 }
 
 /** Configure FEM to set PA at appropriate time. */
 static void fem_for_pa_set(void)
 {
-    nrf_fem_control_ppi_enable(NRF_FEM_CONTROL_PA_PIN, NRF_TIMER_CC_CHANNEL2);
-    nrf_fem_control_timer_set(NRF_FEM_CONTROL_PA_PIN,
-                              NRF_TIMER_CC_CHANNEL2,
-                              NRF_TIMER_SHORT_COMPARE2_STOP_MASK);
-    nrf_fem_control_ppi_fork_setup(NRF_FEM_CONTROL_PA_PIN,
-                                   PPI_EGU_RAMP_UP,
-                                   nrf_timer_task_address_get(
-                                       NRF_802154_TIMER_INSTANCE,
-                                       NRF_TIMER_TASK_START));
+    if (nrf_802154_fal_pa_configuration_set(&m_activate_tx_cc0, NULL) == NRF_SUCCESS)
+    {
+        uint32_t event_addr = (uint32_t)nrf_egu_event_address_get(NRF_802154_SWI_EGU_INSTANCE,
+                                                                  EGU_EVENT);
+        uint32_t task_addr = (uint32_t)nrf_timer_task_address_get(NRF_802154_TIMER_INSTANCE,
+                                                                  NRF_TIMER_TASK_START);
+
+        nrf_timer_shorts_enable(m_activate_tx_cc0.event.timer.p_timer_instance,
+                                NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+        nrf_ppi_channel_endpoint_setup(PPI_EGU_TIMER_START, event_addr, task_addr);
+        nrf_ppi_channel_enable(PPI_EGU_TIMER_START);
+    }
 }
 
 /** Reset FEM configuration for PA. */
 static void fem_for_pa_reset(void)
 {
-    nrf_fem_control_ppi_disable(NRF_FEM_CONTROL_PA_PIN);
-    nrf_fem_control_timer_reset(NRF_FEM_CONTROL_PA_PIN, NRF_TIMER_SHORT_COMPARE2_STOP_MASK);
-    nrf_fem_control_ppi_fork_clear(NRF_FEM_CONTROL_PA_PIN, PPI_EGU_RAMP_UP);
+    nrf_802154_fal_pa_configuration_clear(&m_activate_tx_cc0, NULL);
+    nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
+    nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
+    nrf_802154_fal_deactivate_now(NRF_802154_FAL_PA);
 }
 
 /** Configure FEM for TX procedure. */
 static void fem_for_tx_set(bool cca)
 {
+    bool success;
+
     if (cca)
     {
-        nrf_fem_control_ppi_enable(NRF_FEM_CONTROL_LNA_PIN, NRF_TIMER_CC_CHANNEL0);
-        nrf_fem_control_timer_set(NRF_FEM_CONTROL_LNA_PIN,
-                                  NRF_TIMER_CC_CHANNEL0,
-                                  NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
-        nrf_fem_control_ppi_pin_task_setup(PPI_CCAIDLE_FEM,
-                                           (uint32_t)nrf_radio_event_address_get(
-                                               NRF_RADIO_EVENT_CCAIDLE),
-                                           false,
-                                           true);
+        bool pa_set  = false;
+        bool lna_set = false;
+
+        if (nrf_802154_fal_lna_configuration_set(&m_activate_rx_cc0, &m_ccaidle) == NRF_SUCCESS)
+        {
+            lna_set = true;
+        }
+
+        if (nrf_802154_fal_pa_configuration_set(&m_ccaidle, NULL) == NRF_SUCCESS)
+        {
+            pa_set = true;
+        }
+
+        success = pa_set || lna_set;
+
     }
     else
     {
-        nrf_fem_control_ppi_enable(NRF_FEM_CONTROL_PA_PIN, NRF_TIMER_CC_CHANNEL1);
-        nrf_fem_control_timer_set(NRF_FEM_CONTROL_PA_PIN,
-                                  NRF_TIMER_CC_CHANNEL1,
-                                  NRF_TIMER_SHORT_COMPARE1_STOP_MASK);
+        success = (nrf_802154_fal_pa_configuration_set(&m_activate_tx_cc0, NULL) == NRF_SUCCESS);
     }
 
-    nrf_fem_control_ppi_task_setup(NRF_FEM_CONTROL_ANY_PIN,
-                                   PPI_EGU_TIMER_START,
-                                   nrf_egu_event_address_get(
-                                       NRF_802154_SWI_EGU_INSTANCE,
-                                       EGU_EVENT),
-                                   nrf_timer_task_address_get(
-                                       NRF_802154_TIMER_INSTANCE,
-                                       NRF_TIMER_TASK_START));
+    if (success)
+    {
+        nrf_timer_shorts_enable(NRF_802154_TIMER_INSTANCE, NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+
+        uint32_t egu_event_addr = (uint32_t)nrf_egu_event_address_get(NRF_802154_SWI_EGU_INSTANCE,
+                                                                      EGU_EVENT);
+        uint32_t timer_task_addr = (uint32_t)nrf_timer_task_address_get(NRF_802154_TIMER_INSTANCE,
+                                                                        NRF_TIMER_TASK_START);
+
+        nrf_ppi_channel_endpoint_setup(PPI_EGU_TIMER_START, egu_event_addr, timer_task_addr);
+        nrf_ppi_channel_enable(PPI_EGU_TIMER_START);
+    }
 }
 
 /** Reset FEM for TX procedure. */
 static void fem_for_tx_reset(bool disable_ppi_egu_timer_start)
 {
-    nrf_fem_control_ppi_disable(NRF_FEM_CONTROL_ANY_PIN);
-    nrf_fem_control_timer_reset(NRF_FEM_CONTROL_ANY_PIN,
-                                (nrf_timer_short_mask_t)(NRF_TIMER_SHORT_COMPARE0_STOP_MASK |
-                                                         NRF_TIMER_SHORT_COMPARE1_STOP_MASK));
-    nrf_fem_control_ppi_fork_clear(NRF_FEM_CONTROL_ANY_PIN, PPI_CCAIDLE_FEM);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_CCAIDLE_FEM);
+    nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
+    nrf_timer_shorts_disable(NRF_802154_TIMER_INSTANCE,
+                             NRF_TIMER_SHORT_COMPARE0_STOP_MASK |
+                             NRF_TIMER_SHORT_COMPARE1_STOP_MASK);
+
+    switch (m_state)
+    {
+        case RADIO_STATE_CCA_TX:
+            nrf_802154_fal_pa_configuration_clear(&m_activate_rx_cc0, &m_ccaidle);
+            break;
+
+        case RADIO_STATE_TX:
+            nrf_802154_fal_pa_configuration_clear(&m_activate_tx_cc0, NULL);
+            break;
+
+        default:
+            assert(false);
+            break;
+    }
+
+    nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
 
     if (disable_ppi_egu_timer_start)
     {
-        nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_TIMER_START);
+        nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
     }
 }
 
@@ -876,7 +939,7 @@ static void fem_for_tx_reset(bool disable_ppi_egu_timer_start)
 static void rx_restart(bool set_shorts)
 {
     // Disable PPIs on DISABLED event to control TIMER.
-    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
 
     if (set_shorts)
     {
@@ -893,7 +956,7 @@ static void rx_restart(bool set_shorts)
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
     // Enable self-disabled PPI or PPI disabled by CRCOK
-    nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_enable(PPI_EGU_RAMP_UP);
 
     rx_flags_clear();
 #if !NRF_802154_DISABLE_BCC_MATCHING
@@ -903,7 +966,7 @@ static void rx_restart(bool set_shorts)
 
     // Enable PPIs on DISABLED event and clear event to detect if PPI worked
     nrf_egu_event_clear(NRF_802154_SWI_EGU_INSTANCE, EGU_EVENT);
-    nrf_ppi_channel_enable(NRF_PPI, PPI_DISABLED_EGU);
+    nrf_ppi_channel_enable(PPI_DISABLED_EGU);
 
     // Prepare the timer coordinator to get a precise timestamp of the CRCOK event.
     nrf_802154_timer_coord_timestamp_prepare(
@@ -971,31 +1034,33 @@ static void rx_terminate(void)
 {
     uint32_t ints_to_disable = 0;
 
-    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_TIMER_START);
+    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_disable(NRF_PPI, PPI_CRCERROR_CLEAR);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_CRCOK_DIS_PPI);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_ADDRESS_COUNTER_COUNT);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_CRCERROR_COUNTER_CLEAR);
+    nrf_ppi_channel_disable(PPI_CRCERROR_CLEAR);
+    nrf_ppi_channel_disable(PPI_CRCOK_DIS_PPI);
+    nrf_ppi_channel_disable(PPI_ADDRESS_COUNTER_COUNT);
+    nrf_ppi_channel_disable(PPI_CRCERROR_COUNTER_CLEAR);
+    nrf_ppi_channel_endpoint_setup(PPI_CRCERROR_CLEAR, 0, 0);
+    nrf_ppi_fork_endpoint_setup(PPI_CRCERROR_CLEAR, 0);
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
-    nrf_fem_control_ppi_disable(NRF_FEM_CONTROL_LNA_PIN);
-
-    nrf_ppi_channel_remove_from_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    // Disable LNA
+    nrf_802154_fal_lna_configuration_clear(&m_activate_rx_cc0, NULL);
+    nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
+    nrf_ppi_channel_remove_from_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
 
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_TIMER_START, 0);
+    nrf_ppi_fork_endpoint_setup(PPI_EGU_TIMER_START, 0);
 #else // NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_RAMP_UP, 0);
+    nrf_ppi_fork_endpoint_setup(PPI_EGU_RAMP_UP, 0);
 #endif  // NRF_802154_DISABLE_BCC_MATCHING
 
     // Anomaly 78: use SHUTDOWN instead of STOP and CLEAR.
     nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
     nrf_timer_shorts_disable(NRF_802154_TIMER_INSTANCE,
-                             NRF_TIMER_SHORT_COMPARE0_STOP_MASK |
-                             NRF_TIMER_SHORT_COMPARE2_STOP_MASK);
+                             NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
 
 #if NRF_802154_DISABLE_BCC_MATCHING
     // Anomaly 78: use SHUTDOWN instead of STOP and CLEAR.
@@ -1014,7 +1079,21 @@ static void rx_terminate(void)
         ints_to_disable |= NRF_RADIO_INT_CRCOK_MASK;
         nrf_radio_int_disable(ints_to_disable);
         nrf_radio_shorts_set(SHORTS_IDLE);
+        bool shutdown = nrf_fem_prepare_powerdown(NRF_802154_TIMER_INSTANCE,
+                                                  NRF_TIMER_CC_CHANNEL0,
+                                                  PPI_EGU_TIMER_START);
+
         nrf_radio_task_trigger(NRF_RADIO_TASK_DISABLE);
+        if (shutdown)
+        {
+            while (!nrf_timer_event_check(NRF_802154_TIMER_INSTANCE, NRF_TIMER_EVENT_COMPARE0))
+            {
+                // Wait until the event is set.
+            }
+            nrf_timer_shorts_disable(NRF_802154_TIMER_INSTANCE, NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+            nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
+            nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
+        }
     }
 }
 
@@ -1023,26 +1102,29 @@ static void tx_ack_terminate(void)
 {
     uint32_t ints_to_disable = 0;
 
-    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_TIMER_START);
+    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_disable(NRF_PPI, PPI_CRCERROR_CLEAR);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_CRCOK_DIS_PPI);
+    nrf_ppi_channel_disable(PPI_CRCERROR_CLEAR);
+    nrf_ppi_channel_disable(PPI_CRCOK_DIS_PPI);
+    nrf_ppi_channel_endpoint_setup(PPI_CRCERROR_CLEAR, 0, 0);
+    nrf_ppi_fork_endpoint_setup(PPI_CRCERROR_CLEAR, 0);
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
-    nrf_fem_control_ppi_disable(NRF_FEM_CONTROL_PA_PIN);
+    // Disable PA
+    nrf_802154_fal_pa_configuration_clear(&m_activate_tx_cc0, NULL);
+    nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
 
-    nrf_ppi_channel_remove_from_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    nrf_ppi_channel_remove_from_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
 #if !NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_RAMP_UP, 0);
+    nrf_ppi_fork_endpoint_setup(PPI_EGU_RAMP_UP, 0);
 #endif // !NRF_802154_DISABLE_BCC_MATCHING
 
     // Anomaly 78: use SHUTDOWN instead of STOP and CLEAR.
     nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
     nrf_timer_shorts_disable(NRF_802154_TIMER_INSTANCE,
-                             NRF_TIMER_SHORT_COMPARE0_STOP_MASK |
-                             NRF_TIMER_SHORT_COMPARE2_STOP_MASK);
+                             NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
 
 #if NRF_802154_DISABLE_BCC_MATCHING
     // Anomaly 78: use SHUTDOWN instead of STOP and CLEAR.
@@ -1052,8 +1134,8 @@ static void tx_ack_terminate(void)
 
     if (timeslot_is_granted())
     {
-        ints_to_disable = nrf_802154_revision_has_phyend_event() ?
-                          NRF_RADIO_INT_PHYEND_MASK : NRF_RADIO_INT_END_MASK;
+        ints_to_disable = NRF_RADIO_INT_PHYEND_MASK;
+
 #if NRF_802154_TX_STARTED_NOTIFY_ENABLED
         ints_to_disable |= NRF_RADIO_INT_ADDRESS_MASK;
 #endif // NRF_802154_TX_STARTED_NOTIFY_ENABLED
@@ -1069,44 +1151,62 @@ static void tx_terminate(void)
 {
     uint32_t ints_to_disable;
 
-    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
 
     fem_for_tx_reset(true);
 
-    nrf_ppi_channel_remove_from_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
-    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_RAMP_UP, 0);
+    nrf_ppi_channel_remove_from_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    nrf_ppi_fork_endpoint_setup(PPI_EGU_RAMP_UP, 0);
 
     if (timeslot_is_granted())
     {
-        ints_to_disable = nrf_802154_revision_has_phyend_event() ?
-                          NRF_RADIO_INT_PHYEND_MASK : NRF_RADIO_INT_END_MASK;
-        ints_to_disable |= NRF_RADIO_INT_CCABUSY_MASK;
+        ints_to_disable = NRF_RADIO_INT_PHYEND_MASK | NRF_RADIO_INT_CCABUSY_MASK;
+
 #if NRF_802154_TX_STARTED_NOTIFY_ENABLED
         ints_to_disable |= NRF_RADIO_INT_ADDRESS_MASK;
 #endif // NRF_802154_TX_STARTED_NOTIFY_ENABLED
 
         nrf_radio_int_disable(ints_to_disable);
         nrf_radio_shorts_set(SHORTS_IDLE);
+        bool shutdown = nrf_fem_prepare_powerdown(NRF_802154_TIMER_INSTANCE,
+                                                  NRF_TIMER_CC_CHANNEL0,
+                                                  PPI_EGU_TIMER_START);
+
         nrf_radio_task_trigger(NRF_RADIO_TASK_CCASTOP);
         nrf_radio_task_trigger(NRF_RADIO_TASK_DISABLE);
+        if (shutdown)
+        {
+            while (!nrf_timer_event_check(NRF_802154_TIMER_INSTANCE, NRF_TIMER_EVENT_COMPARE0))
+            {
+                // Wait until the event is set.
+            }
+            nrf_timer_shorts_disable(NRF_802154_TIMER_INSTANCE, NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+            nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
+            nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
+        }
     }
 }
 
 /** Terminate RX ACK procedure. */
 static void rx_ack_terminate(void)
 {
-    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
+    uint32_t ints_to_disable;
 
-    fem_for_lna_reset(NRF_TIMER_SHORT_COMPARE2_STOP_MASK);
+    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
 
-    nrf_ppi_channel_remove_from_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
-    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_RAMP_UP, 0);
+    fem_for_lna_reset();
+
+    nrf_ppi_channel_remove_from_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    nrf_ppi_fork_endpoint_setup(PPI_EGU_RAMP_UP, 0);
 
     if (timeslot_is_granted())
     {
-        nrf_radio_int_disable(NRF_RADIO_INT_END_MASK);
+        ints_to_disable  = NRF_RADIO_INT_END_MASK;
+        ints_to_disable |= NRF_RADIO_INT_ADDRESS_MASK;
+
+        nrf_radio_int_disable(ints_to_disable);
         nrf_radio_shorts_set(SHORTS_IDLE);
         nrf_radio_task_trigger(NRF_RADIO_TASK_DISABLE);
 
@@ -1117,54 +1217,98 @@ static void rx_ack_terminate(void)
 /** Terminate ED procedure. */
 static void ed_terminate(void)
 {
-    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
 
-    fem_for_lna_reset(NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+    fem_for_lna_reset();
 
-    nrf_ppi_channel_remove_from_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
-    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_RAMP_UP, 0);
+    nrf_ppi_channel_remove_from_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    nrf_ppi_fork_endpoint_setup(PPI_EGU_RAMP_UP, 0);
 
     if (timeslot_is_granted())
     {
+        bool shutdown = nrf_fem_prepare_powerdown(NRF_802154_TIMER_INSTANCE,
+                                                  NRF_TIMER_CC_CHANNEL0,
+                                                  PPI_EGU_TIMER_START);
+
         nrf_radio_int_disable(NRF_RADIO_INT_EDEND_MASK);
         nrf_radio_shorts_set(SHORTS_IDLE);
         nrf_radio_task_trigger(NRF_RADIO_TASK_EDSTOP);
         nrf_radio_task_trigger(NRF_RADIO_TASK_DISABLE);
+
+        if (shutdown)
+        {
+            while (!nrf_timer_event_check(NRF_802154_TIMER_INSTANCE, NRF_TIMER_EVENT_COMPARE0))
+            {
+                // Wait until the event is set.
+            }
+            nrf_timer_shorts_disable(NRF_802154_TIMER_INSTANCE, NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+            nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
+            nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
+        }
     }
 }
 
 /** Terminate CCA procedure. */
 static void cca_terminate(void)
 {
-    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
 
-    fem_for_lna_reset(NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+    fem_for_lna_reset();
 
-    nrf_ppi_channel_remove_from_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
-    nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_RAMP_UP, 0);
+    nrf_ppi_channel_remove_from_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    nrf_ppi_fork_endpoint_setup(PPI_EGU_RAMP_UP, 0);
 
     if (timeslot_is_granted())
     {
+        bool shutdown = nrf_fem_prepare_powerdown(NRF_802154_TIMER_INSTANCE,
+                                                  NRF_TIMER_CC_CHANNEL0,
+                                                  PPI_EGU_TIMER_START);
+
         nrf_radio_int_disable(NRF_RADIO_INT_CCABUSY_MASK | NRF_RADIO_INT_CCAIDLE_MASK);
         nrf_radio_shorts_set(SHORTS_IDLE);
         nrf_radio_task_trigger(NRF_RADIO_TASK_CCASTOP);
         nrf_radio_task_trigger(NRF_RADIO_TASK_DISABLE);
+
+        if (shutdown)
+        {
+            while (!nrf_timer_event_check(NRF_802154_TIMER_INSTANCE, NRF_TIMER_EVENT_COMPARE0))
+            {
+                // Wait until the event is set.
+            }
+            nrf_timer_shorts_disable(NRF_802154_TIMER_INSTANCE, NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+            nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
+            nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
+        }
     }
 }
 
 /** Terminate Continuous Carrier procedure. */
 static void continuous_carrier_terminate(void)
 {
-    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
-    nrf_ppi_channel_disable(NRF_PPI, PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(PPI_EGU_RAMP_UP);
 
     fem_for_pa_reset();
 
     if (timeslot_is_granted())
     {
+        bool shutdown = nrf_fem_prepare_powerdown(NRF_802154_TIMER_INSTANCE,
+                                                  NRF_TIMER_CC_CHANNEL0,
+                                                  PPI_EGU_TIMER_START);
+
         nrf_radio_task_trigger(NRF_RADIO_TASK_DISABLE);
+        if (shutdown)
+        {
+            while (!nrf_timer_event_check(NRF_802154_TIMER_INSTANCE, NRF_TIMER_EVENT_COMPARE0))
+            {
+                // Wait until the event is set.
+            }
+            nrf_timer_shorts_disable(NRF_802154_TIMER_INSTANCE, NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+            nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
+            nrf_ppi_channel_disable(PPI_EGU_TIMER_START);
+        }
     }
 }
 
@@ -1238,7 +1382,7 @@ static bool current_operation_terminate(nrf_802154_term_t term_lvl,
                     if (notify)
                     {
                         mp_current_rx_buffer->free = false;
-                        received_frame_notify(mp_current_rx_buffer->psdu);
+                        received_frame_notify(mp_current_rx_buffer->data);
                     }
                 }
                 else
@@ -1331,9 +1475,8 @@ static bool current_operation_terminate(nrf_802154_term_t term_lvl,
 /** Enter Sleep state. */
 static void sleep_init(void)
 {
-    nrf_802154_rsch_crit_sect_prio_request(RSCH_PRIO_IDLE);
-    m_rsch_timeslot_is_granted = false;
     nrf_802154_timer_coord_stop();
+    nrf_802154_rsch_crit_sect_prio_request(RSCH_PRIO_IDLE);
 }
 
 /** Initialize Falling Asleep operation. */
@@ -1361,10 +1504,8 @@ static void falling_asleep_init(void)
 /** Initialize RX operation. */
 static void rx_init(bool disabled_was_triggered)
 {
-    bool     free_buffer;
-    int32_t  ints_to_enable = 0;
-    uint32_t lna_target_time;
-    uint32_t pa_target_time;
+    bool    free_buffer;
+    int32_t ints_to_enable = 0;
 
     if (!timeslot_is_granted())
     {
@@ -1373,15 +1514,17 @@ static void rx_init(bool disabled_was_triggered)
 
     // Clear filtering flag
     rx_flags_clear();
+    // Clear the RSSI measurement flag.
+    m_flags.rssi_started = false;
 
-    nrf_radio_tx_power_set(nrf_802154_pib_tx_power_get());
+    nrf_radio_txpower_set(nrf_802154_pib_tx_power_get());
 
     // Find available RX buffer
     free_buffer = rx_buffer_is_available();
 
     if (free_buffer)
     {
-        nrf_radio_packet_ptr_set(rx_buffer_get());
+        nrf_radio_packetptr_set(rx_buffer_get());
     }
 
     // Set shorts
@@ -1406,25 +1549,29 @@ static void rx_init(bool disabled_was_triggered)
     nrf_radio_int_enable(ints_to_enable);
 
     // Set FEM
-    nrf_fem_control_ppi_enable(NRF_FEM_CONTROL_LNA_PIN, NRF_TIMER_CC_CHANNEL0);
-    lna_target_time = nrf_fem_control_delay_get(NRF_FEM_CONTROL_LNA_PIN);
-    pa_target_time  = nrf_fem_control_delay_get(NRF_FEM_CONTROL_PA_PIN);
-
-    // Set TIMER to transmit ACK
     nrf_timer_shorts_enable(NRF_802154_TIMER_INSTANCE,
-                            NRF_TIMER_SHORT_COMPARE0_STOP_MASK |
-                            NRF_TIMER_SHORT_COMPARE2_STOP_MASK);
-    nrf_timer_cc_set(NRF_802154_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL0, lna_target_time);
-    nrf_timer_cc_set(NRF_802154_TIMER_INSTANCE,
-                     NRF_TIMER_CC_CHANNEL1,
-                     lna_target_time + ACK_IFS - TXRU_TIME - EVENT_LAT);
-    nrf_timer_cc_set(NRF_802154_TIMER_INSTANCE,
-                     NRF_TIMER_CC_CHANNEL2,
-                     lna_target_time + ACK_IFS - TXRU_TIME - EVENT_LAT + pa_target_time);
+                            NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+
+    uint32_t delta_time;
+
+    if (nrf_802154_fal_lna_configuration_set(&m_activate_rx_cc0, NULL) == NRF_SUCCESS)
+    {
+        delta_time = nrf_timer_cc_read(NRF_802154_TIMER_INSTANCE,
+                                       NRF_TIMER_CC_CHANNEL0);
+    }
+    else
+    {
+        delta_time = 1;
+        nrf_timer_cc_write(NRF_802154_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL0, delta_time);
+    }
+
+    nrf_timer_cc_write(NRF_802154_TIMER_INSTANCE,
+                       NRF_TIMER_CC_CHANNEL1,
+                       delta_time + ACK_IFS - TXRU_TIME - EVENT_LAT);
 
 #if NRF_802154_DISABLE_BCC_MATCHING
     nrf_timer_shorts_enable(NRF_802154_COUNTER_TIMER_INSTANCE, NRF_TIMER_SHORT_COMPARE1_STOP_MASK);
-    nrf_timer_cc_set(NRF_802154_COUNTER_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL1, 1);
+    nrf_timer_cc_write(NRF_802154_COUNTER_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL1, 1);
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
     // Clr event EGU
@@ -1432,89 +1579,77 @@ static void rx_init(bool disabled_was_triggered)
 
     // Set PPIs
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_endpoint_setup(NRF_PPI,
-                                   PPI_EGU_RAMP_UP,
-                                   nrf_egu_event_address_get(
+    nrf_ppi_channel_endpoint_setup(PPI_EGU_RAMP_UP,
+                                   (uint32_t)nrf_egu_event_address_get(
                                        NRF_802154_SWI_EGU_INSTANCE,
                                        EGU_EVENT),
                                    (uint32_t)nrf_radio_task_address_get(NRF_RADIO_TASK_RXEN));
-    nrf_ppi_channel_and_fork_endpoint_setup(NRF_PPI,
-                                            PPI_EGU_TIMER_START,
-                                            nrf_egu_event_address_get(
+    nrf_ppi_channel_and_fork_endpoint_setup(PPI_EGU_TIMER_START,
+                                            (uint32_t)nrf_egu_event_address_get(
                                                 NRF_802154_SWI_EGU_INSTANCE,
                                                 EGU_EVENT),
-                                            nrf_timer_task_address_get(
+                                            (uint32_t)nrf_timer_task_address_get(
                                                 NRF_802154_TIMER_INSTANCE,
                                                 NRF_TIMER_TASK_START),
-                                            nrf_timer_task_address_get(
+                                            (uint32_t)nrf_timer_task_address_get(
                                                 NRF_802154_COUNTER_TIMER_INSTANCE,
                                                 NRF_TIMER_TASK_START));
     // Anomaly 78: use SHUTDOWN instead of CLEAR.
-    nrf_ppi_channel_endpoint_setup(NRF_PPI,
-                                   PPI_CRCERROR_CLEAR,
+    nrf_ppi_channel_endpoint_setup(PPI_CRCERROR_CLEAR,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_CRCERROR),
-                                   nrf_timer_task_address_get(
+                                   (uint32_t)nrf_timer_task_address_get(
                                        NRF_802154_TIMER_INSTANCE,
                                        NRF_TIMER_TASK_SHUTDOWN));
-    nrf_ppi_channel_endpoint_setup(NRF_PPI,
-                                   PPI_CRCOK_DIS_PPI,
+    nrf_ppi_channel_endpoint_setup(PPI_CRCOK_DIS_PPI,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_CRCOK),
-                                   nrf_ppi_task_address_get(
-                                       NRF_PPI,
-                                       PPI_CHGRP0_DIS_TASK));
+                                   (uint32_t)nrf_ppi_task_address_get(PPI_CHGRP0_DIS_TASK));
 #else // NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_and_fork_endpoint_setup(NRF_PPI,
-                                            PPI_EGU_RAMP_UP,
-                                            nrf_egu_event_address_get(
+    nrf_ppi_channel_and_fork_endpoint_setup(PPI_EGU_RAMP_UP,
+                                            (uint32_t)nrf_egu_event_address_get(
                                                 NRF_802154_SWI_EGU_INSTANCE,
                                                 EGU_EVENT),
                                             (uint32_t)nrf_radio_task_address_get(
                                                 NRF_RADIO_TASK_RXEN),
-                                            nrf_ppi_task_address_get(
-                                                NRF_PPI,
+                                            (uint32_t)nrf_ppi_task_address_get(
                                                 PPI_CHGRP0_DIS_TASK));
-    nrf_ppi_channel_endpoint_setup(NRF_PPI,
-                                   PPI_EGU_TIMER_START,
-                                   nrf_egu_event_address_get(
+    nrf_ppi_channel_endpoint_setup(PPI_EGU_TIMER_START,
+                                   (uint32_t)nrf_egu_event_address_get(
                                        NRF_802154_SWI_EGU_INSTANCE,
                                        EGU_EVENT),
-                                   nrf_timer_task_address_get(
+                                   (uint32_t)nrf_timer_task_address_get(
                                        NRF_802154_TIMER_INSTANCE,
                                        NRF_TIMER_TASK_START));
 #endif // NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_include_in_group(NRF_PPI, PPI_EGU_RAMP_UP, PPI_CHGRP0);
+    nrf_ppi_channel_include_in_group(PPI_EGU_RAMP_UP, PPI_CHGRP0);
 
-    nrf_ppi_channel_endpoint_setup(NRF_PPI,
-                                   PPI_DISABLED_EGU,
+    nrf_ppi_channel_endpoint_setup(PPI_DISABLED_EGU,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_DISABLED),
-                                   nrf_egu_task_address_get(
+                                   (uint32_t)nrf_egu_task_address_get(
                                        NRF_802154_SWI_EGU_INSTANCE,
                                        EGU_TASK));
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_endpoint_setup(NRF_PPI,
-                                   PPI_ADDRESS_COUNTER_COUNT,
+    nrf_ppi_channel_endpoint_setup(PPI_ADDRESS_COUNTER_COUNT,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_ADDRESS),
-                                   nrf_timer_task_address_get(
+                                   (uint32_t)nrf_timer_task_address_get(
                                        NRF_802154_COUNTER_TIMER_INSTANCE,
                                        NRF_TIMER_TASK_COUNT));
     // Anomaly 78: use SHUTDOWN instead of CLEAR.
-    nrf_ppi_channel_endpoint_setup(NRF_PPI,
-                                   PPI_CRCERROR_COUNTER_CLEAR,
+    nrf_ppi_channel_endpoint_setup(PPI_CRCERROR_COUNTER_CLEAR,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_CRCERROR),
-                                   nrf_timer_task_address_get(
+                                   (uint32_t)nrf_timer_task_address_get(
                                        NRF_802154_COUNTER_TIMER_INSTANCE,
                                        NRF_TIMER_TASK_SHUTDOWN));
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
-    nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_RAMP_UP);
-    nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_TIMER_START);
+    nrf_ppi_channel_enable(PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_enable(PPI_EGU_TIMER_START);
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_enable(NRF_PPI, PPI_CRCERROR_CLEAR);
-    nrf_ppi_channel_enable(NRF_PPI, PPI_CRCOK_DIS_PPI);
-    nrf_ppi_channel_enable(NRF_PPI, PPI_ADDRESS_COUNTER_COUNT);
-    nrf_ppi_channel_enable(NRF_PPI, PPI_CRCERROR_COUNTER_CLEAR);
+    nrf_ppi_channel_enable(PPI_CRCERROR_CLEAR);
+    nrf_ppi_channel_enable(PPI_CRCOK_DIS_PPI);
+    nrf_ppi_channel_enable(PPI_ADDRESS_COUNTER_COUNT);
+    nrf_ppi_channel_enable(PPI_CRCERROR_COUNTER_CLEAR);
 #endif // NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_enable(NRF_PPI, PPI_DISABLED_EGU);
+    nrf_ppi_channel_enable(PPI_DISABLED_EGU);
 
     // Configure the timer coordinator to get a timestamp of the CRCOK event.
     nrf_802154_timer_coord_timestamp_prepare(
@@ -1533,10 +1668,10 @@ static void rx_init(bool disabled_was_triggered)
 
         if (rx_buffer_is_available())
         {
-            nrf_radio_packet_ptr_set(rx_buffer_get());
+            nrf_radio_packetptr_set(rx_buffer_get());
             nrf_radio_shorts_set(SHORTS_RX | SHORTS_RX_FREE_BUFFER);
 
-            if (nrf_radio_state_get() == NRF_RADIO_STATE_RX_IDLE)
+            if (nrf_radio_state_get() == NRF_RADIO_STATE_RXIDLE)
             {
                 nrf_radio_task_trigger(NRF_RADIO_TASK_START);
             }
@@ -1555,23 +1690,15 @@ static bool tx_init(const uint8_t * p_data, bool cca, bool disabled_was_triggere
         return false;
     }
 
-    nrf_radio_tx_power_set(nrf_802154_pib_tx_power_get());
-    nrf_radio_packet_ptr_set(p_data);
+    nrf_radio_txpower_set(nrf_802154_pib_tx_power_get());
+    nrf_radio_packetptr_set(p_data);
 
     // Set shorts
     nrf_radio_shorts_set(cca ? SHORTS_CCA_TX : SHORTS_TX);
 
     // Enable IRQs
-    if (nrf_802154_revision_has_phyend_event())
-    {
-        nrf_radio_event_clear(NRF_RADIO_EVENT_PHYEND);
-        ints_to_enable |= NRF_RADIO_INT_PHYEND_MASK;
-    }
-    else
-    {
-        nrf_radio_event_clear(NRF_RADIO_EVENT_END);
-        ints_to_enable |= NRF_RADIO_INT_END_MASK;
-    }
+    nrf_radio_event_clear(NRF_RADIO_EVENT_PHYEND);
+    ints_to_enable |= NRF_RADIO_INT_PHYEND_MASK;
 
     if (cca)
     {
@@ -1621,7 +1748,7 @@ static void ed_init(bool disabled_was_triggered)
     nrf_radio_int_enable(NRF_RADIO_INT_EDEND_MASK);
 
     // Set FEM
-    fem_for_lna_set(NRF_TIMER_CC_CHANNEL0, NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+    fem_for_lna_set();
 
     // Clr event EGU
     nrf_egu_event_clear(NRF_802154_SWI_EGU_INSTANCE, EGU_EVENT);
@@ -1652,7 +1779,7 @@ static void cca_init(bool disabled_was_triggered)
     nrf_radio_int_enable(NRF_RADIO_INT_CCABUSY_MASK | NRF_RADIO_INT_CCAIDLE_MASK);
 
     // Set FEM
-    fem_for_lna_set(NRF_TIMER_CC_CHANNEL0, NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+    fem_for_lna_set();
 
     // Clr event EGU
     nrf_egu_event_clear(NRF_802154_SWI_EGU_INSTANCE, EGU_EVENT);
@@ -1673,6 +1800,9 @@ static void continuous_carrier_init(bool disabled_was_triggered)
     {
         return;
     }
+
+    // Set Tx Power
+    nrf_radio_txpower_set(nrf_802154_pib_tx_power_get());
 
     // Set FEM
     fem_for_pa_set();
@@ -1705,17 +1835,16 @@ static void cont_prec_approved(void)
 
         assert(nrf_radio_shorts_get() == SHORTS_IDLE);
 
-        if (m_state != RADIO_STATE_SLEEP)
-        {
-            m_rsch_timeslot_is_granted = true;
-            nrf_802154_timer_coord_start();
-        }
+        m_rsch_timeslot_is_granted = true;
+        nrf_802154_timer_coord_start();
+
+        nrf_802154_fal_pa_configuration_set(NULL, &m_deactivate_on_disable);
+        nrf_802154_fal_lna_configuration_set(NULL, &m_deactivate_on_disable);
 
         switch (m_state)
         {
             case RADIO_STATE_SLEEP:
-                // Intentionally empty.
-                // Ignore this notification if continuous mode was not requested.
+                // Intentionally empty. Appropriate action will be performed on state change.
                 break;
 
             case RADIO_STATE_RX:
@@ -1758,11 +1887,18 @@ static void cont_prec_denied(void)
 
     if (timeslot_is_granted())
     {
-        irq_deinit();
-        nrf_radio_reset();
-        nrf_fem_control_pin_clear();
-
         m_rsch_timeslot_is_granted = false;
+
+        if (nrf_802154_rsch_timeslot_is_requested())
+        {
+            irq_deinit();
+            nrf_radio_reset();
+        }
+
+        nrf_802154_fal_pa_configuration_clear(NULL, &m_deactivate_on_disable);
+        nrf_802154_fal_lna_configuration_clear(NULL, &m_deactivate_on_disable);
+
+        nrf_802154_fal_deactivate_now(NRF_802154_FAL_ALL);
         nrf_802154_timer_coord_stop();
 
         result = current_operation_terminate(NRF_802154_TERM_802154, REQ_ORIG_RSCH, false);
@@ -1771,11 +1907,6 @@ static void cont_prec_denied(void)
 
         switch (m_state)
         {
-            case RADIO_STATE_SLEEP:
-                // Intentionally empty.
-                // Ignore this notification if continuous mode was not requested.
-                break;
-
             case RADIO_STATE_FALLING_ASLEEP:
                 state_set(RADIO_STATE_SLEEP);
                 sleep_init();
@@ -1792,7 +1923,7 @@ static void cont_prec_denied(void)
             case RADIO_STATE_TX_ACK:
                 state_set(RADIO_STATE_RX);
                 mp_current_rx_buffer->free = false;
-                received_frame_notify_and_nesting_allow(mp_current_rx_buffer->psdu);
+                received_frame_notify_and_nesting_allow(mp_current_rx_buffer->data);
                 break;
 
             case RADIO_STATE_CCA_TX:
@@ -1805,6 +1936,7 @@ static void cont_prec_denied(void)
             case RADIO_STATE_ED:
             case RADIO_STATE_CCA:
             case RADIO_STATE_CONTINUOUS_CARRIER:
+            case RADIO_STATE_SLEEP:
                 // Intentionally empty.
                 break;
 
@@ -1844,7 +1976,12 @@ static void irq_address_state_tx_frame(void)
 
 static void irq_address_state_tx_ack(void)
 {
-    nrf_802154_tx_ack_started();
+    nrf_802154_tx_ack_started(mp_ack);
+}
+
+static void irq_address_state_rx_ack(void)
+{
+    nrf_802154_core_hooks_rx_ack_started();
 }
 
 #if !NRF_802154_DISABLE_BCC_MATCHING
@@ -1852,19 +1989,19 @@ static void irq_address_state_tx_ack(void)
 // and to filter frame
 static void irq_bcmatch_state_rx(void)
 {
-    uint8_t               prev_num_psdu_bytes;
-    uint8_t               num_psdu_bytes;
+    uint8_t               prev_num_data_bytes;
+    uint8_t               num_data_bytes;
     nrf_802154_rx_error_t filter_result;
     bool                  frame_accepted = true;
 
-    num_psdu_bytes      = nrf_radio_bcc_get() / 8;
-    prev_num_psdu_bytes = num_psdu_bytes;
+    num_data_bytes      = nrf_radio_bcc_get() / 8;
+    prev_num_data_bytes = num_data_bytes;
 
-    assert(num_psdu_bytes >= PHR_SIZE + FCF_SIZE);
+    assert(num_data_bytes >= PHR_SIZE + FCF_SIZE);
 
     // If CRCERROR event is set, it means that events are handled out of order due to software
     // latency. Just skip this handler in this case - frame will be dropped.
-    if (nrf_radio_event_get(NRF_RADIO_EVENT_CRCERROR))
+    if (nrf_radio_event_check(NRF_RADIO_EVENT_CRCERROR))
     {
         return;
     }
@@ -1872,14 +2009,14 @@ static void irq_bcmatch_state_rx(void)
     if (!m_flags.frame_filtered)
     {
         m_flags.psdu_being_received = true;
-        filter_result               = nrf_802154_filter_frame_part(mp_current_rx_buffer->psdu,
-                                                                   &num_psdu_bytes);
+        filter_result               = nrf_802154_filter_frame_part(mp_current_rx_buffer->data,
+                                                                   &num_data_bytes);
 
         if (filter_result == NRF_802154_RX_ERROR_NONE)
         {
-            if (num_psdu_bytes != prev_num_psdu_bytes)
+            if (num_data_bytes != prev_num_data_bytes)
             {
-                nrf_radio_bcc_set(num_psdu_bytes * 8);
+                nrf_radio_bcc_set(num_data_bytes * 8);
             }
             else
             {
@@ -1894,7 +2031,7 @@ static void irq_bcmatch_state_rx(void)
 
             frame_accepted = false;
 
-            if ((mp_current_rx_buffer->psdu[FRAME_TYPE_OFFSET] & FRAME_TYPE_MASK) !=
+            if ((mp_current_rx_buffer->data[FRAME_TYPE_OFFSET] & FRAME_TYPE_MASK) !=
                 FRAME_TYPE_ACK)
             {
                 receive_failed_notify(filter_result);
@@ -1909,8 +2046,8 @@ static void irq_bcmatch_state_rx(void)
     if ((!m_flags.rx_timeslot_requested) && (frame_accepted))
     {
         if (nrf_802154_rsch_timeslot_request(nrf_802154_rx_duration_get(
-                                                 mp_current_rx_buffer->psdu[0],
-                                                 ack_is_requested(mp_current_rx_buffer->psdu))))
+                                                 mp_current_rx_buffer->data[0],
+                                                 ack_is_requested(mp_current_rx_buffer->data))))
         {
             m_flags.rx_timeslot_requested = true;
 
@@ -1943,26 +2080,28 @@ static void irq_crcerror_state_rx(void)
 
 static void irq_crcok_state_rx(void)
 {
-    uint8_t * p_received_psdu = mp_current_rx_buffer->psdu;
+    uint8_t * p_received_data = mp_current_rx_buffer->data;
     uint32_t  ints_to_disable = 0;
     uint32_t  ints_to_enable  = 0;
 
+    m_flags.rssi_started = true;
+
 #if NRF_802154_DISABLE_BCC_MATCHING
-    uint8_t               num_psdu_bytes      = PHR_SIZE + FCF_SIZE;
-    uint8_t               prev_num_psdu_bytes = 0;
+    uint8_t               num_data_bytes      = PHR_SIZE + FCF_SIZE;
+    uint8_t               prev_num_data_bytes = 0;
     nrf_802154_rx_error_t filter_result;
 
     // Frame filtering
-    while (num_psdu_bytes != prev_num_psdu_bytes)
+    while (num_data_bytes != prev_num_data_bytes)
     {
-        prev_num_psdu_bytes = num_psdu_bytes;
+        prev_num_data_bytes = num_data_bytes;
 
         // Keep checking consecutive parts of the frame header.
-        filter_result = nrf_802154_filter_frame_part(mp_current_rx_buffer->psdu, &num_psdu_bytes);
+        filter_result = nrf_802154_filter_frame_part(mp_current_rx_buffer->data, &num_data_bytes);
 
         if (filter_result == NRF_802154_RX_ERROR_NONE)
         {
-            if (num_psdu_bytes == prev_num_psdu_bytes)
+            if (num_data_bytes == prev_num_data_bytes)
             {
                 m_flags.frame_filtered = true;
             }
@@ -1975,7 +2114,7 @@ static void irq_crcok_state_rx(void)
 
     // Timeslot request
     if (m_flags.frame_filtered &&
-        ack_is_requested(p_received_psdu) &&
+        ack_is_requested(p_received_data) &&
         !nrf_802154_rsch_timeslot_request(nrf_802154_rx_duration_get(0, true)))
     {
         // Frame is destined to this node but there is no timeslot to transmit ACK.
@@ -1985,11 +2124,11 @@ static void irq_crcok_state_rx(void)
         rx_flags_clear();
 
         // Filter out received ACK frame if promiscuous mode is disabled.
-        if (((p_received_psdu[FRAME_TYPE_OFFSET] & FRAME_TYPE_MASK) != FRAME_TYPE_ACK) ||
+        if (((p_received_data[FRAME_TYPE_OFFSET] & FRAME_TYPE_MASK) != FRAME_TYPE_ACK) ||
             nrf_802154_pib_promiscuous_get())
         {
             mp_current_rx_buffer->free = false;
-            received_frame_notify_and_nesting_allow(p_received_psdu);
+            received_frame_notify_and_nesting_allow(p_received_data);
         }
 
         return;
@@ -1998,15 +2137,24 @@ static void irq_crcok_state_rx(void)
 
     if (m_flags.frame_filtered || nrf_802154_pib_promiscuous_get())
     {
+        bool send_ack = false;
+
         if (m_flags.frame_filtered &&
-            ack_is_requested(mp_current_rx_buffer->psdu) &&
+            ack_is_requested(mp_current_rx_buffer->data) &&
             nrf_802154_pib_auto_ack_get())
+        {
+            mp_ack = nrf_802154_ack_generator_create(mp_current_rx_buffer->data);
+            if (NULL != mp_ack)
+            {
+                send_ack = true;
+            }
+        }
+
+        if (send_ack)
         {
             bool wait_for_phyend;
 
-            // Prepare ACK
-            ack_prepare();
-            nrf_radio_packet_ptr_set(m_ack_psdu);
+            nrf_radio_packetptr_set(mp_ack);
 
             // Set shorts
             nrf_radio_shorts_set(SHORTS_TX_ACK);
@@ -2016,32 +2164,47 @@ static void irq_crcok_state_rx(void)
 
 #if NRF_802154_DISABLE_BCC_MATCHING
             // Disable PPIs for PSDU detection
-            nrf_ppi_fork_endpoint_setup(NRF_PPI, PPI_EGU_TIMER_START, 0);
-            nrf_ppi_channel_disable(NRF_PPI, PPI_ADDRESS_COUNTER_COUNT);
-            nrf_ppi_channel_disable(NRF_PPI, PPI_CRCERROR_COUNTER_CLEAR);
+            nrf_ppi_fork_endpoint_setup(PPI_EGU_TIMER_START, 0);
+            nrf_ppi_channel_disable(PPI_ADDRESS_COUNTER_COUNT);
+            nrf_ppi_channel_disable(PPI_CRCERROR_COUNTER_CLEAR);
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
             // Set PPIs
-            nrf_ppi_channel_endpoint_setup(NRF_PPI,
-                                           PPI_TIMER_TX_ACK,
-                                           nrf_timer_event_address_get(
+            nrf_ppi_channel_endpoint_setup(PPI_TIMER_TX_ACK,
+                                           (uint32_t)nrf_timer_event_address_get(
                                                NRF_802154_TIMER_INSTANCE,
                                                NRF_TIMER_EVENT_COMPARE1),
                                            (uint32_t)nrf_radio_task_address_get(
                                                NRF_RADIO_TASK_TXEN));
 
 #if !NRF_802154_DISABLE_BCC_MATCHING
-            nrf_ppi_channel_enable(NRF_PPI, PPI_TIMER_TX_ACK);
+            nrf_ppi_channel_enable(PPI_TIMER_TX_ACK);
 #endif // !NRF_802154_DISABLE_BCC_MATCHING
 
             // Set FEM PPIs
-            nrf_fem_control_ppi_disable(NRF_FEM_CONTROL_LNA_PIN);
-            nrf_fem_control_ppi_enable(NRF_FEM_CONTROL_PA_PIN, NRF_TIMER_CC_CHANNEL2);
+            uint32_t time_to_rampup = nrf_timer_cc_read(NRF_802154_TIMER_INSTANCE,
+                                                        NRF_TIMER_CC_CHANNEL1);
+
+            nrf_802154_fal_event_t timer = m_activate_tx_cc0;
+
+            timer.event.timer.counter_value += time_to_rampup;
+
+            nrf_802154_fal_pa_configuration_set(&timer, NULL);
 
             // Detect if PPI worked (timer is counting or TIMER event is marked)
             nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_CAPTURE3);
-            if (nrf_timer_cc_get(NRF_802154_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL3) <
-                nrf_timer_cc_get(NRF_802154_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL1))
+            uint32_t current_timer_value = nrf_timer_cc_read(NRF_802154_TIMER_INSTANCE,
+                                                             NRF_TIMER_CC_CHANNEL3);
+            uint32_t time_to_fem = nrf_timer_cc_read(NRF_802154_TIMER_INSTANCE,
+                                                     NRF_TIMER_CC_CHANNEL0);
+
+            // When external PA uses timer, it should be configured to a time later than ramp up
+            // time. In such case, the timer stops with shorts on PA timer.
+            // But if external PA does not use timer, FEM time is set to a value in the pased
+            // used by LNA. After timer overflow, the timer stops with short on the past value
+            // used by LNA. We have to detect if the timer is after the overflow.
+            if ((current_timer_value < time_to_rampup) &&
+                ((time_to_fem >= time_to_rampup) || (current_timer_value > time_to_fem)))
             {
                 wait_for_phyend = true;
             }
@@ -2049,11 +2212,11 @@ static void irq_crcok_state_rx(void)
             {
                 ppi_and_egu_delay_wait();
 
-                if (nrf_radio_state_get() == NRF_RADIO_STATE_TX_RU)
+                if (nrf_radio_state_get() == NRF_RADIO_STATE_TXRU)
                 {
                     wait_for_phyend = true;
                 }
-                else if (nrf_radio_event_get(NRF_RADIO_EVENT_TXREADY))
+                else if (nrf_radio_event_check(NRF_RADIO_EVENT_TXREADY))
                 {
                     wait_for_phyend = true;
                 }
@@ -2065,7 +2228,6 @@ static void irq_crcok_state_rx(void)
 
             if (wait_for_phyend)
             {
-                ack_pending_bit_set();
                 state_set(RADIO_STATE_TX_ACK);
 
                 // Set event handlers
@@ -2078,16 +2240,8 @@ static void irq_crcok_state_rx(void)
                 ints_to_disable |= NRF_RADIO_INT_CRCOK_MASK;
                 nrf_radio_int_disable(ints_to_disable);
 
-                if (nrf_802154_revision_has_phyend_event())
-                {
-                    nrf_radio_event_clear(NRF_RADIO_EVENT_PHYEND);
-                    ints_to_enable = NRF_RADIO_INT_PHYEND_MASK;
-                }
-                else
-                {
-                    nrf_radio_event_clear(NRF_RADIO_EVENT_END);
-                    ints_to_enable = NRF_RADIO_INT_END_MASK;
-                }
+                nrf_radio_event_clear(NRF_RADIO_EVENT_PHYEND);
+                ints_to_enable = NRF_RADIO_INT_PHYEND_MASK;
 
 #if NRF_802154_TX_STARTED_NOTIFY_ENABLED
                 nrf_radio_event_clear(NRF_RADIO_EVENT_ADDRESS);
@@ -2101,14 +2255,16 @@ static void irq_crcok_state_rx(void)
                 mp_current_rx_buffer->free = false;
 
 #if !NRF_802154_DISABLE_BCC_MATCHING
-                nrf_ppi_channel_disable(NRF_PPI, PPI_TIMER_TX_ACK);
+                nrf_ppi_channel_disable(PPI_TIMER_TX_ACK);
+                nrf_ppi_channel_endpoint_setup(PPI_TIMER_TX_ACK, 0, 0);
+                nrf_ppi_fork_endpoint_setup(PPI_TIMER_TX_ACK, 0);
 #endif // !NRF_802154_DISABLE_BCC_MATCHING
 
                 // RX uses the same peripherals as TX_ACK until RADIO ints are updated.
                 rx_terminate();
                 rx_init(true);
 
-                received_frame_notify_and_nesting_allow(p_received_psdu);
+                received_frame_notify_and_nesting_allow(p_received_data);
             }
         }
         else
@@ -2116,7 +2272,7 @@ static void irq_crcok_state_rx(void)
             rx_restart(true);
 
             // Filter out received ACK frame if promiscuous mode is disabled.
-            if (((p_received_psdu[FRAME_TYPE_OFFSET] & FRAME_TYPE_MASK) != FRAME_TYPE_ACK) ||
+            if (((p_received_data[FRAME_TYPE_OFFSET] & FRAME_TYPE_MASK) != FRAME_TYPE_ACK) ||
                 nrf_802154_pib_promiscuous_get())
             {
                 // Find new RX buffer
@@ -2125,22 +2281,22 @@ static void irq_crcok_state_rx(void)
 
                 if (rx_buffer_is_available())
                 {
-                    nrf_radio_packet_ptr_set(rx_buffer_get());
+                    nrf_radio_packetptr_set(rx_buffer_get());
                     nrf_radio_shorts_set(SHORTS_RX | SHORTS_RX_FREE_BUFFER);
 
-                    if (nrf_radio_state_get() == NRF_RADIO_STATE_RX_IDLE)
+                    if (nrf_radio_state_get() == NRF_RADIO_STATE_RXIDLE)
                     {
                         nrf_radio_task_trigger(NRF_RADIO_TASK_START);
                     }
                 }
 
-                received_frame_notify_and_nesting_allow(p_received_psdu);
+                received_frame_notify_and_nesting_allow(p_received_data);
             }
             else
             {
                 nrf_radio_shorts_set(SHORTS_RX | SHORTS_RX_FREE_BUFFER);
 
-                if (nrf_radio_state_get() == NRF_RADIO_STATE_RX_IDLE)
+                if (nrf_radio_state_get() == NRF_RADIO_STATE_RXIDLE)
                 {
                     nrf_radio_task_trigger(NRF_RADIO_TASK_START);
                 }
@@ -2156,7 +2312,7 @@ static void irq_crcok_state_rx(void)
         rx_init(true);
 
 #if NRF_802154_DISABLE_BCC_MATCHING
-        if ((p_received_psdu[FRAME_TYPE_OFFSET] & FRAME_TYPE_MASK) != FRAME_TYPE_ACK)
+        if ((p_received_data[FRAME_TYPE_OFFSET] & FRAME_TYPE_MASK) != FRAME_TYPE_ACK)
         {
             receive_failed_notify(filter_result);
         }
@@ -2168,16 +2324,17 @@ static void irq_crcok_state_rx(void)
 
 static void irq_phyend_state_tx_ack(void)
 {
-    uint8_t * p_received_psdu = mp_current_rx_buffer->psdu;
+    uint8_t * p_received_data = mp_current_rx_buffer->data;
     uint32_t  ints_to_enable  = 0;
     uint32_t  ints_to_disable = 0;
 
     // Disable PPIs on DISABLED event to control TIMER.
-    nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
+    nrf_ppi_channel_disable(PPI_DISABLED_EGU);
 
     // Set FEM PPIs
-    nrf_fem_control_ppi_disable(NRF_FEM_CONTROL_PA_PIN);
-    nrf_fem_control_ppi_enable(NRF_FEM_CONTROL_LNA_PIN, NRF_TIMER_CC_CHANNEL0);
+    nrf_802154_fal_pa_configuration_clear(&m_activate_tx_cc0, NULL);
+    nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
+    nrf_802154_fal_lna_configuration_set(&m_activate_rx_cc0, NULL);
 
     nrf_radio_shorts_set(SHORTS_RX);
 
@@ -2186,8 +2343,7 @@ static void irq_phyend_state_tx_ack(void)
     nrf_radio_bcc_set(BCC_INIT);
 #endif // !NRF_802154_DISABLE_BCC_MATCHING
 
-    ints_to_disable = nrf_802154_revision_has_phyend_event() ?
-                      NRF_RADIO_INT_PHYEND_MASK : NRF_RADIO_INT_END_MASK;
+    ints_to_disable = NRF_RADIO_INT_PHYEND_MASK;
 
 #if NRF_802154_TX_STARTED_NOTIFY_ENABLED
     ints_to_disable |= NRF_RADIO_INT_ADDRESS_MASK;
@@ -2220,32 +2376,32 @@ static void irq_phyend_state_tx_ack(void)
 #error Invalid PPI configuration
 #endif
     // Anomaly 78: use SHUTDOWN instead of CLEAR.
-    nrf_ppi_channel_endpoint_setup(NRF_PPI,
-                                   PPI_CRCERROR_CLEAR,
+    nrf_ppi_channel_endpoint_setup(PPI_CRCERROR_CLEAR,
                                    (uint32_t)nrf_radio_event_address_get(NRF_RADIO_EVENT_CRCERROR),
-                                   nrf_timer_task_address_get(
+                                   (uint32_t)nrf_timer_task_address_get(
                                        NRF_802154_TIMER_INSTANCE,
                                        NRF_TIMER_TASK_SHUTDOWN));
 
-    nrf_ppi_fork_endpoint_setup(NRF_PPI,
-                                PPI_EGU_TIMER_START,
-                                nrf_timer_task_address_get(
+    nrf_ppi_fork_endpoint_setup(PPI_EGU_TIMER_START,
+                                (uint32_t)nrf_timer_task_address_get(
                                     NRF_802154_COUNTER_TIMER_INSTANCE,
                                     NRF_TIMER_TASK_START));
 #else // NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_disable(NRF_PPI, PPI_TIMER_TX_ACK);
-#endif  // NRF_802154_DISABLE_BCC_MATCHING
+    nrf_ppi_channel_disable(PPI_TIMER_TX_ACK);
+    nrf_ppi_channel_endpoint_setup(PPI_TIMER_TX_ACK, 0, 0);
+    nrf_ppi_fork_endpoint_setup(PPI_TIMER_TX_ACK, 0);
+#endif // NRF_802154_DISABLE_BCC_MATCHING
 
     // Enable PPI disabled by CRCOK
-    nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_RAMP_UP);
+    nrf_ppi_channel_enable(PPI_EGU_RAMP_UP);
 #if NRF_802154_DISABLE_BCC_MATCHING
-    nrf_ppi_channel_enable(NRF_PPI, PPI_ADDRESS_COUNTER_COUNT);
-    nrf_ppi_channel_enable(NRF_PPI, PPI_CRCERROR_COUNTER_CLEAR);
+    nrf_ppi_channel_enable(PPI_ADDRESS_COUNTER_COUNT);
+    nrf_ppi_channel_enable(PPI_CRCERROR_COUNTER_CLEAR);
 #endif // NRF_802154_DISABLE_BCC_MATCHING
 
     // Enable PPIs on DISABLED event and clear event to detect if PPI worked
     nrf_egu_event_clear(NRF_802154_SWI_EGU_INSTANCE, EGU_EVENT);
-    nrf_ppi_channel_enable(NRF_PPI, PPI_DISABLED_EGU);
+    nrf_ppi_channel_enable(PPI_DISABLED_EGU);
 
     // Prepare the timer coordinator to get a precise timestamp of the CRCOK event.
     nrf_802154_timer_coord_timestamp_prepare(
@@ -2262,10 +2418,10 @@ static void irq_phyend_state_tx_ack(void)
 
     if (rx_buffer_is_available())
     {
-        nrf_radio_packet_ptr_set(rx_buffer_get());
+        nrf_radio_packetptr_set(rx_buffer_get());
         nrf_radio_shorts_set(SHORTS_RX | SHORTS_RX_FREE_BUFFER);
 
-        if (nrf_radio_state_get() == NRF_RADIO_STATE_RX_IDLE)
+        if (nrf_radio_state_get() == NRF_RADIO_STATE_RXIDLE)
         {
             nrf_radio_task_trigger(NRF_RADIO_TASK_START);
         }
@@ -2275,12 +2431,13 @@ static void irq_phyend_state_tx_ack(void)
 
     rx_flags_clear();
 
-    received_frame_notify_and_nesting_allow(p_received_psdu);
+    received_frame_notify_and_nesting_allow(p_received_data);
 }
 
 static void irq_phyend_state_tx_frame(void)
 {
     uint32_t ints_to_disable = 0;
+    uint32_t ints_to_enable  = 0;
 
     // Ignore PHYEND event if transmission has not started. This event may be triggered by
     // previously terminated transmission.
@@ -2296,51 +2453,52 @@ static void irq_phyend_state_tx_frame(void)
                                   (SHORTS_RX_ACK | SHORTS_RX_FREE_BUFFER) : SHORTS_RX_ACK;
 
         // Disable EGU PPI to prevent unsynchronized PPIs
-        nrf_ppi_channel_disable(NRF_PPI, PPI_DISABLED_EGU);
+        nrf_ppi_channel_disable(PPI_DISABLED_EGU);
 
         nrf_radio_shorts_set(shorts);
 
         if (rx_buffer_free)
         {
-            nrf_radio_packet_ptr_set(rx_buffer_get());
+            nrf_radio_packetptr_set(rx_buffer_get());
         }
 
         ints_to_disable = NRF_RADIO_INT_CCABUSY_MASK;
 #if NRF_802154_TX_STARTED_NOTIFY_ENABLED
         ints_to_disable |= NRF_RADIO_INT_ADDRESS_MASK;
 #endif // NRF_802154_TX_STARTED_NOTIFY_ENABLED
+
+        ints_to_disable |= NRF_RADIO_INT_PHYEND_MASK;
+        nrf_radio_event_clear(NRF_RADIO_EVENT_END);
+        ints_to_enable |= NRF_RADIO_INT_END_MASK;
+
         nrf_radio_int_disable(ints_to_disable);
 
-        if (nrf_802154_revision_has_phyend_event())
-        {
-            nrf_radio_int_disable(NRF_RADIO_INT_PHYEND_MASK);
-            nrf_radio_event_clear(NRF_RADIO_EVENT_END);
-            nrf_radio_int_enable(NRF_RADIO_INT_END_MASK);
-        }
+        nrf_radio_event_clear(NRF_RADIO_EVENT_ADDRESS);
+        ints_to_enable |= NRF_RADIO_INT_ADDRESS_MASK;
+
+        nrf_radio_int_enable(ints_to_enable);
 
         // Clear FEM configuration set at the beginning of the transmission
         fem_for_tx_reset(false);
         // Set PPIs necessary in rx_ack state
-        fem_for_lna_set(NRF_TIMER_CC_CHANNEL2, NRF_TIMER_SHORT_COMPARE2_STOP_MASK);
+        fem_for_lna_set();
 
-        nrf_ppi_channel_and_fork_endpoint_setup(NRF_PPI,
-                                                PPI_EGU_RAMP_UP,
-                                                nrf_egu_event_address_get(
+        nrf_ppi_channel_and_fork_endpoint_setup(PPI_EGU_RAMP_UP,
+                                                (uint32_t)nrf_egu_event_address_get(
                                                     NRF_802154_SWI_EGU_INSTANCE,
                                                     EGU_EVENT),
                                                 (uint32_t)nrf_radio_task_address_get(
                                                     NRF_RADIO_TASK_RXEN),
-                                                nrf_ppi_task_address_get(
-                                                    NRF_PPI,
+                                                (uint32_t)nrf_ppi_task_address_get(
                                                     PPI_CHGRP0_DIS_TASK));
 
         nrf_egu_event_clear(NRF_802154_SWI_EGU_INSTANCE, EGU_EVENT);
 
         // Enable PPI disabled by DISABLED event
-        nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_RAMP_UP);
+        nrf_ppi_channel_enable(PPI_EGU_RAMP_UP);
 
         // Enable EGU PPI to start all PPIs synchronously
-        nrf_ppi_channel_enable(NRF_PPI, PPI_DISABLED_EGU);
+        nrf_ppi_channel_enable(PPI_DISABLED_EGU);
 
         state_set(RADIO_STATE_RX_ACK);
 
@@ -2355,17 +2513,20 @@ static void irq_phyend_state_tx_frame(void)
 
             if (rx_buffer_is_available())
             {
-                nrf_radio_packet_ptr_set(rx_buffer_get());
+                nrf_radio_packetptr_set(rx_buffer_get());
                 nrf_radio_shorts_set(SHORTS_RX_ACK | SHORTS_RX_FREE_BUFFER);
 
-                if (nrf_radio_state_get() == NRF_RADIO_STATE_RX_IDLE)
+                if (nrf_radio_state_get() == NRF_RADIO_STATE_RXIDLE)
                 {
                     nrf_radio_task_trigger(NRF_RADIO_TASK_START);
                 }
             }
         }
 
-        ack_matching_enable();
+        if ((mp_tx_data[FRAME_VERSION_OFFSET] & FRAME_VERSION_MASK) != FRAME_VERSION_2)
+        {
+            ack_matching_enable();
+        }
     }
     else
     {
@@ -2381,6 +2542,35 @@ static void irq_end_state_rx_ack(void)
 {
     bool          ack_match    = ack_is_matched();
     rx_buffer_t * p_ack_buffer = NULL;
+    uint8_t     * p_ack_data   = mp_current_rx_buffer->data;
+
+    if (!ack_match &&
+        ((mp_tx_data[FRAME_VERSION_OFFSET] & FRAME_VERSION_MASK) == FRAME_VERSION_2) &&
+        ((p_ack_data[FRAME_VERSION_OFFSET] & FRAME_VERSION_MASK) == FRAME_VERSION_2) &&
+        ((p_ack_data[FRAME_TYPE_OFFSET] & FRAME_TYPE_MASK) == FRAME_TYPE_ACK) &&
+        (nrf_radio_crc_status_check()))
+    {
+        // For frame version 2 sequence number bit may be suppressed and its check fails.
+        // Verify ACK frame using its destination address.
+        nrf_802154_frame_parser_mhr_data_t tx_mhr_data;
+        nrf_802154_frame_parser_mhr_data_t ack_mhr_data;
+        bool                               parse_result;
+
+        parse_result = nrf_802154_frame_parser_mhr_parse(mp_tx_data, &tx_mhr_data);
+        assert(parse_result);
+        parse_result = nrf_802154_frame_parser_mhr_parse(p_ack_data, &ack_mhr_data);
+
+        if (parse_result &&
+            (tx_mhr_data.p_src_addr != NULL) &&
+            (ack_mhr_data.p_dst_addr != NULL) &&
+            (tx_mhr_data.src_addr_size == ack_mhr_data.dst_addr_size) &&
+            (0 == memcmp(tx_mhr_data.p_src_addr,
+                         ack_mhr_data.p_dst_addr,
+                         tx_mhr_data.src_addr_size)))
+        {
+            ack_match = true;
+        }
+    }
 
     if (ack_match)
     {
@@ -2394,9 +2584,9 @@ static void irq_end_state_rx_ack(void)
 
     if (ack_match)
     {
-        transmitted_frame_notify(p_ack_buffer->psdu,           // psdu
+        transmitted_frame_notify(p_ack_buffer->data,           // phr + psdu
                                  rssi_last_measurement_get(),  // rssi
-                                 lqi_get(p_ack_buffer->psdu)); // lqi;
+                                 lqi_get(p_ack_buffer->data)); // lqi;
     }
     else
     {
@@ -2454,7 +2644,7 @@ static void irq_edend_state_ed(void)
         }
         else
         {
-            fem_for_lna_reset(NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+            fem_for_lna_reset();
         }
     }
     else
@@ -2478,8 +2668,8 @@ static void irq_handler(void)
     // Prevent interrupting of this handler by requests from higher priority code.
     nrf_802154_critical_section_forcefully_enter();
 
-    if (nrf_radio_int_get(NRF_RADIO_INT_ADDRESS_MASK) &&
-        nrf_radio_event_get(NRF_RADIO_EVENT_ADDRESS))
+    if (nrf_radio_int_enable_check(NRF_RADIO_INT_ADDRESS_MASK) &&
+        nrf_radio_event_check(NRF_RADIO_EVENT_ADDRESS))
     {
         nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_EVENT_FRAMESTART);
         nrf_radio_event_clear(NRF_RADIO_EVENT_ADDRESS);
@@ -2495,6 +2685,10 @@ static void irq_handler(void)
                 irq_address_state_tx_ack();
                 break;
 
+            case RADIO_STATE_RX_ACK:
+                irq_address_state_rx_ack();
+                break;
+
             default:
                 assert(false);
         }
@@ -2504,8 +2698,8 @@ static void irq_handler(void)
 
 #if !NRF_802154_DISABLE_BCC_MATCHING
     // Check MAC frame header.
-    if (nrf_radio_int_get(NRF_RADIO_INT_BCMATCH_MASK) &&
-        nrf_radio_event_get(NRF_RADIO_EVENT_BCMATCH))
+    if (nrf_radio_int_enable_check(NRF_RADIO_INT_BCMATCH_MASK) &&
+        nrf_radio_event_check(NRF_RADIO_EVENT_BCMATCH))
     {
         nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_EVENT_BCMATCH);
         nrf_radio_event_clear(NRF_RADIO_EVENT_BCMATCH);
@@ -2526,8 +2720,8 @@ static void irq_handler(void)
 #endif // !NRF_802154_DISABLE_BCC_MATCHING
 
 #if !NRF_802154_DISABLE_BCC_MATCHING || NRF_802154_NOTIFY_CRCERROR
-    if (nrf_radio_int_get(NRF_RADIO_INT_CRCERROR_MASK) &&
-        nrf_radio_event_get(NRF_RADIO_EVENT_CRCERROR))
+    if (nrf_radio_int_enable_check(NRF_RADIO_INT_CRCERROR_MASK) &&
+        nrf_radio_event_check(NRF_RADIO_EVENT_CRCERROR))
     {
         nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_EVENT_CRCERROR);
         nrf_radio_event_clear(NRF_RADIO_EVENT_CRCERROR);
@@ -2546,8 +2740,8 @@ static void irq_handler(void)
     }
 #endif // !NRF_802154_DISABLE_BCC_MATCHING || NRF_802154_NOTIFY_CRCERROR
 
-    if (nrf_radio_int_get(NRF_RADIO_INT_CRCOK_MASK) &&
-        nrf_radio_event_get(NRF_RADIO_EVENT_CRCOK))
+    if (nrf_radio_int_enable_check(NRF_RADIO_INT_CRCOK_MASK) &&
+        nrf_radio_event_check(NRF_RADIO_EVENT_CRCOK))
     {
         nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_EVENT_CRCOK);
         nrf_radio_event_clear(NRF_RADIO_EVENT_CRCOK);
@@ -2565,9 +2759,8 @@ static void irq_handler(void)
         nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_EVENT_CRCOK);
     }
 
-    if (nrf_802154_revision_has_phyend_event() &&
-        nrf_radio_int_get(NRF_RADIO_INT_PHYEND_MASK) &&
-        nrf_radio_event_get(NRF_RADIO_EVENT_PHYEND))
+    if (nrf_radio_int_enable_check(NRF_RADIO_INT_PHYEND_MASK) &&
+        nrf_radio_event_check(NRF_RADIO_EVENT_PHYEND))
     {
         nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_EVENT_PHYEND);
         nrf_radio_event_clear(NRF_RADIO_EVENT_PHYEND);
@@ -2590,31 +2783,14 @@ static void irq_handler(void)
         nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_EVENT_PHYEND);
     }
 
-    if (nrf_radio_int_get(NRF_RADIO_INT_END_MASK) &&
-        nrf_radio_event_get(NRF_RADIO_EVENT_END))
+    if (nrf_radio_int_enable_check(NRF_RADIO_INT_END_MASK) &&
+        nrf_radio_event_check(NRF_RADIO_EVENT_END))
     {
         nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_EVENT_END);
         nrf_radio_event_clear(NRF_RADIO_EVENT_END);
 
         switch (m_state)
         {
-            case RADIO_STATE_TX_ACK:
-                if (!nrf_802154_revision_has_phyend_event())
-                {
-                    irq_phyend_state_tx_ack();
-                }
-
-                break;
-
-            case RADIO_STATE_CCA_TX:
-            case RADIO_STATE_TX:
-                if (!nrf_802154_revision_has_phyend_event())
-                {
-                    irq_phyend_state_tx_frame();
-                }
-
-                break;
-
             case RADIO_STATE_RX_ACK: // Ended receiving of ACK.
                 irq_end_state_rx_ack();
                 break;
@@ -2626,8 +2802,8 @@ static void irq_handler(void)
         nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_EVENT_END);
     }
 
-    if (nrf_radio_int_get(NRF_RADIO_INT_DISABLED_MASK) &&
-        nrf_radio_event_get(NRF_RADIO_EVENT_DISABLED))
+    if (nrf_radio_int_enable_check(NRF_RADIO_INT_DISABLED_MASK) &&
+        nrf_radio_event_check(NRF_RADIO_EVENT_DISABLED))
     {
         nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_EVENT_DISABLED);
         nrf_radio_event_clear(NRF_RADIO_EVENT_DISABLED);
@@ -2645,8 +2821,8 @@ static void irq_handler(void)
         nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_EVENT_DISABLED);
     }
 
-    if (nrf_radio_int_get(NRF_RADIO_INT_CCAIDLE_MASK) &&
-        nrf_radio_event_get(NRF_RADIO_EVENT_CCAIDLE))
+    if (nrf_radio_int_enable_check(NRF_RADIO_INT_CCAIDLE_MASK) &&
+        nrf_radio_event_check(NRF_RADIO_EVENT_CCAIDLE))
     {
         nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_EVENT_CCAIDLE);
         nrf_radio_event_clear(NRF_RADIO_EVENT_CCAIDLE);
@@ -2664,8 +2840,8 @@ static void irq_handler(void)
         nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_EVENT_CCAIDLE);
     }
 
-    if (nrf_radio_int_get(NRF_RADIO_INT_CCABUSY_MASK) &&
-        nrf_radio_event_get(NRF_RADIO_EVENT_CCABUSY))
+    if (nrf_radio_int_enable_check(NRF_RADIO_INT_CCABUSY_MASK) &&
+        nrf_radio_event_check(NRF_RADIO_EVENT_CCABUSY))
     {
         nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_EVENT_CCABUSY);
         nrf_radio_event_clear(NRF_RADIO_EVENT_CCABUSY);
@@ -2688,8 +2864,8 @@ static void irq_handler(void)
         nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_EVENT_CCABUSY);
     }
 
-    if (nrf_radio_int_get(NRF_RADIO_INT_EDEND_MASK) &&
-        nrf_radio_event_get(NRF_RADIO_EVENT_EDEND))
+    if (nrf_radio_int_enable_check(NRF_RADIO_INT_EDEND_MASK) &&
+        nrf_radio_event_check(NRF_RADIO_EVENT_EDEND))
     {
         nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_EVENT_EDEND);
         nrf_radio_event_clear(NRF_RADIO_EVENT_EDEND);
@@ -2718,14 +2894,11 @@ static void irq_handler(void)
 
 void nrf_802154_core_init(void)
 {
-    const uint8_t ack_psdu[] = {0x05, ACK_HEADER_WITH_PENDING, 0x00, 0x00, 0x00, 0x00};
-
-    memcpy(m_ack_psdu, ack_psdu, sizeof(ack_psdu));
-
     m_state                    = RADIO_STATE_SLEEP;
     m_rsch_timeslot_is_granted = false;
 
     nrf_timer_init();
+    nrf_802154_ack_generator_init();
 }
 
 void nrf_802154_core_deinit(void)
@@ -2733,10 +2906,10 @@ void nrf_802154_core_deinit(void)
     if (timeslot_is_granted())
     {
         nrf_radio_reset();
+        nrf_802154_fal_deactivate_now(NRF_802154_FAL_ALL);
     }
 
-    nrf_fem_control_pin_clear();
-    nrf_fem_control_deactivate();
+    nrf_802154_fal_cleanup();
 
     irq_deinit();
 }
@@ -2754,21 +2927,12 @@ bool nrf_802154_core_sleep(nrf_802154_term_t term_lvl)
     {
         if ((m_state != RADIO_STATE_SLEEP) && (m_state != RADIO_STATE_FALLING_ASLEEP))
         {
-            if (critical_section_can_be_processed_now())
-            {
-                result = current_operation_terminate(term_lvl, REQ_ORIG_CORE, true);
+            result = current_operation_terminate(term_lvl, REQ_ORIG_CORE, true);
 
-                if (result)
-                {
-                    state_set(RADIO_STATE_FALLING_ASLEEP);
-                    falling_asleep_init();
-                }
-            }
-            else
+            if (result)
             {
-                nrf_radio_reset();
-                state_set(RADIO_STATE_SLEEP);
-                sleep_init();
+                state_set(RADIO_STATE_FALLING_ASLEEP);
+                falling_asleep_init();
             }
         }
 
@@ -2803,11 +2967,11 @@ bool nrf_802154_core_receive(nrf_802154_term_t              term_lvl,
             {
                 result = false;
             }
+        }
 
-            if (notify_function != NULL)
-            {
-                notify_function(result);
-            }
+        if (notify_function != NULL)
+        {
+            notify_function(result);
         }
 
         nrf_802154_critical_section_exit();
@@ -2949,13 +3113,13 @@ bool nrf_802154_core_notify_buffer_free(uint8_t * p_data)
             switch (m_state)
             {
                 case RADIO_STATE_RX:
-                    if (nrf_radio_state_get() == NRF_RADIO_STATE_RX_IDLE)
+                    if (nrf_radio_state_get() == NRF_RADIO_STATE_RXIDLE)
                     {
                         assert(nrf_radio_shorts_get() == SHORTS_RX);
 
                         rx_buffer_in_use_set(p_buffer);
 
-                        nrf_radio_packet_ptr_set(rx_buffer_get());
+                        nrf_radio_packetptr_set(rx_buffer_get());
                         nrf_radio_shorts_set(SHORTS_RX | SHORTS_RX_FREE_BUFFER);
 
                         nrf_radio_task_trigger(NRF_RADIO_TASK_START);
@@ -2964,13 +3128,13 @@ bool nrf_802154_core_notify_buffer_free(uint8_t * p_data)
                     break;
 
                 case RADIO_STATE_RX_ACK:
-                    if (nrf_radio_state_get() == NRF_RADIO_STATE_RX_IDLE)
+                    if (nrf_radio_state_get() == NRF_RADIO_STATE_RXIDLE)
                     {
                         assert(nrf_radio_shorts_get() == SHORTS_RX_ACK);
 
                         rx_buffer_in_use_set(p_buffer);
 
-                        nrf_radio_packet_ptr_set(rx_buffer_get());
+                        nrf_radio_packetptr_set(rx_buffer_get());
                         nrf_radio_shorts_set(SHORTS_RX_ACK | SHORTS_RX_FREE_BUFFER);
 
                         nrf_radio_task_trigger(NRF_RADIO_TASK_START);
@@ -2996,53 +3160,31 @@ bool nrf_802154_core_channel_update(void)
 
     if (result)
     {
+        if (timeslot_is_granted())
+        {
+            channel_set(nrf_802154_pib_channel_get());
+        }
+
         switch (m_state)
         {
             case RADIO_STATE_RX:
-            {
-                bool term_result;
-
-                if (timeslot_is_granted())
-                {
-                    channel_set(nrf_802154_pib_channel_get());
-                }
-
-                term_result =
-                    current_operation_terminate(NRF_802154_TERM_NONE, REQ_ORIG_CORE, true);
-
-                if (term_result)
+                if (current_operation_terminate(NRF_802154_TERM_NONE, REQ_ORIG_CORE, true))
                 {
                     rx_init(true);
                 }
 
                 break;
-            }
 
             case RADIO_STATE_CONTINUOUS_CARRIER:
                 if (timeslot_is_granted())
                 {
-                    channel_set(nrf_802154_pib_channel_get());
                     nrf_radio_task_trigger(NRF_RADIO_TASK_DISABLE);
                 }
 
                 break;
 
-            case RADIO_STATE_TX_ACK:
-            case RADIO_STATE_CCA_TX:
-            case RADIO_STATE_TX:
-            case RADIO_STATE_RX_ACK:
-            case RADIO_STATE_CCA:
-                if (timeslot_is_granted())
-                {
-                    channel_set(nrf_802154_pib_channel_get());
-                }
-
-                break;
-
-            case RADIO_STATE_SLEEP:
-            case RADIO_STATE_FALLING_ASLEEP:
-            case RADIO_STATE_ED:
-                // Don't perform any action in these states (channel will be updated on state change).
+            default:
+                // Don't perform any additional action in any other state.
                 break;
         }
 
@@ -3063,6 +3205,57 @@ bool nrf_802154_core_cca_cfg_update(void)
             cca_configuration_update();
         }
 
+        nrf_802154_critical_section_exit();
+    }
+
+    return result;
+}
+
+bool nrf_802154_core_rssi_measure(void)
+{
+    bool result = critical_section_enter_and_verify_timeslot_length();
+
+    if (result)
+    {
+        if (timeslot_is_granted() && (m_state == RADIO_STATE_RX))
+        {
+            rssi_measure();
+        }
+        else
+        {
+            result = false;
+        }
+
+        nrf_802154_critical_section_exit();
+    }
+
+    return result;
+}
+
+bool nrf_802154_core_last_rssi_measurement_get(int8_t * p_rssi)
+{
+    bool result       = false;
+    bool rssi_started = m_flags.rssi_started;
+    bool in_crit_sect = false;
+
+    if (rssi_started)
+    {
+        in_crit_sect = critical_section_enter_and_verify_timeslot_length();
+    }
+
+    if (rssi_started && in_crit_sect)
+    {
+        // Checking if a timeslot is granted is valid only in a critical section
+        if (timeslot_is_granted())
+        {
+            rssi_measurement_wait();
+            *p_rssi = rssi_last_measurement_get();
+            result  = true;
+        }
+    }
+
+    if (in_crit_sect)
+    {
         nrf_802154_critical_section_exit();
     }
 

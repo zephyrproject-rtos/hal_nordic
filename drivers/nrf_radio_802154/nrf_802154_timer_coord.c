@@ -41,7 +41,8 @@
 #include <stdint.h>
 
 #include "nrf_802154_config.h"
-#include "hal/nrf_ppi.h"
+#include "nrf_802154_debug.h"
+#include "nrf_802154_peripherals.h"
 #include "platform/hp_timer/nrf_802154_hp_timer.h"
 #include "platform/lp_timer/nrf_802154_lp_timer.h"
 
@@ -51,18 +52,14 @@
                                   DIV_ROUND_NEGATIVE(n, d) : \
                                   DIV_ROUND_POSITIVE(n, d))
 
-#define TIME_BASE                (1UL << 22)      ///< Unit used to calculate PPTB (Point per Time Base). It is not equal million to speed up computations and increase precision.
-#define FIRST_RESYNC_TIME        TIME_BASE        ///< Delay of the first resynchronization. The first resynchronization is needed to measure timers drift.
-#define RESYNC_TIME              (64 * TIME_BASE) ///< Delay of following resynchronizations.
-#define EWMA_COEF                (8)              ///< Weight used in the EWMA algorithm.
+#define TIME_BASE                (1UL << 22)     ///< Unit used to calculate PPTB (Point per Time Base). It is not equal million to speed up computations and increase precision.
+#define FIRST_RESYNC_TIME        TIME_BASE       ///< Delay of the first resynchronization. The first resynchronization is needed to measure timers drift.
+#define RESYNC_TIME              (4 * TIME_BASE) ///< Delay of following resynchronizations.
+#define EWMA_COEF                (8)             ///< Weight used in the EWMA algorithm.
 
-#define PPI_CH0                  NRF_PPI_CHANNEL13
-#define PPI_CH1                  NRF_PPI_CHANNEL14
-#define PPI_CHGRP0               NRF_PPI_CHANNEL_GROUP1
-
-#define PPI_SYNC                 PPI_CH0
-#define PPI_TIMESTAMP            PPI_CH1
-#define PPI_TIMESTAMP_GROUP      PPI_CHGRP0
+#define PPI_SYNC                 NRF_802154_PPI_RTC_COMPARE_TO_TIMER_CAPTURE
+#define PPI_TIMESTAMP            NRF_802154_PPI_TIMESTAMP_EVENT_TO_TIMER_CAPTURE
+#define PPI_TIMESTAMP_GROUP      NRF_802154_PPI_TIMESTAMP_GROUP
 
 #if NRF_802154_FRAME_TIMESTAMP_ENABLED
 // Structure holding common timepoint from both timers.
@@ -91,48 +88,58 @@ void nrf_802154_timer_coord_init(void)
     sync_event = nrf_802154_lp_timer_sync_event_get();
     sync_task  = nrf_802154_hp_timer_sync_task_get();
 
-    nrf_ppi_channel_endpoint_setup(NRF_PPI, PPI_SYNC, sync_event, sync_task);
-    nrf_ppi_channel_enable(NRF_PPI, PPI_SYNC);
+    nrf_ppi_channel_endpoint_setup(PPI_SYNC, sync_event, sync_task);
+    nrf_ppi_channel_enable(PPI_SYNC);
 
-    nrf_ppi_channel_include_in_group(NRF_PPI, PPI_TIMESTAMP, PPI_TIMESTAMP_GROUP);
+    nrf_ppi_channel_include_in_group(PPI_TIMESTAMP, PPI_TIMESTAMP_GROUP);
 }
 
 void nrf_802154_timer_coord_uninit(void)
 {
     nrf_802154_hp_timer_deinit();
 
-    nrf_ppi_channel_disable(NRF_PPI, PPI_SYNC);
-    nrf_ppi_channel_endpoint_setup(NRF_PPI, PPI_SYNC, 0, 0);
+    nrf_ppi_channel_disable(PPI_SYNC);
+    nrf_ppi_channel_endpoint_setup(PPI_SYNC, 0, 0);
 
-    nrf_ppi_group_disable(NRF_PPI, PPI_TIMESTAMP_GROUP);
-    nrf_ppi_channel_and_fork_endpoint_setup(NRF_PPI, PPI_TIMESTAMP, 0, 0, 0);
+    nrf_ppi_group_disable(PPI_TIMESTAMP_GROUP);
+    nrf_ppi_channel_and_fork_endpoint_setup(PPI_TIMESTAMP, 0, 0, 0);
 }
 
 void nrf_802154_timer_coord_start(void)
 {
+    nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_TCOOR_START);
+
     m_synchronized = false;
     nrf_802154_hp_timer_start();
     nrf_802154_hp_timer_sync_prepare();
     nrf_802154_lp_timer_sync_start_now();
+
+    nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_TCOOR_START);
 }
 
 void nrf_802154_timer_coord_stop(void)
 {
+    nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_TCOOR_STOP);
+
     nrf_802154_hp_timer_stop();
     nrf_802154_lp_timer_sync_stop();
+
+    nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_TCOOR_STOP);
 }
 
 void nrf_802154_timer_coord_timestamp_prepare(uint32_t event_addr)
 {
-    nrf_ppi_channel_and_fork_endpoint_setup(NRF_PPI, 
-                                            PPI_TIMESTAMP,
+    nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_TCOOR_TIMESTAMP_PREPARE);
+
+    nrf_ppi_channel_and_fork_endpoint_setup(PPI_TIMESTAMP,
                                             event_addr,
                                             nrf_802154_hp_timer_timestamp_task_get(),
-                                            nrf_ppi_task_group_disable_address_get(
-                                                NRF_PPI,
+                                            (uint32_t)nrf_ppi_task_group_disable_address_get(
                                                 PPI_TIMESTAMP_GROUP));
 
-    nrf_ppi_group_enable(NRF_PPI, PPI_TIMESTAMP_GROUP);
+    nrf_ppi_group_enable(PPI_TIMESTAMP_GROUP);
+
+    nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_TCOOR_TIMESTAMP_PREPARE);
 }
 
 bool nrf_802154_timer_coord_timestamp_get(uint32_t * p_timestamp)
@@ -140,21 +147,24 @@ bool nrf_802154_timer_coord_timestamp_get(uint32_t * p_timestamp)
     uint32_t hp_timestamp;
     uint32_t hp_delta;
     int32_t  drift;
+    bool     result = false;
 
+    nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_TCOOR_TIMESTAMP_GET);
     assert(p_timestamp != NULL);
 
-    if (!m_synchronized)
+    if (m_synchronized)
     {
-        return false;
+        hp_timestamp = nrf_802154_hp_timer_timestamp_get();
+        hp_delta     = hp_timestamp - m_last_sync.hp_timer_time;
+        drift        = m_drift_known ?
+                       (DIV_ROUND(((int64_t)m_drift * hp_delta), ((int64_t)TIME_BASE + m_drift))) :
+                       0;
+        *p_timestamp = m_last_sync.lp_timer_time + hp_delta - drift;
+        result       = true;
     }
 
-    hp_timestamp = nrf_802154_hp_timer_timestamp_get();
-    hp_delta     = hp_timestamp - m_last_sync.hp_timer_time;
-    drift        = m_drift_known ?
-                   (DIV_ROUND(((int64_t)m_drift * hp_delta), ((int64_t)TIME_BASE + m_drift))) : 0;
-    *p_timestamp = m_last_sync.lp_timer_time + hp_delta - drift;
-
-    return true;
+    nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_TCOOR_TIMESTAMP_GET);
+    return result;
 }
 
 void nrf_802154_lp_timer_synchronized(void)
@@ -165,6 +175,8 @@ void nrf_802154_lp_timer_synchronized(void)
     int32_t            timers_diff;
     int32_t            drift;
     int32_t            tb_fraction_of_lp_delta;
+
+    nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_TCOOR_SYNCHRONIZED);
 
     if (nrf_802154_hp_timer_sync_time_get(&sync_time.hp_timer_time))
     {
@@ -211,6 +223,8 @@ void nrf_802154_lp_timer_synchronized(void)
         nrf_802154_hp_timer_sync_prepare();
         nrf_802154_lp_timer_sync_start_now();
     }
+
+    nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_TCOOR_SYNCHRONIZED);
 }
 
 #else // NRF_802154_FRAME_TIMESTAMP_ENABLED
