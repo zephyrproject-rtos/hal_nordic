@@ -50,8 +50,8 @@
 #include "nrf_fem_protocol_legacy_api.h"
 
 #include "nrf_error.h"
-#include "nrf_ppi.h"
-#include "nrf_timer.h"
+#include "hal/nrf_ppi.h"
+#include "hal/nrf_timer.h"
 
 typedef enum
 {

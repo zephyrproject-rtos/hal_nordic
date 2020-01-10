@@ -686,7 +686,7 @@ void nrf_802154_ack_data_src_addr_matching_method_set(nrf_802154_src_addr_match_
 
 bool nrf_802154_ack_data_pending_bit_should_be_set(const uint8_t * p_frame)
 {
-    bool ret;
+    bool ret = 0;
 
     switch (m_src_matching_method)
     {

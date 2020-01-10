@@ -54,7 +54,7 @@
 #include "nrf_802154_rssi.h"
 #include "nrf_802154_rx_buffer.h"
 #include "nrf_802154_timer_coord.h"
-#include "nrf_radio.h"
+#include "hal/nrf_radio.h"
 #include "platform/clock/nrf_802154_clock.h"
 #include "platform/lp_timer/nrf_802154_lp_timer.h"
 #include "platform/random/nrf_802154_random.h"

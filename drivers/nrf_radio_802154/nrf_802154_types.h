@@ -33,7 +33,7 @@
 
 #include <stdint.h>
 
-#include "nrf_radio.h"
+#include "hal/nrf_radio.h"
 
 /**
  * @defgroup nrf_802154_types Type definitions used in the 802.15.4 driver
