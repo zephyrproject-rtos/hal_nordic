@@ -41,7 +41,7 @@
 
 #include "nrf_802154_config.h"
 #include "nrf_802154_debug.h"
-#include "nrf_radio.h"
+#include "hal/nrf_radio.h"
 #include "rsch/nrf_802154_rsch.h"
 #include "platform/lp_timer/nrf_802154_lp_timer.h"
 

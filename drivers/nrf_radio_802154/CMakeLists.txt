@@ -23,6 +23,7 @@ zephyr_library_sources(
   platform/clock/nrf_802154_clock_zephyr.c
   platform/coex/nrf_802154_wifi_coex_none.c
   platform/lp_timer/nrf_802154_lp_timer_zephyr.c
+  platform/random/nrf_802154_random_zephyr.c
   platform/temperature/nrf_802154_temperature_none.c
   rsch/nrf_802154_rsch.c
   rsch/nrf_802154_rsch_crit_sect.c

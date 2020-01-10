@@ -46,7 +46,7 @@
 #include "nrf_802154_peripherals.h"
 #include "nrf_802154_rx_buffer.h"
 #include "nrf_802154_utils.h"
-#include "nrf_egu.h"
+#include "hal/nrf_egu.h"
 #include "platform/clock/nrf_802154_clock.h"
 
 /** Size of notification queue.

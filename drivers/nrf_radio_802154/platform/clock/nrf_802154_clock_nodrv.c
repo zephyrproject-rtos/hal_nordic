@@ -38,7 +38,7 @@
 #include "nrf_802154_clock.h"
 
 #include <nrf.h>
-#include <nrf_clock.h>
+#include <hal/nrf_clock.h>
 
 #include "nrf_802154_config.h"
 #include "nrf_802154_utils.h"
