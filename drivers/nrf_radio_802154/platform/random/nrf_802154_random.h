@@ -1,4 +1,4 @@
-/* Copyright (c) 2018, Nordic Semiconductor ASA
+/* Copyright (c) 2019, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,73 +29,47 @@
  */
 
 /**
- * @brief This module defines the Wifi coexistence module.
+ * @brief Module that defines the pseudo-random number generator Abstraction Layer.
  *
  */
 
-#ifndef NRF_802154_WIFI_COEX_H_
-#define NRF_802154_WIFI_COEX_H_
+#ifndef NRF_802154_RANDOM_H_
+#define NRF_802154_RANDOM_H_
 
-#include "nrf_802154_rsch.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @defgroup nrf_wifi_coex Wifi Coexistence
+ * @defgroup nrf_802154_random Random Abstraction Layer for the 802.15.4 driver
  * @{
- * @ingroup nrf_802154
- * @brief Wifi Coexistence module.
+ * @ingroup nrf_802154_random
+ * @brief The pseudo-random number generator Abstraction Layer interface for the 802.15.4 driver.
  *
- * Wifi Coexistence module is a client of the PTA (defined in the 802.15.2). It manages GPIO
- * to assert pins and respond to pin state changes.
+ * The Random Abstraction Layer is an abstraction layer of a pseudo-random number generator that is
+ * used to perform CSMA-CA procedure correctly.
+ *
  */
 
 /**
- * @brief Initialize the Wifi Coexistence module.
- *
- * @note This function shall be called once, before any other function from this module.
- *
+ * @brief Initializes the random number generator.
  */
-void nrf_802154_wifi_coex_init(void);
+void nrf_802154_random_init(void);
 
 /**
- * @brief Uninitialize the Wifi Coexistence module.
- *
+ * @brief Deinitializes the random number generator.
  */
-void nrf_802154_wifi_coex_uninit(void);
+void nrf_802154_random_deinit(void);
 
 /**
- * @brief Request given priority from the Wifi Coexistence module.
+ * @brief Gets a pseudo-random number.
  *
- * @note The approval of requested priority is notified asynchronously by the
- *       @ref nrf_802154_wifi_coex_prio_changed call.
- *
- * @param[in]  priority  Requested priority level.
- *
+ * @returns Pseudo-random number.
  */
-void nrf_802154_wifi_coex_prio_req(rsch_prio_t priority);
-
-/**
- * @brief Get priority denial event address.
- *
- * Get an address of a hardware event that notifies about denial of the previously approved
- * priority.
- *
- * @return Address of a priority denial event.
- */
-void * nrf_802154_wifi_coex_deny_event_addr_get(void);
-
-/**
- * @biref Approved priority change notification.
- *
- * The Wifi Coexistence module calls this function to notify the RSCH of currently approved
- * priority level.
- *
- * @param[in]  priority  Approved priority level.
- */
-extern void nrf_802154_wifi_coex_prio_changed(rsch_prio_t priority);
+uint32_t nrf_802154_random_get(void);
 
 /**
  *@}
@@ -105,4 +79,4 @@ extern void nrf_802154_wifi_coex_prio_changed(rsch_prio_t priority);
 }
 #endif
 
-#endif /* NRF_802154_WIFI_COEX_H_ */
+#endif /* NRF_802154_RANDOM_H_ */

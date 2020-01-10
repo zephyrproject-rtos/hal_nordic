@@ -38,20 +38,24 @@
 #include "nrf_802154_clock.h"
 
 #include <nrf.h>
-#include <hal/nrf_clock.h>
+#include <nrf_clock.h>
 
 #include "nrf_802154_config.h"
+#include "nrf_802154_utils.h"
 
 void nrf_802154_clock_init(void)
 {
-    nrf_clock_lf_src_set(NRF_CLOCK, NRF_802154_CLOCK_LFCLK_SOURCE);
+    nrf_clock_lf_src_set(NRF_802154_CLOCK_LFCLK_SOURCE);
 
+#if !NRF_IS_IRQ_PRIORITY_ALLOWED(NRF_802154_CLOCK_IRQ_PRIORITY)
+#error NRF_802154_CLOCK_IRQ_PRIORITY value out of the allowed range.
+#endif
     NVIC_SetPriority(POWER_CLOCK_IRQn, NRF_802154_CLOCK_IRQ_PRIORITY);
     NVIC_ClearPendingIRQ(POWER_CLOCK_IRQn);
     NVIC_EnableIRQ(POWER_CLOCK_IRQn);
 
-    nrf_clock_int_enable(NRF_CLOCK, NRF_CLOCK_INT_HF_STARTED_MASK);
-    nrf_clock_int_enable(NRF_CLOCK, NRF_CLOCK_INT_LF_STARTED_MASK);
+    nrf_clock_int_enable(NRF_CLOCK_INT_HF_STARTED_MASK);
+    nrf_clock_int_enable(NRF_CLOCK_INT_LF_STARTED_MASK);
 }
 
 void nrf_802154_clock_deinit(void)
@@ -59,54 +63,54 @@ void nrf_802154_clock_deinit(void)
     NVIC_DisableIRQ(POWER_CLOCK_IRQn);
     NVIC_ClearPendingIRQ(POWER_CLOCK_IRQn);
 
-    nrf_clock_int_disable(NRF_CLOCK, NRF_CLOCK_INT_HF_STARTED_MASK);
-    nrf_clock_int_disable(NRF_CLOCK, NRF_CLOCK_INT_LF_STARTED_MASK);
+    nrf_clock_int_disable(NRF_CLOCK_INT_HF_STARTED_MASK);
+    nrf_clock_int_disable(NRF_CLOCK_INT_LF_STARTED_MASK);
 }
 
 void nrf_802154_clock_hfclk_start(void)
 {
-    nrf_clock_event_clear(NRF_CLOCK, NRF_CLOCK_EVENT_HFCLKSTARTED);
-    nrf_clock_task_trigger(NRF_CLOCK, NRF_CLOCK_TASK_HFCLKSTART);
+    nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
+    nrf_clock_task_trigger(NRF_CLOCK_TASK_HFCLKSTART);
 }
 
 void nrf_802154_clock_hfclk_stop(void)
 {
-    nrf_clock_task_trigger(NRF_CLOCK, NRF_CLOCK_TASK_HFCLKSTOP);
+    nrf_clock_task_trigger(NRF_CLOCK_TASK_HFCLKSTOP);
 }
 
 bool nrf_802154_clock_hfclk_is_running(void)
 {
-    return nrf_clock_hf_is_running(NRF_CLOCK, NRF_CLOCK_HFCLK_HIGH_ACCURACY);
+    return nrf_clock_hf_is_running(NRF_CLOCK_HFCLK_HIGH_ACCURACY);
 }
 
 void nrf_802154_clock_lfclk_start(void)
 {
-    nrf_clock_event_clear(NRF_CLOCK, NRF_CLOCK_EVENT_LFCLKSTARTED);
-    nrf_clock_task_trigger(NRF_CLOCK, NRF_CLOCK_TASK_LFCLKSTART);
+    nrf_clock_event_clear(NRF_CLOCK_EVENT_LFCLKSTARTED);
+    nrf_clock_task_trigger(NRF_CLOCK_TASK_LFCLKSTART);
 }
 
 void nrf_802154_clock_lfclk_stop(void)
 {
-    nrf_clock_task_trigger(NRF_CLOCK, NRF_CLOCK_TASK_LFCLKSTOP);
+    nrf_clock_task_trigger(NRF_CLOCK_TASK_LFCLKSTOP);
 }
 
 bool nrf_802154_clock_lfclk_is_running(void)
 {
-    return nrf_clock_lf_is_running(NRF_CLOCK);
+    return nrf_clock_lf_is_running();
 }
 
 void POWER_CLOCK_IRQHandler(void)
 {
-    if (nrf_clock_event_check(NRF_CLOCK, NRF_CLOCK_EVENT_HFCLKSTARTED))
+    if (nrf_clock_event_check(NRF_CLOCK_EVENT_HFCLKSTARTED))
     {
-        nrf_clock_event_clear(NRF_CLOCK, NRF_CLOCK_EVENT_HFCLKSTARTED);
+        nrf_clock_event_clear(NRF_CLOCK_EVENT_HFCLKSTARTED);
 
         nrf_802154_clock_hfclk_ready();
     }
 
-    if (nrf_clock_event_check(NRF_CLOCK, NRF_CLOCK_EVENT_LFCLKSTARTED))
+    if (nrf_clock_event_check(NRF_CLOCK_EVENT_LFCLKSTARTED))
     {
-        nrf_clock_event_clear(NRF_CLOCK, NRF_CLOCK_EVENT_LFCLKSTARTED);
+        nrf_clock_event_clear(NRF_CLOCK_EVENT_LFCLKSTARTED);
 
         nrf_802154_clock_lfclk_ready();
     }

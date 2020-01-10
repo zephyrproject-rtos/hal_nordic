@@ -1,4 +1,4 @@
-/* Copyright (c) 2017 - 2018, Nordic Semiconductor ASA
+/* Copyright (c) 2018, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,39 +29,30 @@
  */
 
 /**
- * @brief This module contains helpers for checking nRF SoC revision.
+ * @brief Module that contains an enhanced acknowledgement (Enh-Ack) generator
+ * for the 802.15.4 radio driver.
  *
  */
 
-#ifndef NRF_802154_REVISION_H_
-#define NRF_802154_REVISION_H_
+#ifndef NRF_802154_ENH_ACK_GENERATOR_H
+#define NRF_802154_ENH_ACK_GENERATOR_H
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+/** Initializes the Enhanced ACK generator module. */
+void nrf_802154_enh_ack_generator_init(void);
 
-/**
- * @brief This function initializes the module by reading the nRF52840 revision
- *        from the registers and storing it for convenient access.
+/** Creates an Enhanced ACK in response to the provided frame.
  *
- * @note If the chip revision is not recognized, this module assumes that it is running on a newer
- *       chip revision that has all of the features, that the most recent known revision has.
- */
-void nrf_802154_revision_init(void);
-
-/**
- * @brief Function to check if the program is running on NRF52840 revision that supports PHYEND event.
+ * This function creates an Enhanced ACK frame and inserts it into a radio buffer.
  *
- * @retval true  If PHYEND event is supported.
- * @retval false If PHYEND event is not supported.
+ * @param [in]  p_frame  Pointer to the buffer that contains PHR and PSDU of the frame
+ *                       to respond to.
+ *
+ * @returns  Pointer to a constant buffer that contains PHR and PSDU
+ *           of the created Enhanced ACK frame.
  */
-bool nrf_802154_revision_has_phyend_event(void);
+const uint8_t * nrf_802154_enh_ack_generator_create(const uint8_t * p_frame);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* NRF_802154_REVISION_H_ */
+#endif // NRF_802154_ENH_ACK_GENERATOR_H
