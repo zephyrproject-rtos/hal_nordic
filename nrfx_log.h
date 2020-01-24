@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 - 2019, Nordic Semiconductor ASA
+ * Copyright (c) 2017 - 2020, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -109,8 +109,8 @@ LOG_MODULE_REGISTER(NRFX_MODULE_PREFIX, NRFX_MODULE_LOG_LEVEL);
 /**
  * @brief Macro for logging a memory dump with the severity level ERROR.
  *
- * @param[in] p_memory  Pointer to the memory region to be dumped.
- * @param[in] length    Length of the memory region in bytes.
+ * @param[in] p_memory Pointer to the memory region to be dumped.
+ * @param[in] length   Length of the memory region in bytes.
  */
 #define NRFX_LOG_HEXDUMP_ERROR(p_memory, length) \
 	LOG_HEXDUMP_ERR(p_memory, length, "")
@@ -118,8 +118,8 @@ LOG_MODULE_REGISTER(NRFX_MODULE_PREFIX, NRFX_MODULE_LOG_LEVEL);
 /**
  * @brief Macro for logging a memory dump with the severity level WARNING.
  *
- * @param[in] p_memory  Pointer to the memory region to be dumped.
- * @param[in] length    Length of the memory region in bytes.
+ * @param[in] p_memory Pointer to the memory region to be dumped.
+ * @param[in] length   Length of the memory region in bytes.
  */
 #define NRFX_LOG_HEXDUMP_WARNING(p_memory, length) \
 	LOG_HEXDUMP_WRN(p_memory, length, "")
@@ -127,8 +127,8 @@ LOG_MODULE_REGISTER(NRFX_MODULE_PREFIX, NRFX_MODULE_LOG_LEVEL);
 /**
  * @brief Macro for logging a memory dump with the severity level INFO.
  *
- * @param[in] p_memory  Pointer to the memory region to be dumped.
- * @param[in] length    Length of the memory region in bytes.
+ * @param[in] p_memory Pointer to the memory region to be dumped.
+ * @param[in] length   Length of the memory region in bytes.
  */
 #define NRFX_LOG_HEXDUMP_INFO(p_memory, length) \
 	LOG_HEXDUMP_INF(p_memory, length, "")
@@ -136,8 +136,8 @@ LOG_MODULE_REGISTER(NRFX_MODULE_PREFIX, NRFX_MODULE_LOG_LEVEL);
 /**
  * @brief Macro for logging a memory dump with the severity level DEBUG.
  *
- * @param[in] p_memory  Pointer to the memory region to be dumped.
- * @param[in] length    Length of the memory region in bytes.
+ * @param[in] p_memory Pointer to the memory region to be dumped.
+ * @param[in] length   Length of the memory region in bytes.
  */
 #define NRFX_LOG_HEXDUMP_DEBUG(p_memory, length) \
 	LOG_HEXDUMP_DBG(p_memory, length, "")
@@ -145,7 +145,7 @@ LOG_MODULE_REGISTER(NRFX_MODULE_PREFIX, NRFX_MODULE_LOG_LEVEL);
 /**
  * @brief Macro for getting the textual representation of a given error code.
  *
- * @param[in] error_code  Error code.
+ * @param[in] error_code Error code.
  *
  * @return String containing the textual representation of the error code.
  */

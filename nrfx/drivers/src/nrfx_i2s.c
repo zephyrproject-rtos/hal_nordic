@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2019, Nordic Semiconductor ASA
+ * Copyright (c) 2015 - 2020, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -167,6 +167,10 @@ nrfx_err_t nrfx_i2s_init(nrfx_i2s_config_t const * p_config,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
         return err_code;
     }
+
+#if NRF_I2S_HAS_CLKCONFIG
+    nrf_i2s_clk_configure(NRF_I2S, p_config->clksrc, p_config->enable_bypass);
+#endif
     configure_pins(p_config);
 
     m_cb.handler = handler;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2019, Nordic Semiconductor ASA
+ * Copyright (c) 2015 - 2020, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -69,13 +69,17 @@ typedef struct
                            *   if this signal is not needed. */
     uint8_t irq_priority; ///< Interrupt priority.
 
-    nrf_i2s_mode_t     mode;         ///< Mode of operation.
-    nrf_i2s_format_t   format;       ///< Frame format.
-    nrf_i2s_align_t    alignment;    ///< Alignment of sample within a frame.
-    nrf_i2s_swidth_t   sample_width; ///< Sample width.
-    nrf_i2s_channels_t channels;     ///< Enabled channels.
-    nrf_i2s_mck_t      mck_setup;    ///< Master clock setup.
-    nrf_i2s_ratio_t    ratio;        ///< MCK/LRCK ratio.
+    nrf_i2s_mode_t     mode;          ///< Mode of operation.
+    nrf_i2s_format_t   format;        ///< Frame format.
+    nrf_i2s_align_t    alignment;     ///< Alignment of sample within a frame.
+    nrf_i2s_swidth_t   sample_width;  ///< Sample width.
+    nrf_i2s_channels_t channels;      ///< Enabled channels.
+    nrf_i2s_mck_t      mck_setup;     ///< Master clock setup.
+    nrf_i2s_ratio_t    ratio;         ///< MCK/LRCK ratio.
+#if NRF_I2S_HAS_CLKCONFIG
+    nrf_i2s_clksrc_t   clksrc;        ///< Clock source selection.
+    bool               enable_bypass; ///< Bypass clock generator. MCK will be equal to source input.
+#endif
 } nrfx_i2s_config_t;
 
 /** @brief I2S driver buffers structure. */
@@ -85,6 +89,14 @@ typedef struct
     uint32_t const * p_tx_buffer; ///< Pointer to the buffer with data to be sent.
 } nrfx_i2s_buffers_t;
 
+#if NRF_I2S_HAS_CLKCONFIG || defined(__NRFX_DOXYGEN__)
+    /** @brief I2S additional clock source configuration. */
+    #define NRF_I2S_DEFAULT_EXTENDED_CLKSRC_CONFIG \
+        .clksrc        = NRF_I2S_CLKSRC_PCLK32M,   \
+        .enable_bypass = false,
+#else
+    #define NRF_I2S_DEFAULT_EXTENDED_CLKSRC_CONFIG
+#endif
 /**
  * @brief I2S driver default configuration.
  *
@@ -118,6 +130,7 @@ typedef struct
     .channels     = NRF_I2S_CHANNELS_LEFT,                                              \
     .mck_setup    = NRF_I2S_MCK_32MDIV8,                                                \
     .ratio        = NRF_I2S_RATIO_32X,                                                  \
+    NRF_I2S_DEFAULT_EXTENDED_CLKSRC_CONFIG                                              \
 }
 
 #define NRFX_I2S_STATUS_NEXT_BUFFERS_NEEDED (1UL << 0)
@@ -210,7 +223,7 @@ void nrfx_i2s_uninit(void);
  * word can either contain four 8-bit samples, two 16-bit samples, or one
  * right-aligned 24-bit sample sign-extended to a 32-bit value.
  * For a detailed memory mapping for different supported configurations,
- * see the @linkProductSpecification52.
+ * see the Product Specification.
  *
  * @note Peripherals using EasyDMA (including I2S) require the transfer buffers
  *       to be placed in the Data RAM region. If this condition is not met,
