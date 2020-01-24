@@ -72,6 +72,7 @@ if(CONFIG_HAS_NRFX)
   zephyr_library_sources_ifdef(CONFIG_NRFX_UART    nrfx/drivers/src/nrfx_uart.c)
   zephyr_library_sources_ifdef(CONFIG_NRFX_UARTE   nrfx/drivers/src/nrfx_uarte.c)
   zephyr_library_sources_ifdef(CONFIG_NRFX_USBD    nrfx/drivers/src/nrfx_usbd.c)
+  zephyr_library_sources_ifdef(CONFIG_NRFX_USBREG  nrfx/drivers/src/nrfx_usbreg.c)
   zephyr_library_sources_ifdef(CONFIG_NRFX_WDT     nrfx/drivers/src/nrfx_wdt.c)
 
   if(CONFIG_NRFX_TWI OR CONFIG_NRFX_TWIM)

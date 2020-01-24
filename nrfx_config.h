@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017 - 2019, Nordic Semiconductor ASA
+/*
+ * Copyright (c) 2019 - 2020, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -206,7 +206,10 @@
 #ifdef CONFIG_NRFX_SPIM3
 #define NRFX_SPIM3_ENABLED 1
 #endif
-#ifdef CONFIG_SPI_3_NRF_RX_DELAY
+#ifdef CONFIG_NRFX_SPIM4
+#define NRFX_SPIM4_ENABLED 1
+#endif
+#if defined(CONFIG_SPI_3_NRF_RX_DELAY) || defined(CONFIG_SPI_4_NRF_RX_DELAY)
 #define NRFX_SPIM_EXTENDED_ENABLED 1
 #endif
 
@@ -320,6 +323,10 @@
 
 #ifdef CONFIG_NRFX_USBD
 #define NRFX_USBD_ENABLED 1
+#endif
+
+#ifdef CONFIG_NRFX_USBREG
+#define NRFX_USBREG_ENABLED 1
 #endif
 
 #ifdef CONFIG_NRFX_WDT

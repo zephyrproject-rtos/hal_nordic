@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017 - 2019, Nordic Semiconductor ASA
+/*
+ * Copyright (c) 2017 - 2020, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -267,8 +267,8 @@ extern const u32_t z_bt_ctlr_used_nrf_ppi_groups;
 #define NRFX_PPI_GROUPS_USED_BY_BT_CTLR     0
 #endif
 
-/** @brief Bitmask that defines SWI instances that are reserved for use outside of the nrfx library. */
-#define NRFX_SWI_USED           0
+/** @brief Bitmask that defines EGU instances that are reserved for use outside of the nrfx library. */
+#define NRFX_EGUS_USED          0
 
 /** @brief Bitmask that defines TIMER instances that are reserved for use outside of the nrfx library. */
 #define NRFX_TIMERS_USED        0

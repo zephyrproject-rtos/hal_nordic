@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2019, Nordic Semiconductor ASA
+/*
+ * Copyright (c) 2019 - 2020, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,6 +47,7 @@
 #define NRF_AAR        NRF_AAR_NS
 #define NRF_CCM        NRF_CCM_NS
 #define NRF_CLOCK      NRF_CLOCK_NS
+#define NRF_DCNF       NRF_DCNF_NS
 #define NRF_DPPIC      NRF_DPPIC_NS
 #define NRF_ECB        NRF_ECB_NS
 #define NRF_EGU0       NRF_EGU0_NS
@@ -77,6 +78,7 @@
 #define NRF_UARTE0     NRF_UARTE0_NS
 #define NRF_UICR       NRF_UICR_NS
 #define NRF_VMC        NRF_VMC_NS
+#define NRF_VREQCTRL   NRF_VREQCTRL_NS
 #define NRF_WDT        NRF_WDT_NS
 
 
@@ -91,15 +93,30 @@
 #endif
 // <o> NRFX_CLOCK_CONFIG_LF_SRC  - LF clock source.
 
-// <0=> RC
-// <1=> XTAL
-// <2=> Synth
-// <131073=> External Low Swing
-// <196609=> External Full Swing
+// <0=> ULP
+// <1=> RC
+// <2=> XTAL
+// <3=> Synth
 
 #ifndef NRFX_CLOCK_CONFIG_LF_SRC
-#define NRFX_CLOCK_CONFIG_LF_SRC 1
+#define NRFX_CLOCK_CONFIG_LF_SRC 2
 #endif
+
+// <q> NRFX_CLOCK_CONFIG_LF_CAL_ENABLED  - Enables LF Clock Calibration Support
+
+#ifndef NRFX_CLOCK_CONFIG_LF_CAL_ENABLED
+#define NRFX_CLOCK_CONFIG_LF_CAL_ENABLED 0
+#endif
+
+// <o> NRFX_CLOCK_CONFIG_HFCLK192M_SRC  - HFCLK192M source.
+
+// <0=> HFINT
+// <1=> HFXO
+
+#ifndef NRFX_CLOCK_CONFIG_HFCLK192M_SRC
+#define NRFX_CLOCK_CONFIG_HFCLK192M_SRC 1
+#endif
+
 
 // <o> NRFX_CLOCK_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority.
 

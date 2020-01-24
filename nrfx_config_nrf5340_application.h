@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2019, Nordic Semiconductor ASA
+/*
+ * Copyright (c) 2019 - 2020, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@
 #define NRF_COMP         NRF_PERIPH(NRF_COMP)
 #define NRF_CLOCK        NRF_PERIPH(NRF_CLOCK)
 #define NRF_CRYPTOCELL   NRF_PERIPH(NRF_CRYPTOCELL)
+#define NRF_DCNF         NRF_PERIPH(NRF_DCNF)
 #define NRF_DPPIC        NRF_PERIPH(NRF_DPPIC)
 #define NRF_EGU0         NRF_PERIPH(NRF_EGU0)
 #define NRF_EGU1         NRF_PERIPH(NRF_EGU1)
@@ -58,14 +59,17 @@
 #define NRF_MUTEX        NRF_PERIPH(NRF_MUTEX)
 #define NRF_NFCT         NRF_PERIPH(NRF_NFCT)
 #define NRF_NVMC         NRF_PERIPH(NRF_NVMC)
+#define NRF_OSCILLATORS  NRF_PERIPH(NRF_OSCILLATORS)
 #define NRF_P0           NRF_PERIPH(NRF_P0)
 #define NRF_P1           NRF_PERIPH(NRF_P1)
-#define NRF_PDM          NRF_PERIPH(NRF_PDM0)
+#define NRF_PDM0         NRF_PERIPH(NRF_PDM0)
 #define NRF_POWER        NRF_PERIPH(NRF_POWER)
 #define NRF_PWM0         NRF_PERIPH(NRF_PWM0)
 #define NRF_PWM1         NRF_PERIPH(NRF_PWM1)
 #define NRF_PWM2         NRF_PERIPH(NRF_PWM2)
-#define NRF_QDEC         NRF_PERIPH(NRF_QDEC)
+#define NRF_PWM3         NRF_PERIPH(NRF_PWM3)
+#define NRF_QDEC0        NRF_PERIPH(NRF_QDEC0)
+#define NRF_QDEC1        NRF_PERIPH(NRF_QDEC1)
 #define NRF_QSPI         NRF_PERIPH(NRF_QSPI)
 #define NRF_REGULATORS   NRF_PERIPH(NRF_REGULATORS)
 #define NRF_RESET        NRF_PERIPH(NRF_RESET)
@@ -75,24 +79,37 @@
 #define NRF_SPIM0        NRF_PERIPH(NRF_SPIM0)
 #define NRF_SPIM1        NRF_PERIPH(NRF_SPIM1)
 #define NRF_SPIM2        NRF_PERIPH(NRF_SPIM2)
+#define NRF_SPIM3        NRF_PERIPH(NRF_SPIM3)
+#define NRF_SPIM4        NRF_PERIPH(NRF_SPIM4)
 #define NRF_SPIS0        NRF_PERIPH(NRF_SPIS0)
 #define NRF_SPIS1        NRF_PERIPH(NRF_SPIS1)
+#define NRF_SPIS2        NRF_PERIPH(NRF_SPIS2)
+#define NRF_SPIS3        NRF_PERIPH(NRF_SPIS3)
 #define NRF_SPU          NRF_PERIPH(NRF_SPU)
 #define NRF_TIMER0       NRF_PERIPH(NRF_TIMER0)
 #define NRF_TIMER1       NRF_PERIPH(NRF_TIMER1)
 #define NRF_TIMER2       NRF_PERIPH(NRF_TIMER2)
 #define NRF_TWIM0        NRF_PERIPH(NRF_TWIM0)
 #define NRF_TWIM1        NRF_PERIPH(NRF_TWIM1)
+#define NRF_TWIM2        NRF_PERIPH(NRF_TWIM2)
+#define NRF_TWIM3        NRF_PERIPH(NRF_TWIM3)
 #define NRF_TWIS0        NRF_PERIPH(NRF_TWIS0)
 #define NRF_TWIS1        NRF_PERIPH(NRF_TWIS1)
+#define NRF_TWIS2        NRF_PERIPH(NRF_TWIS2)
+#define NRF_TWIS3        NRF_PERIPH(NRF_TWIS3)
 #define NRF_UARTE0       NRF_PERIPH(NRF_UARTE0)
 #define NRF_UARTE1       NRF_PERIPH(NRF_UARTE1)
+#define NRF_UARTE2       NRF_PERIPH(NRF_UARTE2)
+#define NRF_UARTE3       NRF_PERIPH(NRF_UARTE3)
 #define NRF_UICR         NRF_PERIPH(NRF_UICR)
 #define NRF_USBD         NRF_PERIPH(NRF_USBD)
 #define NRF_USBREGULATOR NRF_PERIPH(NRF_USBREGULATOR)
 #define NRF_VMC          NRF_PERIPH(NRF_VMC)
 #define NRF_WDT0         NRF_PERIPH(NRF_WDT0)
 #define NRF_WDT1         NRF_PERIPH(NRF_WDT1)
+
+/* Fixup for QDEC driver. */
+#define NRF_QDEC  NRF_QDEC0
 
 
 #if defined(NRF_TRUSTZONE_NONSECURE)
@@ -117,14 +134,28 @@
 #endif
 // <o> NRFX_CLOCK_CONFIG_LF_SRC  - LF clock source.
 
-// <0=> RC
-// <1=> XTAL
-// <2=> Synth
-// <131073=> External Low Swing
-// <196609=> External Full Swing
+// <0=> ULP
+// <1=> RC
+// <2=> XTAL
+// <3=> Synth
 
 #ifndef NRFX_CLOCK_CONFIG_LF_SRC
-#define NRFX_CLOCK_CONFIG_LF_SRC 1
+#define NRFX_CLOCK_CONFIG_LF_SRC 2
+#endif
+
+// <q> NRFX_CLOCK_CONFIG_LF_CAL_ENABLED  - Enables LF Clock Calibration Support
+
+#ifndef NRFX_CLOCK_CONFIG_LF_CAL_ENABLED
+#define NRFX_CLOCK_CONFIG_LF_CAL_ENABLED 0
+#endif
+
+// <o> NRFX_CLOCK_CONFIG_HFCLK192M_SRC  - HFCLK192M source.
+
+// <0=> HFINT
+// <1=> HFXO
+
+#ifndef NRFX_CLOCK_CONFIG_HFCLK192M_SRC
+#define NRFX_CLOCK_CONFIG_HFCLK192M_SRC 1
 #endif
 
 // <o> NRFX_CLOCK_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority.
@@ -833,6 +864,20 @@
 #define NRFX_PRS_BOX_2_ENABLED 0
 #endif
 
+// <q> NRFX_PRS_BOX_3_ENABLED  - Enables box 3 in the module.
+
+
+#ifndef NRFX_PRS_BOX_3_ENABLED
+#define NRFX_PRS_BOX_3_ENABLED 0
+#endif
+
+// <q> NRFX_PRS_BOX_4_ENABLED  - Enables box 4 in the module.
+
+
+#ifndef NRFX_PRS_BOX_4_ENABLED
+#define NRFX_PRS_BOX_4_ENABLED 0
+#endif
+
 
 // <e> NRFX_PRS_CONFIG_LOG_ENABLED - Enables logging in the module.
 //==========================================================
@@ -911,6 +956,13 @@
 
 #ifndef NRFX_PWM2_ENABLED
 #define NRFX_PWM2_ENABLED 0
+#endif
+
+// <q> NRFX_PWM3_ENABLED  - Enables PWM3 instance.
+
+
+#ifndef NRFX_PWM3_ENABLED
+#define NRFX_PWM3_ENABLED 0
 #endif
 
 // <o> NRFX_PWM_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority.
@@ -1265,6 +1317,26 @@
 #define NRFX_SPIM2_ENABLED 0
 #endif
 
+// <q> NRFX_SPIM3_ENABLED  - Enables SPIM3 instance.
+
+
+#ifndef NRFX_SPIM3_ENABLED
+#define NRFX_SPIM3_ENABLED 0
+#endif
+
+// <q> NRFX_SPIM4_ENABLED  - Enables SPIM4 instance.
+
+
+#ifndef NRFX_SPIM4_ENABLED
+#define NRFX_SPIM4_ENABLED 0
+#endif
+
+// <q> NRFX_SPIM_EXTENDED_ENABLED  - Enable extended SPIM features
+
+
+#ifndef NRFX_SPIM_EXTENDED_ENABLED
+#define NRFX_SPIM_EXTENDED_ENABLED 0
+#endif
 
 // <o> NRFX_SPIM_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority.
 
@@ -1351,6 +1423,20 @@
 
 #ifndef NRFX_SPIS1_ENABLED
 #define NRFX_SPIS1_ENABLED 0
+#endif
+
+// <q> NRFX_SPIS2_ENABLED  - Enables SPIS2 instance.
+
+
+#ifndef NRFX_SPIS2_ENABLED
+#define NRFX_SPIS2_ENABLED 0
+#endif
+
+// <q> NRFX_SPIS3_ENABLED  - Enables SPIS3 instance.
+
+
+#ifndef NRFX_SPIS3_ENABLED
+#define NRFX_SPIS3_ENABLED 0
 #endif
 
 // <o> NRFX_SPIS_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority.
@@ -1541,6 +1627,20 @@
 #define NRFX_TWIM1_ENABLED 0
 #endif
 
+// <q> NRFX_TWIM2_ENABLED  - Enables TWIM2 instance.
+
+
+#ifndef NRFX_TWIM2_ENABLED
+#define NRFX_TWIM2_ENABLED 0
+#endif
+
+// <q> NRFX_TWIM3_ENABLED  - Enables TWIM3 instance.
+
+
+#ifndef NRFX_TWIM3_ENABLED
+#define NRFX_TWIM3_ENABLED 0
+#endif
+
 // <o> NRFX_TWIM_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority.
 
 // <0=> 0 (highest)
@@ -1625,6 +1725,18 @@
 
 #ifndef NRFX_TWIS1_ENABLED
 #define NRFX_TWIS1_ENABLED 0
+#endif
+
+// <q> NRFX_TWIS2_ENABLED  - Enables TWIS2 instance.
+
+#ifndef NRFX_TWIS2_ENABLED
+#define NRFX_TWIS2_ENABLED 0
+#endif
+
+// <q> NRFX_TWIS3_ENABLED  - Enables TWIS3 instance.
+
+#ifndef NRFX_TWIS3_ENABLED
+#define NRFX_TWIS3_ENABLED 0
 #endif
 
 // <q> NRFX_TWIS_ASSUME_INIT_AFTER_RESET_ONLY  - Assumes that any instance would be initialized only once.
@@ -1726,6 +1838,16 @@
 #define NRFX_UARTE1_ENABLED 0
 #endif
 
+// <o> NRFX_UARTE2_ENABLED - Enables UARTE2 instance.
+#ifndef NRFX_UARTE2_ENABLED
+#define NRFX_UARTE2_ENABLED 0
+#endif
+
+// <o> NRFX_UARTE3_ENABLED - Enables UARTE3 instance.
+#ifndef NRFX_UARTE3_ENABLED
+#define NRFX_UARTE3_ENABLED 0
+#endif
+
 // <o> NRFX_UARTE_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority.
 
 // <0=> 0 (highest)
@@ -1788,6 +1910,125 @@
 
 #ifndef NRFX_UARTE_CONFIG_DEBUG_COLOR
 #define NRFX_UARTE_CONFIG_DEBUG_COLOR 0
+#endif
+
+// </e>
+
+// </e>
+
+// <e> NRFX_USBD_ENABLED - nrfx_usbd - USBD peripheral driver
+//==========================================================
+#ifndef NRFX_USBD_ENABLED
+#define NRFX_USBD_ENABLED 0
+#endif
+// <o> NRFX_USBD_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
+
+// <0=> 0 (highest)
+// <1=> 1
+// <2=> 2
+// <3=> 3
+// <4=> 4
+// <5=> 5
+// <6=> 6
+// <7=> 7
+
+#ifndef NRFX_USBD_DEFAULT_CONFIG_IRQ_PRIORITY
+#define NRFX_USBD_DEFAULT_CONFIG_IRQ_PRIORITY 7
+#endif
+
+// <q> USBD_CONFIG_DMASCHEDULER_ISO_BOOST  - Give priority to isochronous transfers
+
+// <i> This option gives priority to isochronous transfers.
+// <i> Enabling it assures that isochronous transfers are always processed,
+// <i> even if multiple other transfers are pending.
+// <i> Isochronous endpoints are prioritized before the usbd_dma_scheduler_algorithm
+// <i> function is called, so the option is independent of the algorithm chosen.
+
+#ifndef NRFX_USBD_CONFIG_DMASCHEDULER_ISO_BOOST
+#define NRFX_USBD_CONFIG_DMASCHEDULER_ISO_BOOST 1
+#endif
+
+// <q> USBD_CONFIG_ISO_IN_ZLP  - Respond to an IN token on ISO IN endpoint with ZLP when no data is ready
+
+
+// <i> If set, ISO IN endpoint will respond to an IN token with ZLP when no data is ready to be sent.
+// <i> Else, there will be no response.
+
+#ifndef NRFX_USBD_CONFIG_ISO_IN_ZLP
+#define NRFX_USBD_CONFIG_ISO_IN_ZLP 0
+#endif
+
+// <e> NRFX_USBD_CONFIG_LOG_ENABLED - Enable logging in the module
+//==========================================================
+#ifndef NRFX_USBD_CONFIG_LOG_ENABLED
+#define NRFX_USBD_CONFIG_LOG_ENABLED 0
+#endif
+// <o> NRFX_USBD_CONFIG_LOG_LEVEL  - Default Severity level
+
+// <0=> Off
+// <1=> Error
+// <2=> Warning
+// <3=> Info
+// <4=> Debug
+
+#ifndef NRFX_USBD_CONFIG_LOG_LEVEL
+#define NRFX_USBD_CONFIG_LOG_LEVEL 3
+#endif
+
+// <o> NRFX_USBD_CONFIG_INFO_COLOR  - ANSI escape code prefix.
+
+// <0=> Default
+// <1=> Black
+// <2=> Red
+// <3=> Green
+// <4=> Yellow
+// <5=> Blue
+// <6=> Magenta
+// <7=> Cyan
+// <8=> White
+
+#ifndef NRFX_USBD_CONFIG_INFO_COLOR
+#define NRFX_USBD_CONFIG_INFO_COLOR 0
+#endif
+
+// <o> NRFX_USBD_CONFIG_DEBUG_COLOR  - ANSI escape code prefix.
+
+// <0=> Default
+// <1=> Black
+// <2=> Red
+// <3=> Green
+// <4=> Yellow
+// <5=> Blue
+// <6=> Magenta
+// <7=> Cyan
+// <8=> White
+
+#ifndef NRFX_USBD_CONFIG_DEBUG_COLOR
+#define NRFX_USBD_CONFIG_DEBUG_COLOR 0
+#endif
+
+// </e>
+
+// </e>
+
+// <e> NRFX_USBREG_ENABLED - nrfx_usbreg - USBREG peripheral driver
+//==========================================================
+#ifndef NRFX_USBREG_ENABLED
+#define NRFX_USBREG_ENABLED 0
+#endif
+// <o> NRFX_USBREG_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
+
+// <0=> 0 (highest)
+// <1=> 1
+// <2=> 2
+// <3=> 3
+// <4=> 4
+// <5=> 5
+// <6=> 6
+// <7=> 7
+
+#ifndef NRFX_USBREG_DEFAULT_CONFIG_IRQ_PRIORITY
+#define NRFX_USBREG_DEFAULT_CONFIG_IRQ_PRIORITY 7
 #endif
 
 // </e>
