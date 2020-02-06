@@ -150,7 +150,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
     static inline unsigned int gcc_current_sp(void)
     {
-        register unsigned sp __ASM("sp");
+        register unsigned sp;
+        __ASM volatile("mov  %0, sp" : "=r" (sp));
         return sp;
     }
 
