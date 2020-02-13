@@ -40,7 +40,7 @@ if(CONFIG_HAS_NRFX)
 
   zephyr_library_sources(nrfx_glue.c)
 
-  zephyr_library_sources_ifdef(CONFIG_NRFX_PRS     nrfx/drivers/prs/nrfx_prs.c)
+  zephyr_library_sources_ifdef(CONFIG_NRFX_PRS     nrfx/drivers/src/prs/nrfx_prs.c)
 
   zephyr_library_sources_ifdef(CONFIG_NRFX_ADC     nrfx/drivers/src/nrfx_adc.c)
   zephyr_library_sources_ifdef(CONFIG_NRFX_CLOCK   nrfx/drivers/src/nrfx_clock.c)
