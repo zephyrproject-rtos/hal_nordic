@@ -47,14 +47,14 @@ extern "C" {
 
 //------------------------------------------------------------------------------
 
-#include <assert.h>
+#include <sys/__assert.h>
 
 /**
  * @brief Macro for placing a runtime assertion.
  *
  * @param expression Expression to be evaluated.
  */
-#define NRFX_ASSERT(expression)  assert(expression)
+#define NRFX_ASSERT(expression)  __ASSERT_NO_MSG(expression)
 
 /**
  * @brief Macro for placing a compile time assertion.
