@@ -36,12 +36,8 @@
 #error "Do not include this file directly, only through nrfx_config.h."
 #endif
 
-#define NRF_CACHE        NRF_PERIPH(NRF_CACHE)
-#define NRF_CACHEINFO    NRF_PERIPH(NRF_CACHEINFO)
-#define NRF_CACHEDATA    NRF_PERIPH(NRF_CACHEDATA)
 #define NRF_COMP         NRF_PERIPH(NRF_COMP)
 #define NRF_CLOCK        NRF_PERIPH(NRF_CLOCK)
-#define NRF_CRYPTOCELL   NRF_PERIPH(NRF_CRYPTOCELL)
 #define NRF_DCNF         NRF_PERIPH(NRF_DCNF)
 #define NRF_DPPIC        NRF_PERIPH(NRF_DPPIC)
 #define NRF_EGU0         NRF_PERIPH(NRF_EGU0)
@@ -50,7 +46,6 @@
 #define NRF_EGU3         NRF_PERIPH(NRF_EGU3)
 #define NRF_EGU4         NRF_PERIPH(NRF_EGU4)
 #define NRF_EGU5         NRF_PERIPH(NRF_EGU5)
-#define NRF_FICR         NRF_PERIPH(NRF_FICR)
 #define NRF_FPU          NRF_PERIPH(NRF_FPU)
 #define NRF_I2S          NRF_PERIPH(NRF_I2S0)
 #define NRF_IPC          NRF_PERIPH(NRF_IPC)
@@ -85,7 +80,6 @@
 #define NRF_SPIS1        NRF_PERIPH(NRF_SPIS1)
 #define NRF_SPIS2        NRF_PERIPH(NRF_SPIS2)
 #define NRF_SPIS3        NRF_PERIPH(NRF_SPIS3)
-#define NRF_SPU          NRF_PERIPH(NRF_SPU)
 #define NRF_TIMER0       NRF_PERIPH(NRF_TIMER0)
 #define NRF_TIMER1       NRF_PERIPH(NRF_TIMER1)
 #define NRF_TIMER2       NRF_PERIPH(NRF_TIMER2)
@@ -101,26 +95,39 @@
 #define NRF_UARTE1       NRF_PERIPH(NRF_UARTE1)
 #define NRF_UARTE2       NRF_PERIPH(NRF_UARTE2)
 #define NRF_UARTE3       NRF_PERIPH(NRF_UARTE3)
-#define NRF_UICR         NRF_PERIPH(NRF_UICR)
 #define NRF_USBD         NRF_PERIPH(NRF_USBD)
 #define NRF_USBREGULATOR NRF_PERIPH(NRF_USBREGULATOR)
 #define NRF_VMC          NRF_PERIPH(NRF_VMC)
 #define NRF_WDT0         NRF_PERIPH(NRF_WDT0)
 #define NRF_WDT1         NRF_PERIPH(NRF_WDT1)
 
-/* Fixup for QDEC driver. */
-#define NRF_QDEC  NRF_QDEC0
-
-
+/*
+ * The following section provides the name translation for peripherals with
+ * only one type of access available. For these peripherals, you cannot choose
+ * between secure and non-secure mapping.
+ */
 #if defined(NRF_TRUSTZONE_NONSECURE)
-
-#define NRF_GPIOTE  NRF_GPIOTE1_NS
-
+#define NRF_GPIOTE1      NRF_GPIOTE1_NS
 #else
+#define NRF_CACHE        NRF_CACHE_S
+#define NRF_CACHEINFO    NRF_CACHEINFO_S
+#define NRF_CACHEDATA    NRF_CACHEDATA_S
+#define NRF_CRYPTOCELL   NRF_CRYPTOCELL_S
+#define NRF_FICR         NRF_FICR_S
+#define NRF_GPIOTE0      NRF_GPIOTE0_S
+#define NRF_SPU          NRF_SPU_S
+#define NRF_UICR         NRF_UICR_S
+#endif
 
-#define NRF_GPIOTE  NRF_GPIOTE0_S
+/* Fixup for the QDEC driver. */
+#define NRF_QDEC         NRF_QDEC0
 
-#endif // defined(NRF_TRUSTZONE_NONSECURE)
+/* Fixup for the GPIOTE driver. */
+#if defined(NRF_TRUSTZONE_NONSECURE)
+#define NRF_GPIOTE       NRF_GPIOTE1
+#else
+#define NRF_GPIOTE       NRF_GPIOTE0
+#endif
 
 
 // <<< Use Configuration Wizard in Context Menu >>>\n
