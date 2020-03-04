@@ -126,7 +126,7 @@ static void configure_pins(nrfx_i2s_config_t const * p_config)
         sdin_pin = NRF_I2S_PIN_NOT_CONNECTED;
     }
 
-    nrf_i2s_pins_set(NRF_I2S,
+    nrf_i2s_pins_set(NRF_I2S0,
                      p_config->sck_pin,
                      p_config->lrck_pin,
                      mck_pin,
@@ -152,7 +152,7 @@ nrfx_err_t nrfx_i2s_init(nrfx_i2s_config_t const * p_config,
         return err_code;
     }
 
-    if (!nrf_i2s_configure(NRF_I2S,
+    if (!nrf_i2s_configure(NRF_I2S0,
                            p_config->mode,
                            p_config->format,
                            p_config->alignment,
@@ -169,14 +169,14 @@ nrfx_err_t nrfx_i2s_init(nrfx_i2s_config_t const * p_config,
     }
 
 #if NRF_I2S_HAS_CLKCONFIG
-    nrf_i2s_clk_configure(NRF_I2S, p_config->clksrc, p_config->enable_bypass);
+    nrf_i2s_clk_configure(NRF_I2S0, p_config->clksrc, p_config->enable_bypass);
 #endif
     configure_pins(p_config);
 
     m_cb.handler = handler;
 
-    NRFX_IRQ_PRIORITY_SET(nrfx_get_irq_number(NRF_I2S), p_config->irq_priority);
-    NRFX_IRQ_ENABLE(nrfx_get_irq_number(NRF_I2S));
+    NRFX_IRQ_PRIORITY_SET(nrfx_get_irq_number(NRF_I2S0), p_config->irq_priority);
+    NRFX_IRQ_ENABLE(nrfx_get_irq_number(NRF_I2S0));
 
     m_cb.state = NRFX_DRV_STATE_INITIALIZED;
 
@@ -191,9 +191,9 @@ void nrfx_i2s_uninit(void)
 
     nrfx_i2s_stop();
 
-    NRFX_IRQ_DISABLE(nrfx_get_irq_number(NRF_I2S));
+    NRFX_IRQ_DISABLE(nrfx_get_irq_number(NRF_I2S0));
 
-    nrf_i2s_pins_set(NRF_I2S,
+    nrf_i2s_pins_set(NRF_I2S0,
                      NRF_I2S_PIN_NOT_CONNECTED,
                      NRF_I2S_PIN_NOT_CONNECTED,
                      NRF_I2S_PIN_NOT_CONNECTED,
@@ -259,22 +259,22 @@ nrfx_err_t nrfx_i2s_start(nrfx_i2s_buffers_t const * p_initial_buffers,
     m_cb.current_buffers.p_rx_buffer = NULL;
     m_cb.current_buffers.p_tx_buffer = NULL;
 
-    nrf_i2s_transfer_set(NRF_I2S,
+    nrf_i2s_transfer_set(NRF_I2S0,
                          m_cb.buffer_size,
                          m_cb.next_buffers.p_rx_buffer,
                          m_cb.next_buffers.p_tx_buffer);
 
-    nrf_i2s_enable(NRF_I2S);
+    nrf_i2s_enable(NRF_I2S0);
 
     m_cb.state = NRFX_DRV_STATE_POWERED_ON;
 
-    nrf_i2s_event_clear(NRF_I2S, NRF_I2S_EVENT_RXPTRUPD);
-    nrf_i2s_event_clear(NRF_I2S, NRF_I2S_EVENT_TXPTRUPD);
-    nrf_i2s_event_clear(NRF_I2S, NRF_I2S_EVENT_STOPPED);
-    nrf_i2s_int_enable(NRF_I2S, (m_cb.use_rx ? NRF_I2S_INT_RXPTRUPD_MASK : 0) |
-                                (m_cb.use_tx ? NRF_I2S_INT_TXPTRUPD_MASK : 0) |
-                                NRF_I2S_INT_STOPPED_MASK);
-    nrf_i2s_task_trigger(NRF_I2S, NRF_I2S_TASK_START);
+    nrf_i2s_event_clear(NRF_I2S0, NRF_I2S_EVENT_RXPTRUPD);
+    nrf_i2s_event_clear(NRF_I2S0, NRF_I2S_EVENT_TXPTRUPD);
+    nrf_i2s_event_clear(NRF_I2S0, NRF_I2S_EVENT_STOPPED);
+    nrf_i2s_int_enable(NRF_I2S0, (m_cb.use_rx ? NRF_I2S_INT_RXPTRUPD_MASK : 0) |
+                                 (m_cb.use_tx ? NRF_I2S_INT_TXPTRUPD_MASK : 0) |
+                                 NRF_I2S_INT_STOPPED_MASK);
+    nrf_i2s_task_trigger(NRF_I2S0, NRF_I2S_TASK_START);
 
     NRFX_LOG_INFO("Started.");
     return NRFX_SUCCESS;
@@ -319,12 +319,12 @@ nrfx_err_t nrfx_i2s_next_buffers_set(nrfx_i2s_buffers_t const * p_buffers)
     if (m_cb.use_tx)
     {
         NRFX_ASSERT(p_buffers->p_tx_buffer != NULL);
-        nrf_i2s_tx_buffer_set(NRF_I2S, p_buffers->p_tx_buffer);
+        nrf_i2s_tx_buffer_set(NRF_I2S0, p_buffers->p_tx_buffer);
     }
     if (m_cb.use_rx)
     {
         NRFX_ASSERT(p_buffers->p_rx_buffer != NULL);
-        nrf_i2s_rx_buffer_set(NRF_I2S, p_buffers->p_rx_buffer);
+        nrf_i2s_rx_buffer_set(NRF_I2S0, p_buffers->p_rx_buffer);
     }
 
     m_cb.next_buffers   = *p_buffers;
@@ -342,31 +342,31 @@ void nrfx_i2s_stop(void)
 
     // First disable interrupts, then trigger the STOP task, so no spurious
     // RXPTRUPD and TXPTRUPD events (see nRF52 anomaly 55) are processed.
-    nrf_i2s_int_disable(NRF_I2S, NRF_I2S_INT_RXPTRUPD_MASK |
-                                 NRF_I2S_INT_TXPTRUPD_MASK);
-    nrf_i2s_task_trigger(NRF_I2S, NRF_I2S_TASK_STOP);
+    nrf_i2s_int_disable(NRF_I2S0, NRF_I2S_INT_RXPTRUPD_MASK |
+                                  NRF_I2S_INT_TXPTRUPD_MASK);
+    nrf_i2s_task_trigger(NRF_I2S0, NRF_I2S_TASK_STOP);
 
 #if NRFX_CHECK(USE_WORKAROUND_FOR_I2S_STOP_ANOMALY)
-    *((volatile uint32_t *)(((uint32_t)NRF_I2S) + 0x38)) = 1;
-    *((volatile uint32_t *)(((uint32_t)NRF_I2S) + 0x3C)) = 1;
+    *((volatile uint32_t *)(((uint32_t)NRF_I2S0) + 0x38)) = 1;
+    *((volatile uint32_t *)(((uint32_t)NRF_I2S0) + 0x3C)) = 1;
 #endif
 }
 
 
 void nrfx_i2s_irq_handler(void)
 {
-    if (nrf_i2s_event_check(NRF_I2S, NRF_I2S_EVENT_TXPTRUPD))
+    if (nrf_i2s_event_check(NRF_I2S0, NRF_I2S_EVENT_TXPTRUPD))
     {
-        nrf_i2s_event_clear(NRF_I2S, NRF_I2S_EVENT_TXPTRUPD);
+        nrf_i2s_event_clear(NRF_I2S0, NRF_I2S_EVENT_TXPTRUPD);
         m_cb.tx_ready = true;
         if (m_cb.use_tx && m_cb.buffers_needed)
         {
             m_cb.buffers_reused = true;
         }
     }
-    if (nrf_i2s_event_check(NRF_I2S, NRF_I2S_EVENT_RXPTRUPD))
+    if (nrf_i2s_event_check(NRF_I2S0, NRF_I2S_EVENT_RXPTRUPD))
     {
-        nrf_i2s_event_clear(NRF_I2S, NRF_I2S_EVENT_RXPTRUPD);
+        nrf_i2s_event_clear(NRF_I2S0, NRF_I2S_EVENT_RXPTRUPD);
         m_cb.rx_ready = true;
         if (m_cb.use_rx && m_cb.buffers_needed)
         {
@@ -374,11 +374,11 @@ void nrfx_i2s_irq_handler(void)
         }
     }
 
-    if (nrf_i2s_event_check(NRF_I2S, NRF_I2S_EVENT_STOPPED))
+    if (nrf_i2s_event_check(NRF_I2S0, NRF_I2S_EVENT_STOPPED))
     {
-        nrf_i2s_event_clear(NRF_I2S, NRF_I2S_EVENT_STOPPED);
-        nrf_i2s_int_disable(NRF_I2S, NRF_I2S_INT_STOPPED_MASK);
-        nrf_i2s_disable(NRF_I2S);
+        nrf_i2s_event_clear(NRF_I2S0, NRF_I2S_EVENT_STOPPED);
+        nrf_i2s_int_disable(NRF_I2S0, NRF_I2S_INT_STOPPED_MASK);
+        nrf_i2s_disable(NRF_I2S0);
 
         // When stopped, release all buffers, including these scheduled for
         // the next part of the transfer, and signal that the transfer has

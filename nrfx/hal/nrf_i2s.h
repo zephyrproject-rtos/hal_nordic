@@ -38,6 +38,10 @@
 extern "C" {
 #endif
 
+#ifndef NRF_I2S0
+#define NRF_I2S0 NRF_I2S
+#endif
+
 /**
  * @defgroup nrf_i2s_hal I2S HAL
  * @{

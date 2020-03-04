@@ -38,6 +38,7 @@
 
 #define NRF_COMP         NRF_PERIPH(NRF_COMP)
 #define NRF_CLOCK        NRF_PERIPH(NRF_CLOCK)
+#define NRF_CTRLAP       NRF_PERIPH(NRF_CTRLAP)
 #define NRF_DCNF         NRF_PERIPH(NRF_DCNF)
 #define NRF_DPPIC        NRF_PERIPH(NRF_DPPIC)
 #define NRF_EGU0         NRF_PERIPH(NRF_EGU0)
@@ -47,7 +48,7 @@
 #define NRF_EGU4         NRF_PERIPH(NRF_EGU4)
 #define NRF_EGU5         NRF_PERIPH(NRF_EGU5)
 #define NRF_FPU          NRF_PERIPH(NRF_FPU)
-#define NRF_I2S          NRF_PERIPH(NRF_I2S0)
+#define NRF_I2S0         NRF_PERIPH(NRF_I2S0)
 #define NRF_IPC          NRF_PERIPH(NRF_IPC)
 #define NRF_KMU          NRF_PERIPH(NRF_KMU)
 #define NRF_LPCOMP       NRF_PERIPH(NRF_LPCOMP)
@@ -113,9 +114,11 @@
 #define NRF_CACHEINFO    NRF_CACHEINFO_S
 #define NRF_CACHEDATA    NRF_CACHEDATA_S
 #define NRF_CRYPTOCELL   NRF_CRYPTOCELL_S
+#define NRF_CTI          NRF_CTI_S
 #define NRF_FICR         NRF_FICR_S
 #define NRF_GPIOTE0      NRF_GPIOTE0_S
 #define NRF_SPU          NRF_SPU_S
+#define NRF_TAD          NRF_TAD_S
 #define NRF_UICR         NRF_UICR_S
 #endif
 
