@@ -36,55 +36,55 @@
 #error "Do not include this file directly, only through nrfx_config.h."
 #endif
 
-#define NRF_CLOCK       NRF_PERIPH(NRF_CLOCK)
-#define NRF_DPPIC       NRF_PERIPH(NRF_DPPIC)
-#define NRF_EGU0        NRF_PERIPH(NRF_EGU0)
-#define NRF_EGU1        NRF_PERIPH(NRF_EGU1)
-#define NRF_EGU2        NRF_PERIPH(NRF_EGU2)
-#define NRF_EGU3        NRF_PERIPH(NRF_EGU3)
-#define NRF_EGU4        NRF_PERIPH(NRF_EGU4)
-#define NRF_EGU5        NRF_PERIPH(NRF_EGU5)
-#define NRF_FPU         NRF_PERIPH(NRF_FPU)
-#define NRF_IPC         NRF_PERIPH(NRF_IPC)
-#define NRF_I2S         NRF_PERIPH(NRF_I2S)
-#define NRF_KMU         NRF_PERIPH(NRF_KMU)
-#define NRF_NVMC        NRF_PERIPH(NRF_NVMC)
-#define NRF_P0          NRF_PERIPH(NRF_P0)
-#define NRF_PDM         NRF_PERIPH(NRF_PDM)
-#define NRF_POWER       NRF_PERIPH(NRF_POWER)
-#define NRF_PWM0        NRF_PERIPH(NRF_PWM0)
-#define NRF_PWM1        NRF_PERIPH(NRF_PWM1)
-#define NRF_PWM2        NRF_PERIPH(NRF_PWM2)
-#define NRF_PWM3        NRF_PERIPH(NRF_PWM3)
-#define NRF_REGULATORS  NRF_PERIPH(NRF_REGULATORS)
-#define NRF_RTC0        NRF_PERIPH(NRF_RTC0)
-#define NRF_RTC1        NRF_PERIPH(NRF_RTC1)
-#define NRF_SAADC       NRF_PERIPH(NRF_SAADC)
-#define NRF_SPIM0       NRF_PERIPH(NRF_SPIM0)
-#define NRF_SPIM1       NRF_PERIPH(NRF_SPIM1)
-#define NRF_SPIM2       NRF_PERIPH(NRF_SPIM2)
-#define NRF_SPIM3       NRF_PERIPH(NRF_SPIM3)
-#define NRF_SPIS0       NRF_PERIPH(NRF_SPIS0)
-#define NRF_SPIS1       NRF_PERIPH(NRF_SPIS1)
-#define NRF_SPIS2       NRF_PERIPH(NRF_SPIS2)
-#define NRF_SPIS3       NRF_PERIPH(NRF_SPIS3)
-#define NRF_TIMER0      NRF_PERIPH(NRF_TIMER0)
-#define NRF_TIMER1      NRF_PERIPH(NRF_TIMER1)
-#define NRF_TIMER2      NRF_PERIPH(NRF_TIMER2)
-#define NRF_TWIM0       NRF_PERIPH(NRF_TWIM0)
-#define NRF_TWIM1       NRF_PERIPH(NRF_TWIM1)
-#define NRF_TWIM2       NRF_PERIPH(NRF_TWIM2)
-#define NRF_TWIM3       NRF_PERIPH(NRF_TWIM3)
-#define NRF_TWIS0       NRF_PERIPH(NRF_TWIS0)
-#define NRF_TWIS1       NRF_PERIPH(NRF_TWIS1)
-#define NRF_TWIS2       NRF_PERIPH(NRF_TWIS2)
-#define NRF_TWIS3       NRF_PERIPH(NRF_TWIS3)
-#define NRF_UARTE0      NRF_PERIPH(NRF_UARTE0)
-#define NRF_UARTE1      NRF_PERIPH(NRF_UARTE1)
-#define NRF_UARTE2      NRF_PERIPH(NRF_UARTE2)
-#define NRF_UARTE3      NRF_PERIPH(NRF_UARTE3)
-#define NRF_VMC         NRF_PERIPH(NRF_VMC)
-#define NRF_WDT         NRF_PERIPH(NRF_WDT)
+#define NRF_CLOCK        NRF_PERIPH(NRF_CLOCK)
+#define NRF_DPPIC        NRF_PERIPH(NRF_DPPIC)
+#define NRF_EGU0         NRF_PERIPH(NRF_EGU0)
+#define NRF_EGU1         NRF_PERIPH(NRF_EGU1)
+#define NRF_EGU2         NRF_PERIPH(NRF_EGU2)
+#define NRF_EGU3         NRF_PERIPH(NRF_EGU3)
+#define NRF_EGU4         NRF_PERIPH(NRF_EGU4)
+#define NRF_EGU5         NRF_PERIPH(NRF_EGU5)
+#define NRF_FPU          NRF_PERIPH(NRF_FPU)
+#define NRF_IPC          NRF_PERIPH(NRF_IPC)
+#define NRF_I2S          NRF_PERIPH(NRF_I2S)
+#define NRF_KMU          NRF_PERIPH(NRF_KMU)
+#define NRF_NVMC         NRF_PERIPH(NRF_NVMC)
+#define NRF_P0           NRF_PERIPH(NRF_P0)
+#define NRF_PDM          NRF_PERIPH(NRF_PDM)
+#define NRF_POWER        NRF_PERIPH(NRF_POWER)
+#define NRF_PWM0         NRF_PERIPH(NRF_PWM0)
+#define NRF_PWM1         NRF_PERIPH(NRF_PWM1)
+#define NRF_PWM2         NRF_PERIPH(NRF_PWM2)
+#define NRF_PWM3         NRF_PERIPH(NRF_PWM3)
+#define NRF_REGULATORS   NRF_PERIPH(NRF_REGULATORS)
+#define NRF_RTC0         NRF_PERIPH(NRF_RTC0)
+#define NRF_RTC1         NRF_PERIPH(NRF_RTC1)
+#define NRF_SAADC        NRF_PERIPH(NRF_SAADC)
+#define NRF_SPIM0        NRF_PERIPH(NRF_SPIM0)
+#define NRF_SPIM1        NRF_PERIPH(NRF_SPIM1)
+#define NRF_SPIM2        NRF_PERIPH(NRF_SPIM2)
+#define NRF_SPIM3        NRF_PERIPH(NRF_SPIM3)
+#define NRF_SPIS0        NRF_PERIPH(NRF_SPIS0)
+#define NRF_SPIS1        NRF_PERIPH(NRF_SPIS1)
+#define NRF_SPIS2        NRF_PERIPH(NRF_SPIS2)
+#define NRF_SPIS3        NRF_PERIPH(NRF_SPIS3)
+#define NRF_TIMER0       NRF_PERIPH(NRF_TIMER0)
+#define NRF_TIMER1       NRF_PERIPH(NRF_TIMER1)
+#define NRF_TIMER2       NRF_PERIPH(NRF_TIMER2)
+#define NRF_TWIM0        NRF_PERIPH(NRF_TWIM0)
+#define NRF_TWIM1        NRF_PERIPH(NRF_TWIM1)
+#define NRF_TWIM2        NRF_PERIPH(NRF_TWIM2)
+#define NRF_TWIM3        NRF_PERIPH(NRF_TWIM3)
+#define NRF_TWIS0        NRF_PERIPH(NRF_TWIS0)
+#define NRF_TWIS1        NRF_PERIPH(NRF_TWIS1)
+#define NRF_TWIS2        NRF_PERIPH(NRF_TWIS2)
+#define NRF_TWIS3        NRF_PERIPH(NRF_TWIS3)
+#define NRF_UARTE0       NRF_PERIPH(NRF_UARTE0)
+#define NRF_UARTE1       NRF_PERIPH(NRF_UARTE1)
+#define NRF_UARTE2       NRF_PERIPH(NRF_UARTE2)
+#define NRF_UARTE3       NRF_PERIPH(NRF_UARTE3)
+#define NRF_VMC          NRF_PERIPH(NRF_VMC)
+#define NRF_WDT          NRF_PERIPH(NRF_WDT)
 
 /*
  * The following section provides the name translation for peripherals with
@@ -92,20 +92,23 @@
  * between secure and non-secure mapping.
  */
 #if defined(NRF_TRUSTZONE_NONSECURE)
-#define NRF_GPIOTE1     NRF_GPIOTE1_NS
+#define NRF_GPIOTE1      NRF_GPIOTE1_NS
 #else
-#define NRF_CRYPTOCELL  NRF_CRYPTOCELL_S
-#define NRF_FICR        NRF_FICR_S
-#define NRF_GPIOTE0     NRF_GPIOTE0_S
-#define NRF_SPU         NRF_SPU_S
-#define NRF_UICR        NRF_UICR_S
+#define NRF_CC_HOST_RGF  NRF_CC_HOST_RGF_S
+#define NRF_CRYPTOCELL   NRF_CRYPTOCELL_S
+#define NRF_CTRL_AP_PERI NRF_CTRL_AP_PERI_S
+#define NRF_FICR         NRF_FICR_S
+#define NRF_GPIOTE0      NRF_GPIOTE0_S
+#define NRF_SPU          NRF_SPU_S
+#define NRF_TAD          NRF_TAD_S
+#define NRF_UICR         NRF_UICR_S
 #endif
 
 /* Fixup for the GPIOTE driver. */
 #if defined(NRF_TRUSTZONE_NONSECURE)
-#define NRF_GPIOTE      NRF_GPIOTE1
+#define NRF_GPIOTE       NRF_GPIOTE1
 #else
-#define NRF_GPIOTE      NRF_GPIOTE0
+#define NRF_GPIOTE       NRF_GPIOTE0
 #endif
 
 
