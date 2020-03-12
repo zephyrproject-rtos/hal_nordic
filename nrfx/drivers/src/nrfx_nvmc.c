@@ -316,6 +316,21 @@ bool nrfx_nvmc_byte_writable_check(uint32_t addr, uint8_t val_to_check)
     return (val_to_check & val_on_addr) == val_to_check;
 }
 
+bool nrfx_nvmc_halfword_writable_check(uint32_t addr, uint16_t val_to_check)
+{
+    NRFX_ASSERT(is_in_code_flash((void *)addr) || nrfx_is_in_uicr((void *)addr));
+    NRFX_ASSERT(nrfx_is_halfword_aligned((void const *)addr));
+
+    uint16_t val_on_addr;
+
+    if (is_in_code_flash((const void *)addr)) {
+        val_on_addr = *(uint16_t const *)addr;
+    } else {
+        val_on_addr = nrfx_nvmc_halfword_read(addr);
+    }
+    return (val_to_check & val_on_addr) == val_to_check;
+}
+
 bool nrfx_nvmc_word_writable_check(uint32_t addr, uint32_t val_to_check)
 {
     NRFX_ASSERT(is_in_code_flash((void *)addr) || nrfx_is_in_uicr((void *)addr));
@@ -332,6 +347,17 @@ void nrfx_nvmc_byte_write(uint32_t addr, uint8_t value)
     uint32_t aligned_addr = addr & ~(0x03UL);
 
     nrfx_nvmc_word_write(aligned_addr, partial_word_create(addr, &value, 1));
+}
+
+void nrfx_nvmc_halfword_write(uint32_t addr, uint16_t value)
+{
+    NRFX_ASSERT(is_in_code_flash((void *)addr) || nrfx_is_in_uicr((void *)addr));
+    NRFX_ASSERT(nrfx_is_halfword_aligned((void const *)addr));
+
+    uint32_t aligned_addr = addr & ~(0x03UL);
+
+    nrfx_nvmc_word_write(aligned_addr,
+                    partial_word_create(addr, (const uint8_t *)&value, 2));
 }
 
 void nrfx_nvmc_word_write(uint32_t addr, uint32_t value)
@@ -419,6 +445,17 @@ void nrfx_nvmc_words_write(uint32_t addr, void const * src, uint32_t num_words)
     nvmc_words_write(addr, src, num_words);
 
     nvmc_readonly_mode_set();
+}
+
+uint16_t nrfx_nvmc_halfword_read(uint32_t addr)
+{
+    NRFX_ASSERT(nrfx_is_halfword_aligned((void const *)addr));
+
+    bool top_half = (addr % 4); /* Addr not div by 4 */
+    uint32_t aligned_addr = addr & ~(0x03UL);
+    u32_t val32 = *(u32_t *)aligned_addr;
+
+    return (top_half ? (val32 >> 16) : val32) & 0x0000FFFF;
 }
 
 uint32_t nrfx_nvmc_flash_size_get(void)

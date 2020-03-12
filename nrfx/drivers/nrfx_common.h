@@ -282,6 +282,16 @@ NRF_STATIC_INLINE bool nrfx_is_in_uicr(void const * p_object);
 NRF_STATIC_INLINE bool nrfx_is_word_aligned(void const * p_object);
 
 /**
+ * @brief Function for checking if an object is aligned to a 16-bit halfword
+ *
+ * @param[in] p_object  Pointer to an object whose location is to be checked.
+ *
+ * @retval true  The pointed object is aligned to a 16-bit word.
+ * @retval false The pointed object is not aligned to a 16-bit word.
+ */
+NRF_STATIC_INLINE bool nrfx_is_halfword_aligned(void const * p_object);
+
+/**
  * @brief Function for getting the interrupt number for the specified peripheral.
  *
  * @param[in] p_reg Peripheral base pointer.
@@ -341,6 +351,11 @@ NRF_STATIC_INLINE bool nrfx_is_in_uicr(void const * p_object)
 #endif
     return ((uint32_t)p_object >= (uint32_t)UICR_NAME)
            && ((uint32_t)p_object < ((uint32_t)UICR_NAME + sizeof(*UICR_NAME)));
+}
+
+NRF_STATIC_INLINE bool nrfx_is_halfword_aligned(void const * p_object)
+{
+    return ((((uint32_t)p_object) & 0x1u) == 0u);
 }
 
 NRF_STATIC_INLINE bool nrfx_is_word_aligned(void const * p_object)
