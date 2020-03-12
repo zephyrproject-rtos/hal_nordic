@@ -254,6 +254,20 @@ typedef enum
 NRF_STATIC_INLINE bool nrfx_is_in_ram(void const * p_object);
 
 /**
+ * @brief Function for checking if an object is placed in the UICR region.
+ *
+ * UICR is a flash area, but certain unique restrictions apply e.g. for
+ * unaligned reads. The UICR resides in a separate address region from regular
+ * FLASH.
+ *
+ * @param[in] p_object Pointer to an object whose location is to be checked.
+ *
+ * @retval true  The pointed object is located in the UICR region.
+ * @retval false The pointed object is not located in the UICR region.
+ */
+NRF_STATIC_INLINE bool nrfx_is_in_uicr(void const * p_object);
+
+/**
  * @brief Function for checking if an object is aligned to a 32-bit word
  *
  * Several peripherals (the ones using EasyDMA) require the transfer buffers
@@ -314,6 +328,19 @@ NRF_STATIC_INLINE uint32_t nrfx_event_to_bitpos(uint32_t event);
 NRF_STATIC_INLINE bool nrfx_is_in_ram(void const * p_object)
 {
     return ((((uint32_t)p_object) & 0xE0000000u) == 0x20000000u);
+}
+
+NRF_STATIC_INLINE bool nrfx_is_in_uicr(void const * p_object)
+{
+#ifdef NRF_UICR
+    #define UICR_NAME NRF_UICR
+#elif defined(NRF_UICR_S)
+    #define UICR_NAME NRF_UICR_S
+#elif defined(NRF_UICR_NS)
+    #define UICR_NAME NRF_UICR_NS
+#endif
+    return ((uint32_t)p_object >= (uint32_t)UICR_NAME)
+           && ((uint32_t)p_object < ((uint32_t)UICR_NAME + sizeof(*UICR_NAME)));
 }
 
 NRF_STATIC_INLINE bool nrfx_is_word_aligned(void const * p_object)
