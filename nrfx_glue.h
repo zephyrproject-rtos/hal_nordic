@@ -62,7 +62,7 @@ extern "C" {
  * @param expression Expression to be evaluated.
  */
 #define NRFX_STATIC_ASSERT(expression) \
-        BUILD_ASSERT_MSG(expression, "assertion failed")
+        BUILD_ASSERT(expression, "assertion failed")
 
 //------------------------------------------------------------------------------
 
