@@ -14,6 +14,7 @@ zephyr_library_sources(
   nrf_802154_timer_coord.c
   nrf_802154.c
   fal/nrf_802154_fal.c
+  mac_features/nrf_802154_csma_ca.c
   mac_features/nrf_802154_filter.c
   mac_features/nrf_802154_frame_parser.c
   mac_features/ack_generator/nrf_802154_ack_data.c
@@ -73,10 +74,12 @@ zephyr_compile_definitions(
   NRF_802154_CCA_CORR_THRESHOLD_DEFAULT=${CONFIG_NRF_802154_CCA_CORR_THRESHOLD}
   NRF_802154_CCA_ED_THRESHOLD_DEFAULT=${CONFIG_NRF_802154_CCA_ED_THRESHOLD}
 
+  # Enable CSMA/CA
+  NRF_802154_CSMA_CA_ENABLED=1
+  NRF_802154_TX_STARTED_NOTIFY_ENABLED=1
+
   # Disable unused radio driver features
-  NRF_802154_CSMA_CA_ENABLED=0
   NRF_802154_ACK_TIMEOUT_ENABLED=0
   NRF_802154_FRAME_TIMESTAMP_ENABLED=0
   NRF_802154_DELAYED_TRX_ENABLED=0
-  NRF_802154_TX_STARTED_NOTIFY_ENABLED=0
 )
