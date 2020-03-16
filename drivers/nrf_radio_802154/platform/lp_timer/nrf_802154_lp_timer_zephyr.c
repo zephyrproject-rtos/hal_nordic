@@ -28,50 +28,16 @@
  *
  */
 
-/**
- * @file
- *   This file contains standalone implementation of the nRF 802.15.4 timer abstraction.
- *
- * This implementation is built on top of the RTC peripheral.
- *
- */
-
-#include <stdint.h>
-
 #include <kernel.h>
 
-#include "nrf_802154_lp_timer.h"
-#include "nrf_802154_utils.h"
+#define nrf_802154_lp_timer_init nrf_802154_lp_timer_init_nodrv
+#include "nrf_802154_lp_timer_nodrv.c"
+#undef nrf_802154_lp_timer_init
 
 void nrf_802154_lp_timer_init(void)
 {
-    /* Intentionally empty. */
-}
+    IRQ_CONNECT(NRF_802154_RTC_IRQN, NRF_802154_RTC_IRQ_PRIORITY,
+                NRF_802154_RTC_IRQ_HANDLER, NULL, 0);
 
-void nrf_802154_lp_timer_deinit(void)
-{
-    /* Intentionally empty. */
-}
-
-void nrf_802154_lp_timer_critical_section_enter(void)
-{
-
-    /* Intentionally empty. */
-}
-
-void nrf_802154_lp_timer_critical_section_exit(void)
-{
-    /* Intentionally empty. */
-}
-
-uint32_t nrf_802154_lp_timer_time_get(void)
-{
-    u64_t ticks = k_cycle_get_32();
-
-    return (u32_t)(NRF_802154_RTC_TICKS_TO_US(ticks));
-}
-
-uint32_t nrf_802154_lp_timer_granularity_get(void)
-{
-    return NRF_802154_US_PER_TICK;
+    nrf_802154_lp_timer_init_nodrv();
 }
