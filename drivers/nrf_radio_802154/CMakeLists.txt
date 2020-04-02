@@ -21,8 +21,10 @@ zephyr_library_sources(
   mac_features/ack_generator/nrf_802154_ack_generator.c
   mac_features/ack_generator/nrf_802154_enh_ack_generator.c
   mac_features/ack_generator/nrf_802154_imm_ack_generator.c
+  mac_features/nrf_802154_delayed_trx.c
   platform/clock/nrf_802154_clock_zephyr.c
   platform/coex/nrf_802154_wifi_coex_none.c
+  platform/hp_timer/nrf_802154_hp_timer.c
   platform/lp_timer/nrf_802154_lp_timer_zephyr.c
   platform/random/nrf_802154_random_zephyr.c
   platform/temperature/nrf_802154_temperature_none.c
@@ -78,8 +80,10 @@ zephyr_compile_definitions(
   NRF_802154_CSMA_CA_ENABLED=1
   NRF_802154_TX_STARTED_NOTIFY_ENABLED=1
 
+  # Timestamps
+  NRF_802154_FRAME_TIMESTAMP_ENABLED=1
+  NRF_802154_DELAYED_TRX_ENABLED=1
+
   # Disable unused radio driver features
   NRF_802154_ACK_TIMEOUT_ENABLED=0
-  NRF_802154_FRAME_TIMESTAMP_ENABLED=0
-  NRF_802154_DELAYED_TRX_ENABLED=0
 )
