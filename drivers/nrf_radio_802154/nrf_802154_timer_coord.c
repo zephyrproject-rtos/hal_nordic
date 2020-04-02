@@ -101,7 +101,7 @@ void nrf_802154_timer_coord_uninit(void)
     nrf_ppi_channel_disable(NRF_PPI, PPI_SYNC);
     nrf_ppi_channel_endpoint_setup(NRF_PPI, PPI_SYNC, 0, 0);
 
-    nrf_ppi_group_disable(PPI_TIMESTAMP_GROUP);
+    nrf_ppi_group_disable(NRF_PPI, PPI_TIMESTAMP_GROUP);
     nrf_ppi_channel_and_fork_endpoint_setup(NRF_PPI, PPI_TIMESTAMP, 0, 0, 0);
 }
 
@@ -136,9 +136,9 @@ void nrf_802154_timer_coord_timestamp_prepare(uint32_t event_addr)
                                             event_addr,
                                             nrf_802154_hp_timer_timestamp_task_get(),
                                             (uint32_t)nrf_ppi_task_group_disable_address_get(
-                                                PPI_TIMESTAMP_GROUP));
+                                                NRF_PPI, PPI_TIMESTAMP_GROUP));
 
-    nrf_ppi_group_enable(PPI_TIMESTAMP_GROUP);
+    nrf_ppi_group_enable(NRF_PPI, PPI_TIMESTAMP_GROUP);
 
     nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_TCOOR_TIMESTAMP_PREPARE);
 }
