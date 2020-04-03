@@ -17,6 +17,7 @@ zephyr_library_sources(
   mac_features/nrf_802154_csma_ca.c
   mac_features/nrf_802154_filter.c
   mac_features/nrf_802154_frame_parser.c
+  mac_features/nrf_802154_precise_ack_timeout.c
   mac_features/ack_generator/nrf_802154_ack_data.c
   mac_features/ack_generator/nrf_802154_ack_generator.c
   mac_features/ack_generator/nrf_802154_enh_ack_generator.c
@@ -84,6 +85,6 @@ zephyr_compile_definitions(
   NRF_802154_FRAME_TIMESTAMP_ENABLED=1
   NRF_802154_DELAYED_TRX_ENABLED=1
 
-  # Disable unused radio driver features
-  NRF_802154_ACK_TIMEOUT_ENABLED=0
+  # ACK timeout
+  NRF_802154_ACK_TIMEOUT_ENABLED=1
 )
