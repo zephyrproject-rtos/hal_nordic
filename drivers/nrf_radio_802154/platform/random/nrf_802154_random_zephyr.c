@@ -75,7 +75,7 @@ void nrf_802154_random_init(void)
     struct device *dev;
     int err;
 
-    dev = device_get_binding(CONFIG_ENTROPY_NAME);
+    dev = device_get_binding(DT_LABEL(DT_INST(0, nordic_nrf_rng)));
     __ASSERT_NO_MSG(dev != NULL);
 
     err = entropy_get_entropy(dev, (uint8_t *)&s, sizeof(s));
