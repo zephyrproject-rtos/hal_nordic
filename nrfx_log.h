@@ -32,6 +32,8 @@
 #ifndef NRFX_LOG_H__
 #define NRFX_LOG_H__
 
+#include <logging/log.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,7 +64,6 @@ extern "C" {
 #elif	NRFX_MODULE_CONFIG_LOG_LEVEL == 4
 #define NRFX_MODULE_LOG_LEVEL		LOG_LEVEL_DBG
 #endif
-#include <logging/log.h>
 LOG_MODULE_REGISTER(NRFX_MODULE_PREFIX, NRFX_MODULE_LOG_LEVEL);
 
 /**

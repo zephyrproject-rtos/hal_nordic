@@ -32,6 +32,10 @@
 #ifndef NRFX_GLUE_H__
 #define NRFX_GLUE_H__
 
+#include <sys/__assert.h>
+#include <sys/atomic.h>
+#include <irq.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -46,8 +50,6 @@ extern "C" {
  */
 
 //------------------------------------------------------------------------------
-
-#include <sys/__assert.h>
 
 /**
  * @brief Macro for placing a runtime assertion.
@@ -65,8 +67,6 @@ extern "C" {
         BUILD_ASSERT(expression, "assertion failed")
 
 //------------------------------------------------------------------------------
-
-#include <irq.h>
 
 /**
  * @brief Macro for setting the priority of a specific IRQ.
@@ -150,8 +150,6 @@ extern "C" {
 void nrfx_busy_wait(u32_t usec_to_wait);
 
 //------------------------------------------------------------------------------
-
-#include <sys/atomic.h>
 
 /** @brief Atomic 32-bit unsigned type. */
 #define nrfx_atomic_t  atomic_t
