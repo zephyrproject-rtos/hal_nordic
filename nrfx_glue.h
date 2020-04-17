@@ -248,9 +248,10 @@ extern const u32_t z_bt_ctlr_used_nrf_ppi_channels;
 #endif
 
 #if defined(CONFIG_PWM_NRF5_SW)
+#define PWM_NRF5_SW_NODE DT_INST(0, nordic_nrf_sw_pwm)
 #define NRFX_PPI_CHANNELS_USED_BY_PWM_SW \
-    (BIT_MASK(DT_INST_0_NORDIC_NRF_SW_PWM_CHANNEL_COUNT * 2) \
-         << DT_INST_0_NORDIC_NRF_SW_PWM_PPI_BASE)
+    (BIT_MASK(DT_PROP(PWM_NRF5_SW_NODE, channel_count) * 2) \
+         << DT_PROP(PWM_NRF5_SW_NODE, ppi_base))
 #else
 #define NRFX_PPI_CHANNELS_USED_BY_PWM_SW    0
 #endif
