@@ -32,12 +32,25 @@
 #ifndef NRFX_CONFIG_H__
 #define NRFX_CONFIG_H__
 
+#include <devicetree.h>
 
 /*
- * These are mappings of Kconfig options enabling nrfx drivers and particular
- * peripheral instances to the corresponding symbols used inside of nrfx.
- * Please note that only subsets of these entries are used for particular SoCs
- * supported by nrfx (see the corresponding nrfx_config_*.h files).
+ * These are mappings of Kconfig options and devicetree accesses
+ * enabling nrfx drivers and particular peripheral instances to the
+ * corresponding symbols used inside of nrfx. Please note that only
+ * subsets of these entries are used for particular SoCs supported by
+ * nrfx (see the corresponding nrfx_config_*.h files).
+ *
+ * Over time, Zephyr driver options related to enabling a single
+ * instance of a peripheral (like PWM1, or SPIM2, etc.) are being
+ * moved from Kconfig to devicetree, as part of Zephyr's general
+ * efforts in this regard. This process will be done incrementally
+ * instead of all at once.
+ *
+ * However, to allow users direct access to peripherals without using
+ * the Zephyr driver API, this Zephyr HAL module still supports
+ * per-instance Kconfig options to enable nrfx support for a
+ * peripheral.
  */
 
 #ifdef CONFIG_NRFX_ADC
@@ -133,19 +146,23 @@
 #define NRFX_PRS_BOX_4_ENABLED 1
 #endif
 
-#ifdef CONFIG_NRFX_PWM
+#define NRFX_PWM_DT_ENABLED(idx) \
+	(DT_NODE_HAS_COMPAT(DT_NODELABEL(pwm##idx), nordic_nrf_pwm) && \
+	 DT_HAS_NODE(DT_NODELABEL(pwm##idx)))
+
+#if defined(CONFIG_NRFX_PWM) || DT_HAS_COMPAT(nordic_nrf_pwm)
 #define NRFX_PWM_ENABLED 1
 #endif
-#ifdef CONFIG_NRFX_PWM0
+#if defined(CONFIG_NRFX_PWM0) || NRFX_PWM_DT_ENABLED(0)
 #define NRFX_PWM0_ENABLED 1
 #endif
-#ifdef CONFIG_NRFX_PWM1
+#if defined(CONFIG_NRFX_PWM0) || NRFX_PWM_DT_ENABLED(1)
 #define NRFX_PWM1_ENABLED 1
 #endif
-#ifdef CONFIG_NRFX_PWM2
+#if defined(CONFIG_NRFX_PWM0) || NRFX_PWM_DT_ENABLED(2)
 #define NRFX_PWM2_ENABLED 1
 #endif
-#ifdef CONFIG_NRFX_PWM3
+#if defined(CONFIG_NRFX_PWM0) || NRFX_PWM_DT_ENABLED(3)
 #define NRFX_PWM3_ENABLED 1
 #endif
 
