@@ -33,11 +33,11 @@
 #define NRFX_CONFIG_NRF5340_APPLICATION_H__
 
 #ifndef NRFX_CONFIG_H__
-#error "Do not include this file directly, only through nrfx_config.h."
+#error "This file should not be included directly. Include nrfx_config.h instead."
 #endif
 
-#define NRF_COMP         NRF_PERIPH(NRF_COMP)
 #define NRF_CLOCK        NRF_PERIPH(NRF_CLOCK)
+#define NRF_COMP         NRF_PERIPH(NRF_COMP)
 #define NRF_CTRLAP       NRF_PERIPH(NRF_CTRLAP)
 #define NRF_DCNF         NRF_PERIPH(NRF_DCNF)
 #define NRF_DPPIC        NRF_PERIPH(NRF_DPPIC)
