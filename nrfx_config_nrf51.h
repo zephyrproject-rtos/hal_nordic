@@ -33,7 +33,7 @@
 #define NRFX_CONFIG_NRF51_H__
 
 #ifndef NRFX_CONFIG_H__
-#error "Do not include this file directly, only through nrfx_config.h."
+#error "This file should not be included directly. Include nrfx_config.h instead."
 #endif
 
 // <<< Use Configuration Wizard in Context Menu >>>\n
