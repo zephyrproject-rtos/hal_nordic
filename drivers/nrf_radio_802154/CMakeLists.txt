@@ -45,6 +45,19 @@ elseif( CONFIG_NRF_802154_CCA_MODE_CARRIER_OR_ED)
 
 endif()
 
+if (CONFIG_NRF_802154_FEM_PRESENT)
+  zephyr_include_directories(fem)
+  zephyr_compile_definitions(ENABLE_FEM=1)
+endif()
+
+if (CONFIG_NRF_802154_FEM_TYPE_2_PIN)
+  zephyr_library_sources(fem/simple_gpio/nrf_fem_simple_gpio.c)
+  zephyr_include_directories(fem/simple_gpio)
+elseif (CONFIG_NRF_802154_FEM_TYPE_3_PIN)
+  zephyr_library_sources(fem/three_pin_gpio/nrf_fem_three_pin_gpio.c)
+  zephyr_include_directories(fem/three_pin_gpio)
+endif()
+
 zephyr_compile_definitions(
   # Until IRQ configuration abstraction is added to the radio driver do not set
   # radio IRQ priority to 0, or the radio IRQ will ignore IRQ lock.
