@@ -130,7 +130,21 @@ void SystemInit(void)
             NRF_POWER->RESETREAS =  ~POWER_RESETREAS_RESETPIN_Msk;
         }
     }
-    
+
+    /* Workaround for Errata 197 "DCDC of REG0 not functional"
+     * found at the Errata document for your device located at
+     * https://infocenter.nordicsemi.com/index.jsp
+     */
+    if (nrf52_errata_197()){
+        if (NRF_POWER->DCDCEN0 == 0x1ul)
+        {
+            /* Disable REG0 */
+            NRF_POWER->DCDCEN0 = 0;
+            /* prevent REG0 stage to go to ULP mode to prevent random resets. */
+            *(volatile uint32_t *)0x40000638 = 0x01ul;
+        }
+    }
+
     /* Enable the FPU if the compiler used floating point unit instructions. __FPU_USED is a MACRO defined by the
      * compiler. Since the FPU consumes energy, remember to disable FPU use in the compiler if floating point unit
      * operations are not used in your code. */
