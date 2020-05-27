@@ -147,7 +147,7 @@ extern "C" {
  */
 #define NRFX_DELAY_US(us_time)  nrfx_busy_wait(us_time)
 /* This is a k_busy_wait wrapper, added to avoid the inclusion of kernel.h */
-void nrfx_busy_wait(u32_t usec_to_wait);
+void nrfx_busy_wait(uint32_t usec_to_wait);
 
 //------------------------------------------------------------------------------
 
@@ -241,7 +241,7 @@ void nrfx_busy_wait(u32_t usec_to_wait);
                                  NRFX_PPI_CHANNELS_USED_BY_PWM_SW)
 
 #if defined(CONFIG_BT_CTLR) && defined(CONFIG_BT_LL_SW_SPLIT)
-extern const u32_t z_bt_ctlr_used_nrf_ppi_channels;
+extern const uint32_t z_bt_ctlr_used_nrf_ppi_channels;
 #define NRFX_PPI_CHANNELS_USED_BY_BT_CTLR   z_bt_ctlr_used_nrf_ppi_channels
 #else
 #define NRFX_PPI_CHANNELS_USED_BY_BT_CTLR   0
@@ -260,7 +260,7 @@ extern const u32_t z_bt_ctlr_used_nrf_ppi_channels;
 #define NRFX_PPI_GROUPS_USED    NRFX_PPI_GROUPS_USED_BY_BT_CTLR
 
 #if defined(CONFIG_BT_CTLR)
-extern const u32_t z_bt_ctlr_used_nrf_ppi_groups;
+extern const uint32_t z_bt_ctlr_used_nrf_ppi_groups;
 #define NRFX_PPI_GROUPS_USED_BY_BT_CTLR     z_bt_ctlr_used_nrf_ppi_groups
 #else
 #define NRFX_PPI_GROUPS_USED_BY_BT_CTLR     0
