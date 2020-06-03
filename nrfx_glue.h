@@ -240,7 +240,7 @@ void nrfx_busy_wait(u32_t usec_to_wait);
 #define NRFX_PPI_CHANNELS_USED  (NRFX_PPI_CHANNELS_USED_BY_BT_CTLR | \
                                  NRFX_PPI_CHANNELS_USED_BY_PWM_SW)
 
-#if defined(CONFIG_BT_CTLR)
+#if defined(CONFIG_BT_CTLR) && defined(CONFIG_BT_LL_SW_SPLIT)
 extern const u32_t z_bt_ctlr_used_nrf_ppi_channels;
 #define NRFX_PPI_CHANNELS_USED_BY_BT_CTLR   z_bt_ctlr_used_nrf_ppi_channels
 #else
