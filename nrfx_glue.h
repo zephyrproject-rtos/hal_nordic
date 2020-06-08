@@ -240,11 +240,17 @@ void nrfx_busy_wait(uint32_t usec_to_wait);
 #define NRFX_PPI_CHANNELS_USED  (NRFX_PPI_CHANNELS_USED_BY_BT_CTLR | \
                                  NRFX_PPI_CHANNELS_USED_BY_PWM_SW)
 
+/** @brief Bitmask that defines PPI groups that are reserved for use outside of the nrfx library. */
+#define NRFX_PPI_GROUPS_USED    NRFX_PPI_GROUPS_USED_BY_BT_CTLR
+
 #if defined(CONFIG_BT_CTLR) && defined(CONFIG_BT_LL_SW_SPLIT)
 extern const uint32_t z_bt_ctlr_used_nrf_ppi_channels;
+extern const uint32_t z_bt_ctlr_used_nrf_ppi_groups;
 #define NRFX_PPI_CHANNELS_USED_BY_BT_CTLR   z_bt_ctlr_used_nrf_ppi_channels
+#define NRFX_PPI_GROUPS_USED_BY_BT_CTLR     z_bt_ctlr_used_nrf_ppi_groups
 #else
 #define NRFX_PPI_CHANNELS_USED_BY_BT_CTLR   0
+#define NRFX_PPI_GROUPS_USED_BY_BT_CTLR     0
 #endif
 
 #if defined(CONFIG_PWM_NRF5_SW)
@@ -254,16 +260,6 @@ extern const uint32_t z_bt_ctlr_used_nrf_ppi_channels;
          << DT_PROP(PWM_NRF5_SW_NODE, ppi_base))
 #else
 #define NRFX_PPI_CHANNELS_USED_BY_PWM_SW    0
-#endif
-
-/** @brief Bitmask that defines PPI groups that are reserved for use outside of the nrfx library. */
-#define NRFX_PPI_GROUPS_USED    NRFX_PPI_GROUPS_USED_BY_BT_CTLR
-
-#if defined(CONFIG_BT_CTLR)
-extern const uint32_t z_bt_ctlr_used_nrf_ppi_groups;
-#define NRFX_PPI_GROUPS_USED_BY_BT_CTLR     z_bt_ctlr_used_nrf_ppi_groups
-#else
-#define NRFX_PPI_GROUPS_USED_BY_BT_CTLR     0
 #endif
 
 /** @brief Bitmask that defines EGU instances that are reserved for use outside of the nrfx library. */
