@@ -14,6 +14,7 @@ if(CONFIG_HAS_NRFX)
 
   # Define MDK defines globally
   zephyr_compile_definitions_ifdef(CONFIG_SOC_SERIES_NRF51X  NRF51)
+  zephyr_compile_definitions_ifdef(CONFIG_SOC_NRF52805       NRF52805_XXAA)
   zephyr_compile_definitions_ifdef(CONFIG_SOC_NRF52810       NRF52810_XXAA)
   zephyr_compile_definitions_ifdef(CONFIG_SOC_NRF52811       NRF52811_XXAA)
   zephyr_compile_definitions_ifdef(CONFIG_SOC_NRF52820       NRF52820_XXAA)
@@ -28,6 +29,7 @@ if(CONFIG_HAS_NRFX)
   zephyr_compile_definitions_ifdef(CONFIG_ARM_NONSECURE_FIRMWARE NRF_TRUSTZONE_NONSECURE)
 
   zephyr_library_sources_ifdef(CONFIG_SOC_SERIES_NRF51X  nrfx/mdk/system_nrf51.c)
+  zephyr_library_sources_ifdef(CONFIG_SOC_NRF52805       nrfx/mdk/system_nrf52805.c)
   zephyr_library_sources_ifdef(CONFIG_SOC_NRF52810       nrfx/mdk/system_nrf52810.c)
   zephyr_library_sources_ifdef(CONFIG_SOC_NRF52811       nrfx/mdk/system_nrf52811.c)
   zephyr_library_sources_ifdef(CONFIG_SOC_NRF52820       nrfx/mdk/system_nrf52820.c)
