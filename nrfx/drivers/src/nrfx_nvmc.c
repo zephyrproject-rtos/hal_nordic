@@ -80,7 +80,8 @@
  *
  * This value is used to determine whether the partial erase is still in progress.
  */
-#if defined(NRF52810_XXAA) || defined(NRF52811_XXAA) || defined(NRF52840_XXAA)
+#if defined(NRF52805_XXAA) || defined(NRF52810_XXAA) || \
+    defined(NRF52811_XXAA) || defined(NRF52840_XXAA)
     #define NVMC_PAGE_ERASE_DURATION_MS  85
 #elif defined(NRF52820_XXAA) || defined(NRF52833_XXAA) || defined(NRF9160_XXAA) || \
       defined(NRF5340_XXAA_APPLICATION) || defined(NRF5340_XXAA_NETWORK)
