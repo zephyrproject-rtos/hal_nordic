@@ -56,8 +56,10 @@ void nrf_802154_clock_deinit(void)
     /* Intentionally empty. */
 }
 
-static void hfclk_on_callback(struct device *dev, clock_control_subsys_t subsys,
-                              void *user_data)
+static void hfclk_on_callback(struct onoff_manager *mgr,
+                              struct onoff_client *cli,
+                              uint32_t state,
+                              int res)
 {
     hfclk_is_running = true;
     nrf_802154_clock_hfclk_ready();
@@ -65,27 +67,29 @@ static void hfclk_on_callback(struct device *dev, clock_control_subsys_t subsys,
 
 void nrf_802154_clock_hfclk_start(void)
 {
-    static struct clock_control_async_data clk_data = {
-        .cb = hfclk_on_callback
-    };
-    struct device *clk;
+    int ret;
+    static struct onoff_client cli;
+    struct onoff_manager *mgr =
+            z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF);
+    __ASSERT_NO_MSG(mgr != NULL);
 
-    clk = device_get_binding(DT_LABEL(DT_INST(0, nordic_nrf_clock)));
-    __ASSERT_NO_MSG(clk != NULL);
+    sys_notify_init_callback(&cli.notify, hfclk_on_callback);
 
-    clock_control_async_on(clk, CLOCK_CONTROL_NRF_SUBSYS_HF, &clk_data);
+    ret = onoff_request(mgr, &cli);
+    __ASSERT_NO_MSG(ret >= 0);
 }
 
 void nrf_802154_clock_hfclk_stop(void)
 {
-    struct device *clk;
-
-    clk = device_get_binding(DT_LABEL(DT_INST(0, nordic_nrf_clock)));
-    __ASSERT_NO_MSG(clk != NULL);
+    int ret;
+    struct onoff_manager *mgr =
+            z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF);
+    __ASSERT_NO_MSG(mgr != NULL);
 
     hfclk_is_running = false;
 
-    clock_control_off(clk, CLOCK_CONTROL_NRF_SUBSYS_HF);
+    ret = onoff_release(mgr);
+    __ASSERT_NO_MSG(ret >= 0);
 }
 
 bool nrf_802154_clock_hfclk_is_running(void)
@@ -93,8 +97,10 @@ bool nrf_802154_clock_hfclk_is_running(void)
     return hfclk_is_running;
 }
 
-static void lfclk_on_callback(struct device *dev, clock_control_subsys_t subsys,
-                              void *user_data)
+static void lfclk_on_callback(struct onoff_manager *mgr,
+                              struct onoff_client *cli,
+                              uint32_t state,
+                              int res)
 {
     lfclk_is_running = true;
     nrf_802154_clock_lfclk_ready();
@@ -102,27 +108,29 @@ static void lfclk_on_callback(struct device *dev, clock_control_subsys_t subsys,
 
 void nrf_802154_clock_lfclk_start(void)
 {
-    static struct clock_control_async_data clk_data = {
-        .cb = lfclk_on_callback
-    };
-    struct device *clk;
+    int ret;
+    static struct onoff_client cli;
+    struct onoff_manager *mgr =
+            z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_LF);
+    __ASSERT_NO_MSG(mgr != NULL);
 
-    clk = device_get_binding(DT_LABEL(DT_INST(0, nordic_nrf_clock)));
-    __ASSERT_NO_MSG(clk != NULL);
+    sys_notify_init_callback(&cli.notify, lfclk_on_callback);
 
-    clock_control_async_on(clk, CLOCK_CONTROL_NRF_SUBSYS_LF, &clk_data);
+    ret = onoff_request(mgr, &cli);
+    __ASSERT_NO_MSG(ret >= 0);
 }
 
 void nrf_802154_clock_lfclk_stop(void)
 {
-    struct device *clk;
+    int ret;
+    struct onoff_manager *mgr =
+            z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_LF);
+    __ASSERT_NO_MSG(mgr != NULL);
 
-    clk = device_get_binding(DT_LABEL(DT_INST(0, nordic_nrf_clock)));
-    __ASSERT_NO_MSG(clk != NULL);
+    hfclk_is_running = false;
 
-    lfclk_is_running = false;
-
-    clock_control_off(clk, CLOCK_CONTROL_NRF_SUBSYS_LF);
+    ret = onoff_release(mgr);
+    __ASSERT_NO_MSG(ret >= 0);
 }
 
 bool nrf_802154_clock_lfclk_is_running(void)
