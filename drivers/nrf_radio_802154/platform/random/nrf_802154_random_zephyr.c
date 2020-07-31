@@ -72,7 +72,7 @@ static uint64_t next(void)
 
 void nrf_802154_random_init(void)
 {
-    struct device *dev;
+    const struct device *dev;
     int err;
 
     dev = device_get_binding(DT_CHOSEN_ZEPHYR_ENTROPY_LABEL);
