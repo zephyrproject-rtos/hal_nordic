@@ -63,10 +63,6 @@
         (ticks) * (NRF_802154_US_PER_S >> NRF_802154_FREQUENCY_US_PER_S_GCD_BITS), \
         (NRF_802154_RTC_FREQUENCY >> NRF_802154_FREQUENCY_US_PER_S_GCD_BITS))
 
-/** Checks if the given IRQ priority is within the range implemented by the MCU. */
-#define NRF_IS_IRQ_PRIORITY_ALLOWED(priority) \
-    (((priority) >= 0) && ((priority) < (1U << (__NVIC_PRIO_BITS))))
-
 /**@brief Macro to get the number of elements in an array.
  *
  * @param[in] X   Array.
@@ -149,20 +145,6 @@ static inline uint64_t NRF_802154_US_TO_RTC_TICKS(uint64_t time)
     result += u1;
 
     return result;
-}
-
-/**@brief Checks if the provided interrupt is currently enabled.
- *
- * @note This function is valid only for the ARM Cortex-M4 core.
- *
- * @params IRQn  Interrupt number.
- *
- * @returns  Zero value if the interrupt is disabled; non-zero value otherwise.
- */
-static inline uint32_t nrf_is_nvic_irq_enabled(IRQn_Type IRQn)
-{
-    return (NVIC->ISER[(((uint32_t)(int32_t)IRQn) >> 5UL)]) &
-           ((uint32_t)(1UL << (((uint32_t)(int32_t)IRQn) & 0x1FUL)));
 }
 
 /**

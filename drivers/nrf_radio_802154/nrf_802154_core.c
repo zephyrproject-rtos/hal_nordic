@@ -69,6 +69,7 @@
 #include "mac_features/ack_generator/nrf_802154_ack_generator.h"
 #include "rsch/nrf_802154_rsch.h"
 #include "rsch/nrf_802154_rsch_crit_sect.h"
+#include "platform/irq/nrf_802154_irq.h"
 
 #include "nrf_802154_core_hooks.h"
 
@@ -164,6 +165,9 @@ static rx_buffer_t * mp_current_rx_buffer;
 static rx_buffer_t * const mp_current_rx_buffer = &nrf_802154_rx_buffers[0];
 
 #endif
+
+/** Prototype for the Radio IRQ handling routine. */
+static void irq_handler(void);
 
 static const uint8_t * mp_ack;         ///< Pointer to Ack frame buffer.
 static const uint8_t * mp_tx_data;     ///< Pointer to the data to transmit.
@@ -614,22 +618,19 @@ static void nrf_radio_reset(void)
 /** Initialize interrupts for radio peripheral. */
 static void irq_init(void)
 {
-#if !NRF_IS_IRQ_PRIORITY_ALLOWED(NRF_802154_IRQ_PRIORITY)
+#if !NRF_802154_IRQ_PRIORITY_ALLOWED(NRF_802154_IRQ_PRIORITY)
 #error NRF_802154_IRQ_PRIORITY value out of the allowed range.
 #endif
-    NVIC_SetPriority(RADIO_IRQn, NRF_802154_IRQ_PRIORITY);
-    NVIC_ClearPendingIRQ(RADIO_IRQn);
+#if NRF_802154_INTERNAL_RADIO_IRQ_HANDLING
+    nrf_802154_irq_init(RADIO_IRQn, NRF_802154_IRQ_PRIORITY, irq_handler);
+#endif
 }
 
 /** Deinitialize interrupts for radio peripheral. */
 static void irq_deinit(void)
 {
-    NVIC_DisableIRQ(RADIO_IRQn);
-    NVIC_ClearPendingIRQ(RADIO_IRQn);
-    NVIC_SetPriority(RADIO_IRQn, 0);
-
-    __DSB();
-    __ISB();
+    nrf_802154_irq_disable(RADIO_IRQn);
+    nrf_802154_irq_clear_pending(RADIO_IRQn);
 }
 
 /***************************************************************************************************

@@ -48,6 +48,7 @@
 #include "nrf_802154_utils.h"
 #include "hal/nrf_egu.h"
 #include "platform/clock/nrf_802154_clock.h"
+#include "platform/irq/nrf_802154_irq.h"
 
 /** Size of notification queue.
  *
@@ -443,21 +444,6 @@ static void req_exit(void)
     __ISB();
 }
 
-void nrf_802154_swi_init(void)
-{
-    m_ntf_r_ptr = 0;
-    m_ntf_w_ptr = 0;
-
-    nrf_egu_int_enable(SWI_EGU, NTF_INT | HFCLK_STOP_INT | REQ_INT);
-
-#if !NRF_IS_IRQ_PRIORITY_ALLOWED(NRF_802154_SWI_PRIORITY)
-#error NRF_802154_SWI_PRIORITY value out of the allowed range.
-#endif
-    NVIC_SetPriority(SWI_IRQn, NRF_802154_SWI_PRIORITY);
-    NVIC_ClearPendingIRQ(SWI_IRQn);
-    NVIC_EnableIRQ(SWI_IRQn);
-}
-
 void nrf_802154_swi_notify_received(uint8_t * p_data, int8_t power, uint8_t lqi)
 {
     nrf_802154_ntf_data_t * p_slot = ntf_enter();
@@ -698,7 +684,7 @@ void nrf_802154_swi_rssi_measurement_get(int8_t * p_rssi, bool * p_result)
     req_exit();
 }
 
-void SWI_IRQHandler(void)
+void swi_irq_handler(void)
 {
     if (nrf_egu_event_check(SWI_EGU, NTF_EVENT))
     {
@@ -865,4 +851,29 @@ void SWI_IRQHandler(void)
             req_queue_ptr_increment(&m_req_r_ptr);
         }
     }
+}
+
+void nrf_802154_swi_init(void)
+{
+    m_ntf_r_ptr = 0;
+    m_ntf_w_ptr = 0;
+
+    nrf_egu_int_enable(SWI_EGU, NTF_INT | HFCLK_STOP_INT | REQ_INT);
+
+#if !NRF_802154_IRQ_PRIORITY_ALLOWED(NRF_802154_SWI_PRIORITY)
+#error NRF_802154_SWI_PRIORITY value out of the allowed range.
+#endif
+    static bool initialized = false;
+
+    if (!initialized)
+    {
+        nrf_802154_irq_init(SWI_IRQn, NRF_802154_SWI_PRIORITY, swi_irq_handler);
+        nrf_802154_irq_enable(SWI_IRQn);
+        initialized = true;
+    }
+}
+
+void SWI_IRQHandler(void)
+{
+    swi_irq_handler();
 }

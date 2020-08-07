@@ -49,13 +49,14 @@
 #include "nrf_802154_swi.h"
 #include "nrf_802154_utils.h"
 #include "hal/nrf_radio.h"
+#include "platform/irq/nrf_802154_irq.h"
 
 #include <nrf.h>
 
 /** Assert if SWI interrupt is disabled. */
 static inline void assert_interrupt_status(void)
 {
-    assert(nrf_is_nvic_irq_enabled(NRF_802154_SWI_IRQN));
+    assert(nrf_802154_irq_is_enabled(NRF_802154_SWI_IRQN));
 }
 
 #define REQUEST_FUNCTION(func_core, func_swi, ...) \

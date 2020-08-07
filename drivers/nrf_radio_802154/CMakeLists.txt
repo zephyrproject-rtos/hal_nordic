@@ -5,15 +5,11 @@ zephyr_library_sources(
   nrf_802154_core.c
   nrf_802154_critical_section.c
   nrf_802154_debug.c
-  nrf_802154_notification_direct.c
   nrf_802154_pib.c
-  nrf_802154_priority_drop_direct.c
-  nrf_802154_request_direct.c
   nrf_802154_rssi.c
   nrf_802154_rx_buffer.c
   nrf_802154_timer_coord.c
   nrf_802154.c
-  fal/nrf_802154_fal.c
   mac_features/nrf_802154_csma_ca.c
   mac_features/nrf_802154_filter.c
   mac_features/nrf_802154_frame_parser.c
@@ -26,14 +22,33 @@ zephyr_library_sources(
   platform/clock/nrf_802154_clock_zephyr.c
   platform/coex/nrf_802154_wifi_coex_none.c
   platform/hp_timer/nrf_802154_hp_timer.c
-  platform/lp_timer/nrf_802154_lp_timer_zephyr.c
+  platform/irq/nrf_802154_irq_zephyr.c
+  platform/lp_timer/nrf_802154_lp_timer.c
   platform/random/nrf_802154_random_zephyr.c
   platform/temperature/nrf_802154_temperature_none.c
   rsch/nrf_802154_rsch.c
   rsch/nrf_802154_rsch_crit_sect.c
-  rsch/raal/single_phy/single_phy.c
   timer_scheduler/nrf_802154_timer_sched.c
-)
+  )
+
+if (CONFIG_NRF_802154_MULTIPROTOCOL_SUPPORT)
+  zephyr_library_sources(
+    nrf_802154_swi.c
+    nrf_802154_notification_swi.c
+    nrf_802154_priority_drop_swi.c
+    nrf_802154_request_swi.c
+    )
+
+else()
+  zephyr_library_sources(
+    fal/nrf_802154_fal.c
+    rsch/raal/single_phy/single_phy.c
+    nrf_802154_notification_direct.c
+    nrf_802154_priority_drop_direct.c
+    nrf_802154_request_direct.c
+  )
+
+endif()
 
 if(     CONFIG_NRF_802154_CCA_MODE_ED)
   set(radio_cca_mode NRF_RADIO_CCA_MODE_ED)
