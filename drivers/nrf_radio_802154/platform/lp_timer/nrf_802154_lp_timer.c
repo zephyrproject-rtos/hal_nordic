@@ -47,6 +47,7 @@
 #include "nrf_802154_config.h"
 #include "nrf_802154_peripherals.h"
 #include "nrf_802154_utils.h"
+#include "platform/irq/nrf_802154_irq.h"
 
 #define RTC_LP_TIMER_COMPARE_CHANNEL    0
 #define RTC_LP_TIMER_COMPARE_INT_MASK   NRF_RTC_INT_COMPARE0_MASK
@@ -279,7 +280,7 @@ static uint32_t overflow_counter_get(void)
     {
         // Failed to acquire mutex.
         if (nrf_rtc_event_check(NRF_802154_RTC_INSTANCE,
-                                NRF_RTC_EVENT_OVERFLOW) || (m_offset_counter & 0x01))
+                                  NRF_RTC_EVENT_OVERFLOW) || (m_offset_counter & 0x01))
         {
             // Lower priority context is currently incrementing m_offset_counter variable.
             offset = (m_offset_counter + 2) / 2;
@@ -390,6 +391,44 @@ static void timer_sync_start_at(uint32_t t0, uint32_t dt, const uint64_t * p_now
     nrf_rtc_int_enable(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].int_mask);
 }
 
+static void rtc_irq_handler(void)
+{
+    // Handle overflow.
+    if (nrf_rtc_event_check(NRF_802154_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW))
+    {
+        // Disable OVERFLOW interrupt to prevent lock-up in interrupt context while mutex is locked from lower priority context
+        // and OVERFLOW event flag is stil up.
+        // OVERFLOW interrupt will be re-enabled when mutex is released - either from this handler, or from lower priority context,
+        // that locked the mutex.
+        nrf_rtc_int_disable(NRF_802154_RTC_INSTANCE, NRF_RTC_INT_OVERFLOW_MASK);
+
+        // Handle OVERFLOW event by reading current value of overflow counter.
+        (void)overflow_counter_get();
+    }
+
+    // Handle compare match.
+    if (m_shall_fire_immediately)
+    {
+        m_shall_fire_immediately = false;
+        handle_compare_match(true);
+    }
+
+    if (nrf_rtc_int_enable_check(NRF_802154_RTC_INSTANCE, m_cmp_ch[LP_TIMER_CHANNEL].int_mask) &&
+        nrf_rtc_event_check(NRF_802154_RTC_INSTANCE, m_cmp_ch[LP_TIMER_CHANNEL].event))
+    {
+        handle_compare_match(false);
+    }
+
+    if (nrf_rtc_int_enable_check(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].int_mask) &&
+        nrf_rtc_event_check(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].event))
+    {
+        nrf_rtc_event_clear(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].event);
+        nrf_rtc_event_disable(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].event_mask);
+        nrf_rtc_int_disable(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].int_mask);
+        nrf_802154_lp_timer_synchronized();
+    }
+}
+
 void nrf_802154_lp_timer_init(void)
 {
     m_offset_counter                 = 0;
@@ -406,12 +445,11 @@ void nrf_802154_lp_timer_init(void)
     }
 
     // Setup RTC timer.
-#if !NRF_IS_IRQ_PRIORITY_ALLOWED(NRF_802154_RTC_IRQ_PRIORITY)
+#if !NRF_802154_IRQ_PRIORITY_ALLOWED(NRF_802154_RTC_IRQ_PRIORITY)
 #error NRF_802154_RTC_IRQ_PRIORITY value out of the allowed range.
 #endif
-    NVIC_SetPriority(NRF_802154_RTC_IRQN, NRF_802154_RTC_IRQ_PRIORITY);
-    NVIC_ClearPendingIRQ(NRF_802154_RTC_IRQN);
-    NVIC_EnableIRQ(NRF_802154_RTC_IRQN);
+    nrf_802154_irq_init(NRF_802154_RTC_IRQN, NRF_802154_RTC_IRQ_PRIORITY, rtc_irq_handler);
+    nrf_802154_irq_enable(NRF_802154_RTC_IRQN);
 
     nrf_rtc_prescaler_set(NRF_802154_RTC_INSTANCE, 0);
 
@@ -442,21 +480,20 @@ void nrf_802154_lp_timer_deinit(void)
 
     nrf_802154_lp_timer_sync_stop();
 
-    NVIC_DisableIRQ(NRF_802154_RTC_IRQN);
-    NVIC_ClearPendingIRQ(NRF_802154_RTC_IRQN);
-    NVIC_SetPriority(NRF_802154_RTC_IRQN, 0);
+    nrf_802154_irq_disable(NRF_802154_RTC_IRQN);
+    nrf_802154_irq_clear_pending(NRF_802154_RTC_IRQN);
 
     nrf_802154_clock_lfclk_stop();
 }
 
 void nrf_802154_lp_timer_critical_section_enter(void)
 {
-    if (nrf_is_nvic_irq_enabled(NRF_802154_RTC_IRQN))
+    if (nrf_802154_irq_is_enabled(NRF_802154_RTC_IRQN))
     {
         m_lp_timer_irq_enabled = 1;
     }
 
-    NVIC_DisableIRQ(NRF_802154_RTC_IRQN);
+    nrf_802154_irq_disable(NRF_802154_RTC_IRQN);
 }
 
 void nrf_802154_lp_timer_critical_section_exit(void)
@@ -464,7 +501,7 @@ void nrf_802154_lp_timer_critical_section_exit(void)
     if (m_lp_timer_irq_enabled)
     {
         m_lp_timer_irq_enabled = 0;
-        NVIC_EnableIRQ(NRF_802154_RTC_IRQN);
+        nrf_802154_irq_enable(NRF_802154_RTC_IRQN);
     }
 }
 
@@ -497,7 +534,7 @@ void nrf_802154_lp_timer_start(uint32_t t0, uint32_t dt)
     if (shall_strike(now + MIN_RTC_COMPARE_EVENT_DT))
     {
         m_shall_fire_immediately = true;
-        NVIC_SetPendingIRQ(NRF_802154_RTC_IRQN);
+        nrf_802154_irq_set_pending(NRF_802154_RTC_IRQN);
     }
     else
     {
@@ -565,40 +602,7 @@ void nrf_802154_clock_lfclk_ready(void)
 
 void NRF_802154_RTC_IRQ_HANDLER(void)
 {
-    // Handle overflow.
-    if (nrf_rtc_event_check(NRF_802154_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW))
-    {
-        // Disable OVERFLOW interrupt to prevent lock-up in interrupt context while mutex is locked from lower priority context
-        // and OVERFLOW event flag is stil up.
-        // OVERFLOW interrupt will be re-enabled when mutex is released - either from this handler, or from lower priority context,
-        // that locked the mutex.
-        nrf_rtc_int_disable(NRF_802154_RTC_INSTANCE, NRF_RTC_INT_OVERFLOW_MASK);
-
-        // Handle OVERFLOW event by reading current value of overflow counter.
-        (void)overflow_counter_get();
-    }
-
-    // Handle compare match.
-    if (m_shall_fire_immediately)
-    {
-        m_shall_fire_immediately = false;
-        handle_compare_match(true);
-    }
-
-    if (nrf_rtc_int_enable_check(NRF_802154_RTC_INSTANCE, m_cmp_ch[LP_TIMER_CHANNEL].int_mask) &&
-        nrf_rtc_event_check(NRF_802154_RTC_INSTANCE, m_cmp_ch[LP_TIMER_CHANNEL].event))
-    {
-        handle_compare_match(false);
-    }
-
-    if (nrf_rtc_int_enable_check(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].int_mask) &&
-        nrf_rtc_event_check(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].event))
-    {
-        nrf_rtc_event_clear(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].event);
-        nrf_rtc_event_disable(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].event_mask);
-        nrf_rtc_int_disable(NRF_802154_RTC_INSTANCE, m_cmp_ch[SYNC_CHANNEL].int_mask);
-        nrf_802154_lp_timer_synchronized();
-    }
+    rtc_irq_handler();
 }
 
 #ifndef UNITY_ON_TARGET

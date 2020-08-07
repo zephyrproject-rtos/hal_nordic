@@ -131,7 +131,7 @@ extern "C" {
  *
  */
 #ifndef NRF_802154_SWI_PRIORITY
-#define NRF_802154_SWI_PRIORITY 5
+#define NRF_802154_SWI_PRIORITY 4
 #endif
 
 /**
@@ -236,11 +236,11 @@ extern "C" {
  * The priority of clock interrupt used in the standalone clock driver implementation.
  *
  * @note This configuration is only applicable for the Clock Abstraction Layer implementation
- *       in nrf_802154_clock_nodrv.c.
+ *       in nrf_802154_clock.c.
  *
  */
 #ifndef NRF_802154_CLOCK_IRQ_PRIORITY
-#define NRF_802154_CLOCK_IRQ_PRIORITY 7
+#define NRF_802154_CLOCK_IRQ_PRIORITY 6
 #endif
 
 /**
@@ -272,7 +272,7 @@ extern "C" {
  *
  */
 #ifndef NRF_802154_RTC_IRQ_PRIORITY
-#define NRF_802154_RTC_IRQ_PRIORITY 6
+#define NRF_802154_RTC_IRQ_PRIORITY 5
 #endif
 
 /**

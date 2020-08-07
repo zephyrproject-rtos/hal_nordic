@@ -182,7 +182,7 @@ extern "C" {
  * The RTC instance used in the standalone timer driver implementation.
  *
  * @note This configuration is only applicable for the Low Power Timer Abstraction Layer
- *       implementation in nrf_802154_lp_timer_nodrv.c.
+ *       implementation in nrf_802154_lp_timer.c.
  *
  */
 #define NRF_802154_RTC_INSTANCE    NRFX_CONCAT_2(NRF_RTC, NRF_802154_RTC_INSTANCE_NO)
@@ -193,7 +193,7 @@ extern "C" {
  * The RTC interrupt handler name used in the standalone timer driver implementation.
  *
  * @note This configuration is only applicable for Low Power Timer Abstraction Layer implementation
- *       in nrf_802154_lp_timer_nodrv.c.
+ *       in nrf_802154_lp_timer.c.
  *
  */
 #define NRF_802154_RTC_IRQ_HANDLER NRFX_CONCAT_3(RTC, NRF_802154_RTC_INSTANCE_NO, _IRQHandler)
@@ -204,7 +204,7 @@ extern "C" {
  * The RTC Interrupt number used in the standalone timer driver implementation.
  *
  * @note This configuration is only applicable for the Low Power Timer Abstraction Layer implementation
- *       in nrf_802154_lp_timer_nodrv.c.
+ *       in nrf_802154_lp_timer.c.
  *
  */
 #define NRF_802154_RTC_IRQN        NRFX_CONCAT_3(RTC, NRF_802154_RTC_INSTANCE_NO, _IRQn)

@@ -44,6 +44,7 @@
 #include "hal/nrf_radio.h"
 #include "rsch/nrf_802154_rsch.h"
 #include "platform/lp_timer/nrf_802154_lp_timer.h"
+#include "platform/irq/nrf_802154_irq.h"
 
 #include <nrf.h>
 
@@ -68,7 +69,7 @@ static void radio_critical_section_enter(void)
 {
     if (nrf_802154_rsch_prec_is_approved(RSCH_PREC_RAAL, RSCH_PRIO_MIN_APPROVED))
     {
-        NVIC_DisableIRQ(RADIO_IRQn);
+        nrf_802154_irq_disable(RADIO_IRQn);
     }
 }
 
@@ -81,7 +82,7 @@ static void radio_critical_section_exit(void)
 {
     if (nrf_802154_rsch_prec_is_approved(RSCH_PREC_RAAL, RSCH_PRIO_MIN_APPROVED))
     {
-        NVIC_EnableIRQ(RADIO_IRQn);
+        nrf_802154_irq_enable(RADIO_IRQn);
     }
 }
 
@@ -127,8 +128,6 @@ static bool critical_section_enter(bool forced)
         nrf_802154_critical_section_rsch_enter();
         nrf_802154_lp_timer_critical_section_enter();
         radio_critical_section_enter();
-        __DSB();
-        __ISB();
 
         m_critical_section_monitor++;
 
@@ -279,7 +278,7 @@ uint32_t nrf_802154_critical_section_active_vector_priority_get(void)
     assert(active_vector_id >= CMSIS_IRQ_NUM_VECTACTIVE_DIFF);
 
     irq_number      = (IRQn_Type)(active_vector_id - CMSIS_IRQ_NUM_VECTACTIVE_DIFF);
-    active_priority = NVIC_GetPriority(irq_number);
+    active_priority = nrf_802154_irq_priority_get(irq_number);
 
     return active_priority;
 }
