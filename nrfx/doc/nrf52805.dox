@@ -1,7 +1,7 @@
 /**
-@page nrf52810_drivers nRF52810/nRF52811 drivers
+@page nrf52805_drivers nRF52805 drivers
 
-This page lists nrfx driver components supported by the nRF52810/nRF52811 SoC.
+This page lists nrfx driver components supported by the nRF52805 SoCs.
 For a complete overview, see @ref nrfx_drv_supp_matrix.
 
 @{
@@ -13,8 +13,6 @@ For a complete overview, see @ref nrfx_drv_supp_matrix.
 @ref nrf_ccm
 
 @ref nrf_clock
-
-@ref nrf_comp
 
 @ref nrf_systick
 
@@ -30,13 +28,9 @@ For a complete overview, see @ref nrfx_drv_supp_matrix.
 
 @ref nrf_nvmc
 
-@ref nrf_pdm
-
 @ref nrf_power
 
 @ref nrf_ppi
-
-@ref nrf_pwm
 
 @ref nrf_qdec
 
