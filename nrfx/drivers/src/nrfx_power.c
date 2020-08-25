@@ -272,6 +272,8 @@ void nrfx_power_usbevt_uninit(void)
 void nrfx_power_irq_handler(void)
 {
     uint32_t enabled = nrf_power_int_enable_get(NRF_POWER);
+    /* Prevent "unused variable" warning when all below blocks are disabled. */
+    (void)enabled;
 
 #if NRFX_POWER_SUPPORTS_POFCON
     if ((0 != (enabled & NRF_POWER_INT_POFWARN_MASK)) &&
