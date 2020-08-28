@@ -56,7 +56,9 @@ extern "C" {
  *
  * @param expression Expression to be evaluated.
  */
+#ifndef NRFX_ASSERT
 #define NRFX_ASSERT(expression)  __ASSERT_NO_MSG(expression)
+#endif
 
 /**
  * @brief Macro for placing a compile time assertion.
