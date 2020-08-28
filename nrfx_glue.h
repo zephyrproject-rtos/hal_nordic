@@ -283,6 +283,10 @@ extern const uint32_t z_bt_ctlr_used_nrf_ppi_groups;
  */
 void nrfx_isr(const void *irq_handler);
 
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+#include "nrfx_glue_bsim.h"
+#endif
+
 /** @} */
 
 #ifdef __cplusplus
