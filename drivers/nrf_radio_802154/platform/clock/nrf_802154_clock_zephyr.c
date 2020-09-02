@@ -127,7 +127,7 @@ void nrf_802154_clock_lfclk_stop(void)
             z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_LF);
     __ASSERT_NO_MSG(mgr != NULL);
 
-    hfclk_is_running = false;
+    lfclk_is_running = false;
 
     ret = onoff_release(mgr);
     __ASSERT_NO_MSG(ret >= 0);
