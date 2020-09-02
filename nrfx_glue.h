@@ -281,7 +281,7 @@ extern const uint32_t z_bt_ctlr_used_nrf_ppi_groups;
  *
  * @param[in] irq_handler  Pointer to the nrfx IRQ handler to be called.
  */
-void nrfx_isr(void *irq_handler);
+void nrfx_isr(const void *irq_handler);
 
 /** @} */
 
