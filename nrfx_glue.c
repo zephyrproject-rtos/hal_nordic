@@ -7,7 +7,7 @@
 #include <nrfx.h>
 #include <kernel.h>
 
-void nrfx_isr(void *irq_handler)
+void nrfx_isr(const void *irq_handler)
 {
 	((nrfx_irq_handler_t)irq_handler)();
 }
@@ -18,7 +18,7 @@ void nrfx_busy_wait(uint32_t usec_to_wait)
 }
 
 char const *nrfx_error_string_get(nrfx_err_t code)
-{ 
+{
 	#define NRFX_ERROR_STRING_CASE(code)  case code: return #code
 	switch (code) {
 		NRFX_ERROR_STRING_CASE(NRFX_SUCCESS);
