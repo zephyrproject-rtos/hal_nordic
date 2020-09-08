@@ -96,8 +96,8 @@ static inline void assert_interrupt_status(void)
  */
 static bool active_vector_priority_is_high(void)
 {
-
-    return nrf_802154_critical_section_active_vector_priority_get() <= NRF_802154_SWI_PRIORITY;
+    return nrf_802154_critical_section_active_vector_priority_get() <=
+            nrf_802154_irq_priority_get(NRF_802154_SWI_IRQN);
 }
 
 void nrf_802154_request_init(void)
