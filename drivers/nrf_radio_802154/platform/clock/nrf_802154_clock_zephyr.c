@@ -45,6 +45,8 @@
 
 static bool hfclk_is_running;
 static bool lfclk_is_running;
+static struct onoff_client hfclk_cli;
+static struct onoff_client lfclk_cli;
 
 void nrf_802154_clock_init(void)
 {
@@ -68,14 +70,13 @@ static void hfclk_on_callback(struct onoff_manager *mgr,
 void nrf_802154_clock_hfclk_start(void)
 {
     int ret;
-    static struct onoff_client cli;
     struct onoff_manager *mgr =
             z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF);
     __ASSERT_NO_MSG(mgr != NULL);
 
-    sys_notify_init_callback(&cli.notify, hfclk_on_callback);
+    sys_notify_init_callback(&hfclk_cli.notify, hfclk_on_callback);
 
-    ret = onoff_request(mgr, &cli);
+    ret = onoff_request(mgr, &hfclk_cli);
     __ASSERT_NO_MSG(ret >= 0);
 }
 
@@ -86,10 +87,9 @@ void nrf_802154_clock_hfclk_stop(void)
             z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_HF);
     __ASSERT_NO_MSG(mgr != NULL);
 
-    hfclk_is_running = false;
-
-    ret = onoff_release(mgr);
+    ret = onoff_cancel_or_release(mgr, &hfclk_cli);
     __ASSERT_NO_MSG(ret >= 0);
+    hfclk_is_running = false;
 }
 
 bool nrf_802154_clock_hfclk_is_running(void)
@@ -109,14 +109,13 @@ static void lfclk_on_callback(struct onoff_manager *mgr,
 void nrf_802154_clock_lfclk_start(void)
 {
     int ret;
-    static struct onoff_client cli;
     struct onoff_manager *mgr =
             z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_LF);
     __ASSERT_NO_MSG(mgr != NULL);
 
-    sys_notify_init_callback(&cli.notify, lfclk_on_callback);
+    sys_notify_init_callback(&lfclk_cli.notify, lfclk_on_callback);
 
-    ret = onoff_request(mgr, &cli);
+    ret = onoff_request(mgr, &lfclk_cli);
     __ASSERT_NO_MSG(ret >= 0);
 }
 
@@ -127,10 +126,9 @@ void nrf_802154_clock_lfclk_stop(void)
             z_nrf_clock_control_get_onoff(CLOCK_CONTROL_NRF_SUBSYS_LF);
     __ASSERT_NO_MSG(mgr != NULL);
 
-    lfclk_is_running = false;
-
-    ret = onoff_release(mgr);
+    ret = onoff_cancel_or_release(mgr, &lfclk_cli);
     __ASSERT_NO_MSG(ret >= 0);
+    lfclk_is_running = false;
 }
 
 bool nrf_802154_clock_lfclk_is_running(void)
