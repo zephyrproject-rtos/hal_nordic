@@ -70,6 +70,7 @@ typedef struct
 } common_timepoint_t;
 
 // Static variables.
+static volatile bool      m_is_running;   ///< If Timer Coordinator is running.
 static common_timepoint_t m_last_sync;    ///< Common timepoint of last synchronization event.
 static volatile bool      m_synchronized; ///< If timers were synchronized since last start.
 static bool               m_drift_known;  ///< If timer drift value is known.
@@ -80,6 +81,7 @@ void nrf_802154_timer_coord_init(void)
     uint32_t sync_event;
     uint32_t sync_task;
 
+    m_is_running  = false;
     m_drift       = 0;
     m_drift_known = 0;
 
@@ -114,12 +116,16 @@ void nrf_802154_timer_coord_start(void)
     nrf_802154_hp_timer_sync_prepare();
     nrf_802154_lp_timer_sync_start_now();
 
+    m_is_running = true;
+
     nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_TCOOR_START);
 }
 
 void nrf_802154_timer_coord_stop(void)
 {
     nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_TCOOR_STOP);
+
+    m_is_running = false;
 
     nrf_802154_hp_timer_stop();
     nrf_802154_lp_timer_sync_stop();
@@ -179,50 +185,61 @@ void nrf_802154_lp_timer_synchronized(void)
 
     nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_TCOOR_SYNCHRONIZED);
 
-    if (nrf_802154_hp_timer_sync_time_get(&sync_time.hp_timer_time))
+    if (m_is_running)
     {
-        sync_time.lp_timer_time = nrf_802154_lp_timer_sync_time_get();
-
-        // Calculate timers drift
-        if (m_synchronized)
-        {
-            lp_delta                = sync_time.lp_timer_time - m_last_sync.lp_timer_time;
-            hp_delta                = sync_time.hp_timer_time - m_last_sync.hp_timer_time;
-            tb_fraction_of_lp_delta = DIV_ROUND_POSITIVE(lp_delta, TIME_BASE);
-            timers_diff             = hp_delta - lp_delta;
-            drift                   = DIV_ROUND(timers_diff, tb_fraction_of_lp_delta); // Drift in PPTB
-
-            if (m_drift_known)
-            {
-                m_drift = DIV_ROUND((m_drift * (EWMA_COEF - 1) + drift), EWMA_COEF);
-            }
-            else
-            {
-                m_drift = drift;
-            }
-
-            m_drift_known = true;
-        }
-
-        /* To avoid possible race when nrf_802154_timer_coord_timestamp_get
-         * is called when m_last_sync is being assigned report that we are not synchronized
-         * during assignment.
-         * This is naive solution that can be improved if needed with double buffering.
+        /* In case of preemption by the Timeslot Ended signal from RAAL,
+         * the code below shall still execute. However, since the Radio Driver
+         * still has some Margin time to clean up, this shall not lead to the
+         * MPU/MWU fault. When the the next LPTIMER interrupt shall strike,
+         * the m_is_running flash shall be already set to false, which means
+         * no further scheduling and no writing the protected peripherals,
+         * guarded by the next timeslot user.
          */
-        m_synchronized = false;
-        __DMB();
-        m_last_sync = sync_time;
-        __DMB();
-        m_synchronized = true;
+        if (nrf_802154_hp_timer_sync_time_get(&sync_time.hp_timer_time))
+        {
+            sync_time.lp_timer_time = nrf_802154_lp_timer_sync_time_get();
 
-        nrf_802154_hp_timer_sync_prepare();
-        nrf_802154_lp_timer_sync_start_at(m_last_sync.lp_timer_time,
-                                          m_drift_known ? RESYNC_TIME : FIRST_RESYNC_TIME);
-    }
-    else
-    {
-        nrf_802154_hp_timer_sync_prepare();
-        nrf_802154_lp_timer_sync_start_now();
+            // Calculate timers drift
+            if (m_synchronized)
+            {
+                lp_delta                = sync_time.lp_timer_time - m_last_sync.lp_timer_time;
+                hp_delta                = sync_time.hp_timer_time - m_last_sync.hp_timer_time;
+                tb_fraction_of_lp_delta = DIV_ROUND_POSITIVE(lp_delta, TIME_BASE);
+                timers_diff             = hp_delta - lp_delta;
+                drift                   = DIV_ROUND(timers_diff, tb_fraction_of_lp_delta); // Drift in PPTB
+
+                if (m_drift_known)
+                {
+                    m_drift = DIV_ROUND((m_drift * (EWMA_COEF - 1) + drift), EWMA_COEF);
+                }
+                else
+                {
+                    m_drift = drift;
+                }
+
+                m_drift_known = true;
+            }
+
+            /* To avoid possible race when nrf_802154_timer_coord_timestamp_get
+            * is called when m_last_sync is being assigned report that we are not synchronized
+            * during assignment.
+            * This is naive solution that can be improved if needed with double buffering.
+            */
+            m_synchronized = false;
+            __DMB();
+            m_last_sync = sync_time;
+            __DMB();
+            m_synchronized = true;
+
+            nrf_802154_hp_timer_sync_prepare();
+            nrf_802154_lp_timer_sync_start_at(m_last_sync.lp_timer_time,
+                                            m_drift_known ? RESYNC_TIME : FIRST_RESYNC_TIME);
+        }
+        else
+        {
+            nrf_802154_hp_timer_sync_prepare();
+            nrf_802154_lp_timer_sync_start_now();
+        }
     }
 
     nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_TCOOR_SYNCHRONIZED);
