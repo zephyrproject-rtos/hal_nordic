@@ -55,6 +55,7 @@ static volatile rsch_prio_t m_last_notified_prio;            ///< Last reported 
 static volatile rsch_prio_t m_approved_prios[RSCH_PREC_CNT]; ///< Priority levels approved by each precondition.
 static rsch_prio_t          m_requested_prio;                ///< Priority requested from all preconditions.
 static rsch_prio_t          m_cont_mode_prio;                ///< Continuous mode priority level. If continuous mode is not requested equal to @ref RSCH_PRIO_IDLE.
+static volatile bool        m_shall_notify_raal;             ///< Flag that indicates that RAAL shall be notified about continuous mode end.
 
 typedef struct
 {
@@ -279,17 +280,13 @@ static inline bool requested_prio_lvl_is_at_least(rsch_prio_t prio)
 }
 
 /** @brief Notify core if preconditions are approved or denied if current state differs from last reported.
- *
- * @retval true   Core was notified.
- * @retval false  Otherwise.
  */
-static inline bool notify_core(void)
+static inline void notify_core(void)
 {
     nrf_802154_log_entry(notify_core, 2);
 
     rsch_prio_t approved_prio_lvl;
     uint8_t     temp_mon;
-    bool        notified = false;
 
     do
     {
@@ -311,8 +308,24 @@ static inline bool notify_core(void)
             m_last_notified_prio = approved_prio_lvl;
 
             nrf_802154_rsch_continuous_prio_changed(approved_prio_lvl);
-
-            notified = true;
+        }
+        else if ((m_last_notified_prio == RSCH_PRIO_IDLE) && m_shall_notify_raal)
+        {
+            /* It might happen that the action of exiting continuous mode is preempted by
+             * nrf_raal_timeslot_ended() indicating end of a timeslot. RAAL API requires to respond
+             * with nrf_802154_rsch_continuous_ended when that function is called. Usually,
+             * it is performed through the above if clause. However, when the described preemption
+             * occurs, approved priority equal IDLE has already been notified as a result of exiting
+             * continuous mode. Taking no action here would lead to breaking RAAL API by not
+             * responding with nrf_802154_rsch_continuous_ended(). As the driver's core has already
+             * been notified about denied preconditions and it doesn't need to modify its state,
+             * it's enough to call this function directly here.
+             */
+            nrf_802154_rsch_continuous_ended();
+        }
+        else
+        {
+            /* Intentionally empty */
         }
 
         mutex_unlock(&m_ntf_mutex);
@@ -320,8 +333,6 @@ static inline bool notify_core(void)
     while (temp_mon != m_ntf_mutex_monitor);
 
     nrf_802154_log_exit(notify_core, 2);
-
-    return notified;
 }
 
 /** Timer callback used to trigger delayed timeslot.
@@ -340,7 +351,7 @@ static void delayed_timeslot_start(void * p_context)
     p_dly_ts->prio = RSCH_PRIO_IDLE;
 
     all_prec_update();
-    (void)notify_core();
+    notify_core();
 
     nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_RSCH_TIMER_DELAYED_START);
 }
@@ -414,7 +425,7 @@ void nrf_802154_rsch_continuous_mode_priority_set(rsch_prio_t prio)
     __DMB();
 
     all_prec_update();
-    (void)notify_core();
+    notify_core();
 
     nrf_802154_log(EVENT_TRACE_EXIT, (prio > RSCH_PRIO_IDLE) ? FUNCTION_RSCH_CONTINUOUS_ENTER :
                    FUNCTION_RSCH_CONTINUOUS_EXIT);
@@ -422,7 +433,11 @@ void nrf_802154_rsch_continuous_mode_priority_set(rsch_prio_t prio)
 
 void nrf_802154_rsch_continuous_ended(void)
 {
-    nrf_raal_continuous_ended();
+    if (m_shall_notify_raal)
+    {
+        m_shall_notify_raal = false;
+        nrf_raal_continuous_ended();
+    }
 }
 
 bool nrf_802154_rsch_timeslot_request(uint32_t length_us)
@@ -504,7 +519,7 @@ bool nrf_802154_rsch_delayed_timeslot_cancel(rsch_dly_ts_id_t dly_ts_id)
 
     p_dly_ts->prio = RSCH_PRIO_IDLE;
     all_prec_update();
-    (void)notify_core();
+    notify_core();
 
     result = was_running;
 
@@ -547,7 +562,7 @@ void nrf_raal_timeslot_started(void)
     nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_RSCH_TIMESLOT_STARTED);
 
     prec_approved_prio_set(RSCH_PREC_RAAL, RSCH_PRIO_MAX);
-    (void)notify_core();
+    notify_core();
 
     nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_RSCH_TIMESLOT_STARTED);
 }
@@ -556,13 +571,10 @@ void nrf_raal_timeslot_ended(void)
 {
     nrf_802154_log(EVENT_TRACE_ENTER, FUNCTION_RSCH_TIMESLOT_ENDED);
 
-    prec_approved_prio_set(RSCH_PREC_RAAL, RSCH_PRIO_IDLE);
+    m_shall_notify_raal = true;
 
-    // Ensure that RAAL can finish its processing even if core is not informed about it
-    if (!notify_core())
-    {
-        nrf_802154_rsch_continuous_ended();
-    }
+    prec_approved_prio_set(RSCH_PREC_RAAL, RSCH_PRIO_IDLE);
+    notify_core();
 
     nrf_802154_log(EVENT_TRACE_EXIT, FUNCTION_RSCH_TIMESLOT_ENDED);
 }
@@ -570,5 +582,5 @@ void nrf_raal_timeslot_ended(void)
 void nrf_802154_clock_hfclk_ready(void)
 {
     prec_approved_prio_set(RSCH_PREC_HFCLK, RSCH_PRIO_MAX);
-    (void)notify_core();
+    notify_core();
 }
