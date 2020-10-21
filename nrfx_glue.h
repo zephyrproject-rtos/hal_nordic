@@ -269,8 +269,15 @@ extern const uint32_t z_bt_ctlr_used_nrf_ppi_groups;
 
 #if defined(CONFIG_PWM_NRF5_SW)
 #define PWM_NRF5_SW_NODE DT_INST(0, nordic_nrf_sw_pwm)
+#define PWM_NRF5_SW_GENERATOR_NODE DT_PHANDLE(PWM_NRF5_SW_NODE, generator)
+#if DT_NODE_HAS_COMPAT(PWM_NRF5_SW_GENERATOR_NODE, nordic_nrf_rtc)
+#define PWM_NRF5_SW_PPI_CHANNELS_PER_PIN	3
+#else
+#define PWM_NRF5_SW_PPI_CHANNELS_PER_PIN	2
+#endif /* DT_NODE_HAS_COMPAT(PWM_NRF5_SW_GENERATOR_NODE, nordic_nrf_rtc) */
 #define NRFX_PPI_CHANNELS_USED_BY_PWM_SW \
-    (BIT_MASK(DT_PROP(PWM_NRF5_SW_NODE, channel_count) * 2) \
+    (BIT_MASK(DT_PROP(PWM_NRF5_SW_NODE, channel_count) *	\
+	      PWM_NRF5_SW_PPI_CHANNELS_PER_PIN)			\
          << DT_PROP(PWM_NRF5_SW_NODE, ppi_base))
 #define NRFX_GPIOTE_CHANNELS_USED_BY_PWM_SW \
     DT_PROP(PWM_NRF5_SW_NODE, channel_count)
