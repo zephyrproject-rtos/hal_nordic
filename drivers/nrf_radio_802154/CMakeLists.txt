@@ -31,21 +31,19 @@ zephyr_library_sources(
   timer_scheduler/nrf_802154_timer_sched.c
   )
 
-if (CONFIG_NRF_802154_MULTIPROTOCOL_SUPPORT)
-  zephyr_library_sources(
-    nrf_802154_swi.c
-    nrf_802154_notification_swi.c
-    nrf_802154_priority_drop_swi.c
-    nrf_802154_request_swi.c
-    )
+if (CONFIG_NRF_802154_SL_OPENSOURCE)
+zephyr_library_sources(
+  nrf_802154_notification_direct.c
+  nrf_802154_priority_drop_direct.c
+  nrf_802154_request_direct.c
+)
 
 else()
-  zephyr_library_sources(
-    fal/nrf_802154_fal.c
-    rsch/raal/single_phy/single_phy.c
-    nrf_802154_notification_direct.c
-    nrf_802154_priority_drop_direct.c
-    nrf_802154_request_direct.c
+zephyr_library_sources(
+  nrf_802154_swi.c
+  nrf_802154_notification_swi.c
+  nrf_802154_priority_drop_swi.c
+  nrf_802154_request_swi.c
   )
 
 endif()
