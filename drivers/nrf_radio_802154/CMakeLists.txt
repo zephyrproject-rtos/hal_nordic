@@ -1,49 +1,44 @@
-zephyr_include_directories(.)
+zephyr_include_directories(src)
 
 zephyr_library_sources(
-  nrf_802154_core_hooks.c
-  nrf_802154_core.c
-  nrf_802154_critical_section.c
-  nrf_802154_debug.c
-  nrf_802154_pib.c
-  nrf_802154_rssi.c
-  nrf_802154_rx_buffer.c
-  nrf_802154_timer_coord.c
-  nrf_802154.c
-  mac_features/nrf_802154_csma_ca.c
-  mac_features/nrf_802154_filter.c
-  mac_features/nrf_802154_frame_parser.c
-  mac_features/nrf_802154_precise_ack_timeout.c
-  mac_features/ack_generator/nrf_802154_ack_data.c
-  mac_features/ack_generator/nrf_802154_ack_generator.c
-  mac_features/ack_generator/nrf_802154_enh_ack_generator.c
-  mac_features/ack_generator/nrf_802154_imm_ack_generator.c
-  mac_features/nrf_802154_delayed_trx.c
-  platform/clock/nrf_802154_clock_zephyr.c
-  platform/coex/nrf_802154_wifi_coex_none.c
-  platform/hp_timer/nrf_802154_hp_timer.c
-  platform/irq/nrf_802154_irq_zephyr.c
-  platform/lp_timer/nrf_802154_lp_timer.c
-  platform/random/nrf_802154_random_zephyr.c
-  platform/temperature/nrf_802154_temperature_none.c
-  rsch/nrf_802154_rsch.c
-  rsch/nrf_802154_rsch_crit_sect.c
-  timer_scheduler/nrf_802154_timer_sched.c
-  )
-
-if (CONFIG_NRF_802154_SL_OPENSOURCE)
-zephyr_library_sources(
-  nrf_802154_notification_direct.c
-  nrf_802154_priority_drop_direct.c
-  nrf_802154_request_direct.c
+  src/nrf_802154.c
+  src/nrf_802154_core.c
+  src/nrf_802154_core_hooks.c
+  src/nrf_802154_critical_section.c
+  src/nrf_802154_debug.c
+  src/nrf_802154_debug_assert.c
+  src/nrf_802154_pib.c
+  src/nrf_802154_queue.c
+  src/nrf_802154_rssi.c
+  src/nrf_802154_rx_buffer.c
+  src/nrf_802154_stats.c
+  src/nrf_802154_swi.c
+  src/nrf_802154_trx.c
+  src/mac_features/nrf_802154_csma_ca.c
+  src/mac_features/nrf_802154_delayed_trx.c
+  src/mac_features/nrf_802154_filter.c
+  src/mac_features/nrf_802154_frame_parser.c
+  src/mac_features/nrf_802154_ifs.c
+  src/mac_features/nrf_802154_precise_ack_timeout.c
+  src/mac_features/ack_generator/nrf_802154_ack_data.c
+  src/mac_features/ack_generator/nrf_802154_ack_generator.c
+  src/mac_features/ack_generator/nrf_802154_enh_ack_generator.c
+  src/mac_features/ack_generator/nrf_802154_imm_ack_generator.c
+  src/platform/random/nrf_802154_random_zephyr.c
+  src/platform/temperature/nrf_802154_temperature_none.c
 )
 
+if (CONFIG_NRF_802154_SL_OPENSOURCE)
+  zephyr_library_sources(
+    src/nrf_802154_notification_direct.c
+    src/nrf_802154_request_direct.c
+  )
+
 else()
-zephyr_library_sources(
-  nrf_802154_swi.c
-  nrf_802154_notification_swi.c
-  nrf_802154_priority_drop_swi.c
-  nrf_802154_request_swi.c
+  zephyr_library_sources(
+    src/nrf_802154_notification_swi.c
+    src/nrf_802154_priority_drop_swi.c
+    src/nrf_802154_request_swi.c
   )
 
 endif()
@@ -94,10 +89,27 @@ zephyr_compile_definitions(
   NRF_802154_CSMA_CA_ENABLED=1
   NRF_802154_TX_STARTED_NOTIFY_ENABLED=1
 
-  # Timestamps
-  NRF_802154_FRAME_TIMESTAMP_ENABLED=1
-  NRF_802154_DELAYED_TRX_ENABLED=1
-
   # ACK timeout
   NRF_802154_ACK_TIMEOUT_ENABLED=1
 )
+
+if (CONFIG_NRF_802154_SL_OPENSOURCE)
+  zephyr_compile_definitions(
+    # Disable Frame Timestamps
+    NRF_802154_FRAME_TIMESTAMP_ENABLED=0
+    # Disable DTRX
+    NRF_802154_DELAYED_TRX_ENABLED=0
+    # Disable IFS
+    NRF_802154_IFS_ENABLED=0
+  )
+
+else()
+  zephyr_compile_definitions(
+    # Enable Frame Timestamps
+    NRF_802154_FRAME_TIMESTAMP_ENABLED=1
+    # Enable DTRX
+    NRF_802154_DELAYED_TRX_ENABLED=1
+    # Enable IFS
+    NRF_802154_IFS_ENABLED=1
+  )
+endif()
