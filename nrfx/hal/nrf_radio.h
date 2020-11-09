@@ -483,6 +483,52 @@ NRF_STATIC_INLINE void nrf_radio_int_disable(NRF_RADIO_Type * p_reg, uint32_t ma
  */
 NRF_STATIC_INLINE uint32_t nrf_radio_int_enable_check(NRF_RADIO_Type const * p_reg, uint32_t mask);
 
+#if defined(DPPI_PRESENT) || defined(__NRFX_DOXYGEN__)
+/**
+ * @brief Function for setting the subscribe configuration for a given
+ *        RADIO task.
+ *
+ * @param[in] p_reg   Pointer to the structure of registers of the peripheral.
+ * @param[in] task    Task for which to set the configuration.
+ * @param[in] channel Channel through which to subscribe events.
+ */
+NRF_STATIC_INLINE void nrf_radio_subscribe_set(NRF_RADIO_Type * p_reg,
+                                               nrf_radio_task_t task,
+                                               uint8_t          channel);
+
+/**
+ * @brief Function for clearing the subscribe configuration for a given
+ *        RADIO task.
+ *
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] task  Task for which to clear the configuration.
+ */
+NRF_STATIC_INLINE void nrf_radio_subscribe_clear(NRF_RADIO_Type * p_reg,
+                                                 nrf_radio_task_t task);
+
+/**
+ * @brief Function for setting the publish configuration for a given
+ *        RADIO event.
+ *
+ * @param[in] p_reg   Pointer to the structure of registers of the peripheral.
+ * @param[in] event   Event for which to set the configuration.
+ * @param[in] channel Channel through which to publish the event.
+ */
+NRF_STATIC_INLINE void nrf_radio_publish_set(NRF_RADIO_Type *  p_reg,
+                                             nrf_radio_event_t event,
+                                             uint8_t           channel);
+
+/**
+ * @brief Function for clearing the publish configuration for a given
+ *        RADIO event.
+ *
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] event Event for which to clear the configuration.
+ */
+NRF_STATIC_INLINE void nrf_radio_publish_clear(NRF_RADIO_Type *  p_reg,
+                                               nrf_radio_event_t event);
+#endif // defined(DPPI_PRESENT) || defined(__NRFX_DOXYGEN__)
+
 /**
  * @brief Function for getting CRC status of last received packet.
  *
@@ -1101,6 +1147,36 @@ NRF_STATIC_INLINE uint32_t nrf_radio_int_enable_check(NRF_RADIO_Type const * p_r
 {
     return p_reg->INTENSET & mask;
 }
+
+#if defined(DPPI_PRESENT)
+NRF_STATIC_INLINE void nrf_radio_subscribe_set(NRF_RADIO_Type * p_reg,
+                                               nrf_radio_task_t task,
+                                               uint8_t          channel)
+{
+    *((volatile uint32_t *) ((uint8_t *) p_reg + (uint32_t) task + 0x80uL)) =
+            ((uint32_t)channel | RADIO_SUBSCRIBE_TXEN_EN_Msk);
+}
+
+NRF_STATIC_INLINE void nrf_radio_subscribe_clear(NRF_RADIO_Type * p_reg,
+                                                 nrf_radio_task_t task)
+{
+    *((volatile uint32_t *) ((uint8_t *) p_reg + (uint32_t) task + 0x80uL)) = 0;
+}
+
+NRF_STATIC_INLINE void nrf_radio_publish_set(NRF_RADIO_Type *  p_reg,
+                                             nrf_radio_event_t event,
+                                             uint8_t           channel)
+{
+    *((volatile uint32_t *) ((uint8_t *) p_reg + (uint32_t) event + 0x80uL)) =
+            ((uint32_t)channel | RADIO_PUBLISH_READY_EN_Msk);
+}
+
+NRF_STATIC_INLINE void nrf_radio_publish_clear(NRF_RADIO_Type *  p_reg,
+                                               nrf_radio_event_t event)
+{
+    *((volatile uint32_t *) ((uint8_t *) p_reg + (uint32_t) event + 0x80uL)) = 0;
+}
+#endif // defined(DPPI_PRESENT)
 
 NRF_STATIC_INLINE bool nrf_radio_crc_status_check(NRF_RADIO_Type const * p_reg)
 {
