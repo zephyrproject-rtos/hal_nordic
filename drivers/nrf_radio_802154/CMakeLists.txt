@@ -26,19 +26,31 @@ zephyr_library_sources(
   src/mac_features/ack_generator/nrf_802154_imm_ack_generator.c
   src/platform/random/nrf_802154_random_zephyr.c
   src/platform/temperature/nrf_802154_temperature_none.c
-)
+  )
+
+if (CONFIG_SOC_SERIES_NRF52X)
+zephyr_library_sources(
+  src/nrf_802154_trx_ppi.c
+  )
+elseif (CONFIG_SOC_SERIES_NRF53X)
+zephyr_library_sources(
+  src/nrf_802154_trx_dppi.c
+  )
+else()
+    message(FATAL_ERROR "SoC unsupported by this module")
+endif()
 
 if (CONFIG_NRF_802154_SL_OPENSOURCE)
-  zephyr_library_sources(
-    src/nrf_802154_notification_direct.c
-    src/nrf_802154_request_direct.c
+zephyr_library_sources(
+  src/nrf_802154_notification_direct.c
+  src/nrf_802154_request_direct.c
   )
 
 else()
-  zephyr_library_sources(
-    src/nrf_802154_notification_swi.c
-    src/nrf_802154_priority_drop_swi.c
-    src/nrf_802154_request_swi.c
+zephyr_library_sources(
+  src/nrf_802154_notification_swi.c
+  src/nrf_802154_priority_drop_swi.c
+  src/nrf_802154_request_swi.c
   )
 
 endif()
@@ -58,11 +70,6 @@ elseif( CONFIG_NRF_802154_CCA_MODE_CARRIER_OR_ED)
 endif()
 
 zephyr_compile_definitions(
-  # Until IRQ configuration abstraction is added to the radio driver do not set
-  # radio IRQ priority to 0, or the radio IRQ will ignore IRQ lock.
-  NRF_802154_IRQ_PRIORITY=1
-  NRF_802154_INTERNAL_RADIO_IRQ_HANDLING=0
-
   # Radio driver shim layer uses raw api
   NRF_802154_USE_RAW_API=1
 
@@ -93,12 +100,22 @@ zephyr_compile_definitions(
   NRF_802154_ACK_TIMEOUT_ENABLED=1
 )
 
+if (CONFIG_IEEE802154_NRF5 OR CONFIG_MPSL)
+  zephyr_compile_definitions(
+    NRF_802154_INTERNAL_RADIO_IRQ_HANDLING=0
+  )
+else()
+  zephyr_compile_definitions(
+    NRF_802154_INTERNAL_RADIO_IRQ_HANDLING=1
+  )
+endif()
+
 if (CONFIG_NRF_802154_SL_OPENSOURCE)
   zephyr_compile_definitions(
     # Disable Frame Timestamps
     NRF_802154_FRAME_TIMESTAMP_ENABLED=0
     # Disable DTRX
-    NRF_802154_DELAYED_TRX_ENABLED=0
+    NRF_802154_DELAYED_TRX_ENABLED=1
     # Disable IFS
     NRF_802154_IFS_ENABLED=0
   )

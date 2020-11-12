@@ -49,8 +49,6 @@
 #include "nrf_802154_utils.h"
 #include "hal/nrf_egu.h"
 
-#define SWI_EGU        NRF_802154_SWI_EGU_INSTANCE ///< Label of SWI peripheral.
-
 /** Size of notification queue.
  *
  * One slot for each receive buffer, one for transmission, one for busy channel and one for energy
@@ -164,7 +162,7 @@ static void ntf_exit(void)
 {
     nrf_802154_queue_push_commit(&m_notifications_queue);
 
-    nrf_egu_task_trigger(SWI_EGU, NTF_TASK);
+    nrf_egu_task_trigger(NRF_802154_EGU_INSTANCE, NTF_TASK);
 
     nrf_802154_mcu_critical_exit(m_mcu_cs);
 }
@@ -323,7 +321,7 @@ void nrf_802154_notification_init(void)
                           sizeof(m_notifications_queue_memory),
                           sizeof(m_notifications_queue_memory[0]));
 
-    nrf_egu_int_enable(SWI_EGU, NTF_INT);
+    nrf_egu_int_enable(NRF_802154_EGU_INSTANCE, NTF_INT);
 
     nrf_802154_swi_init();
 }
@@ -371,7 +369,7 @@ void nrf_802154_notify_cca_failed(nrf_802154_cca_error_t error)
     swi_notify_cca_failed(error);
 }
 
-/**@brief Handles NTF_EVENT on SWI_EGU */
+/**@brief Handles NTF_EVENT on NRF_802154_EGU_INSTANCE */
 static void irq_handler_ntf_event(void)
 {
     while (!nrf_802154_queue_is_empty(&m_notifications_queue))
@@ -461,9 +459,9 @@ static void irq_handler_ntf_event(void)
 
 void nrf_802154_notification_swi_irq_handler(void)
 {
-    if (nrf_egu_event_check(SWI_EGU, NTF_EVENT))
+    if (nrf_egu_event_check(NRF_802154_EGU_INSTANCE, NTF_EVENT))
     {
-        nrf_egu_event_clear(SWI_EGU, NTF_EVENT);
+        nrf_egu_event_clear(NRF_802154_EGU_INSTANCE, NTF_EVENT);
 
         irq_handler_ntf_event();
     }

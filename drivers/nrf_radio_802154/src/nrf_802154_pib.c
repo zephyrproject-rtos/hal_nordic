@@ -130,7 +130,9 @@ static nrf_radio_txpower_t to_radio_tx_power_convert(int8_t integer_tx_power)
 #if defined(RADIO_TXPOWER_TXPOWER_Pos3dBm)
         NRF_RADIO_TXPOWER_POS3DBM,  /**< 3 dBm. */
 #endif
+#if defined(RADIO_TXPOWER_TXPOWER_Pos4dBm)
         NRF_RADIO_TXPOWER_POS4DBM,  /**< 4 dBm. */
+#endif
 #if defined(RADIO_TXPOWER_TXPOWER_Pos5dBm)
         NRF_RADIO_TXPOWER_POS5DBM,  /**< 5 dBm. */
 #endif

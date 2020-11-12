@@ -56,6 +56,11 @@ void nrf_802154_timer_coord_init(void)
     // Intentionally empty
 }
 
+void nrf_802154_timer_coord_uninit(void)
+{
+    // Intentionally empty
+}
+
 void nrf_802154_timer_coord_start(void)
 {
     // Intentionally empty
@@ -71,6 +76,11 @@ void nrf_802154_timer_sched_init(void)
     BUILD_ASSERT(CONFIG_SYS_CLOCK_TICKS_PER_SEC == NRF_802154_SL_RTC_FREQUENCY);
 }
 
+void nrf_802154_timer_sched_deinit(void)
+{
+    // Intentionally empty
+}
+
 uint32_t nrf_802154_timer_sched_time_get(void)
 {
     return NRF_802154_SL_RTC_TICKS_TO_US(k_uptime_ticks());
@@ -79,7 +89,7 @@ uint32_t nrf_802154_timer_sched_time_get(void)
 void nrf_802154_timer_sched_add(nrf_802154_timer_t * p_timer, bool round_up)
 {
     (void)round_up;
-    assert(!(p_timer->next)); // Only one timer is allowed to run at a time.
+    assert(!(p_timer->p_next)); // Only one timer is allowed to run at a time.
 
     uint32_t now    = nrf_802154_timer_sched_time_get();
     uint32_t target = p_timer->t0 + p_timer->dt - now;
@@ -117,6 +127,14 @@ void nrf_802154_timer_sched_remove(nrf_802154_timer_t * p_timer, bool * p_was_ru
     }
 }
 
+bool nrf_802154_timer_sched_time_is_in_future(uint32_t now, uint32_t t0, uint32_t dt)
+{
+    (void)now;
+    (void)t0;
+    (void)dt;
+    return false;
+}
+
 static void timeout_handler(struct k_timer * timer_id)
 {
     nrf_802154_timer_callback_t callback =
@@ -127,11 +145,16 @@ static void timeout_handler(struct k_timer * timer_id)
 
 bool nrf_802154_timer_sched_is_running(nrf_802154_timer_t * p_timer)
 {
-    (void) p_timer;
+    (void)p_timer;
     return k_timer_status_get(&timer) < 0;
 }
 
 void nrf_802154_lp_timer_init(void)
+{
+    // Intentionally empty
+}
+
+void nrf_802154_lp_timer_deinit(void)
 {
     // Intentionally empty
 }

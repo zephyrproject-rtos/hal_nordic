@@ -53,7 +53,15 @@
 #ifndef NRF_FEM_PROTOCOL_API_H__
 #define NRF_FEM_PROTOCOL_API_H__
 
+#include <nrf.h>
+
+#if defined(NRF52_SERIES)
 #include "hal/nrf_ppi.h"
+#elif defined(NRF53_SERIES)
+#include "hal/nrf_dppi.h"
+#else
+#error Unsupported chip
+#endif
 
 typedef enum
 {
@@ -195,6 +203,7 @@ int32_t nrf_802154_fal_lna_configuration_clear(void);
  */
 void nrf_802154_fal_deactivate_now(nrf_fal_functionality_t type);
 
+#if defined(NRF52_SERIES)
 /**
  * @brief Instruct FEM to disable PA and LNA as soon as possible using the group following the event.
  *
@@ -235,6 +244,7 @@ int32_t nrf_802154_fal_abort_reduce(nrf_ppi_channel_t       channel_to_remove,
  * @retval   ::NRFX_ERROR_FORBIDDEN       Clearing was not done - the possible reason is that there was nothing to clear.
  */
 int32_t nrf_802154_fal_abort_clear(void);
+#endif // NRF52_SERIES
 
 /**
  * @brief Cleans up the configured PA/LNA timer/radio instance and resources of PPI and GPIOTE.
@@ -252,6 +262,7 @@ void nrf_802154_fal_cleanup(void);
  */
 void nrf_802154_fal_pa_is_configured(int8_t * const p_gain);
 
+#if defined(NRF52_SERIES)
 /**
  * @brief Prepares the FEM module to switch to the Power Down state.
  *
@@ -265,5 +276,6 @@ void nrf_802154_fal_pa_is_configured(int8_t * const p_gain);
 bool nrf_fem_prepare_powerdown(NRF_TIMER_Type  * p_instance,
                                uint32_t          compare_channel,
                                nrf_ppi_channel_t ppi_id);
+#endif // NRF52_SERIES
 
 #endif // NRF_FEM_PROTOCOL_API_H__

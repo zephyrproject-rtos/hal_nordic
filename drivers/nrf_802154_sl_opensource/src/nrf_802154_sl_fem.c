@@ -38,7 +38,6 @@
 
 #include <stdint.h>
 #include "nrf.h"
-#include "hal/nrf_ppi.h"
 
 #include "fem/nrf_fem_protocol_api.h"
 
@@ -79,6 +78,8 @@ void nrf_802154_fal_deactivate_now(nrf_fal_functionality_t type)
     (void)type;
 }
 
+#if defined(NRF52_SERIES)
+// TODO: Uncomment this code when API is portable to nRF53
 int32_t nrf_802154_fal_abort_set(uint32_t event, nrf_ppi_channel_group_t group)
 {
     return NRFX_ERROR_FORBIDDEN;
@@ -101,6 +102,8 @@ int32_t nrf_802154_fal_abort_clear(void)
     return NRFX_ERROR_FORBIDDEN;
 }
 
+#endif // NRF52_SERIES
+
 void nrf_802154_fal_cleanup(void)
 {
     // Intentionally empty
@@ -111,6 +114,8 @@ void nrf_802154_fal_pa_is_configured(int8_t * const p_gain)
     (void)p_gain;
 }
 
+#if defined(NRF52_SERIES)
+// TODO: Uncomment this code when API is portable to nRF53
 bool nrf_fem_prepare_powerdown(NRF_TIMER_Type  * p_instance,
                                uint32_t          compare_channel,
                                nrf_ppi_channel_t ppi_id)
@@ -121,6 +126,8 @@ bool nrf_fem_prepare_powerdown(NRF_TIMER_Type  * p_instance,
 
     return false;
 }
+
+#endif // NRF52_SERIES
 
 int8_t nrf_802154_fal_tx_power_get(const uint8_t channel, const int8_t power)
 {
