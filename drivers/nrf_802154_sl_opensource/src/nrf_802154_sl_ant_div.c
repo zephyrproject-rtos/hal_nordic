@@ -131,7 +131,7 @@ void nrf_802154_sl_ant_div_rx_preamble_detected_notify(void)
 
 void nrf_802154_sl_ant_div_energy_detection_requested_notify(uint32_t * p_ed_time)
 {
-    (void) p_ed_time;
+    (void)p_ed_time;
 }
 
 void nrf_802154_sl_ant_div_energy_detection_aborted_notify(void)

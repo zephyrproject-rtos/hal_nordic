@@ -46,8 +46,6 @@
 
 #include "nrf_802154_sl_ant_div.h"
 
-#include "hal/nrf_ppi.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

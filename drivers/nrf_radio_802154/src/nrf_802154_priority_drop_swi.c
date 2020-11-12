@@ -46,11 +46,9 @@
 #include "hal/nrf_egu.h"
 #include "platform/clock/nrf_802154_clock.h"
 
-#define SWI_EGU          NRF_802154_SWI_EGU_INSTANCE ///< Label of SWI peripheral.
-
-#define HFCLK_STOP_INT   NRF_EGU_INT_TRIGGERED1      ///< Label of HFClk stop interrupt.
-#define HFCLK_STOP_TASK  NRF_EGU_TASK_TRIGGER1       ///< Label of HFClk stop task.
-#define HFCLK_STOP_EVENT NRF_EGU_EVENT_TRIGGERED1    ///< Label of HFClk stop event.
+#define HFCLK_STOP_INT   NRF_EGU_INT_TRIGGERED1   ///< Label of HFClk stop interrupt.
+#define HFCLK_STOP_TASK  NRF_EGU_TASK_TRIGGER1    ///< Label of HFClk stop task.
+#define HFCLK_STOP_EVENT NRF_EGU_EVENT_TRIGGERED1 ///< Label of HFClk stop event.
 
 /**
  * @brief Requests a stop of the HF clock.
@@ -62,9 +60,9 @@
  */
 static void swi_hfclk_stop(void)
 {
-    assert(!nrf_egu_event_check(SWI_EGU, HFCLK_STOP_EVENT));
+    assert(!nrf_egu_event_check(NRF_802154_EGU_INSTANCE, HFCLK_STOP_EVENT));
 
-    nrf_egu_task_trigger(SWI_EGU, HFCLK_STOP_TASK);
+    nrf_egu_task_trigger(NRF_802154_EGU_INSTANCE, HFCLK_STOP_TASK);
 }
 
 /**
@@ -75,12 +73,12 @@ static void swi_hfclk_stop(void)
  */
 static void swi_hfclk_stop_terminate(void)
 {
-    nrf_egu_event_clear(SWI_EGU, HFCLK_STOP_EVENT);
+    nrf_egu_event_clear(NRF_802154_EGU_INSTANCE, HFCLK_STOP_EVENT);
 }
 
 void nrf_802154_rsch_prio_drop_init(void)
 {
-    nrf_egu_int_enable(SWI_EGU, HFCLK_STOP_INT);
+    nrf_egu_int_enable(NRF_802154_EGU_INSTANCE, HFCLK_STOP_INT);
 
     nrf_802154_swi_init();
 }
@@ -97,10 +95,10 @@ void nrf_802154_rsch_prio_drop_hfclk_stop_terminate(void)
 
 void nrf_802154_rsch_prio_drop_swi_irq_handler(void)
 {
-    if (nrf_egu_event_check(SWI_EGU, HFCLK_STOP_EVENT))
+    if (nrf_egu_event_check(NRF_802154_EGU_INSTANCE, HFCLK_STOP_EVENT))
     {
         nrf_802154_clock_hfclk_stop();
 
-        nrf_egu_event_clear(SWI_EGU, HFCLK_STOP_EVENT);
+        nrf_egu_event_clear(NRF_802154_EGU_INSTANCE, HFCLK_STOP_EVENT);
     }
 }

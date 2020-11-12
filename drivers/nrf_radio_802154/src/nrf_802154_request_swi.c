@@ -56,8 +56,6 @@
 
 #include <nrf.h>
 
-#define SWI_EGU        NRF_802154_SWI_EGU_INSTANCE ///< Label of SWI peripheral.
-
 /** Size of requests queue.
  *
  * Two is minimal queue size. It is not expected in current implementation to queue a few requests.
@@ -215,7 +213,7 @@ static void req_exit(void)
 {
     nrf_802154_queue_push_commit(&m_requests_queue);
 
-    nrf_egu_task_trigger(SWI_EGU, REQ_TASK);
+    nrf_egu_task_trigger(NRF_802154_EGU_INSTANCE, REQ_TASK);
 
     nrf_802154_mcu_critical_exit(m_mcu_cs);
 }
@@ -223,7 +221,7 @@ static void req_exit(void)
 /** Assert if SWI interrupt is disabled. */
 static inline void assert_interrupt_status(void)
 {
-    assert(nrf_802154_irq_is_enabled(NRF_802154_SWI_IRQN));
+    assert(nrf_802154_irq_is_enabled(NRF_802154_EGU_IRQN));
 }
 
 #define REQUEST_FUNCTION(func_core, func_swi, ...) \
@@ -265,7 +263,7 @@ static bool active_vector_priority_is_high(void)
 {
 
     return nrf_802154_critical_section_active_vector_priority_get() <=
-           nrf_802154_irq_priority_get(NRF_802154_SWI_IRQN);
+           nrf_802154_irq_priority_get(NRF_802154_EGU_IRQN);
 }
 
 /**
@@ -531,7 +529,7 @@ void nrf_802154_request_init(void)
     nrf_802154_queue_init(&m_requests_queue, m_requests_queue_memory,
                           sizeof(m_requests_queue_memory), sizeof(m_requests_queue_memory[0]));
 
-    nrf_egu_int_enable(SWI_EGU, REQ_INT);
+    nrf_egu_int_enable(NRF_802154_EGU_INSTANCE, REQ_INT);
 
     nrf_802154_swi_init();
 }
@@ -632,7 +630,7 @@ bool nrf_802154_request_rssi_measurement_get(int8_t * p_rssi)
                      p_rssi)
 }
 
-/**@brief Handles REQ_EVENT on SWI_EGU */
+/**@brief Handles REQ_EVENT on NRF_802154_EGU_INSTANCE */
 static void irq_handler_req_event(void)
 {
     while (!nrf_802154_queue_is_empty(&m_requests_queue))
@@ -724,9 +722,9 @@ static void irq_handler_req_event(void)
 
 void nrf_802154_request_swi_irq_handler(void)
 {
-    if (nrf_egu_event_check(SWI_EGU, REQ_EVENT))
+    if (nrf_egu_event_check(NRF_802154_EGU_INSTANCE, REQ_EVENT))
     {
-        nrf_egu_event_clear(SWI_EGU, REQ_EVENT);
+        nrf_egu_event_clear(NRF_802154_EGU_INSTANCE, REQ_EVENT);
 
         irq_handler_req_event();
     }
