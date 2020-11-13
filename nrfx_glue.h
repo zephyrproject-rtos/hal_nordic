@@ -232,18 +232,30 @@ void nrfx_busy_wait(uint32_t usec_to_wait);
 
 //------------------------------------------------------------------------------
 
+/**
+ * @brief When set to a non-zero value, this macro specifies that inside HALs
+ *        the event registers are read back after clearing, on devices that
+ *        otherwise could defer the actual register modification.
+ */
+#define NRFX_EVENT_READBACK_ENABLED 1
+
+//------------------------------------------------------------------------------
+
 /** @brief Bitmask that defines DPPI channels that are reserved for use outside of the nrfx library. */
-#define NRFX_DPPI_CHANNELS_USED 0
+#define NRFX_DPPI_CHANNELS_USED   0
 
 /** @brief Bitmask that defines DPPI groups that are reserved for use outside of the nrfx library. */
-#define NRFX_DPPI_GROUPS_USED   0
+#define NRFX_DPPI_GROUPS_USED     0
 
 /** @brief Bitmask that defines PPI channels that are reserved for use outside of the nrfx library. */
-#define NRFX_PPI_CHANNELS_USED  (NRFX_PPI_CHANNELS_USED_BY_BT_CTLR | \
-                                 NRFX_PPI_CHANNELS_USED_BY_PWM_SW)
+#define NRFX_PPI_CHANNELS_USED    (NRFX_PPI_CHANNELS_USED_BY_BT_CTLR | \
+                                   NRFX_PPI_CHANNELS_USED_BY_PWM_SW)
 
 /** @brief Bitmask that defines PPI groups that are reserved for use outside of the nrfx library. */
-#define NRFX_PPI_GROUPS_USED    NRFX_PPI_GROUPS_USED_BY_BT_CTLR
+#define NRFX_PPI_GROUPS_USED      NRFX_PPI_GROUPS_USED_BY_BT_CTLR
+
+/** @brief Bitmask that defines GPIOTE channels that are reserved for use outside of the nrfx library. */
+#define NRFX_GPIOTE_CHANNELS_USED NRFX_GPIOTE_CHANNELS_USED_BY_PWM_SW
 
 #if defined(CONFIG_BT_CTLR) && defined(CONFIG_BT_LL_SW_SPLIT)
 extern const uint32_t z_bt_ctlr_used_nrf_ppi_channels;
@@ -260,15 +272,18 @@ extern const uint32_t z_bt_ctlr_used_nrf_ppi_groups;
 #define NRFX_PPI_CHANNELS_USED_BY_PWM_SW \
     (BIT_MASK(DT_PROP(PWM_NRF5_SW_NODE, channel_count) * 2) \
          << DT_PROP(PWM_NRF5_SW_NODE, ppi_base))
+#define NRFX_GPIOTE_CHANNELS_USED_BY_PWM_SW \
+    DT_PROP(PWM_NRF5_SW_NODE, channel_count)
 #else
 #define NRFX_PPI_CHANNELS_USED_BY_PWM_SW    0
+#define NRFX_GPIOTE_CHANNELS_USED_BY_PWM_SW 0
 #endif
 
 /** @brief Bitmask that defines EGU instances that are reserved for use outside of the nrfx library. */
-#define NRFX_EGUS_USED          0
+#define NRFX_EGUS_USED            0
 
 /** @brief Bitmask that defines TIMER instances that are reserved for use outside of the nrfx library. */
-#define NRFX_TIMERS_USED        0
+#define NRFX_TIMERS_USED          0
 
 //------------------------------------------------------------------------------
 
