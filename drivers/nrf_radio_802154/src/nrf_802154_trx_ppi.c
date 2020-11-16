@@ -43,6 +43,8 @@
 #include "hal/nrf_radio.h"
 #include "hal/nrf_timer.h"
 
+#include "fem/nrf_fem_protocol_api.h"
+
 #define EGU_EVENT                  NRF_EGU_EVENT_TRIGGERED15
 #define EGU_TASK                   NRF_EGU_TASK_TRIGGER15
 
