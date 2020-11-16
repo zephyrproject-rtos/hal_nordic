@@ -38,6 +38,16 @@
 
 #include "nrf_802154_sl_log.h"
 
+/**
+ * @brief Buffer used to store debug log messages.
+ */
+volatile uint32_t g_nrf_802154_sl_log_buffer[NRF_802154_SL_DEBUG_LOG_BUFFER_LEN];
+
+/**
+ * @brief Index of the log buffer pointing to the element that should be filled with next log message.
+ */
+volatile uint32_t gp_nrf_802154_sl_log_ptr = 0;
+
 void nrf_802154_sl_log_init(void)
 {
     /* intentionally empty */
