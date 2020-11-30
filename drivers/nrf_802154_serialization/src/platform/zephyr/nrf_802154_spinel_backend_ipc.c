@@ -56,6 +56,18 @@ static K_SEM_DEFINE(ready_sem, 0, 1);
 #define VRING_ALIGNMENT		4
 #define VRING_SIZE		    16
 
+#define IPM_WORK_QUEUE_STACK_SIZE 512
+
+#if IS_ENABLED(CONFIG_COOP_ENABLED)
+#define IPM_WORK_QUEUE_PRIORITY -1
+#else
+#define IPM_WORK_QUEUE_PRIORITY 0
+#endif
+
+K_THREAD_STACK_DEFINE(ipm_stack_area, IPM_WORK_QUEUE_STACK_SIZE);
+
+struct k_work_q ipm_work_q;
+
 /* End of configuration defines */
 
 static const struct device *ipm_tx_handle;
@@ -156,7 +168,9 @@ static void ipm_callback(const struct device *dev, void *context, uint32_t id, v
     (void)dev;
 
 	LOG_DBG("Got callback of id %u", id);
-	k_work_submit(&ipm_work);
+	/* TODO: Separate workqueue is needed only for serialization master (app core)
+	Use sysworkq to optimize memory footprint for serialization slave (net core) */
+	k_work_submit_to_queue(&ipm_work_q, &ipm_work);
 }
 
 static void rpmsg_service_unbind(struct rpmsg_endpoint *ep)
@@ -211,6 +225,12 @@ nrf_802154_ser_err_t nrf_802154_backend_init(void)
 #endif
 
 	LOG_DBG("Spinel backend initialization start");
+
+	/* Start IPM workqueue */
+	k_work_q_start(&ipm_work_q, ipm_stack_area,
+		       K_THREAD_STACK_SIZEOF(ipm_stack_area),
+		       IPM_WORK_QUEUE_PRIORITY);
+	k_thread_name_set(&ipm_work_q.thread, "ipm_work_q");
 
 	/* Setup IPM workqueue item */
 	k_work_init(&ipm_work, ipm_callback_process);
