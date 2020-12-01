@@ -242,10 +242,10 @@ void nrfx_busy_wait(uint32_t usec_to_wait);
 //------------------------------------------------------------------------------
 
 /** @brief Bitmask that defines DPPI channels that are reserved for use outside of the nrfx library. */
-#define NRFX_DPPI_CHANNELS_USED   0
+#define NRFX_DPPI_CHANNELS_USED   NRFX_PPI_CHANNELS_USED_BY_BT_CTLR
 
 /** @brief Bitmask that defines DPPI groups that are reserved for use outside of the nrfx library. */
-#define NRFX_DPPI_GROUPS_USED     0
+#define NRFX_DPPI_GROUPS_USED     NRFX_PPI_GROUPS_USED_BY_BT_CTLR
 
 /** @brief Bitmask that defines PPI channels that are reserved for use outside of the nrfx library. */
 #define NRFX_PPI_CHANNELS_USED    (NRFX_PPI_CHANNELS_USED_BY_BT_CTLR | \
@@ -257,7 +257,7 @@ void nrfx_busy_wait(uint32_t usec_to_wait);
 /** @brief Bitmask that defines GPIOTE channels that are reserved for use outside of the nrfx library. */
 #define NRFX_GPIOTE_CHANNELS_USED NRFX_GPIOTE_CHANNELS_USED_BY_PWM_SW
 
-#if defined(CONFIG_BT_CTLR) && defined(CONFIG_BT_LL_SW_SPLIT)
+#if defined(CONFIG_BT_CTLR)
 extern const uint32_t z_bt_ctlr_used_nrf_ppi_channels;
 extern const uint32_t z_bt_ctlr_used_nrf_ppi_groups;
 #define NRFX_PPI_CHANNELS_USED_BY_BT_CTLR   z_bt_ctlr_used_nrf_ppi_channels
