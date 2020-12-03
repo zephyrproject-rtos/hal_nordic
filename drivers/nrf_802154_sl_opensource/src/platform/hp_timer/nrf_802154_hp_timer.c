@@ -88,7 +88,9 @@ void nrf_802154_hp_timer_deinit(void)
 
 void nrf_802154_hp_timer_start(void)
 {
-    // Intentionally empty
+    // This resource is shared, so its configuration must be restored before every use
+    // instead of setting in initialization only.
+    nrf_timer_bit_width_set(TIMER, NRF_TIMER_BIT_WIDTH_32);
 }
 
 void nrf_802154_hp_timer_stop(void)
