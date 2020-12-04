@@ -124,11 +124,21 @@ nrfx_err_t nrfx_spi_init(nrfx_spi_t const *        p_instance,
     {
         nrf_gpio_pin_set(p_config->sck_pin);
     }
+    nrf_gpio_pin_drive_t sck_pin_drive;
+    if (p_config->frequency > SPI_FREQUENCY_FREQUENCY_M4) {
+        // With standard drive : Simulation on a large capacitor load (100nF @ 3V)
+        // show that the rise and fall time [of a GPIO] on the nRF52 is 150ns.
+        // using high drive should not increase current consumption
+        // as it only affects the rise and fall times
+        sck_pin_drive = NRF_GPIO_PIN_H0H1;
+    } else {
+        sck_pin_drive = NRF_GPIO_PIN_S0S1;
+    }
     nrf_gpio_cfg(p_config->sck_pin,
                  NRF_GPIO_PIN_DIR_OUTPUT,
                  NRF_GPIO_PIN_INPUT_CONNECT,
                  NRF_GPIO_PIN_NOPULL,
-                 NRF_GPIO_PIN_S0S1,
+                 sck_pin_drive,
                  NRF_GPIO_PIN_NOSENSE);
     // - MOSI (optional) - output with initial value 0,
     if (p_config->mosi_pin != NRFX_SPI_PIN_NOT_USED)
