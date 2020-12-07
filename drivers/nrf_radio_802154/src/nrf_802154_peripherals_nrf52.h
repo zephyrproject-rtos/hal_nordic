@@ -355,7 +355,6 @@ extern "C" {
                                            (1 << NRF_802154_PPI_RADIO_CRCOK_TO_PPI_GRP_DISABLE) |   \
                                            NRF_802154_DISABLE_BCC_MATCHING_PPI_CHANNELS_USED_MASK | \
                                            NRF_802154_TIMESTAMP_PPI_CHANNELS_USED_MASK |            \
-                                           NRF_802154_FEM_PPI_CHANNELS_USED_MASK |                  \
                                            NRF_802154_DEBUG_PPI_CHANNELS_USED_MASK)
 #endif // NRF_802154_PPI_CHANNELS_USED_MASK
 

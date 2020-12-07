@@ -63,7 +63,7 @@
 #include "nrf_802154_utils.h"
 #include "drivers/nrfx_errors.h"
 #include "hal/nrf_radio.h"
-#include "fem/nrf_fem_protocol_api.h"
+#include "mpsl_fem_protocol_api.h"
 #include "mac_features/nrf_802154_delayed_trx.h"
 #include "mac_features/nrf_802154_filter.h"
 #include "mac_features/nrf_802154_frame_parser.h"
@@ -2349,7 +2349,7 @@ void nrf_802154_core_deinit(void)
         nrf_802154_trx_disable();
     }
 
-    nrf_802154_fal_cleanup();
+    mpsl_fem_cleanup();
 
     nrf_802154_irq_disable(RADIO_IRQn);
     nrf_802154_irq_clear_pending(RADIO_IRQn);

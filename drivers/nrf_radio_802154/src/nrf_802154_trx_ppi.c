@@ -38,12 +38,12 @@
 #include "nrf_802154_debug_log.h"
 #include "nrf_802154_peripherals.h"
 
+#include "mpsl_fem_protocol_api.h"
+
 #include "hal/nrf_egu.h"
 #include "hal/nrf_ppi.h"
 #include "hal/nrf_radio.h"
 #include "hal/nrf_timer.h"
-
-#include "fem/nrf_fem_protocol_api.h"
 
 #define EGU_EVENT                  NRF_EGU_EVENT_TRIGGERED15
 #define EGU_TASK                   NRF_EGU_TASK_TRIGGER15
@@ -202,6 +202,10 @@ void nrf_802154_trx_ppi_for_fem_set(void)
                                                     NRF_TIMER_TASK_START);
 
     nrf_ppi_channel_endpoint_setup(NRF_PPI, PPI_EGU_TIMER_START, event_addr, task_addr);
+
+    mpsl_fem_abort_extend(PPI_EGU_RAMP_UP, PPI_CHGRP_ABORT);
+    mpsl_fem_abort_extend(PPI_EGU_TIMER_START, PPI_CHGRP_ABORT);
+
     nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_TIMER_START);
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_HIGH);
@@ -224,7 +228,11 @@ bool nrf_802154_trx_ppi_for_fem_powerdown_set(NRF_TIMER_Type * p_instance,
 
     // PPI_EGU_TIMER_START is reused here on purpose, to save resources,
     // as fem powerdown cannot be scheduled simultaneously with fem ramp-up.
-    bool result = nrf_fem_prepare_powerdown(p_instance, compare_channel, PPI_EGU_TIMER_START);
+    bool result = mpsl_fem_prepare_powerdown(p_instance,
+                                             compare_channel,
+                                             PPI_EGU_TIMER_START,
+                                             nrf_radio_event_address_get(NRF_RADIO,
+                                                                         NRF_RADIO_EVENT_DISABLED));
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_HIGH);
 
