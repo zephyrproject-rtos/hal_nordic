@@ -36,4 +36,9 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#ifndef NRF_802154_SL_STATS_H__
+#define NRF_802154_SL_STATS_H__
+
 #define nrf_802154_sl_stat_counter_increment(...)
+
+#endif // NRF_802154_SL_STATS_H__

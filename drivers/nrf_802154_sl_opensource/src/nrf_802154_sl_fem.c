@@ -37,88 +37,86 @@
  */
 
 #include <stdint.h>
-#include "nrf.h"
+#include <nrf.h>
+#include "nrf_errno.h"
 
-#include "fem/nrf_fem_protocol_api.h"
+#include "mpsl_fem_protocol_api.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int32_t nrf_802154_fal_pa_configuration_set(const nrf_802154_fal_event_t * const p_activate_event,
-                                            const nrf_802154_fal_event_t * const p_deactivate_event)
+int32_t mpsl_fem_pa_configuration_set(const mpsl_fem_event_t * const p_activate_event,
+                                      const mpsl_fem_event_t * const p_deactivate_event)
 {
     (void)p_activate_event;
     (void)p_deactivate_event;
 
-    return NRFX_ERROR_FORBIDDEN;
+    return -NRF_EPERM;
 }
 
-int32_t nrf_802154_fal_pa_configuration_clear(void)
+int32_t mpsl_fem_pa_configuration_clear(void)
 {
-    return NRFX_ERROR_FORBIDDEN;
+    return -NRF_EPERM;
 }
 
-int32_t nrf_802154_fal_lna_configuration_set(const nrf_802154_fal_event_t * const p_activate_event,
-                                             const nrf_802154_fal_event_t * const p_deactivate_event)
+int32_t mpsl_fem_lna_configuration_set(const mpsl_fem_event_t * const p_activate_event,
+                                       const mpsl_fem_event_t * const p_deactivate_event)
 {
     (void)p_activate_event;
     (void)p_deactivate_event;
 
-    return NRFX_ERROR_FORBIDDEN;
+    return -NRF_EPERM;
 }
 
-int32_t nrf_802154_fal_lna_configuration_clear(void)
+int32_t mpsl_fem_lna_configuration_clear(void)
 {
-    return NRFX_ERROR_FORBIDDEN;
+    return -NRF_EPERM;
 }
 
-void nrf_802154_fal_deactivate_now(nrf_fal_functionality_t type)
+void mpsl_fem_deactivate_now(mpsl_fem_functionality_t type)
 {
     (void)type;
 }
 
-#if defined(NRF52_SERIES)
-// TODO: Uncomment this code when API is portable to nRF53
-int32_t nrf_802154_fal_abort_set(uint32_t event, nrf_ppi_channel_group_t group)
+int32_t mpsl_fem_abort_set(uint32_t event, uint32_t group)
 {
-    return NRFX_ERROR_FORBIDDEN;
+    return -NRF_EPERM;
 }
 
-int32_t nrf_802154_fal_abort_extend(nrf_ppi_channel_t       channel_to_add,
-                                    nrf_ppi_channel_group_t group)
+int32_t mpsl_fal_abort_extend(uint32_t channel_to_add, uint32_t group)
 {
-    return NRFX_ERROR_FORBIDDEN;
+    (void)channel_to_add;
+    (void)group;
+    return 0;
 }
 
-int32_t nrf_802154_fal_abort_reduce(nrf_ppi_channel_t       channel_to_remove,
-                                    nrf_ppi_channel_group_t group)
+int32_t nrf_802154_fal_abort_reduce(uint32_t channel_to_remove, uint32_t group)
 {
-    return NRFX_ERROR_FORBIDDEN;
+    (void)channel_to_remove;
+    (void)group;
+    return 0;
 }
 
-int32_t nrf_802154_fal_abort_clear(void)
+int32_t mpsl_fem_abort_clear(void)
 {
-    return NRFX_ERROR_FORBIDDEN;
+    return -NRF_EPERM;
 }
 
-#endif // NRF52_SERIES
-
-void nrf_802154_fal_cleanup(void)
+void mpsl_fem_cleanup(void)
 {
     // Intentionally empty
 }
 
-void nrf_802154_fal_pa_is_configured(int8_t * const p_gain)
+void mpsl_fem_pa_is_configured(int8_t * const p_gain)
 {
     (void)p_gain;
 }
 
-#if defined(NRF52_SERIES)
-// TODO: Uncomment this code when API is portable to nRF53
-bool nrf_fem_prepare_powerdown(NRF_TIMER_Type  * p_instance,
-                               uint32_t          compare_channel,
-                               nrf_ppi_channel_t ppi_id)
+bool mpsl_fem_prepare_powerdown(NRF_TIMER_Type  * p_instance,
+                                uint32_t          compare_channel,
+                                uint32_t          ppi_id,
+                                uint32_t          event_addr)
 {
     (void)p_instance;
     (void)compare_channel;
@@ -127,12 +125,9 @@ bool nrf_fem_prepare_powerdown(NRF_TIMER_Type  * p_instance,
     return false;
 }
 
-#endif // NRF52_SERIES
-
 int8_t nrf_802154_fal_tx_power_get(const uint8_t channel, const int8_t power)
 {
     (void)channel;
-
     return power;
 }
 
