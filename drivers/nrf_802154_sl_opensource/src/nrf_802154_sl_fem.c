@@ -84,14 +84,14 @@ int32_t mpsl_fem_abort_set(uint32_t event, uint32_t group)
     return -NRF_EPERM;
 }
 
-int32_t mpsl_fal_abort_extend(uint32_t channel_to_add, uint32_t group)
+int32_t mpsl_fem_abort_extend(uint32_t channel_to_add, uint32_t group)
 {
     (void)channel_to_add;
     (void)group;
     return 0;
 }
 
-int32_t nrf_802154_fal_abort_reduce(uint32_t channel_to_remove, uint32_t group)
+int32_t mpsl_fem_abort_reduce(uint32_t channel_to_remove, uint32_t group)
 {
     (void)channel_to_remove;
     (void)group;
