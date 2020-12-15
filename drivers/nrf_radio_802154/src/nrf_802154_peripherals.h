@@ -41,8 +41,8 @@
 #include <nrfx.h>
 #include "nrf_802154_config.h"
 #include "nrf_802154_debug.h"
-
 #include "nrf_802154_debug_core.h"
+
 #if defined(NRF52_SERIES)
 #include "nrf_802154_peripherals_nrf52.h"
 #elif defined(NRF5340_XXAA)

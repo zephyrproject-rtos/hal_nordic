@@ -28,6 +28,8 @@
  *
  */
 
+#include "nrf_802154_spinel.h"
+
 #include <stdint.h>
 #include <stddef.h>
 
@@ -85,9 +87,7 @@ bail:
 
 nrf_802154_ser_err_t nrf_802154_spinel_send(const char * p_fmt, ...)
 {
-    // TODO: This makes this function non reentrant.
-    // We may want to shrink this buffer and put it on stack.
-    static uint8_t command_buff[SPINEL_FRAME_BUFFER_SIZE];
+    uint8_t command_buff[NRF_802154_SPINEL_FRAME_BUFFER_SIZE];
     spinel_ssize_t siz;
 
     va_list args;

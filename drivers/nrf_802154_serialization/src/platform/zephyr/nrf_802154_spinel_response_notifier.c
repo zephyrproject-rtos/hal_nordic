@@ -46,27 +46,26 @@ void nrf_802154_spinel_response_notifier_init(void)
     k_mutex_init(&await_mutex);
 }
 
-void nrf_802154_spinel_response_notifier_lock_before_request(void)
+void nrf_802154_spinel_response_notifier_lock_before_request(spinel_prop_key_t property)
 {
 	// Only one thread can await response.
 	// TODO: Implement matching responses to requests and allow multiple threads
 	//       to await simulatneously
+
     LOG_DBG("Locking response notifier");
     int ret = k_mutex_lock(&await_mutex, K_FOREVER);
     assert(ret == 0);
     (void)ret;
+
+    assert(awaited_property == AWAITED_PROPERTY_NONE);
+    awaited_property = property;
 }
 
 nrf_802154_spinel_notify_buff_t *nrf_802154_spinel_response_notifier_property_await(
-	spinel_prop_key_t property,
-	uint32_t          timeout)
+	uint32_t timeout)
 {
     nrf_802154_spinel_notify_buff_t * result = NULL;
     int ret;
-
-	assert(awaited_property == AWAITED_PROPERTY_NONE);
-
-	awaited_property = property;
 
 	k_timeout_t k_timeout;
 

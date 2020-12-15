@@ -79,15 +79,20 @@ void nrf_802154_spinel_response_notifier_init(void);
  * implemented. Because of that before a new request is sent, the previous
  * response must be received.
  *
- * This function shall be used before sending a request that will require
- * awaiting for a response.
- */
-void nrf_802154_spinel_response_notifier_lock_before_request(void);
-
-/**
- * @brief Wait with timeout for given property to be notified.
+ * This function shall be used before sending a request that will require awaiting for a response.
+ *
+ * An awaited property is an identificatior of a response that is to be returned for a serialized
+ * call that takes place after the notifier lock. The property shall be awaited with
+ * @ref nrf_802154_spinel_response_notifier_property_await.
  *
  * @param[in]  property  Awaited property.
+ *
+ */
+void nrf_802154_spinel_response_notifier_lock_before_request(spinel_prop_key_t property);
+
+/**
+ * @brief Wait with timeout for property to be notified.
+ *
  * @param[in]  timeout   Timeout in us.
  * 
  * @returns  pointer to @ref nrf_802154_spinel_notify_buff_t with notified property data
@@ -95,7 +100,6 @@ void nrf_802154_spinel_response_notifier_lock_before_request(void);
  *
  */
 nrf_802154_spinel_notify_buff_t * nrf_802154_spinel_response_notifier_property_await(
-    spinel_prop_key_t property,
     uint32_t          timeout);
 
 /**

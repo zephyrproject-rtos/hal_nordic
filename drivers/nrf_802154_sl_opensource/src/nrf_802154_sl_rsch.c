@@ -95,14 +95,7 @@ bool nrf_802154_rsch_timeslot_is_requested(void)
 
 bool nrf_802154_rsch_prec_is_approved(rsch_prec_t prec, rsch_prio_t prio)
 {
-    if (prec == RSCH_PREC_HFCLK)
-    {
-        return prio == RSCH_PRIO_IDLE ? true : m_ready;
-    }
-    else
-    {
-        return true;
-    }
+    return prio == RSCH_PRIO_IDLE ? true : m_ready;
 }
 
 uint32_t nrf_802154_rsch_timeslot_us_left_get(void)
