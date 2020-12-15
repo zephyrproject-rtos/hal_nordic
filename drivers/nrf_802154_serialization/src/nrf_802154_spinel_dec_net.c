@@ -621,6 +621,12 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_transmit_raw(
 
     bool result = nrf_802154_transmit_raw(p_local_frame_ptr, cca);
 
+    if (!result)
+    {
+        nrf_802154_buffer_mgr_dst_remove_by_local_pointer(nrf_802154_spinel_dst_buffer_mgr_get(),
+                                                          p_local_frame_ptr);
+    }
+
     return nrf_802154_spinel_send_cmd_prop_value_is(SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TRANSMIT_RAW,
                                                     SPINEL_DATATYPE_NRF_802154_TRANSMIT_RAW_RET,
                                                     result);

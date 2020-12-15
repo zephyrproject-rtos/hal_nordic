@@ -126,7 +126,7 @@
 void nrf_802154_radio_irq_handler(void); ///< Prototype required by internal RADIO IRQ handler
 #endif  // NRF_802154_INTERNAL_RADIO_IRQ_HANDLING
 
-/// Common parameters for the FAL handling.
+/// Common parameters for the FEM handling.
 static const mpsl_fem_event_t m_activate_rx_cc0 =
 {
     .type         = MPSL_FEM_EVENT_TYPE_TIMER,
@@ -274,8 +274,8 @@ static void irq_init(void)
 
 #if NRF_802154_INTERNAL_RADIO_IRQ_HANDLING
     nrf_802154_irq_init(RADIO_IRQn, NRF_802154_IRQ_PRIORITY, nrf_802154_radio_irq_handler);
-    nrf_802154_irq_enable(RADIO_IRQn);
 #endif
+    nrf_802154_irq_enable(RADIO_IRQn);
 }
 
 static void trigger_disable_to_start_rampup(void)
@@ -453,7 +453,7 @@ void nrf_802154_trx_enable(void)
     defined(NRF52820_XXAA) || \
     defined(NRF52811_XXAA)
     mpsl_fem_abort_set(nrf_radio_event_address_get(NRF_RADIO, NRF_RADIO_EVENT_DISABLED),
-                                                   PPI_CHGRP_ABORT);
+                       PPI_CHGRP_ABORT);
 #endif
 
     mpsl_fem_deactivate_now(MPSL_FEM_ALL);
