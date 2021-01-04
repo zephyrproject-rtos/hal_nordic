@@ -46,16 +46,18 @@
  *
  * The correction value is based on the last temperature value reported by the platform.
  *
- * @returns RSSISAMPLE temperature correction value (Errata 153).
+ * @param[in]  rssi_sample  Value read from the RSSISAMPLE register.
+ *
+ * @returns RSSISAMPLE temperature correction value.
  */
-int8_t nrf_802154_rssi_sample_temp_corr_value_get(void);
+int8_t nrf_802154_rssi_sample_temp_corr_value_get(uint8_t rssi_sample);
 
 /**
  * @brief Adjusts the given RSSISAMPLE value by a temperature correction factor.
  *
  * @param[in]  rssi_sample  Value read from the RSSISAMPLE register.
  *
- * @returns RSSISAMPLE corrected by a temperature factor (Errata 153).
+ * @returns RSSISAMPLE corrected by a temperature factor.
  */
 uint8_t nrf_802154_rssi_sample_corrected_get(uint8_t rssi_sample);
 
@@ -64,7 +66,7 @@ uint8_t nrf_802154_rssi_sample_corrected_get(uint8_t rssi_sample);
  *
  * @param[in]  lqi   Value read from the LQI byte.
  *
- * @returns LQI byte value corrected by a temperature factor (Errata 153).
+ * @returns LQI byte value corrected by a temperature factor.
  */
 uint8_t nrf_802154_rssi_lqi_corrected_get(uint8_t lqi);
 
@@ -73,7 +75,7 @@ uint8_t nrf_802154_rssi_lqi_corrected_get(uint8_t lqi);
  *
  * @param[in]  ed    Value read from the EDSAMPLE register.
  *
- * @returns EDSAMPLE value corrected by a temperature factor (Errata 153).
+ * @returns EDSAMPLE value corrected by a temperature factor.
  */
 uint8_t nrf_802154_rssi_ed_corrected_get(uint8_t ed);
 
@@ -82,7 +84,7 @@ uint8_t nrf_802154_rssi_ed_corrected_get(uint8_t ed);
  *
  * @param[in]  cca_ed  Value representing the CCA ED threshold to be corrected.
  *
- * @returns CCA ED threshold value corrected by a temperature factor (Errata 153).
+ * @returns CCA ED threshold value corrected by a temperature factor.
  */
 uint8_t nrf_802154_rssi_cca_ed_threshold_corrected_get(uint8_t cca_ed);
 

@@ -41,7 +41,7 @@
 #include <stdbool.h>
 
 #include "nrf_802154_callouts.h"
-
+#include "nrf_802154_config.h"
 #include "nrf_802154_types.h" 
 
 /**

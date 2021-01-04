@@ -202,10 +202,6 @@ void nrf_802154_trx_ppi_for_fem_set(void)
                                                     NRF_TIMER_TASK_START);
 
     nrf_ppi_channel_endpoint_setup(NRF_PPI, PPI_EGU_TIMER_START, event_addr, task_addr);
-
-    mpsl_fem_abort_extend(PPI_EGU_RAMP_UP, PPI_CHGRP_ABORT);
-    mpsl_fem_abort_extend(PPI_EGU_TIMER_START, PPI_CHGRP_ABORT);
-
     nrf_ppi_channel_enable(NRF_PPI, PPI_EGU_TIMER_START);
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_HIGH);
