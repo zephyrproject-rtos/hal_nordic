@@ -34,13 +34,20 @@
  *   This file implements RSSI calculations for 802.15.4 driver.
  *
  */
+#include "nrf_802154_rssi.h"
 
+#include "nrf.h"
 #include <stdint.h>
 
 #include "platform/temperature/nrf_802154_temperature.h"
 
-int8_t nrf_802154_rssi_sample_temp_corr_value_get(void)
+#if defined(NRF52_SERIES)
+
+/* Implementation based on Errata 153 for nRF52 family. */
+int8_t nrf_802154_rssi_sample_temp_corr_value_get(uint8_t rssi_sample)
 {
+    (void)rssi_sample;
+
     int8_t temp = nrf_802154_temperature_get();
     int8_t result;
 
@@ -76,22 +83,81 @@ int8_t nrf_802154_rssi_sample_temp_corr_value_get(void)
     return result;
 }
 
+#elif defined(NRF5340_XXAA)
+
+/** Macro for calculating x raised to the power of 2. */
+#define POW_2(x)        ((x) * (x))
+/** Macro for calculating x raised to the power of 3. */
+#define POW_3(x)        ((x) * POW_2(x))
+
+/**
+ * @brief Polynomial coefficients of the correction equation.
+ *
+ *  Coefficients were calculated as round(x * RSSI_COEFF_BASE) based on Errata 87.
+ */
+#define RSSI_COEFF_A0   30198989L /* Initial value: 7.2    */
+#define RSSI_COEFF_A1   6543114L  /* Initial value: 1.56   */
+#define RSSI_COEFF_A2   41524L    /* Initial value: 9.9e-3 */
+#define RSSI_COEFF_A3   205L      /* Initial value: 4.9e-5 */
+#define RSSI_COEFF_TEMP 209715L   /* Initial value: 0.05   */
+/** @brief Value used to increase precision of calculations. */
+#define RSSI_COEFF_BASE (1UL << 22U)
+
+/**
+ * @brief Normalizes intermediate RSSI value by dividing and rounding.
+ *
+ * @param[in]   rssi_value  Intermediate RSSI value to be normalized.
+ *
+ * @returns normalized rssi_value.
+ */
+static int8_t normalize_rssi(int32_t rssi_value)
+{
+    uint32_t abs_rssi_value;
+
+    abs_rssi_value = (rssi_value < 0) ? (-rssi_value) : rssi_value;
+    abs_rssi_value = (abs_rssi_value + (RSSI_COEFF_BASE / 2)) / RSSI_COEFF_BASE;
+
+    return (rssi_value < 0) ? (-(int8_t)abs_rssi_value) : ((int8_t)abs_rssi_value);
+}
+
+/* Implementation based on Errata 87 for nRF53 family. */
+int8_t nrf_802154_rssi_sample_temp_corr_value_get(uint8_t rssi_sample)
+{
+    int32_t temp;
+    int32_t rssi_sample_i32;
+    int8_t  compensated_rssi;
+
+    temp            = (int32_t)nrf_802154_temperature_get();
+    rssi_sample_i32 = (int32_t)rssi_sample;
+
+    compensated_rssi = normalize_rssi((RSSI_COEFF_A1 * rssi_sample_i32)
+                                      + (RSSI_COEFF_A3 * POW_3(rssi_sample_i32))
+                                      - (RSSI_COEFF_A2 * POW_2(rssi_sample_i32))
+                                      - (RSSI_COEFF_TEMP * temp) - RSSI_COEFF_A0);
+
+    return compensated_rssi - (int8_t)rssi_sample;
+}
+
+#else
+#error Unsupported chip family
+#endif
+
 uint8_t nrf_802154_rssi_sample_corrected_get(uint8_t rssi_sample)
 {
-    return rssi_sample + nrf_802154_rssi_sample_temp_corr_value_get();
+    return rssi_sample + nrf_802154_rssi_sample_temp_corr_value_get(rssi_sample);
 }
 
 uint8_t nrf_802154_rssi_lqi_corrected_get(uint8_t lqi)
 {
-    return lqi - nrf_802154_rssi_sample_temp_corr_value_get();
+    return lqi - nrf_802154_rssi_sample_temp_corr_value_get(lqi);
 }
 
 uint8_t nrf_802154_rssi_ed_corrected_get(uint8_t ed)
 {
-    return ed - nrf_802154_rssi_sample_temp_corr_value_get();
+    return ed - nrf_802154_rssi_sample_temp_corr_value_get(ed);
 }
 
 uint8_t nrf_802154_rssi_cca_ed_threshold_corrected_get(uint8_t cca_ed)
 {
-    return cca_ed - nrf_802154_rssi_sample_temp_corr_value_get();
+    return cca_ed - nrf_802154_rssi_sample_temp_corr_value_get(cca_ed);
 }

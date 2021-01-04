@@ -17,6 +17,8 @@
 #define LOG_MODULE_NAME spinel_ipc_backend
 LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
+#define IPC_MASTER IS_ENABLED(CONFIG_RPMSG_SERVICE_MODE_MASTER)
+
 static K_SEM_DEFINE(ready_sem, 0, 1);
 static int endpoint_id;
 
