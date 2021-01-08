@@ -103,3 +103,9 @@ else()
     NRF_802154_IFS_ENABLED=1
   )
 endif()
+
+if (CONFIG_MPSL)
+  zephyr_compile_definitions(
+    NRF_802154_VERIFY_PERIPHS_ALLOC_AGAINST_MPSL=1
+  )
+endif()

@@ -8,6 +8,7 @@ set(NRF_802154_DRIVER_SOURCES_COMMON
   ${NRF_802154_DRIVER_ROOT}/src/nrf_802154_debug.c
   ${NRF_802154_DRIVER_ROOT}/src/nrf_802154_debug_assert.c
   ${NRF_802154_DRIVER_ROOT}/src/nrf_802154_pib.c
+  ${NRF_802154_DRIVER_ROOT}/src/nrf_802154_peripherals_alloc.c
   ${NRF_802154_DRIVER_ROOT}/src/nrf_802154_queue.c
   ${NRF_802154_DRIVER_ROOT}/src/nrf_802154_rssi.c
   ${NRF_802154_DRIVER_ROOT}/src/nrf_802154_rx_buffer.c

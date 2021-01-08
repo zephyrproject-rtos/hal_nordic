@@ -158,6 +158,28 @@ extern "C" {
 #define NRF_802154_DPPI_RADIO_SYNC_TO_EGU_SYNC 8U
 #endif
 
+/**
+ * @def NRF_802154_DPPI_CHANNELS_USED_MASK
+ *
+ * Bit mask of DPPI channels used by the 802.15.4 driver.
+ */
+#ifndef NRF_802154_DPPI_CHANNELS_USED_MASK
+#define NRF_802154_DPPI_CHANNELS_USED_MASK (                   \
+        (1UL << NRF_802154_DPPI_RADIO_DISABLED_TO_EGU) |       \
+        (1UL << NRF_802154_DPPI_EGU_TO_RADIO_RAMP_UP) |        \
+        (1UL << NRF_802154_DPPI_TIMER_COMPARE_TO_RADIO_TXEN) | \
+        (1UL << NRF_802154_DPPI_RADIO_SYNC_TO_EGU_SYNC))
+#endif // NRF_802154_DPPI_CHANNELS_USED_MASK
+
+/**
+ * @def NRF_802154_DPPI_GROUPS_USED_MASK
+ *
+ * Bit mask of DPPI groups identifiers used by the 802.15.4 driver.
+ */
+#ifndef NRF_802154_DPPI_GROUPS_USED_MASK
+#define NRF_802154_DPPI_GROUPS_USED_MASK 0UL
+#endif // NRF_802154_DPPI_GROUPS_USED_MASK
+
 #ifdef __cplusplus
 }
 #endif
