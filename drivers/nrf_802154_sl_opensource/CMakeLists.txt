@@ -1,26 +1,17 @@
+set(NRF_802154_SL_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+
+include(nrf_802154_sl_files.cmake)
+
 if (CONFIG_NRF_802154_SL_OPENSOURCE)
-  zephyr_include_directories(include)
+  zephyr_include_directories(${NRF_802154_SL_OPENSOURCE_INCLUDE_DIRS})
   zephyr_library_sources(
-    src/nrf_802154_sl_ant_div.c
-    src/nrf_802154_sl_coex.c
-    src/nrf_802154_sl_fem.c
-    src/nrf_802154_sl_log.c
-    src/nrf_802154_sl_rsch.c
-    src/nrf_802154_sl_timer.c
-    )
+    ${NRF_802154_SL_OPENSOURCE_SOURCES}
+  )
 
 else()
+  zephyr_include_directories(${NRF_802154_SL_INCLUDE_DIRS})
   zephyr_library_sources(
-    src/platform/gpiote/nrf_802154_gpiote_zephyr.c
-    src/platform/gpiote/nrf_802154_gpiote_crit_sect.c
-    src/platform/hp_timer/nrf_802154_hp_timer.c
-    src/platform/lp_timer/nrf_802154_lp_timer.c
+    ${NRF_802154_SL_SOURCES}
   )
 
 endif()
-
-zephyr_include_directories(src)
-zephyr_library_sources(
-  src/platform/clock/nrf_802154_clock_zephyr.c
-  src/platform/irq/nrf_802154_irq_zephyr.c
-)
