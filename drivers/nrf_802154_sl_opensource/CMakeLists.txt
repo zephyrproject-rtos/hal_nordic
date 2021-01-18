@@ -8,15 +8,21 @@ if (CONFIG_NRF_802154_SL_OPENSOURCE)
     src/nrf_802154_sl_rsch.c
     src/nrf_802154_sl_timer.c
     )
-
 else()
   zephyr_library_sources(
     src/platform/gpiote/nrf_802154_gpiote_zephyr.c
     src/platform/gpiote/nrf_802154_gpiote_crit_sect.c
-    src/platform/hp_timer/nrf_802154_hp_timer.c
-    src/platform/lp_timer/nrf_802154_lp_timer.c
   )
-
+  if (CONFIG_SOC_SERIES_NRF53X)
+    zephyr_library_sources(
+      src/platform/lp_timer/nrf_802154_lp_timer_zephyr.c
+    )
+  else ()
+    zephyr_library_sources(
+      src/platform/hp_timer/nrf_802154_hp_timer.c
+      src/platform/lp_timer/nrf_802154_lp_timer.c
+    )
+  endif()
 endif()
 
 zephyr_include_directories(src)
