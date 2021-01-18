@@ -444,6 +444,9 @@ void nrf_802154_trx_enable(void)
     // Set channel
     channel_set(nrf_802154_pib_channel_get());
 
+    // Custom initialization operations
+    nrf_802154_custom_part_of_radio_init();
+
     irq_init();
 
     assert(nrf_radio_shorts_get(NRF_RADIO) == SHORTS_IDLE);

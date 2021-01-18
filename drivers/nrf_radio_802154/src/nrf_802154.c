@@ -842,6 +842,11 @@ uint32_t nrf_802154_time_get(void)
     return nrf_802154_timer_sched_time_get();
 }
 
+__WEAK void nrf_802154_custom_part_of_radio_init(void)
+{
+    // Intentionally empty
+}
+
 __WEAK void nrf_802154_tx_ack_started(const uint8_t * p_data)
 {
     (void)p_data;
