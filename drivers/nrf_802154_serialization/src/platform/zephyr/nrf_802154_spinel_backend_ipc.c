@@ -22,6 +22,11 @@ LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 static K_SEM_DEFINE(ready_sem, 0, 1);
 static int endpoint_id;
 
+static bool endpoint_is_bound(void)
+{
+	return rpmsg_service_endpoint_is_bound(endpoint_id);
+}
+
 static int endpoint_cb(struct rpmsg_endpoint *ept,
 		       void                  *data,
 		       size_t                 len,
@@ -38,13 +43,19 @@ static int endpoint_cb(struct rpmsg_endpoint *ept,
 	return RPMSG_SUCCESS;
 }
 
+
 nrf_802154_ser_err_t nrf_802154_backend_init(void)
 {
+#if IPC_MASTER
+	while (!endpoint_is_bound()) {
+		k_sleep(K_MSEC(1));
+	}
+#endif
 	return NRF_802154_SERIALIZATION_ERROR_OK;
 }
 
 /* Make sure we register endpoint before IPC Service is initialized. */
-int register_endpoint(const struct device *arg)
+static int register_endpoint(const struct device *arg)
 {
 	int status;
 
