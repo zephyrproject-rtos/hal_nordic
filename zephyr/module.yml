@@ -1,3 +1,4 @@
+name: hal_nordic
 build:
   cmake-ext: True
   kconfig-ext: True
