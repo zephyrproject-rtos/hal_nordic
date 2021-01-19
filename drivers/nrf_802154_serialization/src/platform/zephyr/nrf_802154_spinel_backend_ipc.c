@@ -5,7 +5,7 @@
  */
 
 #include <zephyr.h>
-#include <rpmsg_service/rpmsg_service.h>
+#include <ipc/rpmsg_service.h>
 #include <device.h>
 #include <logging/log.h>
 
