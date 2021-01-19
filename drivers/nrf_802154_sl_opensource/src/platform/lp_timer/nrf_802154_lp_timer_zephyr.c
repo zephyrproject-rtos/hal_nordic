@@ -39,20 +39,31 @@
 
 #include "platform/lp_timer/nrf_802154_lp_timer.h"
 
-#include <kernel.h>
 #include <assert.h>
+#include <kernel.h>
+#include <stdbool.h>
 
 #include "drivers/timer/nrf_rtc_timer.h"
 
 #include "platform/clock/nrf_802154_clock.h"
 #include "nrf_802154_sl_utils.h"
 
+#define RTC_CRIT_SECT_COUNTER_MAX_VAL 0xFF
+
 static volatile bool m_clock_ready;
+static bool          m_is_running;
 static uint32_t      m_rtc_channel;
-static bool          m_rtc_key;
+static uint8_t       m_rtc_crit_sect_counter;
 
 void rtc_irq_handler(uint32_t id, uint32_t cc_value, void * user_data)
 {
+    (void)cc_value;
+    (void)user_data;
+
+    assert(id == m_rtc_channel);
+
+    m_is_running = false;
+
     nrf_802154_lp_timer_fired();
 }
 
@@ -69,13 +80,18 @@ static void timer_start_at(uint32_t channel,
                            uint32_t t0,
                            uint32_t dt)
 {
-    uint32_t cc_value = NRF_802154_SL_US_TO_RTC_TICKS(t0 + dt);
-
-    // Enable interrupts unconditionally
-    // TODO: this is a bug. Fix it
-    z_nrf_rtc_timer_compare_int_unlock(m_rtc_channel, true);
+    uint32_t                           cc_value = NRF_802154_SL_US_TO_RTC_TICKS(t0 + dt);
+    nrf_802154_sl_mcu_critical_state_t state;
 
     z_nrf_rtc_timer_compare_set(m_rtc_channel, cc_value, rtc_irq_handler, NULL);
+
+    m_is_running = true;
+
+    nrf_802154_sl_mcu_critical_enter(state);
+
+    z_nrf_rtc_timer_compare_int_unlock(m_rtc_channel, (m_rtc_crit_sect_counter == 0U));
+
+    nrf_802154_sl_mcu_critical_exit(state);
 }
 
 void nrf_802154_clock_lfclk_ready(void)
@@ -85,6 +101,9 @@ void nrf_802154_clock_lfclk_ready(void)
 
 void nrf_802154_lp_timer_init(void)
 {
+    m_rtc_crit_sect_counter = 0U;
+    m_is_running            = false;
+
     // Setup low frequency clock.
     nrf_802154_clock_lfclk_start();
 
@@ -105,12 +124,12 @@ void nrf_802154_lp_timer_init(void)
         return;
     }
 
-    m_rtc_key = z_nrf_rtc_timer_compare_int_lock(m_rtc_channel);
+    (void)z_nrf_rtc_timer_compare_int_lock(m_rtc_channel);
 }
 
 void nrf_802154_lp_timer_deinit(void)
 {
-    m_rtc_key = z_nrf_rtc_timer_compare_int_lock(m_rtc_channel);
+    (void)z_nrf_rtc_timer_compare_int_lock(m_rtc_channel);
 
     z_nrf_rtc_timer_chan_free(m_rtc_channel);
 
@@ -119,12 +138,33 @@ void nrf_802154_lp_timer_deinit(void)
 
 void nrf_802154_lp_timer_critical_section_enter(void)
 {
-    m_rtc_key = z_nrf_rtc_timer_compare_int_lock(m_rtc_channel);
+    nrf_802154_sl_mcu_critical_state_t state;
+
+    nrf_802154_sl_mcu_critical_enter(state);
+
+    assert(m_rtc_crit_sect_counter < RTC_CRIT_SECT_COUNTER_MAX_VAL);
+
+    (void)z_nrf_rtc_timer_compare_int_lock(m_rtc_channel);
+    m_rtc_crit_sect_counter++;
+
+    nrf_802154_sl_mcu_critical_exit(state);
 }
 
 void nrf_802154_lp_timer_critical_section_exit(void)
 {
-    z_nrf_rtc_timer_compare_int_unlock(m_rtc_channel, m_rtc_key);
+    nrf_802154_sl_mcu_critical_state_t state;
+
+    nrf_802154_sl_mcu_critical_enter(state);
+
+    assert(m_rtc_crit_sect_counter != 0U);
+
+    m_rtc_crit_sect_counter--;
+    if (m_rtc_crit_sect_counter == 0U)
+    {
+        z_nrf_rtc_timer_compare_int_unlock(m_rtc_channel, m_is_running);
+    }
+
+    nrf_802154_sl_mcu_critical_exit(state);
 }
 
 uint32_t nrf_802154_lp_timer_time_get(void)
@@ -145,15 +185,12 @@ void nrf_802154_lp_timer_start(uint32_t t0, uint32_t dt)
 
 bool nrf_802154_lp_timer_is_running(void)
 {
-    bool is_running = z_nrf_rtc_timer_compare_int_lock(m_rtc_channel);
-
-    z_nrf_rtc_timer_compare_int_unlock(m_rtc_channel, is_running);
-
-    return is_running;
+    return m_is_running;
 }
 
 void nrf_802154_lp_timer_stop(void)
 {
+    m_is_running = false;
     (void)z_nrf_rtc_timer_compare_int_lock(m_rtc_channel);
 }
 
