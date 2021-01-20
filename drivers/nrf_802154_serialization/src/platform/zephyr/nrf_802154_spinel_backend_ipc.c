@@ -5,7 +5,7 @@
  */
 
 #include <zephyr.h>
-#include <ipc_service/rpmsg_service.h>
+#include <ipc/rpmsg_service.h>
 #include <device.h>
 #include <logging/log.h>
 
@@ -17,7 +17,7 @@
 #define LOG_MODULE_NAME spinel_ipc_backend
 LOG_MODULE_REGISTER(LOG_MODULE_NAME);
 
-#define IPC_MASTER IS_ENABLED(CONFIG_OPENAMP_MASTER)
+#define IPC_MASTER IS_ENABLED(CONFIG_RPMSG_SERVICE_MODE_MASTER)
 
 static K_SEM_DEFINE(ready_sem, 0, 1);
 static int endpoint_id;
@@ -43,7 +43,6 @@ static int endpoint_cb(struct rpmsg_endpoint *ept,
 	return RPMSG_SUCCESS;
 }
 
-
 nrf_802154_ser_err_t nrf_802154_backend_init(void)
 {
 #if IPC_MASTER
@@ -54,7 +53,7 @@ nrf_802154_ser_err_t nrf_802154_backend_init(void)
 	return NRF_802154_SERIALIZATION_ERROR_OK;
 }
 
-/* Make sure we register endpoint before IPC Service is initialized. */
+/* Make sure we register endpoint before RPMsg Service is initialized. */
 static int register_endpoint(const struct device *arg)
 {
 	int status;
@@ -71,7 +70,7 @@ static int register_endpoint(const struct device *arg)
 	return 0;
 }
 
-SYS_INIT(register_endpoint, POST_KERNEL, CONFIG_IPC_SERVICE_EP_REG_PRIORITY);
+SYS_INIT(register_endpoint, POST_KERNEL, CONFIG_RPMSG_SERVICE_EP_REG_PRIORITY);
 
 // Send packet thread details
 #define RING_BUFFER_LEN 4
