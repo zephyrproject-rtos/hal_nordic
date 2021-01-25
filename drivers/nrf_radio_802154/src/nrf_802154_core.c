@@ -1,6 +1,8 @@
 /*
- * Copyright (c) 2017 - 2020, Nordic Semiconductor ASA
+ * Copyright (c) 2017 - 2021, Nordic Semiconductor ASA
  * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -12,7 +14,7 @@
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
  *
- * 3. Neither the name of the copyright holder nor the names of its
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
  *    contributors may be used to endorse or promote products derived from this
  *    software without specific prior written permission.
  *
@@ -27,6 +29,7 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+ *
  */
 
 /**
@@ -246,7 +249,7 @@ static uint8_t lqi_get(const uint8_t * p_data)
  */
 static uint32_t timer_coord_timestamp_get(void)
 {
-    uint32_t timestamp;
+    uint32_t timestamp          = NRF_802154_NO_TIMESTAMP;
     bool     timestamp_received = nrf_802154_timer_coord_timestamp_get(&timestamp);
 
     if (!timestamp_received)
@@ -2124,6 +2127,7 @@ static bool ack_match_check_version_2(const uint8_t * p_tx_data, const uint8_t *
 
     parse_result = nrf_802154_frame_parser_mhr_parse(p_tx_data, &tx_mhr_data);
     assert(parse_result);
+    (void)parse_result;
     parse_result = nrf_802154_frame_parser_mhr_parse(p_ack_data, &ack_mhr_data);
 
     if (!parse_result ||
@@ -2462,7 +2466,7 @@ bool nrf_802154_core_transmit(nrf_802154_term_t              term_lvl,
 
     if (result)
     {
-        /* Short-circuit evaluation in place. */
+        // Short-circuit evaluation in place.
         if ((immediate) || (nrf_802154_core_hooks_pre_transmission(p_data, cca)))
         {
             result = current_operation_terminate(term_lvl, req_orig, true);
@@ -2478,6 +2482,7 @@ bool nrf_802154_core_transmit(nrf_802154_term_t              term_lvl,
                 state_set(cca ? RADIO_STATE_CCA_TX : RADIO_STATE_TX);
                 mp_tx_data = p_data;
 
+                // coverity[check_return]
                 result = tx_init(p_data, cca);
                 if (immediate)
                 {

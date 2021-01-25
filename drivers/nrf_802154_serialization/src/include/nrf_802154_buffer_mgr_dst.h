@@ -1,39 +1,35 @@
 /*
- * Copyright (c) 2020, Nordic Semiconductor ASA
+ * Copyright (c) 2020 - 2021, Nordic Semiconductor ASA
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this
  *    list of conditions and the following disclaimer.
  *
- * 2. Redistributions in binary form, except as embedded into a Nordic
- *    Semiconductor ASA integrated circuit in a product or a software update for
- *    such product, must reproduce the above copyright notice, this list of
- *    conditions and the following disclaimer in the documentation and/or other
- *    materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
  *
  * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
  *    contributors may be used to endorse or promote products derived from this
  *    software without specific prior written permission.
  *
- * 4. This software, with or without modification, must only be used with a
- *    Nordic Semiconductor ASA integrated circuit.
- *
- * 5. Any software provided in binary form under this license must not be reverse
- *    engineered, decompiled, modified and/or disassembled.
- *
- * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
- * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL NORDIC SEMICONDUCTOR ASA OR CONTRIBUTORS BE
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
- * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
- * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
  */
 
 /**
@@ -73,7 +69,7 @@ typedef struct
      * Key is a local pointer (@c void*)
      * Value is a remote buffer handle (@c uint32_t)
      */
-    nrf_802154_kvmap_t map;
+    nrf_802154_kvmap_t            map;
 
     /**@brief Allocator providing storage for local buffers. */
     nrf_802154_buffer_allocator_t allocator;
@@ -83,7 +79,7 @@ typedef struct
  * @param buffers_count     Number of buffers to be tracked.
  */
 #define NRF_802154_BUFFER_MGR_DST_MAP_MEMSIZE(buffers_count) \
-    NRF_802154_KVMAP_MEMORY_SIZE((buffers_count), sizeof(void*), sizeof(uint32_t))
+    NRF_802154_KVMAP_MEMORY_SIZE((buffers_count), sizeof(void *), sizeof(uint32_t))
 
 /**@brief Defines instance of @ref rf_802154_buffer_mgr_dst_t with all necessary accompanying
  *        variables.
@@ -102,14 +98,14 @@ typedef struct
  * @param buffers_count Number of buffers the @c name object will be able to track.
  */
 #define NRF_802154_BUFFER_MGR_DST_INST_DECL(name, buffers_count) \
-    nrf_802154_buffer_mgr_dst_t name ;                           \
-    uint8_t                      name##_map_mem[                 \
+    nrf_802154_buffer_mgr_dst_t name;                            \
+    uint8_t name ## _map_mem[                                    \
         NRF_802154_BUFFER_MGR_DST_MAP_MEMSIZE(buffers_count)]    \
-        __attribute__((aligned(4)));                             \
-    uint8_t                      name##_allocator_mem[           \
+    __attribute__((aligned(4)));                                 \
+    uint8_t name ## _allocator_mem[                              \
         NRF_802154_BUFFER_ALLOCATOR_MEMORY_SIZE(buffers_count)]  \
-        __attribute__((aligned(4)));                             \
-    const size_t name##_buffers_count = (buffers_count);
+    __attribute__((aligned(4)));                                 \
+    const size_t name ## _buffers_count = (buffers_count);
 
 /**@brief Provides extern complementary to @ref NRF_802154_BUFFER_MGR_DST_INST_DECL.
  *
@@ -120,14 +116,14 @@ typedef struct
 
 /**@brief As @ref NRF_802154_BUFFER_MGR_DST_INST_DECL but with static storage. */
 #define NRF_802154_BUFFER_MGR_DST_INST_DECL_STATIC(name, buffers_count) \
-    static nrf_802154_buffer_mgr_dst_t name ;                           \
-    static uint8_t                      name##_map_mem[                 \
+    static nrf_802154_buffer_mgr_dst_t name;                            \
+    static uint8_t name ## _map_mem[                                    \
         NRF_802154_BUFFER_MGR_DST_MAP_MEMSIZE(buffers_count)]           \
-        __attribute__((aligned(4)));                                    \
-    static uint8_t                      name##_allocator_mem[           \
+    __attribute__((aligned(4)));                                        \
+    static uint8_t name ## _allocator_mem[                              \
         NRF_802154_BUFFER_ALLOCATOR_MEMORY_SIZE(buffers_count)]         \
-        __attribute__((aligned(4)));                                    \
-    static const size_t name##_buffers_count = (buffers_count);
+    __attribute__((aligned(4)));                                        \
+    static const size_t name ## _buffers_count = (buffers_count);
 
 /**@brief Calls @ref nrf_802154_buffer_mgr_dst_init for an object instantiated by
  *        @ref NRF_802154_BUFFER_MGR_DST_INST_DECL.
@@ -137,9 +133,9 @@ typedef struct
 #define NRF_802154_BUFFER_MGR_DST_INIT(name) \
     nrf_802154_buffer_mgr_dst_init(          \
         &name,                               \
-        name##_map_mem,                      \
-        name##_allocator_mem,                \
-        name##_buffers_count)
+        name ## _map_mem,                    \
+        name ## _allocator_mem,              \
+        name ## _buffers_count)
 
 /**@brief Initializes a buffer manager.
  *
