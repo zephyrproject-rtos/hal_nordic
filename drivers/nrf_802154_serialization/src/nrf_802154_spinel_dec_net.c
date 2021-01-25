@@ -1,30 +1,34 @@
-/* Copyright (c) 2020, Nordic Semiconductor ASA
+/*
+ * Copyright (c) 2020 - 2021, Nordic Semiconductor ASA
  * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- *   1. Redistributions of source code must retain the above copyright notice, this
- *      list of conditions and the following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form must reproduce the above copyright notice,
- *      this list of conditions and the following disclaimer in the documentation
- *      and/or other materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its
- *      contributors may be used to endorse or promote products derived from
- *      this software without specific prior written permission.
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -55,8 +59,8 @@
 static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_sleep(const void * p_property_data,
                                                                 size_t       property_data_len)
 {
-    (void) p_property_data;
-    (void) property_data_len;
+    (void)p_property_data;
+    (void)property_data_len;
 
     bool sleep_response;
 
@@ -77,8 +81,8 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_sleep(const void * p_p
 static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_receive(const void * p_property_data,
                                                                   size_t       property_data_len)
 {
-    (void) p_property_data;
-    (void) property_data_len;
+    (void)p_property_data;
+    (void)property_data_len;
 
     bool receive_response;
 
@@ -92,19 +96,20 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_receive(const void * p
 static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_channel_get(const void * p_property_data,
                                                                       size_t       property_data_len)
 {
-    (void) p_property_data;
-    (void) property_data_len;
+    (void)p_property_data;
+    (void)property_data_len;
 
-    return nrf_802154_spinel_send_cmd_prop_value_is(SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CHANNEL_GET,
-                                                   SPINEL_DATATYPE_NRF_802154_CHANNEL_GET_RET,
-                                                   nrf_802154_channel_get());
+    return nrf_802154_spinel_send_cmd_prop_value_is(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CHANNEL_GET,
+        SPINEL_DATATYPE_NRF_802154_CHANNEL_GET_RET,
+        nrf_802154_channel_get());
 }
 
 static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_channel_set(const void * p_property_data,
                                                                       size_t       property_data_len)
 {
-    uint8_t         channel;
-    spinel_ssize_t  siz;
+    uint8_t        channel;
+    spinel_ssize_t siz;
 
     siz = spinel_datatype_unpack(p_property_data,
                                  property_data_len,
@@ -297,8 +302,8 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_promiscuous_set(
 static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_cca(const void * p_property_data,
                                                               size_t       property_data_len)
 {
-    (void) p_property_data;
-    (void) property_data_len;
+    (void)p_property_data;
+    (void)property_data_len;
 
     bool result = nrf_802154_cca();
 
@@ -333,9 +338,10 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_energy_detection(
 
     bool result = nrf_802154_energy_detection(time_us);
 
-    return nrf_802154_spinel_send_cmd_prop_value_is(SPINEL_PROP_VENDOR_NORDIC_NRF_802154_ENERGY_DETECTION,
-                                                    SPINEL_DATATYPE_NRF_802154_ENERGY_DETECTION_RET,
-                                                    result);
+    return nrf_802154_spinel_send_cmd_prop_value_is(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_ENERGY_DETECTION,
+        SPINEL_DATATYPE_NRF_802154_ENERGY_DETECTION_RET,
+        result);
 }
 
 /**
@@ -345,8 +351,8 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_energy_detection(
  * @param[in]  property_data_len  Size of the @ref p_data buffer.
  */
 static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_auto_pending_bit_set(
-                                const void * p_property_data,
-                                size_t property_data_len)
+    const void * p_property_data,
+    size_t       property_data_len)
 {
     bool           enabled;
     spinel_ssize_t siz;
@@ -373,8 +379,8 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_auto_pending_bit_set(
  * @param[in]  property_data_len  Size of the @ref p_data buffer.
  */
 static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_pending_bit_for_addr_set(
-                                const void * p_property_data,
-                                size_t property_data_len)
+    const void * p_property_data,
+    size_t       property_data_len)
 {
     const uint8_t * p_addr;
     size_t          addr_len;
@@ -408,9 +414,10 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_pending_bit_for_addr_s
 
     result = nrf_802154_pending_bit_for_addr_set(p_addr, extended);
 
-    return nrf_802154_spinel_send_cmd_prop_value_is(SPINEL_PROP_VENDOR_NORDIC_NRF_802154_PENDING_BIT_FOR_ADDR_SET,
-                                                    SPINEL_DATATYPE_NRF_802154_PENDING_BIT_FOR_ADDR_SET_RET,
-                                                    result);
+    return nrf_802154_spinel_send_cmd_prop_value_is(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_PENDING_BIT_FOR_ADDR_SET,
+        SPINEL_DATATYPE_NRF_802154_PENDING_BIT_FOR_ADDR_SET_RET,
+        result);
 }
 
 /**
@@ -421,8 +428,8 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_pending_bit_for_addr_s
  *
  */
 static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_pending_bit_for_addr_clear(
-                const void * p_property_data,
-                size_t property_data_len)
+    const void * p_property_data,
+    size_t       property_data_len)
 {
     const uint8_t * p_addr;
     size_t          addr_len;
@@ -456,9 +463,10 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_pending_bit_for_addr_c
 
     result = nrf_802154_pending_bit_for_addr_clear(p_addr, extended);
 
-    return nrf_802154_spinel_send_cmd_prop_value_is(SPINEL_PROP_VENDOR_NORDIC_NRF_802154_PENDING_BIT_FOR_ADDR_CLEAR,
-                                                    SPINEL_DATATYPE_NRF_802154_PENDING_BIT_FOR_ADDR_CLEAR_RET,
-                                                    result);
+    return nrf_802154_spinel_send_cmd_prop_value_is(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_PENDING_BIT_FOR_ADDR_CLEAR,
+        SPINEL_DATATYPE_NRF_802154_PENDING_BIT_FOR_ADDR_CLEAR_RET,
+        result);
 }
 
 /**
@@ -469,8 +477,8 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_pending_bit_for_addr_c
  *
  */
 static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_pending_bit_for_addr_reset(
-                const void * p_property_data,
-                size_t property_data_len)
+    const void * p_property_data,
+    size_t       property_data_len)
 {
     bool           extended;
     spinel_ssize_t siz;
@@ -498,8 +506,8 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_pending_bit_for_addr_r
  *
  */
 static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_src_addr_matching_method_set(
-                                const void * p_property_data,
-                                size_t property_data_len)
+    const void * p_property_data,
+    size_t       property_data_len)
 {
     nrf_802154_src_addr_match_t match_method;
     spinel_ssize_t              siz;
@@ -560,11 +568,11 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_transmit_csma_ca_raw(
 
     // Map the remote handle to locally accessible pointer and copy the buffer content there
     bool frame_added = nrf_802154_buffer_mgr_dst_add(
-                           nrf_802154_spinel_dst_buffer_mgr_get(),
-                           remote_frame_handle,
-                           p_frame,
-                           NRF_802154_DATA_LEN_FROM_HDATA_LEN(frame_hdata_len),
-                           &p_local_frame_ptr);
+        nrf_802154_spinel_dst_buffer_mgr_get(),
+        remote_frame_handle,
+        p_frame,
+        NRF_802154_DATA_LEN_FROM_HDATA_LEN(frame_hdata_len),
+        &p_local_frame_ptr);
 
     if (!frame_added)
     {
@@ -608,11 +616,11 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_transmit_raw(
 
     // Map the remote handle to locally accessible pointer and copy the buffer content there
     bool frame_added = nrf_802154_buffer_mgr_dst_add(
-                           nrf_802154_spinel_dst_buffer_mgr_get(),
-                           remote_frame_handle,
-                           p_frame,
-                           NRF_802154_DATA_LEN_FROM_HDATA_LEN(frame_hdata_len),
-                           &p_local_frame_ptr);
+        nrf_802154_spinel_dst_buffer_mgr_get(),
+        remote_frame_handle,
+        p_frame,
+        NRF_802154_DATA_LEN_FROM_HDATA_LEN(frame_hdata_len),
+        &p_local_frame_ptr);
 
     if (!frame_added)
     {
@@ -627,9 +635,10 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_transmit_raw(
                                                           p_local_frame_ptr);
     }
 
-    return nrf_802154_spinel_send_cmd_prop_value_is(SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TRANSMIT_RAW,
-                                                    SPINEL_DATATYPE_NRF_802154_TRANSMIT_RAW_RET,
-                                                    result);
+    return nrf_802154_spinel_send_cmd_prop_value_is(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TRANSMIT_RAW,
+        SPINEL_DATATYPE_NRF_802154_TRANSMIT_RAW_RET,
+        result);
 }
 
 /**
@@ -656,10 +665,11 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_buffer_free_raw(
         return NRF_802154_SERIALIZATION_ERROR_DECODING_FAILURE;
     }
 
-
     // Search for a locally accessible pointer to be freed based on the local handle
     bool ptr_found = nrf_802154_buffer_mgr_src_search_by_buffer_handle(
-        nrf_802154_spinel_src_buffer_mgr_get(), local_frame_handle, &p_local_ptr);
+        nrf_802154_spinel_src_buffer_mgr_get(),
+        local_frame_handle,
+        &p_local_ptr);
 
     if (ptr_found)
     {
@@ -668,7 +678,8 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_buffer_free_raw(
 
         // Remove the mapping associated with the provided handle
         bool ptr_removed = nrf_802154_buffer_mgr_src_remove_by_buffer_handle(
-            nrf_802154_spinel_src_buffer_mgr_get(), local_frame_handle);
+            nrf_802154_spinel_src_buffer_mgr_get(),
+            local_frame_handle);
 
         if (!ptr_removed)
         {
@@ -716,16 +727,17 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_tx_power_set(const voi
 static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_tx_power_get(const void * p_property_data,
                                                                        size_t       property_data_len)
 {
-    (void) p_property_data;
-    (void) property_data_len;
+    (void)p_property_data;
+    (void)property_data_len;
 
     int8_t power;
 
     power = nrf_802154_tx_power_get();
 
-    return nrf_802154_spinel_send_cmd_prop_value_is(SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TX_POWER_GET,
-                                                    SPINEL_DATATYPE_NRF_802154_TX_POWER_GET_RET,
-                                                    power);
+    return nrf_802154_spinel_send_cmd_prop_value_is(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TX_POWER_GET,
+        SPINEL_DATATYPE_NRF_802154_TX_POWER_GET_RET,
+        power);
 }
 
 /**
@@ -735,28 +747,30 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_tx_power_get(const voi
  * @param[in]  property_data_len  Size of the @ref p_data buffer.
  *
  */
-static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_capabilities_get(const void * p_property_data,
-                                                                           size_t       property_data_len)
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_capabilities_get(
+    const void * p_property_data,
+    size_t       property_data_len)
 {
-    (void) p_property_data;
-    (void) property_data_len;
+    (void)p_property_data;
+    (void)property_data_len;
 
     nrf_802154_capabilities_t caps;
 
     caps = nrf_802154_capabilities_get();
 
-    return nrf_802154_spinel_send_cmd_prop_value_is(SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CAPABILITIES_GET,
-                                                    SPINEL_DATATYPE_NRF_802154_CAPABILITIES_GET_RET,
-                                                    caps);
+    return nrf_802154_spinel_send_cmd_prop_value_is(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CAPABILITIES_GET,
+        SPINEL_DATATYPE_NRF_802154_CAPABILITIES_GET_RET,
+        caps);
 }
 
 nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_set(const void * p_cmd_data,
                                                                  size_t       cmd_data_len)
 {
-    spinel_prop_key_t  property;
-    const void       * p_property_data;
-    size_t             property_data_len;
-    spinel_ssize_t     siz;
+    spinel_prop_key_t property;
+    const void      * p_property_data;
+    size_t            property_data_len;
+    spinel_ssize_t    siz;
 
     siz = spinel_datatype_unpack(p_cmd_data,
                                  cmd_data_len,
@@ -773,92 +787,82 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_set(const void * p_
     switch (property)
     {
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SLEEP:
-            return spinel_decode_prop_nrf_802154_sleep(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_sleep(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_RECEIVE:
-            return spinel_decode_prop_nrf_802154_receive(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_receive(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CHANNEL_GET:
-            return spinel_decode_prop_nrf_802514_channel_get(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802514_channel_get(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CHANNEL_SET:
-            return spinel_decode_prop_nrf_802514_channel_set(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802514_channel_set(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_AUTO_PENDING_BIT_SET:
-            return spinel_decode_prop_nrf_802154_auto_pending_bit_set(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_auto_pending_bit_set(p_property_data,
+                                                                      property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_PENDING_BIT_FOR_ADDR_SET:
-            return spinel_decode_prop_nrf_802154_pending_bit_for_addr_set(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_pending_bit_for_addr_set(p_property_data,
+                                                                          property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_PENDING_BIT_FOR_ADDR_CLEAR:
-            return spinel_decode_prop_nrf_802154_pending_bit_for_addr_clear(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_pending_bit_for_addr_clear(p_property_data,
+                                                                            property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_PENDING_BIT_FOR_ADDR_RESET:
-            return spinel_decode_prop_nrf_802154_pending_bit_for_addr_reset(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_pending_bit_for_addr_reset(p_property_data,
+                                                                            property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SRC_ADDR_MATCHING_METHOD_SET:
-            return spinel_decode_prop_nrf_802154_src_addr_matching_method_set(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_src_addr_matching_method_set(p_property_data,
+                                                                              property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_PAN_ID_SET:
-            return spinel_decode_prop_nrf_802154_pan_id_set(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_pan_id_set(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SHORT_ADDRESS_SET:
-            return spinel_decode_prop_nrf_802154_short_address_set(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_short_address_set(p_property_data,
+                                                                   property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_EXTENDED_ADDRESS_SET:
-            return spinel_decode_prop_nrf_802154_extended_address_set(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_extended_address_set(p_property_data,
+                                                                      property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_PAN_COORD_SET:
-            return spinel_decode_prop_nrf_802154_pan_coord_set(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_pan_coord_set(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_PROMISCUOUS_SET:
-            return spinel_decode_prop_nrf_802154_promiscuous_set(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_promiscuous_set(p_property_data,
+                                                                 property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CCA:
-            return spinel_decode_prop_nrf_802154_cca(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_cca(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_ENERGY_DETECTION:
-            return spinel_decode_prop_nrf_802154_energy_detection(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_energy_detection(p_property_data,
+                                                                  property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TX_POWER_SET:
-            return spinel_decode_prop_nrf_802154_tx_power_set(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_tx_power_set(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TX_POWER_GET:
-            return spinel_decode_prop_nrf_802154_tx_power_get(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_tx_power_get(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TRANSMIT_CSMA_CA_RAW:
-            return spinel_decode_prop_nrf_802154_transmit_csma_ca_raw(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_transmit_csma_ca_raw(p_property_data,
+                                                                      property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TRANSMIT_RAW:
-            return spinel_decode_prop_nrf_802154_transmit_raw(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_transmit_raw(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_BUFFER_FREE_RAW:
-            return spinel_decode_prop_nrf_802154_buffer_free_raw(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_buffer_free_raw(p_property_data,
+                                                                 property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CAPABILITIES_GET:
-            return spinel_decode_prop_nrf_802154_capabilities_get(
-                        p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_capabilities_get(p_property_data,
+                                                                  property_data_len);
 
         default:
             NRF_802154_SPINEL_LOG_RAW("Unsupported property: %s(%u)\n",
@@ -870,8 +874,8 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_set(const void * p_
 }
 
 nrf_802154_ser_err_t nrf_802154_spinel_dispatch_cmd(spinel_command_t cmd,
-                                       const void     * p_cmd_data,
-                                       size_t           cmd_data_len)
+                                                    const void     * p_cmd_data,
+                                                    size_t           cmd_data_len)
 {
     switch (cmd)
     {

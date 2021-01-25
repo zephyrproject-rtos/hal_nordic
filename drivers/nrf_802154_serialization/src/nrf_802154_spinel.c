@@ -1,30 +1,34 @@
-/* Copyright (c) 2020, Nordic Semiconductor ASA
+/*
+ * Copyright (c) 2020 - 2021, Nordic Semiconductor ASA
  * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- *   1. Redistributions of source code must retain the above copyright notice, this
- *      list of conditions and the following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form must reproduce the above copyright notice,
- *      this list of conditions and the following disclaimer in the documentation
- *      and/or other materials provided with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its
- *      contributors may be used to endorse or promote products derived from
- *      this software without specific prior written permission.
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
+ *    contributors may be used to endorse or promote products derived from this
+ *    software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * IMPLIED WARRANTIES OF MERCHANTABILITY, AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
@@ -50,7 +54,7 @@ NRF_802154_BUFFER_MGR_DST_INST_DECL_STATIC(m_dst_mgr, NRF_802154_RX_BUFFERS);
 #else // CONFIG_NRF_802154_SER_HOST
 NRF_802154_BUFFER_MGR_DST_INST_DECL_STATIC(m_dst_mgr, NRF_802154_TX_BUFFERS);
 NRF_802154_BUFFER_MGR_SRC_INST_DECL_STATIC(m_src_mgr, NRF_802154_RX_BUFFERS);
-#endif // CONFIG_NRF_802154_SER_HOST
+#endif  // CONFIG_NRF_802154_SER_HOST
 
 static void buffer_mgr_init(void)
 {
@@ -73,24 +77,25 @@ void nrf_802154_serialization_init(void)
     SERIALIZATION_ERROR_INIT(error);
 
     buffer_mgr_init();
-	nrf_802154_spinel_response_notifier_init();
+    nrf_802154_spinel_response_notifier_init();
 
-	nrf_802154_ser_err_t ret = nrf_802154_backend_init();
+    nrf_802154_ser_err_t ret = nrf_802154_backend_init();
 
-	SERIALIZATION_ERROR_CHECK(ret, error, bail);
+    SERIALIZATION_ERROR_CHECK(ret, error, bail);
 
 bail:
     SERIALIZATION_ERROR_RAISE_IF_FAILED(error);
 
-	return;
+    return;
 }
 
 nrf_802154_ser_err_t nrf_802154_spinel_send(const char * p_fmt, ...)
 {
-    uint8_t command_buff[NRF_802154_SPINEL_FRAME_BUFFER_SIZE];
+    uint8_t        command_buff[NRF_802154_SPINEL_FRAME_BUFFER_SIZE];
     spinel_ssize_t siz;
 
     va_list args;
+
     va_start(args, p_fmt);
 
     siz = spinel_datatype_vpack(command_buff, sizeof(command_buff), p_fmt, args);

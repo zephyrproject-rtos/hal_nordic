@@ -1,4 +1,6 @@
-set(NRF_802154_DRIVER_INCLUDE_DIRS ${NRF_802154_DRIVER_ROOT}/src)
+set(NRF_802154_DRIVER_INCLUDE_DIRS
+  ${NRF_802154_DRIVER_ROOT}/src
+  )
 
 set(NRF_802154_DRIVER_SOURCES_COMMON
   ${NRF_802154_DRIVER_ROOT}/src/nrf_802154.c
@@ -25,7 +27,6 @@ set(NRF_802154_DRIVER_SOURCES_COMMON
   ${NRF_802154_DRIVER_ROOT}/src/mac_features/ack_generator/nrf_802154_ack_generator.c
   ${NRF_802154_DRIVER_ROOT}/src/mac_features/ack_generator/nrf_802154_enh_ack_generator.c
   ${NRF_802154_DRIVER_ROOT}/src/mac_features/ack_generator/nrf_802154_imm_ack_generator.c
-  ${NRF_802154_DRIVER_ROOT}/src/platform/random/nrf_802154_random_zephyr.c
   ${NRF_802154_DRIVER_ROOT}/src/platform/temperature/nrf_802154_temperature_none.c
   )
 

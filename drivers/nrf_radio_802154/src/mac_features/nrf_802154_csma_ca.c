@@ -1,6 +1,8 @@
 /*
- * Copyright (c) 2017 - 2020, Nordic Semiconductor ASA
+ * Copyright (c) 2017 - 2021, Nordic Semiconductor ASA
  * All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -12,7 +14,7 @@
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
  *
- * 3. Neither the name of the copyright holder nor the names of its
+ * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
  *    contributors may be used to endorse or promote products derived from this
  *    software without specific prior written permission.
  *
@@ -27,6 +29,7 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
+ *
  */
 
 /**
@@ -131,7 +134,11 @@ static void notify_busy_channel(bool result)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_HIGH);
 
-    if (!result && (m_nb >= (nrf_802154_pib_csmaca_max_backoffs_get() - 1)))
+    // The 802.15.4 specification requires CSMA-CA to continue until m_nb is strictly greater
+    // than nrf_802154_pib_csmaca_max_backoffs_get(), but at the moment this function is executed
+    // the value of m_nb has not yet been incremented to reflect the latest attempt. Therefore
+    // the comparison uses `greater or equal` instead of `greater than`.
+    if (!result && (m_nb >= nrf_802154_pib_csmaca_max_backoffs_get()))
     {
         nrf_802154_notify_transmit_failed(mp_data, NRF_802154_TX_ERROR_BUSY_CHANNEL);
     }
@@ -180,14 +187,6 @@ static void random_backoff_start(void)
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_HIGH);
 
     uint8_t backoff_periods = nrf_802154_random_get() % (1 << m_be);
-
-    // If maximum number of CSMA-CA backoffs is equal to 0, this function is called only once
-    // and no more backoffs will follow. Forcing the first and only backoff to 0 has the same
-    // effect as no backoff at all.
-    if (0 == nrf_802154_pib_csmaca_max_backoffs_get())
-    {
-        backoff_periods = 0;
-    }
 
     rsch_dly_ts_param_t backoff_ts_param =
     {
@@ -244,14 +243,14 @@ static bool channel_busy(void)
             m_be++;
         }
 
-        if (m_nb < nrf_802154_pib_csmaca_max_backoffs_get())
+        if (m_nb > nrf_802154_pib_csmaca_max_backoffs_get())
         {
-            random_backoff_start();
-            result = false;
+            procedure_stop();
         }
         else
         {
-            procedure_stop();
+            random_backoff_start();
+            result = false;
         }
 
         nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
