@@ -7,6 +7,7 @@ set(NRF_802154_SL_OPENSOURCE_SOURCES
   ${NRF_802154_SL_ROOT}/src/nrf_802154_sl_timer.c
   ${NRF_802154_SL_ROOT}/src/platform/clock/nrf_802154_clock_zephyr.c
   ${NRF_802154_SL_ROOT}/src/platform/irq/nrf_802154_irq_zephyr.c
+  ${NRF_802154_SL_ROOT}/src/platform/temperature/nrf_802154_temperature_zephyr.c
 )
 
 set(NRF_802154_SL_OPENSOURCE_INCLUDE_DIRS
@@ -21,6 +22,7 @@ set(NRF_802154_SL_SOURCES
   ${NRF_802154_SL_ROOT}/src/platform/lp_timer/nrf_802154_lp_timer.c
   ${NRF_802154_SL_ROOT}/src/platform/clock/nrf_802154_clock_zephyr.c
   ${NRF_802154_SL_ROOT}/src/platform/irq/nrf_802154_irq_zephyr.c
+  ${NRF_802154_SL_ROOT}/src/platform/temperature/nrf_802154_temperature_zephyr.c
 )
 
 set(NRF_802154_SL_INCLUDE_DIRS
