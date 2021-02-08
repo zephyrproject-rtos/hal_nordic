@@ -728,6 +728,28 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_tx_power_get(const voi
                                                     power);
 }
 
+/**
+ * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_CAPABILITIES_GET.
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_data buffer.
+ *
+ */
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_capabilities_get(const void * p_property_data,
+                                                                           size_t       property_data_len)
+{
+    (void) p_property_data;
+    (void) property_data_len;
+
+    nrf_802154_capabilities_t caps;
+
+    caps = nrf_802154_capabilities_get();
+
+    return nrf_802154_spinel_send_cmd_prop_value_is(SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CAPABILITIES_GET,
+                                                    SPINEL_DATATYPE_NRF_802154_CAPABILITIES_GET_RET,
+                                                    caps);
+}
+
 nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_set(const void * p_cmd_data,
                                                                  size_t       cmd_data_len)
 {
@@ -832,6 +854,10 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_set(const void * p_
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_BUFFER_FREE_RAW:
             return spinel_decode_prop_nrf_802154_buffer_free_raw(
+                        p_property_data, property_data_len);
+
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CAPABILITIES_GET:
+            return spinel_decode_prop_nrf_802154_capabilities_get(
                         p_property_data, property_data_len);
 
         default:

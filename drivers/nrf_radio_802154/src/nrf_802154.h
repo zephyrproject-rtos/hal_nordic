@@ -1628,6 +1628,19 @@ void nrf_802154_ifs_min_lifs_period_set(uint16_t period);
 
 #endif // NRF_802154_IFS_ENABLED
 
+/**
+ * @}
+ * @defgroup nrf_802154_capabilities Radio driver run-time capabilities feature.
+ * @{
+ */
+
+/**
+ * @brief Gets nRF 802.15.4 Radio Diver Capabilities.
+ *
+ * @return Capabilities of the radio driver.
+ */
+nrf_802154_capabilities_t nrf_802154_capabilities_get(void);
+
 /** @} */
 
 #ifdef __cplusplus

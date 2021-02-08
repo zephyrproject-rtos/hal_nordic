@@ -31,7 +31,9 @@
 #include <assert.h>
 #include <stddef.h>
 
+#ifndef TEST
 #include <nrf.h>
+#endif
 
 #include "../spinel_base/spinel.h"
 #include "nrf_802154_spinel.h"
@@ -446,6 +448,20 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_channel(const void * p_proper
                         NRF_802154_SERIALIZATION_ERROR_OK);
 }
 
+nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_nrf_802154_capabilities_get_ret(
+    const void                * p_property_data,
+    size_t                      property_data_len,
+    nrf_802154_capabilities_t * p_capabilities)
+{
+    spinel_ssize_t siz = spinel_datatype_unpack(p_property_data,
+                                                property_data_len,
+                                                SPINEL_DATATYPE_NRF_802154_CAPABILITIES_GET_RET,
+                                                p_capabilities);
+
+    return ((siz) < 0 ? NRF_802154_SERIALIZATION_ERROR_DECODING_FAILURE :
+                       NRF_802154_SERIALIZATION_ERROR_OK);
+}
+
 nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_is(
     const void                 * p_cmd_data,
     size_t                       cmd_data_len)
@@ -482,6 +498,8 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_is(
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TX_POWER_GET:
             // fall through
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CHANNEL_GET:
+            // fall through
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CAPABILITIES_GET:
             // fall through
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_PENDING_BIT_FOR_ADDR_SET:
             // fall through
@@ -554,6 +572,7 @@ nrf_802154_ser_err_t nrf_802154_spinel_dispatch_cmd(spinel_command_t cmd,
     }
 }
 
+#ifndef TEST
 __WEAK void nrf_802154_received_timestamp_raw(uint8_t * p_data,
                                               int8_t    rssi,
                                               uint8_t   lqi,
@@ -620,3 +639,4 @@ __WEAK void nrf_802154_energy_detection_failed(nrf_802154_ed_error_t error)
     (void)error;
     // Intentionally empty
 }
+#endif // TEST

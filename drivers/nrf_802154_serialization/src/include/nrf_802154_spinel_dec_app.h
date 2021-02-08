@@ -43,6 +43,8 @@
 #include "../spinel_base/spinel.h"
 #include "nrf_802154_serialization_error.h"
 
+#include "nrf_802154.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -84,7 +86,7 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_generic_bool(
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
  * @param[out] p_power            Decoded Tx Power.
- * 
+ *
  * @returns zero on success or negative error value on failure.
  */
 nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_nrf_802154_tx_power_get_ret(
@@ -105,6 +107,21 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_nrf_802154_tx_power_get_ret(
 nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_channel(const void * p_property_data,
                                                            size_t       property_data_len,
                                                            uint8_t    * p_channel);
+
+/**
+ * @brief Decode SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CAPABILITIES_GET.
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
+ * @param[out] p_capabilities     Decoded capabilities.
+ *
+ * @returns zero on success or negative error value on failure.
+ *
+ */
+nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_nrf_802154_capabilities_get_ret(
+    const void                * p_property_data,
+    size_t                      property_data_len,
+    nrf_802154_capabilities_t * p_capabilities);
 
 /**
  * @brief Decode and dispatch SPINEL_CMD_PROP_VALUE_IS.

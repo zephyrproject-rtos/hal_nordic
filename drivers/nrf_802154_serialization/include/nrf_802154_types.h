@@ -104,6 +104,29 @@ typedef uint8_t nrf_802154_src_addr_match_t;
 #define NRF_802154_SRC_ADDR_MATCH_ALWAYS_1 0x02 // !< Standard compliant implementation.
 
 /**
+ * @brief Capabilites of nrf 802.15.4 radio driver
+ *
+ * Possible values:
+ * - @ref NRF_802154_CAPABILITY_CSMA,
+ * - @ref NRF_802154_CAPABILITY_DELAYED_TX,
+ * - @ref NRF_802154_CAPABILITY_DELAYED_RX,
+ * - @ref NRF_802154_CAPABILITY_ACK_TIMEOUT,
+ * - @ref NRF_802154_CAPABILITY_ANT_DIVERSITY,
+ * - @ref NRF_802154_CAPABILITY_IFS,
+ * - @ref NRF_802154_CAPABILITY_TIMESTAMP
+ *
+ */
+typedef uint32_t nrf_802154_capabilities_t;
+
+#define NRF_802154_CAPABILITY_CSMA          (1UL << 0UL) // !< CSMA-CA supported
+#define NRF_802154_CAPABILITY_DELAYED_TX    (1UL << 1UL) // !< TX at specified time supported
+#define NRF_802154_CAPABILITY_DELAYED_RX    (1UL << 2UL) // !< RX at specified time supported
+#define NRF_802154_CAPABILITY_ACK_TIMEOUT   (1UL << 3UL) // !< ACK timeout supported
+#define NRF_802154_CAPABILITY_ANT_DIVERSITY (1UL << 4UL) // !< Antenna diversity supported
+#define NRF_802154_CAPABILITY_IFS           (1UL << 5UL) // !< Inter-frame spacing supported
+#define NRF_802154_CAPABILITY_TIMESTAMP     (1UL << 6UL) // !< Frame timestamping supported
+
+/**
  *@}
  **/
 

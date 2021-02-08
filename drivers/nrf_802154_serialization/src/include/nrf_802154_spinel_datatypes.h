@@ -244,6 +244,12 @@ typedef enum
      */
     SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TRANSMIT_FAILED =
         SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 30,
+
+    /**
+     * Vendor property for nrf_802154_capabilities_get serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CAPABILITIES_GET =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 31,
 } spinel_prop_vendor_key_t;
 
 /**
@@ -447,7 +453,7 @@ typedef enum
 
 /**
 * @brief Spinel data type desription for nrf_802154_pending_bit_for_addr_set.
-* 
+*
 * SPINEL_DATATYPE_ARRAY_S encoding is not implemented, SPINEL_DATATYPE_DATA_S has to be used instead.
 */
 #define SPINEL_DATATYPE_NRF_802154_PENDING_BIT_FOR_ADDR_SET  SPINEL_DATATYPE_DATA_S
@@ -500,6 +506,16 @@ typedef enum
 #define SPINEL_DATATYPE_NRF_802154_TRANSMIT_FAILED                       \
     SPINEL_DATATYPE_UINT32_S           /* Handle to transmitted frame */ \
     SPINEL_DATATYPE_UINT8_S            /* Error code */
+
+/**
+ * @brief Spinel data type description for nrf_802154_capabilities_get.
+ */
+#define SPINEL_DATATYPE_NRF_802154_CAPABILITIES_GET SPINEL_DATATYPE_NULL_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_capabilities_get_ret.
+ */
+#define SPINEL_DATATYPE_NRF_802154_CAPABILITIES_GET_RET SPINEL_DATATYPE_UINT32_S
 
 #ifdef __cplusplus
 }
