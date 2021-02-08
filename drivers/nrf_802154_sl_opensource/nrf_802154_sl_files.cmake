@@ -1,5 +1,6 @@
 set(NRF_802154_SL_OPENSOURCE_SOURCES
   ${NRF_802154_SL_ROOT}/src/nrf_802154_sl_ant_div.c
+  ${NRF_802154_SL_ROOT}/src/nrf_802154_sl_capabilities.c
   ${NRF_802154_SL_ROOT}/src/nrf_802154_sl_coex.c
   ${NRF_802154_SL_ROOT}/src/nrf_802154_sl_fem.c
   ${NRF_802154_SL_ROOT}/src/nrf_802154_sl_log.c

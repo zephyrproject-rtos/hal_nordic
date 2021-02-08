@@ -366,4 +366,11 @@ int8_t nrf_802154_tx_power_get(void);
  */
 int8_t nrf_802154_dbm_from_energy_level_calculate(uint8_t energy_level);
 
+/**
+ * @brief Gets nRF 802.15.4 Radio Diver Capabilities.
+ *
+ * @return Capabilities of the radio driver.
+ */
+nrf_802154_capabilities_t nrf_802154_capabilities_get(void);
+
 #endif
