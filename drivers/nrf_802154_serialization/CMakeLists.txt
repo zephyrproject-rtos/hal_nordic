@@ -38,6 +38,7 @@ zephyr_library_sources(
     src/nrf_802154_kvmap.c
     src/nrf_802154_spinel.c
     src/nrf_802154_spinel_dec.c
+    src/platform/zephyr/nrf_802154_serialization_crit_sect.c
     src/platform/zephyr/nrf_802154_spinel_log.c
     src/platform/zephyr/nrf_802154_spinel_backend_ipc.c
     src/platform/zephyr/nrf_802154_spinel_response_notifier.c

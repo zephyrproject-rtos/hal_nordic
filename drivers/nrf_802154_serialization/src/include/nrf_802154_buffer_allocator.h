@@ -49,15 +49,8 @@
 #include <stdint.h>
 
 /**
- * @brief Indicates whether buffer allocation should be performed in a thread safe manner.
- */
-#ifndef CONFIG_NRF_802154_SER_BUFFER_ALLOCATOR_THREAD_SAFE
-#define CONFIG_NRF_802154_SER_BUFFER_ALLOCATOR_THREAD_SAFE 1
-#endif
-
-/**
  * @brief Default length of a buffer allocated by the buffer allocation mechanism.
- * 
+ *
  * The buffer should be able to store the longest possible 802.15.4 packet.
  */
 #define NRF_802154_BUFFER_ALLOCATOR_DEFAULT_BUFFER_LEN 128
@@ -75,7 +68,7 @@
 #define NRF_802154_BUFFER_ALLOCATOR_MEMORY_SIZE(capacity) \
         ((capacity) * (sizeof(nrf_802154_buffer_t)))
 
-/** @brief Structure representing a buffer. */ 
+/** @brief Structure representing a buffer. */
 typedef struct
 {
     /** @brief Stored data. */
@@ -95,7 +88,7 @@ typedef struct
 
 /**
  * @brief Initializes a buffer allocator instance.
- * 
+ *
  * @param[out] p_obj  Pointer to an object to initialize.
  *                    The pointed object should persist as long as the buffer allocator
  *                    is in use. Cannot be NULL.
@@ -113,19 +106,19 @@ void nrf_802154_buffer_allocator_init(nrf_802154_buffer_allocator_t * p_obj,
 
 /**
  * @brief Allocates buffer for 802.15.4 reception or transmission.
- * 
+ *
  * @param[in] p_obj  Pointer to a buffer allocator that stores the buffer pool to allocate from.
- * 
+ *
  * @return Pointer to allocated buffer or NULL if no buffer could be allocated.
  */
 void * nrf_802154_buffer_allocator_alloc(const nrf_802154_buffer_allocator_t * p_obj);
 
 /**
  * @brief Frees buffer allocated for 802.15.4 reception or transmission.
- * 
+ *
  * @param[in] p_obj     Pointer to a buffer allocator that stores the buffer pool to free from.
  * @param[in] p_buffer  Pointer to a buffer to free.
- * 
+ *
  * @note This function should be used complementary to @ref nrf_802154_buffer_allocator_alloc.
  */
 void nrf_802154_buffer_allocator_free(const nrf_802154_buffer_allocator_t * p_obj, void * p_buffer);

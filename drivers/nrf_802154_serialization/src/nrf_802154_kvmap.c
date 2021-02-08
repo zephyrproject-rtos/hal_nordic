@@ -42,6 +42,8 @@
 
 #include "nrf_802154_kvmap.h"
 
+#include "nrf_802154_serialization_crit_sect.h"
+
 #include <stdint.h>
 #include <string.h>
 
@@ -97,81 +99,105 @@ void nrf_802154_kvmap_init(nrf_802154_kvmap_t * p_kvmap,
 
 bool nrf_802154_kvmap_add(nrf_802154_kvmap_t * p_kvmap, const void * p_key, const void * p_value)
 {
-    size_t idx;
+    uint32_t crit_sect;
+    size_t   idx;
+    bool     success = true;
+
+    nrf_802154_serialization_crit_sect_enter(&crit_sect);
 
     idx = item_idx_by_key_search(p_kvmap, p_key);
     if (idx < p_kvmap->count)
     {
         /* Item already present */
         uint8_t * p_item = item_ptr_by_idx_get(p_kvmap, idx);
+
         item_value_write(p_kvmap, p_item, p_value);
-        return true;
     }
-
-    /* Not found, try to add next at p_kvmap->count */
-    idx = p_kvmap->count;
-    if (idx >= p_kvmap->capacity)
+    else if (p_kvmap->count >= p_kvmap->capacity)
     {
-        return false;
+        /* Item not found, but the map is at full capacity. Don't add the item */
+        success = false;
+    }
+    else
+    {
+        /* Not found, try to add next at p_kvmap->count */
+        uint8_t * p_item = item_ptr_by_idx_get(p_kvmap, p_kvmap->count);
+
+        memcpy(p_item, p_key, p_kvmap->key_size);
+        item_value_write(p_kvmap, p_item, p_value);
+
+        p_kvmap->count++;
     }
 
-    uint8_t * p_item = item_ptr_by_idx_get(p_kvmap, idx);
+    nrf_802154_serialization_crit_sect_exit(crit_sect);
 
-    memcpy(p_item, p_key, p_kvmap->key_size);
-    item_value_write(p_kvmap, p_item, p_value);
-
-    p_kvmap->count++;
-
-    return true;
+    return success;
 }
 
 bool nrf_802154_kvmap_remove(nrf_802154_kvmap_t * p_kvmap, const void * p_key)
 {
-    size_t idx;
+    uint32_t crit_sect;
+    size_t   idx;
+    bool     success = true;
 
-    idx =  item_idx_by_key_search(p_kvmap, p_key);
-    if (idx >= p_kvmap->count)
-    {
-        /* Key not found */
-        return false;
-    }
-
-    p_kvmap->count--;
-    if (idx < p_kvmap->count)
-    {
-        const uint8_t * p_last_item = item_ptr_by_idx_get(p_kvmap, p_kvmap->count);
-        uint8_t       * p_item      = item_ptr_by_idx_get(p_kvmap, idx);
-
-        memcpy(p_item, p_last_item,
-            NRF_802154_KVMAP_ITEMSIZE(p_kvmap->key_size, p_kvmap->val_size));
-    }
-    else
-    {
-        /* We hit last item, no item move necessary */
-    }
-
-    return true;
-}
-
-bool nrf_802154_kvmap_search(const nrf_802154_kvmap_t * p_kvmap,
-                             const void * p_key,
-                             void * p_value)
-{
-    size_t idx;
+    nrf_802154_serialization_crit_sect_enter(&crit_sect);
 
     idx = item_idx_by_key_search(p_kvmap, p_key);
     if (idx >= p_kvmap->count)
     {
-        return false;
+        /* Key not found */
+        success = false;
     }
-
-    const uint8_t * p_item = item_ptr_by_idx_get(p_kvmap, idx);
-
-    /* Copy value associated with the key if requested and values are present */
-    if ((p_value != NULL) && (p_kvmap->val_size != 0U))
+    else
     {
-        memcpy(p_value, p_item + p_kvmap->key_size, p_kvmap-> val_size);
+        p_kvmap->count--;
+        if (idx < p_kvmap->count)
+        {
+            const uint8_t * p_last_item = item_ptr_by_idx_get(p_kvmap, p_kvmap->count);
+            uint8_t       * p_item      = item_ptr_by_idx_get(p_kvmap, idx);
+
+            memcpy(p_item, p_last_item,
+                NRF_802154_KVMAP_ITEMSIZE(p_kvmap->key_size, p_kvmap->val_size));
+        }
+        else
+        {
+            /* We hit last item, no item move necessary */
+        }
     }
 
-    return true;
+    nrf_802154_serialization_crit_sect_exit(crit_sect);
+
+    return success;
+}
+
+bool nrf_802154_kvmap_search(const nrf_802154_kvmap_t * p_kvmap,
+                             const void               * p_key,
+                             void                     * p_value)
+{
+    uint32_t crit_sect;
+    size_t   idx;
+    bool     success = true;
+
+    nrf_802154_serialization_crit_sect_enter(&crit_sect);
+
+    idx = item_idx_by_key_search(p_kvmap, p_key);
+    if (idx >= p_kvmap->count)
+    {
+        /* Key not found */
+        success = false;
+    }
+    else
+    {
+        const uint8_t * p_item = item_ptr_by_idx_get(p_kvmap, idx);
+
+        /* Copy value associated with the key if requested and values are present */
+        if ((p_value != NULL) && (p_kvmap->val_size != 0U))
+        {
+            memcpy(p_value, p_item + p_kvmap->key_size, p_kvmap-> val_size);
+        }
+    }
+
+    nrf_802154_serialization_crit_sect_exit(crit_sect);
+
+    return success;
 }
