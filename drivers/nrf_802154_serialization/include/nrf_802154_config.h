@@ -36,8 +36,6 @@
 #include NRF_802154_PROJECT_CONFIG
 #endif
 
-#include <nrf.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

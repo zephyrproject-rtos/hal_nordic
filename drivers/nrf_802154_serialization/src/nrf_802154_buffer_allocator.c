@@ -43,42 +43,20 @@
 
 #include "nrf_802154_buffer_allocator.h"
 
+#include "nrf_802154_serialization_crit_sect.h"
+
 #include <assert.h>
 #include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
-#if CONFIG_NRF_802154_SER_BUFFER_ALLOCATOR_THREAD_SAFE
-#include "nrf.h"
-#endif
-
-#if CONFIG_NRF_802154_SER_BUFFER_ALLOCATOR_THREAD_SAFE
-static volatile uint32_t m_critical_section; ///< Current state of critical section.
-#endif
-
-/** @brief Enters a critical section. */
-static void critical_section_enter(void)
-{
-#if CONFIG_NRF_802154_SER_BUFFER_ALLOCATOR_THREAD_SAFE
-    m_critical_section = __get_PRIMASK();
-    __disable_irq();
-#endif
-}
-
-/** @brief Exits a critical section. */
-static void critical_section_exit(void)
-{
-#if CONFIG_NRF_802154_SER_BUFFER_ALLOCATOR_THREAD_SAFE
-    __set_PRIMASK(m_critical_section);
-#endif
-}
-
 static uint8_t * buffer_alloc(nrf_802154_buffer_t * p_buffer_pool, size_t buffer_pool_len)
 {
     nrf_802154_buffer_t * p_buffer = NULL;
     bool                  success  = false;
     bool                  retry    = false;
+    uint32_t              crit_sect;
 
     do
     {
@@ -92,7 +70,7 @@ static uint8_t * buffer_alloc(nrf_802154_buffer_t * p_buffer_pool, size_t buffer
             if (!p_buffer->taken)
             {
                 // Free buffer detected. Enter critical section to take it
-                critical_section_enter();
+                nrf_802154_serialization_crit_sect_enter(&crit_sect);
 
                 if (p_buffer->taken)
                 {
@@ -107,7 +85,7 @@ static uint8_t * buffer_alloc(nrf_802154_buffer_t * p_buffer_pool, size_t buffer
                     success = true;
                 }
 
-                critical_section_exit();
+                nrf_802154_serialization_crit_sect_exit(crit_sect);
 
                 break;
             }
@@ -121,16 +99,17 @@ static void buffer_free(nrf_802154_buffer_t * p_buffer_to_free,
                         nrf_802154_buffer_t * p_buffer_pool,
                         size_t                buffer_pool_len)
 {
-    size_t idx =
+    uint32_t crit_sect;
+    size_t   idx =
         ((uintptr_t)p_buffer_to_free - (uintptr_t)p_buffer_pool) / sizeof(nrf_802154_buffer_t);
 
     assert(idx < buffer_pool_len);
 
-    critical_section_enter();
+    nrf_802154_serialization_crit_sect_enter(&crit_sect);
 
     p_buffer_pool[idx].taken = false;
 
-    critical_section_exit();
+    nrf_802154_serialization_crit_sect_exit(crit_sect);
 }
 
 void nrf_802154_buffer_allocator_init(nrf_802154_buffer_allocator_t * p_obj,
