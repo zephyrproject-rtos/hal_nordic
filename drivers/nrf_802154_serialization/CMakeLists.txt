@@ -28,7 +28,7 @@
 
 cmake_minimum_required(VERSION 3.13.1)
 
-zephyr_library()
+zephyr_library_named(nrf_802154_ser)
 
 zephyr_library_sources(
     spinel_base/spinel.c
