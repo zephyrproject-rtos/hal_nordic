@@ -258,7 +258,11 @@ nrfx_err_t nrfx_gpiote_init(uint8_t interrupt_priority)
 
     for (i = 0; i < (GPIOTE_CH_NUM + NRFX_GPIOTE_CONFIG_NUM_OF_LOW_POWER_EVENTS); i++)
     {
-        channel_free(i);
+        m_cb.handlers[i] = UNALLOCATED_HANDLER_ADDRESS;
+        if (i >= GPIOTE_CH_NUM)
+        {
+            m_cb.port_handlers_pins[i - GPIOTE_CH_NUM] = (int8_t)PIN_NOT_USED;
+        }
     }
 
     memset(m_cb.configured_pins, 0, sizeof(m_cb.configured_pins));
