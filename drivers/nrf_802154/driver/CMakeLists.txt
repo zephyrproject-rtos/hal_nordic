@@ -64,8 +64,8 @@ else ()
 endif ()
 
 if (SL_OPENSOURCE OR NRF53_SERIES)
-  target_compile_definitions(nrf-802154-driver
-    PUBLIC
+  target_compile_definitions(nrf-802154-driver-interface
+    INTERFACE
       # Disable Frame Timestamps
       NRF_802154_FRAME_TIMESTAMP_ENABLED=0
       # Disable DTRX
@@ -74,8 +74,8 @@ if (SL_OPENSOURCE OR NRF53_SERIES)
       NRF_802154_IFS_ENABLED=0
   )
 else()
-  target_compile_definitions(nrf-802154-driver
-    PUBLIC
+  target_compile_definitions(nrf-802154-driver-interface
+    INTERFACE
       # Enable Frame Timestamps
       NRF_802154_FRAME_TIMESTAMP_ENABLED=1
       # Enable DTRX
