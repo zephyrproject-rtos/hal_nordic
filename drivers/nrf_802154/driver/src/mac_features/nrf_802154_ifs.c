@@ -52,8 +52,8 @@
 #if NRF_802154_IFS_ENABLED
 typedef struct
 {
-    uint8_t * p_data;
-    bool      cca;
+    uint8_t                    * p_data;
+    nrf_802154_transmit_params_t params;
 } ifs_operation_t;
 
 static union
@@ -83,8 +83,7 @@ static void callback_fired(void * p_context)
     nrf_802154_request_transmit(NRF_802154_TERM_NONE,
                                 REQ_ORIG_IFS,
                                 p_ctx->p_data,
-                                p_ctx->cca,
-                                true,
+                                &p_ctx->params,
                                 ifs_tx_result_notify);
 }
 
@@ -147,9 +146,21 @@ static uint16_t ifs_needed_by_time(uint32_t current_timestamp)
     return ifs_period;
 }
 
-bool nrf_802154_ifs_pretransmission(const uint8_t * p_frame, bool cca)
+bool nrf_802154_ifs_pretransmission(
+    const uint8_t                           * p_frame,
+    nrf_802154_transmit_params_t            * p_params,
+    nrf_802154_transmit_failed_notification_t notify_function)
 {
-    nrf_802154_ifs_mode_t mode = nrf_802154_pib_ifs_mode_get();
+    (void)notify_function;
+
+    nrf_802154_ifs_mode_t mode;
+
+    if (p_params->immediate)
+    {
+        return true;
+    }
+
+    mode = nrf_802154_pib_ifs_mode_get();
 
     if (mode == NRF_802154_IFS_MODE_DISABLED)
     {
@@ -176,12 +187,14 @@ bool nrf_802154_ifs_pretransmission(const uint8_t * p_frame, bool cca)
         return true;
     }
 
-    m_context.p_data  = (uint8_t *)p_frame;
-    m_context.cca     = cca;
-    m_timer.t0        = m_last_frame_timestamp;
-    m_timer.dt        = dt;
-    m_timer.callback  = callback_fired;
-    m_timer.p_context = &m_context;
+    m_context.p_data                   = (uint8_t *)p_frame;
+    m_context.params.cca               = p_params->cca;
+    m_context.params.immediate         = true;
+    m_context.params.is_retransmission = p_params->is_retransmission;
+    m_timer.t0                         = m_last_frame_timestamp;
+    m_timer.dt                         = dt;
+    m_timer.callback                   = callback_fired;
+    m_timer.p_context                  = &m_context;
 
     nrf_802154_timer_sched_add(&m_timer, true);
 

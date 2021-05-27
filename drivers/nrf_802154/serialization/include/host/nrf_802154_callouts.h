@@ -33,7 +33,7 @@
  */
 
 /**@file nrf_802154_callouts.h
- * @brief Provides function prototypes required by nRF 802.15.4 Radio Diver
+ * @brief Provides function prototypes required by nRF 802.15.4 Radio Driver
  *
  * Functions whose prototypes are defined in this file are to be implemented
  * by an application using the nRF 802.15.4 Radio Driver.
