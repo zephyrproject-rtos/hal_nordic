@@ -287,6 +287,17 @@ bool nrf_802154_rsch_delayed_timeslot_priority_update(rsch_dly_ts_id_t dly_ts_id
                                                       rsch_prio_t      dly_ts_prio);
 
 /**
+ * @brief Retrieves the remaining time until a requested timeslot begins.
+ *
+ * @param[in]  dly_ts_id        ID of the requested timeslot.
+ * @param[out] p_time_to_start  Pointer to a 32-bit variable where time to start will be stored.
+ *
+ * @retval true     The given timeslot was scheduled and p_time_to_start contains a valid value.
+ * @retval false    The given timeslot was not scheduled and p_time_to_start was not modified.
+ */
+bool nrf_802154_rsch_delayed_timeslot_time_to_start_get(rsch_dly_ts_id_t dly_ts_id,
+                                                        uint32_t       * p_time_to_start);
+/**
  * @brief Checks if there is a pending timeslot request.
  *
  * @note The delayed timeslot is considered requested once its preconditions are requested

@@ -266,6 +266,19 @@ typedef enum
      */
     SPINEL_PROP_VENDOR_NORDIC_NRF_802154_ACK_DATA_CLEAR =
         SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 33,
+
+    /**
+     * Vendor property for nrf_802154_time_get serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TIME_GET =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 34,
+
+    /**
+     * Vendor property for nrf_802154_retransmit_csma_ca_raw serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_RETRANSMIT_CSMA_CA_RAW =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 35,
+
 } spinel_prop_vendor_key_t;
 
 /**
@@ -538,6 +551,12 @@ typedef enum
     SPINEL_DATATYPE_NRF_802154_HDATA_S /* Frame to transmit with its handle */
 
 /**
+ * @brief Spinel data type description for nrf_802154_retransmit_csma_ca_raw.
+ */
+#define SPINEL_DATATYPE_NRF_802154_RETRANSMIT_CSMA_CA_RAW \
+    SPINEL_DATATYPE_NRF_802154_HDATA_S /* Frame to transmit with its handle */
+
+/**
  * @brief Spinel data type description for nrf_802154_transmitted_raw.
  */
 #define SPINEL_DATATYPE_NRF_802154_TRANSMITTED_RAW                       \
@@ -562,6 +581,16 @@ typedef enum
  * @brief Spinel data type description for nrf_802154_capabilities_get_ret.
  */
 #define SPINEL_DATATYPE_NRF_802154_CAPABILITIES_GET_RET SPINEL_DATATYPE_UINT32_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_time_get.
+ */
+#define SPINEL_DATATYPE_NRF_802154_TIME_GET             SPINEL_DATATYPE_NULL_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_time_get_ret.
+ */
+#define SPINEL_DATATYPE_NRF_802154_TIME_GET_RET         SPINEL_DATATYPE_UINT32_S
 
 #ifdef __cplusplus
 }
