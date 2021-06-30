@@ -118,7 +118,8 @@ typedef enum
 /** @brief TWIS driver event structure. */
 typedef struct
 {
-    nrfx_twis_evt_type_t type; ///< Event type.
+    nrfx_twis_evt_type_t type;    ///< Event type.
+    void *               context; ///< User defined context.
     union
     {
         bool buf_req;       ///< Flag for @ref NRFX_TWIS_EVT_READ_REQ and @ref NRFX_TWIS_EVT_WRITE_REQ.
@@ -192,6 +193,33 @@ typedef struct
 nrfx_err_t nrfx_twis_init(nrfx_twis_t const *        p_instance,
                           nrfx_twis_config_t const * p_config,
                           nrfx_twis_event_handler_t  event_handler);
+
+/**
+ * @brief Function for initializing the TWIS driver instance with a context.
+ *
+ * Function initializes and enables the TWIS driver with a custom context that
+ * will the passed to callback functions.
+ * @attention After driver initialization enable it with @ref nrfx_twis_enable.
+ *
+ * @param[in] p_instance    Pointer to the driver instance structure.
+ * @attention               @em p_instance has to be global object.
+ *                          It will be used by interrupts so make it sure that object
+ *                          is not destroyed when function is leaving.
+ * @param[in] p_config      Pointer to the structure with the initial configuration.
+ * @param[in] event_handler Event handler provided by the user.
+ * @param[in] context       Custom context provided by the user.
+ *
+ * @retval NRFX_SUCCESS             Initialization is successful.
+ * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
+ * @retval NRFX_ERROR_BUSY          Some other peripheral with the same
+ *                                  instance ID is already in use. This is
+ *                                  possible only if NRFX_PRS_ENABLED
+ *                                  is set to a value other than zero.
+ */
+nrfx_err_t nrfx_twis_init_with_ctx(nrfx_twis_t const *        p_instance,
+                                   nrfx_twis_config_t const * p_config,
+                                   nrfx_twis_event_handler_t  event_handler,
+                                   void *                     context);
 
 /**
  * @brief Function for uninitializing the TWIS driver instance.

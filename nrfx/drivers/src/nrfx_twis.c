@@ -76,6 +76,7 @@ typedef enum
 typedef struct
 {
     nrfx_twis_event_handler_t       ev_handler;
+    void *                          context;
     // Internal copy of hardware errors flags merged with specific internal
     // driver errors flags.
     // This value can be changed in the interrupt and cleared in the main program.
@@ -210,11 +211,12 @@ static inline uint32_t nrfx_twis_clear_bit(uint32_t         flags,
 }
 
 static void call_event_handler(twis_control_block_t const * p_cb,
-                               nrfx_twis_evt_t const *      p_evt)
+                               nrfx_twis_evt_t *      p_evt)
 {
     nrfx_twis_event_handler_t handler = p_cb->ev_handler;
     if (handler != NULL)
     {
+        p_evt->context = p_cb->context;
         handler(p_evt);
     }
 }
@@ -453,10 +455,17 @@ static inline void nrfx_twis_preprocess_status(nrfx_twis_t const * p_instance)
  *
  */
 
-
 nrfx_err_t nrfx_twis_init(nrfx_twis_t const *        p_instance,
                           nrfx_twis_config_t const * p_config,
                           nrfx_twis_event_handler_t  event_handler)
+{
+    return nrfx_twis_init_with_ctx(p_instance, p_config, event_handler, NULL);
+}
+
+nrfx_err_t nrfx_twis_init_with_ctx(nrfx_twis_t const *        p_instance,
+                                   nrfx_twis_config_t const * p_config,
+                                   nrfx_twis_event_handler_t  event_handler,
+                                   void *                     context)
 {
     NRFX_ASSERT(p_config);
     NRFX_ASSERT(p_config->scl != p_config->sda);
@@ -546,6 +555,7 @@ nrfx_err_t nrfx_twis_init(nrfx_twis_t const *        p_instance,
     /* Set internal instance variables */
     p_cb->substate   = NRFX_TWIS_SUBSTATE_IDLE;
     p_cb->ev_handler = event_handler;
+    p_cb->context    = context;
     p_cb->state      = NRFX_DRV_STATE_INITIALIZED;
     err_code = NRFX_SUCCESS;
     NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
