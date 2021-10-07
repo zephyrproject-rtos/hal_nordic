@@ -497,6 +497,15 @@ uint16_t nrfx_nvmc_otp_halfword_read(uint32_t addr)
                                                      : (uint16_t)(val32 >> 16));
 }
 
+uint32_t nrfx_nvmc_uicr_word_read(uint32_t address)
+{
+    uint32_t value = *(uint32_t *)address;
+
+    __DSB(); // nRF9160_Rev_2_Errata_v1.0 PAN 7
+
+    return value;
+}
+
 uint32_t nrfx_nvmc_flash_size_get(void)
 {
     return flash_total_size_get();

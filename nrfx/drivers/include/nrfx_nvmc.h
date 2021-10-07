@@ -262,6 +262,19 @@ void nrfx_nvmc_words_write(uint32_t address, void const * src, uint32_t num_word
 uint16_t nrfx_nvmc_otp_halfword_read(uint32_t address);
 
 /**
+ * @brief Function for reading a 32-bit aligned word from the UICR
+ *
+ * This function should be used to read from the UICR since
+ * reading the flash main memory area straight after reading the UICR
+ * results in undefined behaviour. nRF9160_Rev_2_Errata_v1.0 PAN 7.
+ *
+ * @param address Address to read from. Must be word-aligned.
+ *
+ * @retval The contents at @p address.
+ */
+uint32_t nrfx_nvmc_uicr_word_read(uint32_t address);
+
+/**
  * @brief Function for getting the total flash size in bytes.
  *
  * @return Flash total size in bytes.
