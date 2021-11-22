@@ -24,7 +24,7 @@ NOTICE: This file has been modified by Nordic Semiconductor ASA.
 #define SYSTEM_NRF53_APPROTECT_H
 
 #include "nrf.h"
-#include "nrf_erratas.h"
+#include "nrf53_erratas.h"
 
 #ifdef __cplusplus
 extern "C" {
