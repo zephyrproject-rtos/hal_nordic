@@ -52,7 +52,6 @@ target_sources(nrf-802154-driver
     src/nrf_802154_debug_assert.c
     src/nrf_802154_encrypt.c
     src/nrf_802154_pib.c
-    src/nrf_802154_peripherals_alloc.c
     src/nrf_802154_queue.c
     src/nrf_802154_rssi.c
     src/nrf_802154_rx_buffer.c
