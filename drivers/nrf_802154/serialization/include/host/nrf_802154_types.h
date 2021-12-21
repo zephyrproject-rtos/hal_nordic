@@ -88,7 +88,24 @@ typedef uint8_t nrf_802154_ed_error_t;
  */
 typedef uint8_t nrf_802154_cca_error_t;
 
-#define NRF_802154_CCA_ERROR_ABORTED 0x01 // !< Procedure was aborted by another operation.
+#define NRF_802154_CCA_ERROR_ABORTED      0x01 // !< Procedure was aborted by another operation.
+
+/** @brief RADIO Clear Channel Assessment modes. */
+#define NRF_RADIO_CCA_MODE_ED             0x00
+#define NRF_RADIO_CCA_MODE_CARRIER        0x01
+#define NRF_RADIO_CCA_MODE_CARRIER_AND_ED 0x02
+#define NRF_RADIO_CCA_MODE_CARRIER_OR_ED  0x03
+
+/**
+ * @brief Structure for configuring CCA.
+ */
+typedef struct
+{
+    uint8_t mode;           // !< CCA mode.
+    uint8_t ed_threshold;   // !< Busy threshold of the CCA energy. Not used in @ref NRF_RADIO_CCA_MODE_CARRIER.
+    uint8_t corr_threshold; // !< Busy threshold of the CCA correlator. Not used in @ref NRF_RADIO_CCA_MODE_ED.
+    uint8_t corr_limit;     // !< Limit of occurrences above the busy threshold of the CCA correlator. Not used in @ref NRF_RADIO_CCA_MODE_ED.
+} nrf_802154_cca_cfg_t;
 
 /**
  * @brief Types of data that can be set in an ACK message.
@@ -102,7 +119,7 @@ typedef uint8_t nrf_802154_ack_data_t;
  * @brief Methods of source address matching.
  *
  * You can use one of the following methods that can be set during the initialization phase
- * by calling @ref nrf_802154_src_matching_method:
+ * by calling @ref nrf_802154_src_addr_matching_method_set:
  *   - For Thread: @ref NRF_802154_SRC_ADDR_MATCH_THREAD -- The pending bit is set only for the addresses found in the list.
  *   - For Zigbee: @ref NRF_802154_SRC_ADDR_MATCH_ZIGBEE -- The pending bit is cleared only for the short addresses found in the list.\n
  *     This method does not set pending bit in non-command and non-data-request frames.
@@ -139,6 +156,25 @@ typedef uint32_t nrf_802154_capabilities_t;
 #define NRF_802154_CAPABILITY_IFS           (1UL << 5UL) // !< Inter-frame spacing supported
 #define NRF_802154_CAPABILITY_TIMESTAMP     (1UL << 6UL) // !< Frame timestamping supported
 #define NRF_802154_CAPABILITY_SECURITY      (1UL << 7UL) // !< Frame security supported
+
+/**
+ * @brief Type of structure holding time stamps of certain events.
+ */
+typedef struct
+{
+    /**@brief Time stamp of last CSMA/CA procedure started. */
+    uint32_t last_csmaca_start_timestamp;
+    /**@brief Time stamp of last CCA start attempt. */
+    uint32_t last_cca_start_timestamp;
+    /**@brief Time stamp of last CCA attempt finished with CCA IDLE (channel was free to transmit). */
+    uint32_t last_cca_idle_timestamp;
+    /**@brief Time stamp when last bit of transmitted frame was sent on the air. */
+    uint32_t last_tx_end_timestamp;
+    /**@brief Time stamp when last bit of acknowledge frame was received */
+    uint32_t last_ack_end_timestamp;
+    /**@brief Time stamp when last bit of received frame was received. */
+    uint32_t last_rx_end_timestamp;
+} nrf_802154_stat_timestamps_t;
 
 /**
  * @brief Structure with frame properties associated with the transmission operation.
@@ -182,6 +218,16 @@ typedef struct
 } nrf_802154_transmit_metadata_t;
 
 /**
+ * @brief Structure with transmit request metadata for scheduling transmission at a specific time.
+ */
+typedef struct
+{
+    nrf_802154_transmitted_frame_props_t frame_props; // !< Properties of the frame to be transmitted.
+    bool                                 cca;         // !< If the driver is to perform a CCA procedure before transmission.
+    uint8_t                              channel;     // !< Radio channel on which the frame is to be transmitted.
+} nrf_802154_transmit_at_metadata_t;
+
+/**
  * @brief Structure with transmit request metadata for transmission preceded by CSMA-CA procedure.
  */
 typedef struct
@@ -212,6 +258,59 @@ typedef struct
         } transmitted;       // !< Result values for a successful frame transmission.
     } data;                  // !< Result values that are valid only for successful operations.
 } nrf_802154_transmit_done_metadata_t;
+
+/**
+ * @brief Possible errors during key handling.
+ */
+typedef uint8_t nrf_802154_security_error_t;
+
+#define NRF_802154_SECURITY_ERROR_NONE                   0x00 // !< There is no error.
+#define NRF_802154_SECURITY_ERROR_STORAGE_FULL           0x01 // !< The key storage is full - removal of stored keys is needed.
+#define NRF_802154_SECURITY_ERROR_KEY_NOT_FOUND          0x02 // !< The provided key was not found inside the storage.
+#define NRF_802154_SECURITY_ERROR_ALREADY_PRESENT        0x03 // !< The storage already has the key of the same ID.
+#define NRF_802154_SECURITY_ERROR_TYPE_NOT_SUPPORTED     0x04 // !< The provided key type is not supported.
+#define NRF_802154_SECURITY_ERROR_MODE_NOT_SUPPORTED     0x05 // !< The provided key id mode is not supported.
+#define NRF_802154_SECURITY_ERROR_FRAME_COUNTER_OVERFLOW 0x06 // !< The associated frame counter overflowed.
+
+/**
+ * @brief Types of keys which can be used with the nRF 802.15.4 Radio Driver.
+ *
+ * Possible values:
+ * - @ref NRF_802154_KEY_CLEARTEXT,
+ *
+ */
+typedef uint32_t nrf_802154_key_type_t;
+
+#define NRF_802154_KEY_CLEARTEXT 0x00 // !< Key stored in clear text.
+
+/**
+ * @brief Type holding the value of Key Id Mode of the key stored in nRF 802.15.4 Radio Driver.
+ */
+typedef uint8_t nrf_802154_key_id_mode_t;
+
+/**
+ * @brief Type holding the value of Key Id for the keys stored in nRF 802.15.4 Radio Driver.
+ */
+typedef struct
+{
+    nrf_802154_key_id_mode_t mode;     // !< Key Id Mode (0..3)
+    uint8_t                * p_key_id; // !< Pointer to the Key Id field
+} nrf_802154_key_id_t;
+
+/**
+ * @brief Type of structure holding a 802.15.4 MAC Security Key.
+ */
+typedef struct
+{
+    union
+    {
+        uint8_t * p_cleartext_key;                  // !< Pointer to the cleartext representation of the key.
+    }                     value;                    // !< Union holding different representations of the key.
+    nrf_802154_key_id_t   id;                       // !< Key Id of the key.
+    nrf_802154_key_type_t type;                     // !< @ref nrf_802154_key_type_t type of the key used.
+    uint32_t              frame_counter;            // !< Frame counter to use in case @ref use_global_frame_counter is set to false.
+    bool                  use_global_frame_counter; // !< Whether to use the global frame counter instead of the one defined in this structure.
+} nrf_802154_key_t;
 
 /**
  *@}

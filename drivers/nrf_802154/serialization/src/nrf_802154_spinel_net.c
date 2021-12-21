@@ -283,14 +283,7 @@ void nrf_802154_transmitted_raw(uint8_t                                   * p_fr
 {
     uint32_t  remote_frame_handle;
     uint32_t  ack_handle = 0;
-    uint32_t  ack_len    = 0;
     uint8_t * p_ack      = p_metadata->data.transmitted.p_ack;
-
-    /* Forcefully overwrite frame's properties due to KRKNWK-10114 not being implemented.
-     * This overwrite makes state of the frame consistent with its properties.
-     */
-    ((nrf_802154_transmit_done_metadata_t *)p_metadata)->frame_props =
-        NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT;
 
     SERIALIZATION_ERROR_INIT(error);
 
@@ -323,16 +316,13 @@ void nrf_802154_transmitted_raw(uint8_t                                   * p_fr
             local_transmitted_frame_ptr_free((void *)p_frame);
             SERIALIZATION_ERROR(NRF_802154_SERIALIZATION_ERROR_NO_MEMORY, error, bail);
         }
-
-        ack_len = p_ack[0];
     }
 
     // Serialize the call
     nrf_802154_ser_err_t res = nrf_802154_spinel_send_cmd_prop_value_is(
         SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TRANSMITTED_RAW,
         SPINEL_DATATYPE_NRF_802154_TRANSMITTED_RAW,
-        remote_frame_handle,
-        NRF_802154_TRANSMIT_DONE_METADATA_ENCODE(*p_metadata, ack_handle));
+        NRF_802154_TRANSMITTED_RAW_ENCODE(remote_frame_handle, p_frame, *p_metadata, ack_handle));
 
     // Free the local frame pointer no matter the result of serialization
     local_transmitted_frame_ptr_free((void *)p_frame);
@@ -357,12 +347,6 @@ void nrf_802154_transmit_failed(uint8_t                                   * p_fr
     NRF_802154_SPINEL_LOG_BANNER_CALLING();
     NRF_802154_SPINEL_LOG_BUFF(p_frame, p_frame[0]);
 
-    /* Forcefully overwrite frame's properties due to KRKNWK-10114 not being implemented.
-     * This overwrite makes state of the frame consistent with its properties.
-     */
-    ((nrf_802154_transmit_done_metadata_t *)p_metadata)->frame_props =
-        NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT;
-
     // Search for the handle to the original frame buffer based on the local pointer
     bool frame_found = nrf_802154_buffer_mgr_dst_search_by_local_pointer(
         nrf_802154_spinel_dst_buffer_mgr_get(),
@@ -379,9 +363,7 @@ void nrf_802154_transmit_failed(uint8_t                                   * p_fr
     nrf_802154_ser_err_t res = nrf_802154_spinel_send_cmd_prop_value_is(
         SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TRANSMIT_FAILED,
         SPINEL_DATATYPE_NRF_802154_TRANSMIT_FAILED,
-        remote_frame_handle,
-        tx_error,
-        NRF_802154_TRANSMITTED_FRAME_PROPS_ENCODE(p_metadata->frame_props));
+        NRF_802154_TRANSMIT_FAILED_ENCODE(remote_frame_handle, p_frame, tx_error, *p_metadata));
 
     // Free the local frame pointer no matter the result of serialization
     local_transmitted_frame_ptr_free((void *)p_frame);

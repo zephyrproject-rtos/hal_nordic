@@ -64,6 +64,7 @@ typedef bool (* tx_setup_hook)(uint8_t                                 * p_frame
                                nrf_802154_transmit_failed_notification_t notify_function);
 typedef void (* transmitted_hook)(const uint8_t * p_frame);
 typedef bool (* tx_failed_hook)(uint8_t * p_frame, nrf_802154_tx_error_t error);
+typedef void (* tx_ack_failed_hook)(uint8_t * p_ack, nrf_802154_tx_error_t error);
 typedef bool (* tx_started_hook)(uint8_t * p_frame);
 typedef void (* rx_started_hook)(const uint8_t * p_frame);
 typedef void (* rx_ack_started_hook)(void);
@@ -136,6 +137,19 @@ static const tx_failed_hook m_tx_failed_hooks[] =
 
 #if NRF_802154_ACK_TIMEOUT_ENABLED
     nrf_802154_ack_timeout_tx_failed_hook,
+#endif
+
+#if NRF_802154_ENCRYPTION_ENABLED
+    nrf_802154_encrypt_tx_failed_hook,
+#endif
+
+    NULL,
+};
+
+static const tx_ack_failed_hook m_tx_ack_failed_hooks[] =
+{
+#if NRF_802154_ENCRYPTION_ENABLED
+    nrf_802154_encrypt_tx_ack_failed_hook,
 #endif
 
     NULL,
@@ -304,6 +318,19 @@ bool nrf_802154_core_hooks_tx_failed(uint8_t * p_frame, nrf_802154_tx_error_t er
     }
 
     return result;
+}
+
+void nrf_802154_core_hooks_tx_ack_failed(uint8_t * p_ack, nrf_802154_tx_error_t error)
+{
+    for (uint32_t i = 0; i < sizeof(m_tx_ack_failed_hooks) / sizeof(m_tx_ack_failed_hooks[0]); i++)
+    {
+        if (m_tx_ack_failed_hooks[i] == NULL)
+        {
+            break;
+        }
+
+        m_tx_ack_failed_hooks[i](p_ack, error);
+    }
 }
 
 bool nrf_802154_core_hooks_tx_started(uint8_t * p_frame)

@@ -37,11 +37,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "mpsl_fem_protocol_api.h"
+#include "protocol/mpsl_fem_protocol_api.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+int32_t mpsl_fem_disable(void)
+{
+    return 0;
+}
 
 int32_t mpsl_fem_pa_configuration_set(const mpsl_fem_event_t * const p_activate_event,
                                       const mpsl_fem_event_t * const p_deactivate_event)

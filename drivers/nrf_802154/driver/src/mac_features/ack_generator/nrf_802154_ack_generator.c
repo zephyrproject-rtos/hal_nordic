@@ -41,7 +41,6 @@
 #include "nrf_802154_ack_generator.h"
 
 #include <assert.h>
-#include <stdlib.h>
 
 #include "nrf_802154_const.h"
 #include "nrf_802154_enh_ack_generator.h"
@@ -76,6 +75,13 @@ void nrf_802154_ack_generator_init(void)
     // Both generators are initialized to enable sending both Imm-Acks and Enh-Acks.
     nrf_802154_imm_ack_generator_init();
     nrf_802154_enh_ack_generator_init();
+}
+
+void nrf_802154_ack_generator_reset(void)
+{
+    // Both generators are reset to enable sending both Imm-Ack and Enh-Ack.
+    nrf_802154_imm_ack_generator_reset();
+    nrf_802154_enh_ack_generator_reset();
 }
 
 uint8_t * nrf_802154_ack_generator_create(const nrf_802154_frame_parser_data_t * p_frame_data)

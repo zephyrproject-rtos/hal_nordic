@@ -39,6 +39,7 @@
 
 #include "hal/nrf_ecb.h"
 #include "nrf_802154_const.h"
+#include "nrf_802154_config.h"
 #include "nrf_802154_tx_work_buffer.h"
 #include "platform/nrf_802154_irq.h"
 
@@ -138,6 +139,7 @@ static void ecb_init(void)
     nrf_802154_irq_clear_pending(ECB_IRQn);
     nrf_802154_irq_enable(ECB_IRQn);
     nrf_ecb_int_enable(NRF_ECB, NRF_ECB_INT_ENDECB_MASK);
+    nrf_ecb_int_enable(NRF_ECB, NRF_ECB_INT_ERRORECB_MASK);
 }
 
 /******************************************************************************/
@@ -384,7 +386,8 @@ static void ecb_irq_handler(void)
     uint8_t len = 0;
     uint8_t offset;
 
-    if (nrf_ecb_event_check(NRF_ECB, NRF_ECB_EVENT_ENDECB))
+    if (nrf_ecb_int_enable_check(NRF_ECB, NRF_ECB_INT_ENDECB_MASK) &&
+        nrf_ecb_event_check(NRF_ECB, NRF_ECB_EVENT_ENDECB))
     {
         nrf_ecb_event_clear(NRF_ECB, NRF_ECB_EVENT_ENDECB);
 
@@ -451,6 +454,23 @@ static void ecb_irq_handler(void)
                 break;
         }
     }
+
+    if (nrf_ecb_int_enable_check(NRF_ECB, NRF_ECB_INT_ERRORECB_MASK) &&
+        nrf_ecb_event_check(NRF_ECB, NRF_ECB_EVENT_ERRORECB))
+    {
+        /*
+         * It is possible that the ERRORECB event is caused by the
+         * AAR and CCM peripherals, which share the same hardware resources.
+         * At this point it is assumed, that ECB, AAR and CCM peripherals
+         * are not used by anything, except the 802.15.4 driver and
+         * other MPSL clients and thus it is impossible that ECB was aborted
+         * for any other reason, than the TX failed event caused by a terminated
+         * 802.15.4 transmit operation or end of timeslot.
+         *
+         * Therefore no action is taken in this handler.
+         */
+        nrf_ecb_event_clear(NRF_ECB, NRF_ECB_EVENT_ERRORECB);
+    }
 }
 
 /**
@@ -463,6 +483,11 @@ static void start_ecb_auth_transformation(void)
     m_state.transformation = ADD_AUTH_DATA_AUTH;
     nrf_ecb_event_clear(NRF_ECB, NRF_ECB_EVENT_ENDECB);
     nrf_ecb_task_trigger(NRF_ECB, NRF_ECB_TASK_STARTECB);
+}
+
+void nrf_802154_aes_ccm_transform_reset(void)
+{
+    m_aes_ccm_data.raw_frame = NULL;
 }
 
 bool nrf_802154_aes_ccm_transform_prepare(const nrf_802154_aes_ccm_data_t * p_aes_ccm_data)
@@ -519,6 +544,10 @@ void nrf_802154_aes_ccm_transform_start(uint8_t * p_frame)
     uint8_t   auth_flags = auth_flags_format(&m_aes_ccm_data);
     uint8_t * p_x        = m_x;
     uint8_t * p_b        = m_b;
+    ptrdiff_t offset     = mp_ciphertext - mp_work_buffer;
+
+    // Copy updated part of the frame
+    memcpy(mp_work_buffer, p_frame, offset);
 
     // initial settings
     memset(p_x, 0, NRF_802154_AES_CCM_BLOCK_SIZE);
@@ -529,4 +558,25 @@ void nrf_802154_aes_ccm_transform_start(uint8_t * p_frame)
     memset(mp_ecb_key, 0, 48);
     nrf_ecb_set_key(m_aes_ccm_data.key);
     start_ecb_auth_transformation();
+}
+
+void nrf_802154_aes_ccm_transform_abort(uint8_t * p_frame)
+{
+    // Verify that the encryption of the correct frame is being aborted.
+    if (p_frame != m_aes_ccm_data.raw_frame)
+    {
+        return;
+    }
+
+    /*
+     * Temporarily disable ENDECB interrupt, trigger STOPECB task
+     * to stop encryption in case it is still running and clear
+     * the ENDECB event in case the encryption has completed.
+     */
+    nrf_ecb_int_disable(NRF_ECB, NRF_ECB_INT_ENDECB_MASK);
+    nrf_ecb_task_trigger(NRF_ECB, NRF_ECB_TASK_STOPECB);
+    nrf_ecb_event_clear(NRF_ECB, NRF_ECB_EVENT_ENDECB);
+    nrf_ecb_int_enable(NRF_ECB, NRF_ECB_INT_ENDECB_MASK);
+
+    m_aes_ccm_data.raw_frame = NULL;
 }

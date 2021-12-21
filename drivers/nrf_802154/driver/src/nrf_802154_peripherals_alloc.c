@@ -32,88 +32,46 @@
  *
  */
 
-#ifndef NRF_802154_CONFIG_H__
-#define NRF_802154_CONFIG_H__
-
-#ifdef NRF_802154_PROJECT_CONFIG
-#include NRF_802154_PROJECT_CONFIG
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
- * @defgroup nrf_802154_config_csma CSMA/CA procedure configuration
- * @{
- */
-
-/**
- * @def NRF_802154_CSMA_CA_ENABLED
+ * @file
+ *   This file supplies bitmasks specifying which of the peripherals are used
+ *   by the 802.15.4 driver.
  *
- * If CSMA-CA is to be enabled by the driver. Disabling CSMA-CA improves
- * the driver performance.
- *
- */
-#if !defined(CONFIG_NRF_802154_SL_OPENSOURCE)
-#ifndef NRF_802154_CSMA_CA_ENABLED
-#define NRF_802154_CSMA_CA_ENABLED 1
-#endif
-#endif
-
-/**
- *@}
- **/
-
-/**
- * @defgroup nrf_802154_config_dtrx Delayed operations configuration
- * @{
+ * Bitmasks currently provided applies to:
+ *   - PPI or DPPI channels (g_nrf_802154_used_nrf_ppi_channels)
+ *   - PPI or DPPI channel groups (g_nrf_802154_used_nrf_ppi_groups)
  */
 
-/**
- * @def NRF_802154_DELAYED_TRX_ENABLED
- *
- * If the delayed transmission and the receive window features are available.
- *
- */
-#if !defined(CONFIG_NRF_802154_SL_OPENSOURCE)
-#ifndef NRF_802154_DELAYED_TRX_ENABLED
-#define NRF_802154_DELAYED_TRX_ENABLED 1
-#endif
+#include "nrf_802154_peripherals.h"
+
+#include <stdint.h>
+
+#if NRF_802154_VERIFY_PERIPHS_ALLOC_AGAINST_MPSL
+/* Obtaining the MPSL_RESERVED_.. macros */
+#include "mpsl.h"
 #endif
 
-/**
- * @}
- * @defgroup nrf_802154_config_security Security configuration
- * @{
- */
-
-/**
- * @def NRF_802154_SECURITY_KEY_STORAGE_SIZE
- *
- * Configures the number of keys which are available in the Key Storage.
- * This configuration is implementation-independent.
- */
-#ifndef NRF_802154_SECURITY_KEY_STORAGE_SIZE
-#define NRF_802154_SECURITY_KEY_STORAGE_SIZE 3
+#if defined(NRF52_SERIES)
+#define NRF_802154_PPI_CH_USED_MSK NRF_802154_PPI_CHANNELS_USED_MASK
+#define NRF_802154_PPI_GR_USED_MSK NRF_802154_PPI_GROUPS_USED_MASK
+#elif defined(NRF53_SERIES)
+#define NRF_802154_PPI_CH_USED_MSK NRF_802154_DPPI_CHANNELS_USED_MASK
+#define NRF_802154_PPI_GR_USED_MSK NRF_802154_DPPI_GROUPS_USED_MASK
+#else
+#error Unsupported chip family
 #endif
 
-/**
- *@}
- **/
+const uint32_t g_nrf_802154_used_nrf_ppi_channels = NRF_802154_PPI_CH_USED_MSK;
+const uint32_t g_nrf_802154_used_nrf_ppi_groups   = NRF_802154_PPI_GR_USED_MSK;
 
-/**
- * @def NRF_802154_CARRIER_FUNCTIONS_ENABLED
- *
- * Enables functions used for test purposes: nrf_802154_continuous_carrier and
- * nrf_802154_modulated_carrier
- */
-#ifndef NRF_802154_CARRIER_FUNCTIONS_ENABLED
-#define NRF_802154_CARRIER_FUNCTIONS_ENABLED 1
+#if NRF_802154_VERIFY_PERIPHS_ALLOC_AGAINST_MPSL
+
+#if ((NRF_802154_PPI_CH_USED_MSK & MPSL_RESERVED_PPI_CHANNELS) != 0UL)
+#error PPI channels for 802.15.4 driver overlap with MPSL channels
 #endif
 
-#ifdef __cplusplus
-}
+#if ((NRF_802154_PPI_GR_USED_MSK & MPSL_RESERVED_PPI_GROUPS) != 0UL)
+#error PPI groups for 802.15.4 driver overlap with MPSL groups
 #endif
 
-#endif // NRF_802154_CONFIG_H__
+#endif // NRF_802154_VERIFY_PERIPHS_ALLOC_AGAINST_MPSL

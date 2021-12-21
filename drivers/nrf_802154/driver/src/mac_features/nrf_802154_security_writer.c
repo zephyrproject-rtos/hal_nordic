@@ -44,7 +44,6 @@
 #include "mac_features/nrf_802154_security_pib.h"
 #include "nrf_802154_config.h"
 #include "nrf_802154_const.h"
-#include "nrf_802154_notification.h"
 #include "nrf_802154_tx_work_buffer.h"
 #include "nrf_802154_utils_byteorder.h"
 
@@ -197,14 +196,24 @@ bool nrf_802154_security_writer_tx_setup(
                 break;
 
             case NRF_802154_SECURITY_ERROR_KEY_NOT_FOUND:
-                notify_function(p_frame, NRF_802154_TX_ERROR_KEY_ID_INVALID);
+            {
+                nrf_802154_transmit_done_metadata_t metadata = {};
+
+                metadata.frame_props = p_params->frame_props;
+                notify_function(p_frame, NRF_802154_TX_ERROR_KEY_ID_INVALID, &metadata);
                 result = false;
-                break;
+            }
+            break;
 
             case NRF_802154_SECURITY_ERROR_FRAME_COUNTER_OVERFLOW:
-                notify_function(p_frame, NRF_802154_TX_ERROR_FRAME_COUNTER_ERROR);
+            {
+                nrf_802154_transmit_done_metadata_t metadata = {};
+
+                metadata.frame_props = p_params->frame_props;
+                notify_function(p_frame, NRF_802154_TX_ERROR_FRAME_COUNTER_ERROR, &metadata);
                 result = false;
-                break;
+            }
+            break;
 
             default:
                 /* frame_counter_inject function shall not return other error codes than those

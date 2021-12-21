@@ -54,7 +54,6 @@
 #include "nrf_802154_debug.h"
 #include "nrf_802154_notification.h"
 #include "nrf_802154_nrfx_addons.h"
-#include "nrf_802154_peripherals.h"
 #include "nrf_802154_pib.h"
 #include "nrf_802154_procedures_duration.h"
 #include "nrf_802154_rssi.h"
@@ -67,11 +66,8 @@
 #include "nrf_802154_utils.h"
 #include "drivers/nrfx_errors.h"
 #include "hal/nrf_radio.h"
-#include "mpsl_fem_protocol_api.h"
-#include "mac_features/nrf_802154_delayed_trx.h"
 #include "mac_features/nrf_802154_filter.h"
 #include "mac_features/nrf_802154_frame_parser.h"
-#include "mac_features/ack_generator/nrf_802154_ack_data.h"
 #include "mac_features/ack_generator/nrf_802154_ack_generator.h"
 #include "rsch/nrf_802154_rsch.h"
 #include "rsch/nrf_802154_rsch_crit_sect.h"
@@ -79,6 +75,7 @@
 #include "timer/nrf_802154_timer_sched.h"
 #include "platform/nrf_802154_hp_timer.h"
 #include "platform/nrf_802154_irq.h"
+#include "protocol/mpsl_fem_protocol_api.h"
 
 #include "nrf_802154_core_hooks.h"
 #include "nrf_802154_sl_ant_div.h"
@@ -91,12 +88,10 @@
 /// Overhead of hardware preparation for ED procedure (aTurnaroundTime) [number of iterations]
 #define ED_ITERS_OVERHEAD           2U
 
-#define ACK_IFS                     TURNAROUND_TIME ///< Ack Inter Frame Spacing [us] - delay between last symbol of received frame and first symbol of transmitted Ack
+#define MAX_CRIT_SECT_TIME          60   ///< Maximal time that the driver spends in single critical section.
 
-#define MAX_CRIT_SECT_TIME          60              ///< Maximal time that the driver spends in single critical section.
-
-#define LQI_VALUE_FACTOR            4               ///< Factor needed to calculate LQI value based on data from RADIO peripheral
-#define LQI_MAX                     0xff            ///< Maximal LQI value
+#define LQI_VALUE_FACTOR            4    ///< Factor needed to calculate LQI value based on data from RADIO peripheral
+#define LQI_MAX                     0xff ///< Maximal LQI value
 
 /** Get LQI of given received packet. If CRC is calculated by hardware LQI is included instead of CRC
  *  in the frame. Length is stored in byte with index 0; CRC is 2 last bytes.
@@ -133,7 +128,6 @@ typedef struct
 {
     bool frame_filtered        : 1;                           ///< If frame being received passed filtering operation.
     bool frame_parsed          : 1;                           ///< If frame being received has been parsed
-    bool frame_parsed_result   : 1;
     bool rx_timeslot_requested : 1;                           ///< If timeslot for the frame being received is already requested.
     bool tx_with_cca           : 1;                           ///< If currently transmitted frame is transmitted with cca.
     bool tx_diminished_prio    : 1;                           ///< If priority of the current transmission should be diminished.
@@ -215,7 +209,6 @@ static void rx_flags_clear(void)
     m_flags.frame_filtered        = false;
     m_flags.rx_timeslot_requested = false;
     m_flags.frame_parsed          = false;
-    m_flags.frame_parsed_result   = false;
 }
 
 /** Wait for the RSSI measurement. */
@@ -297,9 +290,7 @@ static uint32_t timer_coord_timestamp_get(void)
 
 static void received_frame_notify(uint8_t * p_data)
 {
-    nrf_802154_notify_received(p_data,      // data
-                               m_last_rssi, // rssi
-                               m_last_lqi); // lqi
+    nrf_802154_notify_received(p_data, m_last_rssi, m_last_lqi);
 }
 
 /** Allow nesting critical sections and notify MAC layer that a frame was received. */
@@ -317,7 +308,9 @@ static void receive_failed_notify(nrf_802154_rx_error_t error)
 {
     nrf_802154_critical_section_nesting_allow();
 
-    nrf_802154_notify_receive_failed(error, m_rx_window_id);
+    // Don't care about the result - if the notification cannot be performed
+    // no impact on the device's operation is expected
+    (void)nrf_802154_notify_receive_failed(error, m_rx_window_id, true);
 
     nrf_802154_critical_section_nesting_deny();
 }
@@ -381,20 +374,24 @@ static void transmitted_frame_notify(uint8_t * p_ack, int8_t power, uint8_t lqi)
 }
 
 /** Notify MAC layer that transmission procedure failed. */
-static void transmit_failed_notify(uint8_t * p_frame, nrf_802154_tx_error_t error)
+static void transmit_failed_notify(uint8_t                                   * p_frame,
+                                   nrf_802154_tx_error_t                       error,
+                                   const nrf_802154_transmit_done_metadata_t * p_meta)
 {
     if (nrf_802154_core_hooks_tx_failed(p_frame, error))
     {
-        nrf_802154_notify_transmit_failed(p_frame, error);
+        nrf_802154_notify_transmit_failed(p_frame, error, p_meta);
     }
 }
 
 /** Allow nesting critical sections and notify MAC layer that transmission procedure failed. */
-static void transmit_failed_notify_and_nesting_allow(nrf_802154_tx_error_t error)
+static void transmit_failed_notify_and_nesting_allow(
+    nrf_802154_tx_error_t                       error,
+    const nrf_802154_transmit_done_metadata_t * p_meta)
 {
     nrf_802154_critical_section_nesting_allow();
 
-    transmit_failed_notify(mp_tx_data, error);
+    transmit_failed_notify(mp_tx_data, error, p_meta);
 
     nrf_802154_critical_section_nesting_deny();
 }
@@ -584,8 +581,10 @@ static rsch_prio_t min_required_rsch_prio(radio_state_t state)
 
         case RADIO_STATE_TX:
         case RADIO_STATE_TX_ACK:
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
         case RADIO_STATE_CONTINUOUS_CARRIER:
         case RADIO_STATE_MODULATED_CARRIER:
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
             return RSCH_PRIO_TX;
 
         case RADIO_STATE_CCA_TX:
@@ -685,8 +684,10 @@ static bool can_terminate_current_operation(radio_state_t     state,
     {
         case RADIO_STATE_SLEEP:
         case RADIO_STATE_FALLING_ASLEEP:
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
         case RADIO_STATE_CONTINUOUS_CARRIER:
         case RADIO_STATE_MODULATED_CARRIER:
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
             result = true;
             break;
 
@@ -716,31 +717,48 @@ static void operation_terminated_notify(radio_state_t state, bool receiving_psdu
     {
         case RADIO_STATE_SLEEP:
         case RADIO_STATE_FALLING_ASLEEP:
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
         case RADIO_STATE_CONTINUOUS_CARRIER:
         case RADIO_STATE_MODULATED_CARRIER:
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
             break;
 
         case RADIO_STATE_RX:
             if (receiving_psdu_now)
             {
-                nrf_802154_notify_receive_failed(NRF_802154_RX_ERROR_ABORTED, m_rx_window_id);
+                // Don't care about the result - if the notification cannot be performed
+                // no impact on the device's operation is expected
+                (void)nrf_802154_notify_receive_failed(NRF_802154_RX_ERROR_ABORTED,
+                                                       m_rx_window_id,
+                                                       true);
             }
 
             break;
 
         case RADIO_STATE_TX_ACK:
             mp_current_rx_buffer->free = false;
+            nrf_802154_core_hooks_tx_ack_failed(mp_ack, NRF_802154_TX_ERROR_ABORTED);
             received_frame_notify(mp_current_rx_buffer->data);
             break;
 
         case RADIO_STATE_CCA_TX:
         case RADIO_STATE_TX:
-            transmit_failed_notify(mp_tx_data, NRF_802154_TX_ERROR_ABORTED);
-            break;
+        {
+            nrf_802154_transmit_done_metadata_t metadata = {};
+
+            nrf_802154_tx_work_buffer_original_frame_update(mp_tx_data, &metadata.frame_props);
+            transmit_failed_notify(mp_tx_data, NRF_802154_TX_ERROR_ABORTED, &metadata);
+        }
+        break;
 
         case RADIO_STATE_RX_ACK:
-            transmit_failed_notify(mp_tx_data, NRF_802154_TX_ERROR_ABORTED);
-            break;
+        {
+            nrf_802154_transmit_done_metadata_t metadata = {};
+
+            nrf_802154_tx_work_buffer_original_frame_update(mp_tx_data, &metadata.frame_props);
+            transmit_failed_notify(mp_tx_data, NRF_802154_TX_ERROR_ABORTED, &metadata);
+        }
+        break;
 
         case RADIO_STATE_ED:
             nrf_802154_notify_energy_detection_failed(NRF_802154_ED_ERROR_ABORTED);
@@ -901,7 +919,11 @@ static bool current_operation_terminate(nrf_802154_term_t term_lvl,
 /** Enter Sleep state. */
 static void sleep_init(void)
 {
-    nrf_802154_timer_coord_stop();
+    // This function is always executed from a critical section, so this check is safe.
+    if (timeslot_is_granted())
+    {
+        nrf_802154_timer_coord_stop();
+    }
 }
 
 /** Initialize Falling Asleep operation. */
@@ -1027,12 +1049,10 @@ static void rx_init(void)
 #if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
     // Configure the timer coordinator to get a timestamp of the END event which
     // fires several cycles after CRCOK or CRCERROR events.
-    nrf_802154_timer_coord_timestamp_prepare(
-        nrf_radio_event_address_get(NRF_RADIO, NRF_RADIO_EVENT_END));
+    nrf_802154_timer_coord_timestamp_prepare(nrf_802154_trx_radio_end_event_handle_get());
 #else
     // Configure the timer coordinator to get a timestamp of the CRCOK event.
-    nrf_802154_timer_coord_timestamp_prepare(nrf_radio_event_address_get(NRF_RADIO,
-                                                                         NRF_RADIO_EVENT_CRCOK));
+    nrf_802154_timer_coord_timestamp_prepare(nrf_802154_trx_radio_crcok_event_handle_get());
 #endif
 #endif
 
@@ -1069,14 +1089,12 @@ static bool tx_init(const uint8_t * p_data, bool cca)
         // Configure the timer coordinator to get a time stamp of the READY event.
         // Note: This event triggers CCASTART, so the time stamp of READY event
         // is the time stamp when CCA started.
-        nrf_802154_timer_coord_timestamp_prepare(nrf_radio_event_address_get(NRF_RADIO,
-                                                                             NRF_RADIO_EVENT_READY));
+        nrf_802154_timer_coord_timestamp_prepare(nrf_802154_trx_radio_ready_event_handle_get());
     }
     else
     {
         // Configure the timer coordinator to get a time stamp of the PHYEND event.
-        nrf_802154_timer_coord_timestamp_prepare(nrf_radio_event_address_get(NRF_RADIO,
-                                                                             NRF_RADIO_EVENT_PHYEND));
+        nrf_802154_timer_coord_timestamp_prepare(nrf_802154_trx_radio_phyend_event_handle_get());
     }
 #endif
 
@@ -1132,6 +1150,8 @@ static void cca_init(void)
     nrf_802154_trx_standalone_cca();
 }
 
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
+
 /** Initialize Continuous Carrier operation. */
 static void continuous_carrier_init(void)
 {
@@ -1163,6 +1183,8 @@ static void modulated_carrier_init(const uint8_t * p_data)
 
     nrf_802154_trx_modulated_carrier(p_data);
 }
+
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
 
 /***************************************************************************************************
  * @section Radio Scheduler notification handlers
@@ -1211,20 +1233,29 @@ static void on_timeslot_ended(void)
             case RADIO_STATE_TX_ACK:
                 state_set(RADIO_STATE_RX);
                 mp_current_rx_buffer->free = false;
+                nrf_802154_core_hooks_tx_ack_failed(mp_ack, NRF_802154_TX_ERROR_TIMESLOT_ENDED);
                 received_frame_notify_and_nesting_allow(mp_current_rx_buffer->data);
                 break;
 
             case RADIO_STATE_CCA_TX:
             case RADIO_STATE_TX:
             case RADIO_STATE_RX_ACK:
+            {
                 state_set(RADIO_STATE_RX);
-                transmit_failed_notify_and_nesting_allow(NRF_802154_TX_ERROR_TIMESLOT_ENDED);
-                break;
+                nrf_802154_transmit_done_metadata_t metadata = {};
+
+                nrf_802154_tx_work_buffer_original_frame_update(mp_tx_data, &metadata.frame_props);
+                transmit_failed_notify_and_nesting_allow(NRF_802154_TX_ERROR_TIMESLOT_ENDED,
+                                                         &metadata);
+            }
+            break;
 
             case RADIO_STATE_ED:
             case RADIO_STATE_CCA:
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
             case RADIO_STATE_CONTINUOUS_CARRIER:
             case RADIO_STATE_MODULATED_CARRIER:
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
             case RADIO_STATE_SLEEP:
                 // Intentionally empty.
                 break;
@@ -1285,8 +1316,10 @@ static void on_preconditions_denied(radio_state_t state)
 
         case RADIO_STATE_ED:
         case RADIO_STATE_CCA:
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
         case RADIO_STATE_CONTINUOUS_CARRIER:
         case RADIO_STATE_MODULATED_CARRIER:
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
         case RADIO_STATE_SLEEP:
             // Intentionally empty.
             break;
@@ -1332,6 +1365,7 @@ static void on_preconditions_approved(radio_state_t state)
             cca_init();
             break;
 
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
         case RADIO_STATE_CONTINUOUS_CARRIER:
             continuous_carrier_init();
             break;
@@ -1339,6 +1373,7 @@ static void on_preconditions_approved(radio_state_t state)
         case RADIO_STATE_MODULATED_CARRIER:
             modulated_carrier_init(mp_tx_data);
             break;
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
 
         default:
             assert(false);
@@ -1633,12 +1668,10 @@ uint8_t nrf_802154_trx_receive_frame_bcmatched(uint8_t bcc)
                 /* Request boosted preconditions */
                 nrf_802154_rsch_crit_sect_prio_request(RSCH_PRIO_RX);
 
-                /* Request next bcc match event just after all frame bytes are received
-                 * but before FCS. This happens 64us before frame is fully received.
-                 * This time is used for preparation of possible ACK transmission
-                 */
-                m_flags.frame_parsed        = false;
-                m_flags.frame_parsed_result = false;
+                /* Request next bcc match event to occur when basic data necessary for Ack
+                 * generation is received. */
+                m_flags.frame_parsed = false;
+                nrf_802154_ack_generator_reset();
 
                 bcc = PHR_SIZE +
                       nrf_802154_frame_parser_addressing_end_offset_get(&m_current_rx_frame_data) +
@@ -1671,52 +1704,40 @@ uint8_t nrf_802154_trx_receive_frame_bcmatched(uint8_t bcc)
     {
         if (nrf_802154_frame_parser_security_enabled_bit_is_set(&m_current_rx_frame_data))
         {
-            if (nrf_802154_frame_parser_parse_level_get(&m_current_rx_frame_data) <
-                PARSE_LEVEL_ADDRESSING_END)
-            {
-                // All addressing fields and Security Control byte have been received.
-                uint8_t parsable_bytes =
-                    PHR_SIZE +
-                    nrf_802154_frame_parser_addressing_end_offset_get(&m_current_rx_frame_data) +
-                    SECURITY_CONTROL_SIZE;
-
-                (void)nrf_802154_frame_parser_valid_data_extend(
+            if (nrf_802154_frame_parser_valid_data_extend(
                     &m_current_rx_frame_data,
-                    parsable_bytes,
-                    PARSE_LEVEL_SEC_CTRL_OFFSETS);
-
-                // Having parsed Security Control field, length of Auxiliary Security Header is
-                // known. Set BCC there
-                bcc = PHR_SIZE +
-                      nrf_802154_frame_parser_aux_sec_hdr_end_offset_get(&m_current_rx_frame_data);
-            }
-            else if (nrf_802154_frame_parser_parse_level_get(&m_current_rx_frame_data) <
-                     PARSE_LEVEL_AUX_SEC_HDR_END)
+                    num_data_bytes,
+                    PARSE_LEVEL_AUX_SEC_HDR_END))
             {
                 // All security fields have been received.
-                uint8_t parsable_bytes =
-                    PHR_SIZE +
-                    nrf_802154_frame_parser_aux_sec_hdr_end_offset_get(&m_current_rx_frame_data);
-
-                m_flags.frame_parsed        = true;
-                m_flags.frame_parsed_result = nrf_802154_frame_parser_valid_data_extend(
-                    &m_current_rx_frame_data,
-                    parsable_bytes,
-                    PARSE_LEVEL_AUX_SEC_HDR_END);
+                m_flags.frame_parsed = true;
+            }
+            else if (nrf_802154_frame_parser_valid_data_extend(
+                         &m_current_rx_frame_data,
+                         num_data_bytes,
+                         PARSE_LEVEL_SEC_CTRL_OFFSETS))
+            {
+                // All addressing fields and Security Control byte have been received.
+                // With the Security Control field, length of Auxiliary Security Header can be
+                // determined. Set BCC there
+                bcc = PHR_SIZE +
+                      nrf_802154_frame_parser_aux_sec_hdr_end_offset_get(&m_current_rx_frame_data);
             }
             else
             {
                 // This code should be unreachable.
             }
         }
+        else if (nrf_802154_frame_parser_valid_data_extend(
+                     &m_current_rx_frame_data,
+                     num_data_bytes,
+                     PARSE_LEVEL_ADDRESSING_END))
+        {
+            m_flags.frame_parsed = true;
+        }
         else
         {
-            m_flags.frame_parsed        = true;
-            m_flags.frame_parsed_result = nrf_802154_frame_parser_valid_data_extend(
-                &m_current_rx_frame_data,
-                PHR_SIZE +
-                nrf_802154_frame_parser_addressing_end_offset_get(&m_current_rx_frame_data),
-                PARSE_LEVEL_ADDRESSING_END);
+            // This code should be unreachable.
         }
     }
     else
@@ -1744,17 +1765,19 @@ uint8_t nrf_802154_trx_receive_frame_bcmatched(uint8_t bcc)
             // which could result in spurious RF emission.
             rx_init();
 
-            nrf_802154_notify_receive_failed(NRF_802154_RX_ERROR_TIMESLOT_ENDED, m_rx_window_id);
+            // Don't care about the result - if the notification cannot be performed
+            // no impact on the device's operation is expected
+            (void)nrf_802154_notify_receive_failed(NRF_802154_RX_ERROR_TIMESLOT_ENDED,
+                                                   m_rx_window_id,
+                                                   true);
         }
     }
 
     if (m_flags.frame_filtered &&
-        m_flags.frame_parsed_result &&
+        m_flags.frame_parsed &&
         nrf_802154_frame_parser_ar_bit_is_set(&m_current_rx_frame_data) &&
         nrf_802154_pib_auto_ack_get())
     {
-        nrf_802154_tx_work_buffer_reset(&m_default_frame_props);
-
         mp_ack = nrf_802154_ack_generator_create(&m_current_rx_frame_data);
     }
 
@@ -1866,8 +1889,7 @@ void nrf_802154_trx_receive_frame_crcerror(void)
 
     // Configure the timer coordinator to get a timestamp of the END event which
     // fires several cycles after CRCOK or CRCERROR events.
-    nrf_802154_timer_coord_timestamp_prepare(
-        nrf_radio_event_address_get(NRF_RADIO, NRF_RADIO_EVENT_END));
+    nrf_802154_timer_coord_timestamp_prepare(nrf_802154_trx_radio_end_event_handle_get());
 #endif
 
 #else
@@ -1989,27 +2011,23 @@ void nrf_802154_trx_receive_frame_received(void)
 
         nrf_802154_sl_ant_div_rx_frame_received_notify();
 
-        bool send_ack = m_flags.frame_filtered &&
-                        nrf_802154_frame_parser_ar_bit_is_set(&m_current_rx_frame_data) &&
-                        nrf_802154_pib_auto_ack_get();
+        bool send_ack     = false;
+        bool parse_result = nrf_802154_frame_parser_valid_data_extend(
+            &m_current_rx_frame_data,
+            PHR_SIZE + nrf_802154_frame_parser_frame_length_get(&m_current_rx_frame_data),
+            PARSE_LEVEL_FULL);
 
-#if NRF_802154_DISABLE_BCC_MATCHING
-        bool parse_result = nrf_802154_frame_parser_valid_data_extend(&m_current_rx_frame_data,
-                                                                      p_received_data[PHR_OFFSET] + PHR_SIZE,
-                                                                      PARSE_LEVEL_FULL);
-
-        nrf_802154_tx_work_buffer_reset(&m_default_frame_props);
-
-        if (send_ack && parse_result)
+        if (m_flags.frame_filtered &&
+            parse_result &&
+            nrf_802154_frame_parser_ar_bit_is_set(&m_current_rx_frame_data) &&
+            nrf_802154_pib_auto_ack_get())
         {
-            mp_ack = nrf_802154_ack_generator_create(&m_current_rx_frame_data);
+            nrf_802154_tx_work_buffer_reset(&m_default_frame_props);
+            mp_ack   = nrf_802154_ack_generator_create(&m_current_rx_frame_data);
+            send_ack = (mp_ack != NULL);
         }
-#else
-        bool parse_result = m_flags.frame_parsed_result;
 
-#endif
-
-        if (send_ack && parse_result && (NULL != mp_ack))
+        if (send_ack)
         {
             state_set(RADIO_STATE_TX_ACK);
 
@@ -2196,12 +2214,10 @@ void nrf_802154_trx_transmit_frame_transmitted(void)
 #if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
         // Configure the timer coordinator to get a timestamp of the END event which
         // fires several cycles after CRCOK or CRCERROR events.
-        nrf_802154_timer_coord_timestamp_prepare(
-            nrf_radio_event_address_get(NRF_RADIO, NRF_RADIO_EVENT_END));
+        nrf_802154_timer_coord_timestamp_prepare(nrf_802154_trx_radio_end_event_handle_get());
 #else
         // Configure the timer coordinator to get a timestamp of the CRCOK event.
-        nrf_802154_timer_coord_timestamp_prepare(nrf_radio_event_address_get(NRF_RADIO,
-                                                                             NRF_RADIO_EVENT_CRCOK));
+        nrf_802154_timer_coord_timestamp_prepare(nrf_802154_trx_radio_crcok_event_handle_get());
 #endif
 #endif
 
@@ -2270,8 +2286,11 @@ static bool ack_match_check_version_2(const uint8_t * p_tx_frame, const uint8_t 
                                                      p_tx_frame[PHR_OFFSET] + PHR_SIZE,
                                                      PARSE_LEVEL_ADDRESSING_END,
                                                      &tx_data);
-    assert(parse_result);
-    (void)parse_result;
+    if (!parse_result)
+    {
+        return false;
+    }
+
     parse_result = nrf_802154_frame_parser_data_init(p_ack_frame,
                                                      p_ack_frame[PHR_OFFSET] + PHR_SIZE,
                                                      PARSE_LEVEL_ADDRESSING_END,
@@ -2337,7 +2356,10 @@ static void on_bad_ack(void)
 
     rx_init();
 
-    transmit_failed_notify_and_nesting_allow(NRF_802154_TX_ERROR_INVALID_ACK);
+    nrf_802154_transmit_done_metadata_t metadata = {};
+
+    nrf_802154_tx_work_buffer_original_frame_update(mp_tx_data, &metadata.frame_props);
+    transmit_failed_notify_and_nesting_allow(NRF_802154_TX_ERROR_INVALID_ACK, &metadata);
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
 }
@@ -2415,8 +2437,7 @@ void nrf_802154_trx_transmit_frame_ccaidle(void)
     uint32_t ts = timer_coord_timestamp_get();
 
     // Configure the timer coordinator to get a timestamp of the PHYEND event.
-    nrf_802154_timer_coord_timestamp_prepare(nrf_radio_event_address_get(NRF_RADIO,
-                                                                         NRF_RADIO_EVENT_PHYEND));
+    nrf_802154_timer_coord_timestamp_prepare(nrf_802154_trx_radio_phyend_event_handle_get());
 
     // Update stat timestamp of CCASTART event
     nrf_802154_stat_timestamp_write(last_cca_start_timestamp, ts);
@@ -2446,7 +2467,10 @@ void nrf_802154_trx_transmit_frame_ccabusy(void)
     state_set(RADIO_STATE_RX);
     rx_init();
 
-    transmit_failed_notify_and_nesting_allow(NRF_802154_TX_ERROR_BUSY_CHANNEL);
+    nrf_802154_transmit_done_metadata_t metadata = {};
+
+    nrf_802154_tx_work_buffer_original_frame_update(mp_tx_data, &metadata.frame_props);
+    transmit_failed_notify_and_nesting_allow(NRF_802154_TX_ERROR_BUSY_CHANNEL, &metadata);
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
 }
@@ -2743,6 +2767,8 @@ bool nrf_802154_core_cca(nrf_802154_term_t term_lvl)
     return result;
 }
 
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
+
 bool nrf_802154_core_continuous_carrier(nrf_802154_term_t term_lvl)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
@@ -2792,6 +2818,8 @@ bool nrf_802154_core_modulated_carrier(nrf_802154_term_t term_lvl,
 
     return result;
 }
+
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
 
 bool nrf_802154_core_notify_buffer_free(uint8_t * p_data)
 {
@@ -2843,6 +2871,7 @@ bool nrf_802154_core_channel_update(req_originator_t req_orig)
                 }
                 break;
 
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
             case RADIO_STATE_CONTINUOUS_CARRIER:
                 if (timeslot_is_granted())
                 {
@@ -2857,6 +2886,7 @@ bool nrf_802154_core_channel_update(req_originator_t req_orig)
                 }
                 break;
 
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
             default:
                 // Don't perform any additional action in any other state.
                 break;

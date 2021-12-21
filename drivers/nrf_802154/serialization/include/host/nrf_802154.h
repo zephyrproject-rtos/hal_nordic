@@ -49,9 +49,27 @@
 #include "nrf_802154_types.h"
 
 /**
+ * @brief Timestamp value indicating that the timestamp is inaccurate.
+ */
+#define NRF_802154_NO_TIMESTAMP                0
+
+/**
+ * @brief Invalid delayed timeslot identifier.
+ */
+#define NRF_802154_RESERVED_INVALID_ID         UINT32_MAX
+
+/**
  * @brief Reception window identifier reserved for immediate reception.
  */
-#define NRF_802154_RESERVED_IMM_RX_WINDOW_ID (UINT32_MAX - 1)
+#define NRF_802154_RESERVED_IMM_RX_WINDOW_ID   (UINT32_MAX - 1)
+
+/**
+ * @brief Upper bound for delayed reception window identifiers used by the application.
+ *
+ * All integers ranging from 0 to @ref NRF_802154_RESERVED_DRX_ID_UPPER_BOUND (inclusive)
+ * can be used by the application as identifiers of delayed reception windows.
+ */
+#define NRF_802154_RESERVED_DRX_ID_UPPER_BOUND (UINT32_MAX - 4)
 
 /**
  * @brief Select the source matching algorithm.
@@ -77,7 +95,7 @@ void nrf_802154_src_addr_matching_method_set(nrf_802154_src_addr_match_t match_m
  *   - For Standard-compliant, @ref NRF_802154_SRC_ADDR_MATCH_ALWAYS_1
  * For more information, see @ref nrf_802154_src_addr_match_t.
  *
- * The method can be set during initialization phase by calling @ref nrf_802154_src_matching_method.
+ * The method can be set during initialization phase by calling @ref nrf_802154_src_addr_matching_method_set.
  *
  * @param[in]  p_addr    Array of bytes containing the address of the node (little-endian).
  * @param[in]  extended  If the given address is an extended MAC address or a short MAC address.
@@ -106,7 +124,7 @@ bool nrf_802154_ack_data_set(const uint8_t       * p_addr,
  *   - For Standard-compliant, @ref NRF_802154_SRC_ADDR_MATCH_ALWAYS_1
  * For more information, see @ref nrf_802154_src_addr_match_t.
  *
- * The method can be set during initialization phase by calling @ref nrf_802154_src_matching_method.
+ * The method can be set during initialization phase by calling @ref nrf_802154_src_addr_matching_method_set.
  *
  * @param[in]  p_addr    Array of bytes containing the address of the node (little-endian).
  * @param[in]  extended  If the given address is an extended MAC address or a short MAC address.
@@ -150,7 +168,7 @@ void nrf_802154_auto_pending_bit_set(bool enabled);
  *   - For Standard-compliant, @ref NRF_802154_SRC_ADDR_MATCH_ALWAYS_1
  * For more information, see @ref nrf_802154_src_addr_match_t.
  *
- * The method can be set during initialization phase by calling @ref nrf_802154_src_matching_method.
+ * The method can be set during initialization phase by calling @ref nrf_802154_src_addr_matching_method_set.
  *
  * @note This function makes a copy of the given address.
  *
@@ -172,7 +190,7 @@ bool nrf_802154_pending_bit_for_addr_set(const uint8_t * p_addr, bool extended);
  *   - For Standard-compliant, @ref NRF_802154_SRC_ADDR_MATCH_ALWAYS_1
  * For more information, see @ref nrf_802154_src_addr_match_t.
  *
- * The method can be set during initialization phase by calling @ref nrf_802154_src_matching_method.
+ * The method can be set during initialization phase by calling @ref nrf_802154_src_addr_matching_method_set.
  *
  * @param[in]  p_addr    Array of bytes containing the address of the node (little-endian).
  * @param[in]  extended  If the given address is an extended MAC address or a short MAC address.
@@ -192,12 +210,27 @@ bool nrf_802154_pending_bit_for_addr_clear(const uint8_t * p_addr, bool extended
  *   - For Standard-compliant, @ref NRF_802154_SRC_ADDR_MATCH_ALWAYS_1
  * For more information, see @ref nrf_802154_src_addr_match_t.
  *
- * The method can be set during initialization phase by calling @ref nrf_802154_src_matching_method.
+ * The method can be set during initialization phase by calling @ref nrf_802154_src_addr_matching_method_set.
  *
  * @param[in]  extended  If the function is to remove all extended MAC addresses or all short
  *                       addresses.
  */
 void nrf_802154_pending_bit_for_addr_reset(bool extended);
+
+/**
+ * @brief Configures the radio CCA mode and threshold.
+ *
+ * @param[in]  p_cca_cfg  Pointer to the CCA configuration structure. Only fields relevant to
+ *                        the selected mode are updated.
+ */
+void nrf_802154_cca_cfg_set(const nrf_802154_cca_cfg_t * p_cca_cfg);
+
+/**
+ * @brief Gets the current radio CCA configuration.
+ *
+ * @param[out]  p_cca_cfg  Pointer to the structure for the current CCA configuration.
+ */
+void nrf_802154_cca_cfg_get(nrf_802154_cca_cfg_t * p_cca_cfg);
 
 /**
  * @brief Initializes the 802.15.4 driver.
@@ -234,6 +267,59 @@ bool nrf_802154_sleep(void);
  * @retval  false  The driver could not enter the receive state.
  */
 bool nrf_802154_receive(void);
+
+/**
+ * @brief Requests reception at the specified time.
+ *
+ * This function works as a delayed version of @ref nrf_802154_receive. It is asynchronous.
+ * It queues the delayed reception using the Radio Scheduler module.
+ * If the delayed reception cannot be performed (@ref nrf_802154_receive_at would return false)
+ * or the requested reception timeslot is denied, @ref nrf_802154_receive_failed is called
+ * with the @ref NRF_802154_RX_ERROR_DELAYED_TIMESLOT_DENIED argument.
+ *
+ * If the requested reception time is in the past, the function returns false and does not
+ * schedule reception.
+ *
+ * A scheduled reception can be cancelled by a call to @ref nrf_802154_receive_at_cancel.
+ *
+ * @note The identifier @p id must be unique. It must not have the same value as identifiers
+ * of other delayed timeslots active at the moment, so that it can be mapped unambiguously
+ * to an active delayed operation if the request is successful. In particular, none of the reserved
+ * identifiers can be used.
+ *
+ * @param[in]   t0       Base of delay time - absolute time used by the Timer Scheduler,
+ *                       in microseconds (us).
+ * @param[in]   dt       Delta of delay time from @p t0, in microseconds (us).
+ * @param[in]   timeout  Reception timeout (counted from @p t0 + @p dt), in microseconds (us).
+ * @param[in]   channel  Radio channel on which the frame is to be received.
+ * @param[in]   id       Identifier of the scheduled reception window. If the reception has been
+ *                       scheduled successfully, the value of this parameter can be used in
+ *                       @ref nrf_802154_receive_at_cancel to cancel it.
+ *
+ * @retval  true   The reception procedure was scheduled.
+ * @retval  false  The driver could not schedule the reception procedure.
+ */
+bool nrf_802154_receive_at(uint32_t t0,
+                           uint32_t dt,
+                           uint32_t timeout,
+                           uint8_t  channel,
+                           uint32_t id);
+
+/**
+ * @brief Cancels a delayed reception scheduled by a call to @ref nrf_802154_receive_at.
+ *
+ * If the receive window has been scheduled but has not started yet, this function prevents
+ * entering the receive window. If the receive window has been scheduled and has already started,
+ * the radio remains in the receive state, but a window timeout will not be reported.
+ *
+ * @param[in]  id  Identifier of the delayed reception window to be cancelled. If the provided
+ *                 value does not refer to any scheduled or active receive window, the function
+ *                 returns false.
+ *
+ * @retval  true    The delayed reception was scheduled and successfully cancelled.
+ * @retval  false   No delayed reception was scheduled.
+ */
+bool nrf_802154_receive_at_cancel(uint32_t id);
 
 /** @brief Sets the channel on which the radio is to operate.
  *
@@ -312,6 +398,36 @@ void nrf_802154_promiscuous_set(bool enabled);
  */
 bool nrf_802154_cca(void);
 
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
+
+/**
+ * @brief Changes the radio state to continuous carrier.
+ *
+ * @note When the radio is emitting continuous carrier signals, it blocks all transmissions on the
+ *       selected channel. This function is to be called only during radio tests. Do not
+ *       use it during normal device operation.
+ *
+ * @retval  true   The continuous carrier procedure was scheduled.
+ * @retval  false  The driver could not schedule the continuous carrier procedure.
+ */
+bool nrf_802154_continuous_carrier(void);
+
+/**
+ * @brief Changes the radio state to modulated carrier.
+ *
+ * @note When the radio is emitting modulated carrier signals, it blocks all transmissions on the
+ *       selected channel. This function is to be called only during radio tests. Do not
+ *       use it during normal device operation.
+ *
+ * @param[in] p_data Pointer to a buffer to modulate the carrier with. The first byte is the data length.
+ *
+ * @retval  true   The modulated carrier procedure was scheduled.
+ * @retval  false  The driver could not schedule the modulated carrier procedure.
+ */
+bool nrf_802154_modulated_carrier(const uint8_t * p_data);
+
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
+
 /**
  * @brief Changes the radio state to energy detection.
  *
@@ -366,14 +482,24 @@ bool nrf_802154_energy_detection(uint32_t time_us);
  *                         The CRC is computed automatically by the radio hardware. Therefore,
  *                         the FCS field can contain any bytes.
  * @param[in]  p_metadata  Pointer to metadata structure. Contains detailed properties of data
- *                         to transmit and additional parameters for the procedure.
- *                         If NULL, @ref NRF_802154_TRANSMIT_METADATA_DEFAULT_INIT is used.
+ *                         to transmit. If @c NULL following metadata are used:
+ *                         Field           | Value
+ *                         ----------------|-----------------------------------------------------
+ *                         @c frame_props  | @ref NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT
+ *                         @c cca          | @c true
  *
  * @retval  true   The transmission procedure was scheduled.
  * @retval  false  The driver could not schedule the transmission procedure.
  */
 bool nrf_802154_transmit_raw(uint8_t                              * p_data,
                              const nrf_802154_transmit_metadata_t * p_metadata);
+
+/**
+ * @}
+ * @defgroup nrf_802154_csma CSMA-CA procedure
+ * @{
+ */
+#if NRF_802154_CSMA_CA_ENABLED || defined(DOXYGEN)
 
 /**
  * @brief Performs the CSMA-CA procedure and transmits a frame in case of success.
@@ -391,13 +517,142 @@ bool nrf_802154_transmit_raw(uint8_t                              * p_data,
  *
  * @param[in]  p_data      Pointer to the frame to transmit. See also @ref nrf_802154_transmit_raw.
  * @param[in]  p_metadata  Pointer to metadata structure. Contains detailed properties of data
- *                         to transmit. If NULL, @ref NRF_802154_TRANSMIT_METADATA_DEFAULT_INIT is used.
+ *                         to transmit. If @c NULL following metadata are used:
+ *                         Field           | Value
+ *                         ----------------|-----------------------------------------------------
+ *                         @c frame_props  | @ref NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT
  *
  * @retval  true   The chain of CSMA-CA and transmission procedure was scheduled.
  * @retval  false  The driver could not schedule the procedure chain.
  */
 bool nrf_802154_transmit_csma_ca_raw(uint8_t                                      * p_data,
                                      const nrf_802154_transmit_csma_ca_metadata_t * p_metadata);
+
+/**
+ * @brief Sets the minimum value of the backoff exponent (BE) in the CSMA-CA algorithm.
+ *
+ * @note This function is available if @ref NRF_802154_CSMA_CA_ENABLED is enabled.
+ *
+ * @param[in] min_be  Minimum value of the backoff exponent.
+ *
+ * @retval true   When value provided by @p min_be has been set successfully.
+ * @retval false  Otherwise.
+ */
+bool nrf_802154_csma_ca_min_be_set(uint8_t min_be);
+
+/**
+ * @brief Gets the minimum value of the backoff exponent (BE) in the CSMA-CA algorithm.
+ *
+ * @note This function is available if @ref NRF_802154_CSMA_CA_ENABLED is enabled.
+ *
+ * @return Current minimum value of the backoff exponent.
+ */
+uint8_t nrf_802154_csma_ca_min_be_get(void);
+
+/**
+ * @brief Sets the maximum value of the backoff exponent (BE) in the CSMA-CA algorithm.
+ *
+ * @note This function is available if @ref NRF_802154_CSMA_CA_ENABLED is enabled.
+ *
+ * @param[in] max_be  Maximum value of the backoff exponent.
+ *
+ * @retval true   When value provided by @p max_be has been set successfully.
+ * @retval false  Otherwise.
+ */
+bool nrf_802154_csma_ca_max_be_set(uint8_t max_be);
+
+/**
+ * @brief Gets the maximum value of the backoff exponent (BE) in the CSMA-CA algorithm.
+ *
+ * @note This function is available if @ref NRF_802154_CSMA_CA_ENABLED is enabled.
+ *
+ * @return Current maximum value of the backoff exponent.
+ */
+uint8_t nrf_802154_csma_ca_max_be_get(void);
+
+/**
+ * @brief Sets the maximum number of backoffs the CSMA-CA algorithm will attempt before declaring
+ *        a channel access failure.
+ *
+ * @note This function is available if @ref NRF_802154_CSMA_CA_ENABLED is enabled.
+ *
+ * @param[in] max_backoffs  Maximum number of backoffs.
+ */
+void nrf_802154_csma_ca_max_backoffs_set(uint8_t max_backoffs);
+
+/**
+ * @brief Gets the maximum number of backoffs the CSMA-CA algorithm will attempt before declaring
+ *        a channel access failure.
+ *
+ * @note This function is available if @ref NRF_802154_CSMA_CA_ENABLED is enabled.
+ *
+ * @return Current maximum number of backoffs.
+ */
+uint8_t nrf_802154_csma_ca_max_backoffs_get(void);
+
+#endif // NRF_802154_CSMA_CA_ENABLED
+
+/**
+ * @brief Requests transmission at the specified time.
+ *
+ * @note This function is implemented in a zero-copy fashion. It passes the given buffer pointer to
+ *       the RADIO peripheral.
+ *
+ *
+ * This function works as a delayed version of @ref nrf_802154_transmit_raw. It is asynchronous.
+ * It queues the delayed transmission using the Radio Scheduler module and performs it
+ * at the specified time.
+ *
+ * If the delayed transmission is successfully performed, @ref nrf_802154_transmitted_raw is called.
+ * If the delayed transmission cannot be performed ( @ref nrf_802154_transmit_raw would return @c false)
+ * or the requested transmission timeslot is denied, @ref nrf_802154_transmit_failed with the
+ * @ref NRF_802154_TX_ERROR_TIMESLOT_DENIED argument is called.
+ *
+ * This function is designed to transmit the first symbol of SHR at the given time.
+ *
+ * If the requested transmission time is in the past, the function returns @c false and does not
+ * schedule transmission.
+ *
+ * A successfully scheduled transmission can be cancelled by a call
+ * to @ref nrf_802154_transmit_at_cancel.
+ *
+ * @param[in]  p_data      Pointer to the array with data to transmit. The first byte must contain
+ *                         the frame length (including FCS). The following bytes contain data.
+ *                         The CRC is computed automatically by the radio hardware. Therefore,
+ *                         the FCS field can contain any bytes.
+ * @param[in]  t0          Base of delay time - absolute time used by the Timer Scheduler,
+ *                         in microseconds (us).
+ * @param[in]  dt          Delta of delay time from @p t0, in microseconds (us).
+ * @param[in]  p_metadata  Pointer to metadata structure. Contains detailed properties of data
+ *                         to transmit. If @c NULL following metadata are used:
+ *                         Field           | Value
+ *                         ----------------|-----------------------------------------------------
+ *                         @c frame_props  | @ref NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT
+ *                         @c cca          | @c true
+ *                         @c channel      | As returned by @ref nrf_802154_channel_get
+ *
+ * @retval  true   The transmission procedure was scheduled.
+ * @retval  false  The driver could not schedule the transmission procedure.
+ */
+bool nrf_802154_transmit_raw_at(uint8_t                                 * p_data,
+                                uint32_t                                  t0,
+                                uint32_t                                  dt,
+                                const nrf_802154_transmit_at_metadata_t * p_metadata);
+
+/**
+ * @brief Cancels a delayed transmission scheduled by a call to @ref nrf_802154_transmit_raw_at.
+ *
+ * If a delayed transmission has been scheduled but the transmission has not been started yet,
+ * a call to this function prevents the transmission. If the transmission is ongoing,
+ * it will not be aborted.
+ *
+ * If a delayed transmission has not been scheduled (or has already finished), this function does
+ * not change state and returns false.
+ *
+ * @retval  true    The delayed transmission was scheduled and successfully cancelled.
+ * @retval  false   No delayed transmission was scheduled.
+ */
+bool nrf_802154_transmit_at_cancel(void);
 
 /**
  * @brief Notifies the driver that the buffer containing the received frame is not used anymore.
@@ -438,6 +693,24 @@ int8_t nrf_802154_tx_power_get(void);
 int8_t nrf_802154_dbm_from_energy_level_calculate(uint8_t energy_level);
 
 /**
+ * @brief  Calculates the timestamp of the first symbol of the preamble in a received frame.
+ *
+ * @param[in]  end_timestamp  Timestamp of the end of the last symbol in the frame,
+ *                            in microseconds.
+ * @param[in]  psdu_length    Number of bytes in the frame PSDU.
+ *
+ * @return  Timestamp of the beginning of the first preamble symbol of a given frame,
+ *          in microseconds.
+ */
+uint32_t nrf_802154_first_symbol_timestamp_get(uint32_t end_timestamp, uint8_t psdu_length);
+
+/**
+ * @}
+ * @defgroup nrf_802154_capabilities Radio driver run-time capabilities feature.
+ * @{
+ */
+
+/**
  * @brief Gets nRF 802.15.4 Radio Driver Capabilities.
  *
  * @return Capabilities of the radio driver.
@@ -453,5 +726,74 @@ nrf_802154_capabilities_t nrf_802154_capabilities_get(void);
  * @returns Current time in microseconds.
  */
 uint32_t nrf_802154_time_get(void);
+
+/**
+ * @}
+ * @defgroup nrf_802154_security Radio driver MAC security feature.
+ * @{
+ */
+
+/**
+ * @brief Sets nRF 802.15.4 Radio Driver Global MAC Frame Counter.
+ *
+ * The driver automatically increments the counter in every outgoing frame
+ * which uses the Global MAC Frame Counter.
+ * This call is meant to set the initial value of the frame counter.
+ *
+ * @param[in] frame_counter Global MAC Frame Counter to set.
+ */
+void nrf_802154_security_global_frame_counter_set(uint32_t frame_counter);
+
+/**
+ * @brief Store the 802.15.4 MAC Security Key inside the nRF 802.15.4 Radio Driver.
+ *
+ * @param[in] p_key Pointer to the key to store. Refer to @ref nrf_802154_key_t for details.
+ *                  Storing the key copies the content of the key and key ID into the Radio Driver.
+ *                  This input parameter can be destroyed after the call.
+ *
+ * @note This function is not reentrant and must be called from thread context only.
+ *
+ * @retval NRF_802154_SECURITY_ERROR_NONE               Storing of key is successful.
+ * @retval NRF_802154_SECURITY_ERROR_TYPE_NOT_SUPPORTED Type of the key is not supported.
+ * @retval NRF_802154_SECURITY_ERROR_MODE_NOT_SUPPORTED ID mode of the key is not supported.
+ * @retval NRF_802154_SECURITY_ERROR_ALREADY_PRESENT    Failed to store the key - key of such id is already
+ *                                                      present. Remove the key first to overwrite.
+ * @retval NRF_802154_SECURITY_ERROR_STORAGE_FULL       Failed to store the key - storage full.
+ */
+nrf_802154_security_error_t nrf_802154_security_key_store(nrf_802154_key_t * p_key);
+
+/**
+ * @brief Remove the 802.15.4 MAC Security Key from the nRF 802.15.4 Radio Driver.
+ *
+ * @param[in] p_id Pointer to the ID of the key to remove.
+ *
+ * @note This function is not reentrant and must be called from thread context only.
+ *
+ * @retval NRF_802154_SECURITY_ERROR_NONE          Removal of key is successful.
+ * @retval NRF_802154_SECURITY_ERROR_KEY_NOT_FOUND Failed to remove the key - no such key found.
+ */
+nrf_802154_security_error_t nrf_802154_security_key_remove(nrf_802154_key_id_t * p_id);
+
+/**
+ * @}
+ * @defgroup nrf_802154_ie_writer Radio driver Information Element data injection feature.
+ * @{
+ */
+
+/**
+ * @brief Sets the value of CSL period to inject into the CSL information element.
+ *
+ * @param[in]  period  CSL period value.
+ */
+void nrf_802154_csl_writer_period_set(uint16_t period);
+
+/** @} */
+
+/**
+ * @brief Get time stamps of events gathered by the last operation.
+ *
+ * @param[out] p_stat_timestamps Structure that will be filled with current time stamps of events.
+ */
+void nrf_802154_stat_timestamps_get(nrf_802154_stat_timestamps_t * p_stat_timestamps);
 
 #endif

@@ -32,88 +32,13 @@
  *
  */
 
-#ifndef NRF_802154_CONFIG_H__
-#define NRF_802154_CONFIG_H__
+#include "nrf_802154_sl_crit_sect_if.h"
 
-#ifdef NRF_802154_PROJECT_CONFIG
-#include NRF_802154_PROJECT_CONFIG
-#endif
+/**@brief Pointer to an interface of critical section. */
+const nrf_802154_sl_crit_sect_interface_t * gp_nrf_802154_sl_crit_sect_interface;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**
- * @defgroup nrf_802154_config_csma CSMA/CA procedure configuration
- * @{
- */
-
-/**
- * @def NRF_802154_CSMA_CA_ENABLED
- *
- * If CSMA-CA is to be enabled by the driver. Disabling CSMA-CA improves
- * the driver performance.
- *
- */
-#if !defined(CONFIG_NRF_802154_SL_OPENSOURCE)
-#ifndef NRF_802154_CSMA_CA_ENABLED
-#define NRF_802154_CSMA_CA_ENABLED 1
-#endif
-#endif
-
-/**
- *@}
- **/
-
-/**
- * @defgroup nrf_802154_config_dtrx Delayed operations configuration
- * @{
- */
-
-/**
- * @def NRF_802154_DELAYED_TRX_ENABLED
- *
- * If the delayed transmission and the receive window features are available.
- *
- */
-#if !defined(CONFIG_NRF_802154_SL_OPENSOURCE)
-#ifndef NRF_802154_DELAYED_TRX_ENABLED
-#define NRF_802154_DELAYED_TRX_ENABLED 1
-#endif
-#endif
-
-/**
- * @}
- * @defgroup nrf_802154_config_security Security configuration
- * @{
- */
-
-/**
- * @def NRF_802154_SECURITY_KEY_STORAGE_SIZE
- *
- * Configures the number of keys which are available in the Key Storage.
- * This configuration is implementation-independent.
- */
-#ifndef NRF_802154_SECURITY_KEY_STORAGE_SIZE
-#define NRF_802154_SECURITY_KEY_STORAGE_SIZE 3
-#endif
-
-/**
- *@}
- **/
-
-/**
- * @def NRF_802154_CARRIER_FUNCTIONS_ENABLED
- *
- * Enables functions used for test purposes: nrf_802154_continuous_carrier and
- * nrf_802154_modulated_carrier
- */
-#ifndef NRF_802154_CARRIER_FUNCTIONS_ENABLED
-#define NRF_802154_CARRIER_FUNCTIONS_ENABLED 1
-#endif
-
-#ifdef __cplusplus
+void nrf_802154_sl_crit_sect_init(
+    const nrf_802154_sl_crit_sect_interface_t * p_crit_sect_interface)
+{
+    gp_nrf_802154_sl_crit_sect_interface = p_crit_sect_interface;
 }
-#endif
-
-#endif // NRF_802154_CONFIG_H__

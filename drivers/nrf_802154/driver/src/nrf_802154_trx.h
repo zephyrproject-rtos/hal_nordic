@@ -46,6 +46,7 @@
 #include <stdint.h>
 
 #include "nrf_802154_config.h"
+#include "nrf_802154_sl_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -157,8 +158,7 @@ void nrf_802154_trx_disable(void);
  * @brief Updates currently used antenna.
  *
  * This function sets the antenna to be used based on antenna diversity interface
- * configuration and TRX state. See @ref nrf_802154_sl_ant_div_mode_set,
- * @ref nrf_802154_sl_ant_div_antenna_set.
+ * configuration and TRX state.
  */
 void nrf_802154_trx_antenna_update(void);
 
@@ -350,7 +350,7 @@ void nrf_802154_trx_transmit_frame(const void                            * p_tra
 
 /**@brief Puts the trx module into transmit ACK mode.
  *
- * @note This function may be called from @ref nrf_802154_trx_receive_received handler only.
+ * @note This function may be called from @ref nrf_802154_trx_receive_frame_received handler only.
  *       This is because in this condition only the TIMER peripheral is running and allows timed transmission.
  *
  * @param[in] p_transmit_buffer     Pointer to a buffer containing ACK frame to be transmitted.
@@ -384,6 +384,8 @@ bool nrf_802154_trx_go_idle(void);
  */
 void nrf_802154_trx_standalone_cca(void);
 
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
+
 /**@brief Starts generating continuous carrier.
  *
  * Generation of a continuous carrier generates no handlers. It may be terminated by a call to
@@ -409,6 +411,8 @@ void nrf_802154_trx_modulated_carrier(const void * p_transmit_buffer);
 
 /** @brief Restarts generating modulated carrier.*/
 void nrf_802154_trx_modulated_carrier_restart(void);
+
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
 
 /**@brief Puts trx module into energy detection mode.
  *
@@ -459,7 +463,7 @@ extern void nrf_802154_trx_receive_ack_started(void);
  *
  * @note This handler may be triggered several times during receive of a preamble
  *       of a frame. It can be followed by call to @ref nrf_802154_trx_receive_frame_started
- *       (if enabled) and then by @ref nrf_802154_trx_receive_frame_crcok or
+ *       (if enabled) and then by @ref nrf_802154_trx_receive_frame_received or
  *       @ref nrf_802154_trx_receive_frame_crcerror, but there is possibility
  *       that it will not be followed by these calls (In case when the RADIO didn't found
  *       full preamble.). If implementation of this handler starts some
@@ -486,7 +490,7 @@ extern void nrf_802154_trx_receive_frame_started(void);
 
 /**@brief  Handler called during reception of a frame, when given number of bytes is received.
  *
- * This handler is called from an ISR when given number of bytes (see @ref nrf_802154_trx_receive)
+ * This handler is called from an ISR when given number of bytes (see @ref nrf_802154_trx_receive_frame)
  * have been just received.
  *
  * @note If the handler decides to abort receive by a call to @ref nrf_802154_trx_abort or
@@ -591,7 +595,7 @@ extern void nrf_802154_trx_receive_ack_crcerror(void);
 /**@brief Handler called when a cca operation during transmit attempt started.
  *
  * This handler is called from an ISR when:
- * - transmit operation with cca has been started with a call to @ref nrf_802154_transmit_frame(cca=true).
+ * - transmit operation with cca has been started with a call to @ref nrf_802154_trx_transmit_frame(cca=true).
  * - transmit operation was started with parameter @c notifications_mask containing
  *   TRX_TRANSMIT_NOTIFICATION_CCASTARTED
  * - the RADIO peripheral started CCA operation.
@@ -604,7 +608,7 @@ extern void nrf_802154_trx_transmit_frame_ccastarted(void);
 /**@brief Handler called when a cca operation during transmit attempt was successful.
  *
  * This handler is called from an ISR when:
- * - transmit operation with cca has been started with a call to @ref nrf_802154_transmit_frame(cca=true).
+ * - transmit operation with cca has been started with a call to @ref nrf_802154_trx_transmit_frame(cca=true).
  * - the RADIO detected that channel was free.
  *
  * When this handler is called following holds:
@@ -619,7 +623,7 @@ extern void nrf_802154_trx_transmit_frame_ccaidle(void);
 /**@brief Handler called when a cca operation during transmit attempt failed.
  *
  * This handler is called from an ISR when:
- * - transmit operation with cca has been started with a call to @ref nrf_802154_transmit_frame(cca=true).
+ * - transmit operation with cca has been started with a call to @ref nrf_802154_trx_transmit_frame(cca=true).
  * - the RADIO detected that channel was busy.
  *
  * When this handler is called following holds:
@@ -759,10 +763,33 @@ extern void nrf_802154_trx_standalone_cca_finished(bool channel_was_idle);
  * - @ref nrf_802154_trx_go_idle,
  * - @ref nrf_802154_trx_disable.
  *
- * @param channel_was_idle  Informs implementation of the handler if channel was idle.
- *                          true means the channel was idle, false means the channel was busy.
+ * @param ed_sample     Sample of detected energy.
  */
 extern void nrf_802154_trx_energy_detection_finished(uint8_t ed_sample);
+
+/**@brief Returns RADIO->EVENTS_END handle that hardware can subscribe to.
+ *
+ * @return RADIO->EVENTS_END handle that hardware can subscribe to.
+ */
+const nrf_802154_sl_event_handle_t * nrf_802154_trx_radio_end_event_handle_get(void);
+
+/**@brief Returns RADIO->EVENTS_READY handle that hardware can subscribe to.
+ *
+ * @return RADIO->EVENTS_READY handle that hardware can subscribe to.
+ */
+const nrf_802154_sl_event_handle_t * nrf_802154_trx_radio_ready_event_handle_get(void);
+
+/**@brief Returns RADIO->EVENTS_CRCOK handle that hardware can subscribe to.
+ *
+ * @return RADIO->EVENTS_CRCOK handle that hardware can subscribe to.
+ */
+const nrf_802154_sl_event_handle_t * nrf_802154_trx_radio_crcok_event_handle_get(void);
+
+/**@brief Returns RADIO->EVENTS_PHYEND handle that hardware can subscribe to.
+ *
+ * @return RADIO->EVENTS_PHYEND handle that hardware can subscribe to.
+ */
+const nrf_802154_sl_event_handle_t * nrf_802154_trx_radio_phyend_event_handle_get(void);
 
 #ifdef __cplusplus
 }
