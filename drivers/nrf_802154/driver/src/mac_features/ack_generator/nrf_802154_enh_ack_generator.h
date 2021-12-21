@@ -48,9 +48,20 @@
 /** Initializes the Enhanced ACK generator module. */
 void nrf_802154_enh_ack_generator_init(void);
 
-/** Creates an Enhanced ACK in response to the provided frame.
+/** @brief Resets the Enhanced ACK generator module.
  *
- * This function creates an Enhanced ACK frame and inserts it into a radio buffer.
+ * @note This function should be called for every received frame to be acknowledged before
+ *       @ref nrf_802154_enh_ack_generator_create is called for that frame.
+ */
+void nrf_802154_enh_ack_generator_reset(void);
+
+/** @brief Creates an Enhanced ACK in response to the provided frame.
+ *
+ * @note Only those contents of the frame being acknowledged marked by @p p_frame_data as valid
+ * are used for ACK generation. If any data necessary to generate an ACK is missing or marked as
+ * invalid by @p p_frame_data, this function returns NULL. Once more data becomes available and valid,
+ * this function can be called again and the generation will be continued. That allows for
+ * generating ACK iteratively as data to be acknowledged is being received.
  *
  * @param [in]  p_frame_data  Pointer to the parser data of the frame for which an Ack
  *                            will be generated.

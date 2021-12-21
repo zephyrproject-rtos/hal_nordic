@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2020 - 2021, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -33,63 +33,44 @@
  */
 
 /**
- * @file
- *   This file implements an immediate acknowledgement (Imm-Ack) generator for 802.15.4 radio driver.
+ * @file Common types provided by the nRF 802.15.4 Service Layer.
  *
  */
 
-#include "nrf_802154_imm_ack_generator.h"
+#ifndef NRF_802154_SL_TYPES_H__
+#define NRF_802154_SL_TYPES_H__
 
-#include <assert.h>
-#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <nrfx.h>
 
-#include "nrf_802154_ack_data.h"
-#include "nrf_802154_const.h"
-
-#define IMM_ACK_INITIALIZER {IMM_ACK_LENGTH, ACK_HEADER_WITH_PENDING, 0x00, 0x00, 0x00, 0x00}
-
-static uint8_t m_ack_data[IMM_ACK_LENGTH + PHR_SIZE];
-
-void nrf_802154_imm_ack_generator_init(void)
+/**
+ * @brief Handle of a hardware event.
+ *
+ * This handle can be used to trigger peripheral tasks through hardware.
+ */
+typedef struct
 {
-    const uint8_t ack_data[] = IMM_ACK_INITIALIZER;
+    /**
+     * @brief Actual handle to use when configuring hardware.
+     *
+     * On nRF52 series, this field represents an address of a hardware event
+     * that can be written to a PPI register.
+     *
+     * On nRF53 series, this field depending on @c shared might either represent
+     * an address of a hardware event that should publish to a DPPI channel,
+     * or a number of a DPPI channel that the hardware event of interest
+     * is already publishing to.
+     */
+    uint32_t event_addr;
 
-    memcpy(m_ack_data, ack_data, sizeof(ack_data));
-}
+#if defined(DPPI_PRESENT)
+    /**
+     * @brief Indicates if the event is already publishing to a DPPI channel.
+     */
+    bool shared;
 
-void nrf_802154_imm_ack_generator_reset(void)
-{
-    // Intentionally empty
-}
+#endif
+} nrf_802154_sl_event_handle_t;
 
-uint8_t * nrf_802154_imm_ack_generator_create(
-    const nrf_802154_frame_parser_data_t * p_frame_data)
-{
-    if (nrf_802154_frame_parser_parse_level_get(p_frame_data) < PARSE_LEVEL_FULL)
-    {
-        // The entire frame being acknowledged is necessary to correctly generate Ack
-        return NULL;
-    }
-
-    const uint8_t * frame_dsn = nrf_802154_frame_parser_dsn_get(p_frame_data);
-
-    if (frame_dsn == NULL)
-    {
-        return NULL;
-    }
-
-    // Set valid sequence number in ACK frame.
-    m_ack_data[DSN_OFFSET] = *frame_dsn;
-
-    // Set pending bit in ACK frame.
-    if (nrf_802154_ack_data_pending_bit_should_be_set(p_frame_data))
-    {
-        m_ack_data[FRAME_PENDING_OFFSET] = ACK_HEADER_WITH_PENDING;
-    }
-    else
-    {
-        m_ack_data[FRAME_PENDING_OFFSET] = ACK_HEADER_WITHOUT_PENDING;
-    }
-
-    return m_ack_data;
-}
+#endif // NRF_802154_SL_TYPES_H__

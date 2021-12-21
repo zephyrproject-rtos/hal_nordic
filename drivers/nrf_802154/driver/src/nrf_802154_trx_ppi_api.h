@@ -47,6 +47,21 @@
 #include "hal/nrf_radio.h"
 
 /**
+ * @brief Configures (D)PPI connections required for TRX operation.
+ *
+ * Actions performed by this function in DPPI variant:
+ *   - RADIO_DISABLED event is published to DPPI designated by NRF_802154_DPPI_RADIO_DISABLED
+ *   - NRF_RADIO_EVENT_CCAIDLE is published to DPPI designated by NRF_802154_DPPI_RADIO_CCAIDLE
+ * The DPPIs mentioned above may be then subscribed to.
+ */
+void nrf_802154_trx_ppi_for_enable(void);
+
+/**
+ * @brief Clears (D)PPI connections required for TRX operation.
+ */
+void nrf_802154_trx_ppi_for_disable(void);
+
+/**
  * @brief Set PPIs to connect RADIO DISABLED event with tasks needed to ramp up.
  *
  * Connections created by this function in DPPI variant:
@@ -103,7 +118,7 @@ bool nrf_802154_trx_ppi_for_ramp_up_was_triggered(void);
 void nrf_802154_trx_ppi_for_ack_tx_set(void);
 
 /**
- * @brief Clear PPIs to connect TIMER event with radio TXEN task, needed to ramp up for ACK TX. See @ref void nrf_802154_trx_ppi_for_ack_tx_set
+ * @brief Clear PPIs to connect TIMER event with radio TXEN task, needed to ramp up for ACK TX. See @ref nrf_802154_trx_ppi_for_ack_tx_set
  */
 void nrf_802154_trx_ppi_for_ack_tx_clear(void);
 
@@ -117,27 +132,6 @@ void nrf_802154_trx_ppi_for_fem_set(void);
  * @brief Deconfigure PPIs needed for external LNA or PA. See @ref nrf_802154_trx_ppi_for_fem_set
  */
 void nrf_802154_trx_ppi_for_fem_clear(void);
-
-/**
- * @brief Prepare FEM to enter powerdown state.
- *
- * @param[in] p_instance Timer instance that is used to schedule the transition to the Power Down state.
- * @param[in] compare_channel Compare channel to hold a value for the timer.
- *
- * @note This function and @ref nrf_802154_trx_ppi_for_fem_powerdown_clear looks not symetrical.
- *       It seems it could be better designed. We shall refactor it when porting FEM support to
- *       nRF53 family.
- *
- * @retval true   FEM powerdown procedure has started.
- * @retval false  FEM powerdown procedure is not needed.
- */
-bool nrf_802154_trx_ppi_for_fem_powerdown_set(NRF_TIMER_Type * p_instance,
-                                              uint32_t         compare_channel);
-
-/**
- * @brief Unconfigure PPIs needed to enter the powerdown state by FEM.
- */
-void nrf_802154_trx_ppi_for_fem_powerdown_clear(void);
 
 /**
  * @brief Get PPI group id used for disabling radio operations by an external event.

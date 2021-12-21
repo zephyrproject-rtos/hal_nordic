@@ -57,7 +57,6 @@
 #include "nrf_802154_nrfx_addons.h"
 #include "nrf_802154_pib.h"
 #include "nrf_802154_request.h"
-#include "nrf_802154_rssi.h"
 #include "nrf_802154_rx_buffer.h"
 #include "nrf_802154_stats.h"
 #include "hal/nrf_radio.h"
@@ -79,12 +78,10 @@
 #include "mac_features/ack_generator/nrf_802154_ack_data.h"
 
 #include "nrf_802154_sl_ant_div.h"
+#include "nrf_802154_sl_crit_sect_if.h"
 #include "nrf_802154_sl_capabilities.h"
 
-#define RAW_LENGTH_OFFSET  0
-#define RAW_PAYLOAD_OFFSET 1
-
-#if !NRF_802154_USE_RAW_API
+#if !NRF_802154_USE_RAW_API || NRF_802154_CARRIER_FUNCTIONS_ENABLED
 /** Static transmit buffer used by @sa nrf_802154_transmit() family of functions.
  *
  * If none of functions using this buffer is called and link time optimization is enabled, this
@@ -92,6 +89,9 @@
  */
 static uint8_t m_tx_buffer[RAW_PAYLOAD_OFFSET + MAX_PACKET_SIZE];
 
+#endif // !NRF_802154_USE_RAW_API || NRF_802154_CARRIER_FUNCTIONS_ENABLED
+
+#if !NRF_802154_USE_RAW_API
 /**
  * @brief Fill transmit buffer with given data.
  *
@@ -109,6 +109,24 @@ static void tx_buffer_fill(const uint8_t * p_data, uint8_t length)
 }
 
 #endif // !NRF_802154_USE_RAW_API
+
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
+/**
+ * @brief Fill the transmit buffer with given data in order to use it with the
+ * modulated carrier functionality.
+ *
+ * @param[in]  p_data   Pointer to array containing modulating data.
+ */
+static void tx_buffer_fill_for_modulated_carrier(const uint8_t * p_data)
+{
+    uint8_t length = p_data[RAW_LENGTH_OFFSET];
+
+    assert(length <= MAX_PACKET_SIZE);
+
+    memcpy(m_tx_buffer, p_data, RAW_PAYLOAD_OFFSET + length);
+}
+
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
 
 static inline bool are_frame_properties_valid(const nrf_802154_transmitted_frame_props_t * p_props)
 {
@@ -203,7 +221,7 @@ uint32_t nrf_802154_first_symbol_timestamp_get(uint32_t end_timestamp, uint8_t p
 
 void nrf_802154_init(void)
 {
-    nrf_802154_sl_crit_sect_interface_t crit_sect_int =
+    static const nrf_802154_sl_crit_sect_interface_t crit_sect_int =
     {
         .enter = nrf_802154_critical_section_enter,
         .exit  = nrf_802154_critical_section_exit
@@ -213,6 +231,7 @@ void nrf_802154_init(void)
     nrf_802154_core_init();
     nrf_802154_clock_init();
     nrf_802154_critical_section_init();
+    nrf_802154_sl_crit_sect_init(&crit_sect_int);
     nrf_802154_debug_init();
     nrf_802154_notification_init();
     nrf_802154_lp_timer_init();
@@ -221,7 +240,7 @@ void nrf_802154_init(void)
     nrf_802154_rsch_prio_drop_init();
     nrf_802154_random_init();
     nrf_802154_request_init();
-    nrf_802154_rsch_crit_sect_init(&crit_sect_int);
+    nrf_802154_rsch_crit_sect_init();
     nrf_802154_rsch_init();
     nrf_802154_rx_buffer_init();
     nrf_802154_temperature_init();
@@ -379,11 +398,15 @@ nrf_802154_state_t nrf_802154_state_get(void)
         case RADIO_STATE_CCA:
             return NRF_802154_STATE_CCA;
 
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
+
         case RADIO_STATE_CONTINUOUS_CARRIER:
             return NRF_802154_STATE_CONTINUOUS_CARRIER;
 
         case RADIO_STATE_MODULATED_CARRIER:
             return NRF_802154_STATE_MODULATED_CARRIER;
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
+
     }
 
     return NRF_802154_STATE_INVALID;
@@ -542,7 +565,7 @@ bool nrf_802154_transmit_raw_at(uint8_t                                 * p_data
     result = are_frame_properties_valid(&p_metadata->frame_props);
     if (result)
     {
-        result = nrf_802154_delayed_trx_transmit(p_data, t0, dt, p_metadata);
+        result = nrf_802154_request_transmit_raw_at(p_data, t0, dt, p_metadata);
     }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
@@ -555,7 +578,7 @@ bool nrf_802154_transmit_at_cancel(void)
 
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
-    result = nrf_802154_delayed_trx_transmit_cancel();
+    result = nrf_802154_request_transmit_at_cancel();
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
     return result;
@@ -571,7 +594,7 @@ bool nrf_802154_receive_at(uint32_t t0,
 
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
-    result = nrf_802154_delayed_trx_receive(t0, dt, timeout, channel, id);
+    result = nrf_802154_request_receive_at(t0, dt, timeout, channel, id);
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
     return result;
@@ -583,7 +606,7 @@ bool nrf_802154_receive_at_cancel(uint32_t id)
 
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
-    result = nrf_802154_delayed_trx_receive_cancel(id);
+    result = nrf_802154_request_receive_at_cancel(id);
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
     return result;
@@ -615,6 +638,8 @@ bool nrf_802154_cca(void)
     return result;
 }
 
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
+
 bool nrf_802154_continuous_carrier(void)
 {
     bool result;
@@ -633,11 +658,15 @@ bool nrf_802154_modulated_carrier(const uint8_t * p_data)
 
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
-    result = nrf_802154_request_modulated_carrier(NRF_802154_TERM_NONE, p_data);
+    tx_buffer_fill_for_modulated_carrier(p_data);
+
+    result = nrf_802154_request_modulated_carrier(NRF_802154_TERM_NONE, m_tx_buffer);
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
     return result;
 }
+
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
 
 #if NRF_802154_USE_RAW_API
 

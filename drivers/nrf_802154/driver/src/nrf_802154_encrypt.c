@@ -301,6 +301,8 @@ bool nrf_802154_encrypt_ack_prepare(const nrf_802154_frame_parser_data_t * p_ack
     nrf_802154_aes_ccm_data_t aes_ccm_data;
     bool                      success = false;
 
+    nrf_802154_aes_ccm_transform_reset();
+
     if (!nrf_802154_frame_parser_security_enabled_bit_is_set(p_ack_data))
     {
         success = true;
@@ -323,6 +325,8 @@ bool nrf_802154_encrypt_tx_setup(
     nrf_802154_transmit_params_t            * p_params,
     nrf_802154_transmit_failed_notification_t notify_function)
 {
+    nrf_802154_aes_ccm_transform_reset();
+
     if (p_params->frame_props.is_secured)
     {
         // The frame is already secured. Pass.
@@ -356,7 +360,10 @@ bool nrf_802154_encrypt_tx_setup(
 
     if (!success)
     {
-        notify_function(p_frame, NRF_802154_TX_ERROR_KEY_ID_INVALID);
+        nrf_802154_transmit_done_metadata_t metadata = {};
+
+        metadata.frame_props = p_params->frame_props;
+        notify_function(p_frame, NRF_802154_TX_ERROR_KEY_ID_INVALID, &metadata);
     }
 
     return success;
@@ -374,4 +381,20 @@ bool nrf_802154_encrypt_tx_started_hook(uint8_t * p_frame)
 void nrf_802154_encrypt_tx_ack_started_hook(uint8_t * p_ack)
 {
     nrf_802154_aes_ccm_transform_start(p_ack);
+}
+
+bool nrf_802154_encrypt_tx_failed_hook(uint8_t * p_frame, nrf_802154_tx_error_t error)
+{
+    (void)error;
+
+    nrf_802154_aes_ccm_transform_abort(p_frame);
+
+    return true;
+}
+
+void nrf_802154_encrypt_tx_ack_failed_hook(uint8_t * p_ack, nrf_802154_tx_error_t error)
+{
+    (void)error;
+
+    nrf_802154_aes_ccm_transform_abort(p_ack);
 }

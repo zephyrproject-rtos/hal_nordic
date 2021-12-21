@@ -48,6 +48,7 @@
 #include "nrf_802154_serialization_error.h"
 
 #include "nrf_802154.h"
+#include "nrf_802154_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,6 +84,23 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_generic_bool(
     const void * p_property_data,
     size_t       property_data_len,
     bool       * p_bool_response);
+
+/**
+ * @brief Decode SPINEL_DATATYPE_UINT8_S.
+ *
+ * @note This is used to decode `uint8_t` responses for several kinds of requests in 802.15.4 radio driver.
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
+ * @param[out] p_uint8_response   Pointer to decoded response value.
+ *
+ * @returns zero on success or negative error value on failure.
+ *
+ */
+nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_generic_uint8(
+    const void * p_property_data,
+    size_t       property_data_len,
+    uint8_t    * p_uint8_response);
 
 /**
  * @brief Decode SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TX_POWER_GET.
@@ -132,7 +150,7 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_nrf_802154_capabilities_get_r
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
- * @param[out] p_capabilities     Decoded capabilities.
+ * @param[out] p_time             Decoded time.
  *
  * @returns zero on success or negative error value on failure.
  *
@@ -141,6 +159,36 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_nrf_802154_time_get_ret(
     const void * p_property_data,
     size_t       property_data_len,
     uint32_t   * p_time);
+
+/**
+ * @brief Decode SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CCA_CFG_GET.
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
+ * @param[out] p_cfg              Decoded CCA configuration.
+ *
+ * @returns zero on success or negative error value on failure.
+ *
+ */
+nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_nrf_802154_cca_cfg_get_ret(
+    const void           * p_property_data,
+    size_t                 property_data_len,
+    nrf_802154_cca_cfg_t * p_cfg);
+
+/**
+ * @brief Decode SPINEL_PROP_VENDOR_NORDIC_NRF_802154_STAT_TIMESTAMPS_GET.
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
+ * @param[out] p_stat_timestamps  Decoded stat timestamps
+ *
+ * @returns zero on success or negative error value on failure.
+ *
+ */
+nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_nrf_802154_stat_timestamps_get_ret(
+    const void                   * p_property_data,
+    size_t                         property_data_len,
+    nrf_802154_stat_timestamps_t * p_stat_timestamps);
 
 /**
  * @brief Decode and dispatch SPINEL_CMD_PROP_VALUE_IS.

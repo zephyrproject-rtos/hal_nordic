@@ -45,17 +45,14 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdlib.h>
 
 #include "nrf_802154_config.h"
 #include "nrf_802154_const.h"
 #include "nrf_802154_debug.h"
 #include "nrf_802154_notification.h"
 #include "nrf_802154_pib.h"
-#include "nrf_802154_procedures_duration.h"
 #include "nrf_802154_request.h"
 #include "nrf_802154_stats.h"
-#include "mac_features/nrf_802154_frame_parser.h"
 #include "platform/nrf_802154_random.h"
 #include "rsch/nrf_802154_rsch.h"
 #include "timer/nrf_802154_timer_sched.h"
@@ -145,7 +142,12 @@ static void notify_busy_channel(bool result)
     // the comparison uses `greater or equal` instead of `greater than`.
     if (!result && (m_nb >= nrf_802154_pib_csmaca_max_backoffs_get()))
     {
-        nrf_802154_notify_transmit_failed(mp_data, NRF_802154_TX_ERROR_BUSY_CHANNEL);
+        // core rejected attempt, use my current frame_props
+        nrf_802154_transmit_done_metadata_t metadata = {};
+
+        metadata.frame_props = m_data_props;
+
+        nrf_802154_notify_transmit_failed(mp_data, NRF_802154_TX_ERROR_BUSY_CHANNEL, &metadata);
     }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_HIGH);

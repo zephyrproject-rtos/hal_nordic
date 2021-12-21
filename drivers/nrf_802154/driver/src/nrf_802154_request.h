@@ -125,6 +125,8 @@ bool nrf_802154_request_energy_detection(nrf_802154_term_t term_lvl, uint32_t ti
  */
 bool nrf_802154_request_cca(nrf_802154_term_t term_lvl);
 
+#if NRF_802154_CARRIER_FUNCTIONS_ENABLED
+
 /**
  * @brief Requests entering the @ref RADIO_STATE_CONTINUOUS_CARRIER state.
  *
@@ -139,12 +141,15 @@ bool nrf_802154_request_continuous_carrier(nrf_802154_term_t term_lvl);
  * @brief Requests entering the @ref RADIO_STATE_MODULATED_CARRIER state.
  *
  * @param[in]  term_lvl  Termination level of this request. Selects procedures to abort.
+ * @param[in]  p_data    Pointer to a buffer to modulate the carrier with.
  *
  * @retval  true   The driver will enter the modulated carrier state.
  * @retval  false  The driver cannot enter the modulated carrier state due to an ongoing operation.
  */
 bool nrf_802154_request_modulated_carrier(nrf_802154_term_t term_lvl,
                                           const uint8_t   * p_data);
+
+#endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
 
 /**
  * @brief Requests the driver to free the given buffer.
@@ -179,6 +184,76 @@ bool nrf_802154_request_rssi_measure(void);
  * @brief Requests getting the last RSSI measurement result.
  */
 bool nrf_802154_request_rssi_measurement_get(int8_t * p_rssi);
+
+#if NRF_802154_DELAYED_TRX_ENABLED
+/**
+ * @brief Requests a call to @ref nrf_802154_delayed_trx_transmit.
+ *
+ * @param[in]  p_data      Pointer to the array with data to transmit. The first byte must contain
+ *                         the frame length (including FCS). The following bytes contain data.
+ *                         The CRC is computed automatically by the radio hardware. Therefore,
+ *                         the FCS field can contain any bytes.
+ * @param[in]  t0          Base of delay time - absolute time used by the Timer Scheduler,
+ *                         in microseconds (us).
+ * @param[in]  dt          Delta of delay time from @p t0, in microseconds (us).
+ * @param[in]  p_metadata  Pointer to metadata structure. Contains detailed properties of data
+ *                         to transmit. If @c NULL following metadata are used:
+ *                         Field           | Value
+ *                         ----------------|-----------------------------------------------------
+ *                         @c frame_props  | @ref NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT
+ *                         @c cca          | @c true
+ *                         @c channel      | As returned by @ref nrf_802154_channel_get
+ *
+ * @retval  true   The transmission procedure was scheduled.
+ * @retval  false  The driver could not schedule the transmission procedure.
+ */
+bool nrf_802154_request_transmit_raw_at(uint8_t                                 * p_data,
+                                        uint32_t                                  t0,
+                                        uint32_t                                  dt,
+                                        const nrf_802154_transmit_at_metadata_t * p_metadata);
+
+/**
+ * @brief Requests a call to @ref nrf_802154_delayed_trx_transmit_cancel.
+ *
+ * @retval  true    The delayed transmission was scheduled and successfully cancelled.
+ * @retval  false   No delayed transmission was scheduled.
+ */
+bool nrf_802154_request_transmit_at_cancel(void);
+
+/**
+ * @brief Requests a call to @ref nrf_802154_delayed_trx_receive.
+ *
+ * @param[in]   t0       Base of delay time - absolute time used by the Timer Scheduler,
+ *                       in microseconds (us).
+ * @param[in]   dt       Delta of delay time from @p t0, in microseconds (us).
+ * @param[in]   timeout  Reception timeout (counted from @p t0 + @p dt), in microseconds (us).
+ * @param[in]   channel  Radio channel on which the frame is to be received.
+ * @param[in]   id       Identifier of the scheduled reception window. If the reception has been
+ *                       scheduled successfully, the value of this parameter can be used in
+ *                       @ref nrf_802154_receive_at_cancel to cancel it.
+ *
+ * @retval  true   The reception procedure was scheduled.
+ * @retval  false  The driver could not schedule the reception procedure.
+ */
+bool nrf_802154_request_receive_at(uint32_t t0,
+                                   uint32_t dt,
+                                   uint32_t timeout,
+                                   uint8_t  channel,
+                                   uint32_t id);
+
+/**
+ * @brief Requests a call to @ref nrf_802154_delayed_trx_receive_cancel.
+ *
+ * @param[in]  id  Identifier of the delayed reception window to be cancelled. If the provided
+ *                 value does not refer to any scheduled or active receive window, the function
+ *                 returns false.
+ *
+ * @retval  true    The delayed reception was scheduled and successfully cancelled.
+ * @retval  false   No delayed reception was scheduled.
+ */
+bool nrf_802154_request_receive_at_cancel(uint32_t id);
+
+#endif // NRF_802154_DELAYED_TRX_ENABLED
 
 /**
  *@}

@@ -90,4 +90,26 @@ bool nrf_802154_encrypt_tx_started_hook(uint8_t * p_frame);
  */
 void nrf_802154_encrypt_tx_ack_started_hook(uint8_t * p_ack);
 
+/**
+ * @brief TX failed hook for the encryption module.
+ *
+ * This function aborts the transformation procedure of the provided frame.
+ *
+ * @param[in]  p_frame  Pointer to the buffer that contains a frame being transmitted.
+ * @param[in]  error    Cause of the failed transmission.
+ *
+ * @retval  true        Always succeeds.
+ */
+bool nrf_802154_encrypt_tx_failed_hook(uint8_t * p_frame, nrf_802154_tx_error_t error);
+
+/**
+ * @brief ACK TX failed hook for the encryption module.
+ *
+ * This function aborts the transformation procedure of the provided ACK frame.
+ *
+ * @param[in]  p_ack  Pointer to the buffer that contains a frame being transmitted.
+ * @param[in]  error  Cause of the failed transmission.
+ */
+void nrf_802154_encrypt_tx_ack_failed_hook(uint8_t * p_ack, nrf_802154_tx_error_t error);
+
 #endif /* NRF_802154_ENCRYPT_H_ */

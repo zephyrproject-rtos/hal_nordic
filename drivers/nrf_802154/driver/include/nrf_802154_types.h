@@ -170,7 +170,7 @@ typedef uint8_t nrf_802154_ack_data_t;
  * @brief Methods of source address matching.
  *
  * You can use one of the following methods that can be set during the initialization phase
- * by calling @ref nrf_802154_src_matching_method:
+ * by calling @ref nrf_802154_src_addr_matching_method_set :
  *   - For Thread: @ref NRF_802154_SRC_ADDR_MATCH_THREAD -- The pending bit is set only for the addresses found in the list.
  *   - For Zigbee: @ref NRF_802154_SRC_ADDR_MATCH_ZIGBEE -- The pending bit is cleared only for the short addresses found in the list.\n
  *     This method does not set pending bit in non-command and non-data-request frames.
@@ -367,12 +367,6 @@ typedef struct
 } nrf_802154_key_t;
 
 /**
- * @brief Function pointer used for notifying about transmission failure.
- */
-typedef void (* nrf_802154_transmit_failed_notification_t)(uint8_t             * p_frame,
-                                                           nrf_802154_tx_error_t error);
-
-/**
  * @brief Structure with frame properties associated with the transmission operation.
  *
  * @note When using to request transmission, parameters contained here influence whether or not
@@ -465,6 +459,14 @@ typedef struct
     bool                                 immediate;   // !< If true, the driver schedules transmission immediately or never. If false, the transmission may be postponed
                                                       // until its preconditions are met.
 } nrf_802154_transmit_params_t;
+
+/**
+ * @brief Function pointer used for notifying about transmission failure.
+ */
+typedef void (* nrf_802154_transmit_failed_notification_t)(
+    uint8_t                                   * p_frame,
+    nrf_802154_tx_error_t                       error,
+    const nrf_802154_transmit_done_metadata_t * p_meta);
 
 /**
  *@}

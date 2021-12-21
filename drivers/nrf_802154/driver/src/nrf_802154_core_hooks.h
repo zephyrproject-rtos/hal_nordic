@@ -118,6 +118,15 @@ void nrf_802154_core_hooks_transmitted(const uint8_t * p_frame);
 bool nrf_802154_core_hooks_tx_failed(uint8_t * p_frame, nrf_802154_tx_error_t error);
 
 /**
+ * @brief Processes hooks for the ACK TX failed event.
+ *
+ * @param[in]  p_ack    Pointer to a buffer that contains PHR and PSDU of the ACK frame
+ *                      that was not transmitted.
+ * @param[in]  error    Cause of the failed transmission.
+ */
+void nrf_802154_core_hooks_tx_ack_failed(uint8_t * p_ack, nrf_802154_tx_error_t error);
+
+/**
  * @brief Processes hooks for the TX started event.
  *
  * @param[in]  p_frame  Pointer to a buffer that contains PHR and PSDU of the frame

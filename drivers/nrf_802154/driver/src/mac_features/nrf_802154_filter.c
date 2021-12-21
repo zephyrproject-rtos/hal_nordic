@@ -412,12 +412,10 @@ static nrf_802154_rx_error_t dst_addr_check(const nrf_802154_frame_parser_data_t
         }
     }
 
-    if (p_dst_addr == NULL)
-    {
-        return NRF_802154_RX_ERROR_INVALID_DEST_ADDR;
-    }
+    uint8_t dst_addr_size =
+        p_dst_addr ? nrf_802154_frame_parser_dst_addr_size_get(p_frame_data) : 0U;
 
-    switch (nrf_802154_frame_parser_dst_addr_size_get(p_frame_data))
+    switch (dst_addr_size)
     {
         case SHORT_ADDRESS_SIZE:
             return dst_short_addr_check(p_dst_addr) ? NRF_802154_RX_ERROR_NONE :
