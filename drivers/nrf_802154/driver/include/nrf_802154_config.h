@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2017 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -261,6 +261,19 @@ extern "C" {
  */
 #ifndef NRF_802154_DELAYED_TRX_ENABLED
 #define NRF_802154_DELAYED_TRX_ENABLED 1
+#endif
+
+/**
+ * @def NRF_802154_TEST_MODES_ENABLED
+ *
+ * Enables test modes. Test modes are normally disabled in end products.
+ * When @ref NRF_802154_TEST_MODES_ENABLED is set to 1, nRF 802.15.4 Radio Driver
+ * provides additional API to enable certain test modes. Setting
+ * @ref NRF_802154_TEST_MODES_ENABLED to 1 without using test mode API does not
+ * change any behavior of the Radio Driver.
+ */
+#ifndef NRF_802154_TEST_MODES_ENABLED
+#define NRF_802154_TEST_MODES_ENABLED 0
 #endif
 
 /**

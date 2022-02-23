@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2017 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -47,6 +47,16 @@
  * @ingroup nrf_802154
  * @brief ACK timeout feature.
  */
+
+/**
+ * @brief Initializes the ACK timeout handling feature.
+ */
+void nrf_802154_ack_timeout_init(void);
+
+/**
+ * @brief Deinitializes the ACK timeout handling feature.
+ */
+void nrf_802154_ack_timeout_deinit(void);
 
 /**
  * @brief Sets the timeout time for the ACK timeout feature.

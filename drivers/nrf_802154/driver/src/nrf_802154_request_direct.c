@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2017 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -45,6 +45,7 @@
 
 #include "nrf_802154_core.h"
 #include "mac_features/nrf_802154_delayed_trx.h"
+#include "mac_features/nrf_802154_csma_ca.h"
 #include "hal/nrf_radio.h"
 
 #define REQUEST_FUNCTION_PARMS(func_core, ...) \
@@ -161,11 +162,10 @@ static inline bool are_frame_properties_valid(const nrf_802154_transmitted_frame
 
 #if NRF_802154_DELAYED_TRX_ENABLED
 bool nrf_802154_request_transmit_raw_at(uint8_t                                 * p_data,
-                                        uint32_t                                  t0,
-                                        uint32_t                                  dt,
+                                        uint64_t                                  tx_time,
                                         const nrf_802154_transmit_at_metadata_t * p_metadata)
 {
-    REQUEST_FUNCTION_PARMS(nrf_802154_delayed_trx_transmit, p_data, t0, dt, p_metadata);
+    REQUEST_FUNCTION_PARMS(nrf_802154_delayed_trx_transmit, p_data, tx_time, p_metadata);
 }
 
 bool nrf_802154_request_transmit_at_cancel(void)
@@ -173,13 +173,12 @@ bool nrf_802154_request_transmit_at_cancel(void)
     REQUEST_FUNCTION(nrf_802154_delayed_trx_transmit_cancel);
 }
 
-bool nrf_802154_request_receive_at(uint32_t t0,
-                                   uint32_t dt,
+bool nrf_802154_request_receive_at(uint64_t rx_time,
                                    uint32_t timeout,
                                    uint8_t  channel,
                                    uint32_t id)
 {
-    REQUEST_FUNCTION_PARMS(nrf_802154_delayed_trx_receive, t0, dt, timeout, channel, id);
+    REQUEST_FUNCTION_PARMS(nrf_802154_delayed_trx_receive, rx_time, timeout, channel, id);
 }
 
 bool nrf_802154_request_receive_at_cancel(uint32_t id)
@@ -188,3 +187,9 @@ bool nrf_802154_request_receive_at_cancel(uint32_t id)
 }
 
 #endif
+
+bool nrf_802154_request_csma_ca_start(uint8_t                                      * p_data,
+                                      const nrf_802154_transmit_csma_ca_metadata_t * p_metadata)
+{
+    REQUEST_FUNCTION_PARMS(nrf_802154_csma_ca_start, p_data, p_metadata);
+}

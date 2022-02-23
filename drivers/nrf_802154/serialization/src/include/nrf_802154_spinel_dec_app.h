@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2020 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -103,6 +103,23 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_generic_uint8(
     uint8_t    * p_uint8_response);
 
 /**
+ * @brief Decode SPINEL_DATATYPE_UINT16_S.
+ *
+ * @note This is used to decode `uint16_t` responses for several kinds of requests in 802.15.4 radio driver.
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
+ * @param[out] p_uint8_response   Pointer to decoded response value.
+ *
+ * @returns zero on success or negative error value on failure.
+ *
+ */
+nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_generic_uint16(
+    const void * p_property_data,
+    size_t       property_data_len,
+    uint16_t   * p_uint16_response);
+
+/**
  * @brief Decode SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TX_POWER_GET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
@@ -158,7 +175,7 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_nrf_802154_capabilities_get_r
 nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_nrf_802154_time_get_ret(
     const void * p_property_data,
     size_t       property_data_len,
-    uint32_t   * p_time);
+    uint64_t   * p_time);
 
 /**
  * @brief Decode SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CCA_CFG_GET.

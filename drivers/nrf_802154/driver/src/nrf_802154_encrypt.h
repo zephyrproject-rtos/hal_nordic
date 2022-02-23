@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2021 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -51,6 +51,11 @@ extern "C" {
  * @param[in]  p_ack_data  Pointer to the ACK frame parser data.
  */
 bool nrf_802154_encrypt_ack_prepare(const nrf_802154_frame_parser_data_t * p_ack_data);
+
+/**
+ * @brief Resets encryption of ACK
+ */
+void nrf_802154_encrypt_ack_reset(void);
 
 /**
  * @brief Transmission setup hook for the encryption module.
