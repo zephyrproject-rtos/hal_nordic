@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2018 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -452,6 +452,8 @@ static uint8_t ie_header_terminate(const uint8_t                  * p_ie_data,
 static bool encryption_prepare(const nrf_802154_frame_parser_data_t * p_ack_data)
 {
 #if NRF_802154_ENCRYPTION_ENABLED
+    nrf_802154_encrypt_ack_reset();
+
     if (nrf_802154_frame_parser_security_enabled_bit_is_set(p_ack_data) == false)
     {
         return true;

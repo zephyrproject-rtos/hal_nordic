@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2017 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -40,6 +40,16 @@
 
 #include "nrf_802154_const.h"
 #include "nrf_802154_types.h"
+
+/**
+ * @brief Initializes the Interframe Spacing handling feature.
+ */
+void nrf_802154_ifs_init(void);
+
+/**
+ * @brief Deinitializes the Interframe Spacing handling feature.
+ */
+void nrf_802154_ifs_deinit(void);
 
 /**
  * @brief Examines the frame before transmission and checks if it needs to be delayed.

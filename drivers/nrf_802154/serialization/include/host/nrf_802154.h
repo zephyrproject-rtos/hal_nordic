@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2020 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -257,6 +257,21 @@ void nrf_802154_init(void);
 bool nrf_802154_sleep(void);
 
 /**
+ * @brief Changes the radio state to the @ref RADIO_STATE_SLEEP state if the radio is idle.
+ *
+ * The sleep state is the lowest power state. In this state, the radio cannot transmit or receive
+ * frames. It is the only state in which the driver releases the high-frequency clock and does not
+ * request timeslots from a radio arbiter.
+ *
+ * @note If another module requests it, the high-frequency clock may be enabled even in the radio
+ *       sleep state.
+ *
+ * @retval  NRF_802154_SLEEP_ERROR_NONE  The radio changes its state to the low power mode.
+ * @retval  NRF_802154_SLEEP_ERROR_BUSY  The driver could not schedule changing state.
+ */
+nrf_802154_sleep_error_t nrf_802154_sleep_if_idle(void);
+
+/**
  * @brief Changes the radio state to @ref RADIO_STATE_RX.
  *
  * In the receive state, the radio receives frames and may automatically send ACK frames when
@@ -287,10 +302,8 @@ bool nrf_802154_receive(void);
  * to an active delayed operation if the request is successful. In particular, none of the reserved
  * identifiers can be used.
  *
- * @param[in]   t0       Base of delay time - absolute time used by the Timer Scheduler,
- *                       in microseconds (us).
- * @param[in]   dt       Delta of delay time from @p t0, in microseconds (us).
- * @param[in]   timeout  Reception timeout (counted from @p t0 + @p dt), in microseconds (us).
+ * @param[in]   rx_time  Absolute time used by the SL Timer, in microseconds (us).
+ * @param[in]   timeout  Reception timeout (counted from @p rx_time), in microseconds (us).
  * @param[in]   channel  Radio channel on which the frame is to be received.
  * @param[in]   id       Identifier of the scheduled reception window. If the reception has been
  *                       scheduled successfully, the value of this parameter can be used in
@@ -299,8 +312,7 @@ bool nrf_802154_receive(void);
  * @retval  true   The reception procedure was scheduled.
  * @retval  false  The driver could not schedule the reception procedure.
  */
-bool nrf_802154_receive_at(uint32_t t0,
-                           uint32_t dt,
+bool nrf_802154_receive_at(uint64_t rx_time,
                            uint32_t timeout,
                            uint8_t  channel,
                            uint32_t id);
@@ -620,9 +632,7 @@ uint8_t nrf_802154_csma_ca_max_backoffs_get(void);
  *                         the frame length (including FCS). The following bytes contain data.
  *                         The CRC is computed automatically by the radio hardware. Therefore,
  *                         the FCS field can contain any bytes.
- * @param[in]  t0          Base of delay time - absolute time used by the Timer Scheduler,
- *                         in microseconds (us).
- * @param[in]  dt          Delta of delay time from @p t0, in microseconds (us).
+ * @param[in]  tx_time     Absolute time used by the SL Timer, in microseconds (us).
  * @param[in]  p_metadata  Pointer to metadata structure. Contains detailed properties of data
  *                         to transmit. If @c NULL following metadata are used:
  *                         Field           | Value
@@ -635,8 +645,7 @@ uint8_t nrf_802154_csma_ca_max_backoffs_get(void);
  * @retval  false  The driver could not schedule the transmission procedure.
  */
 bool nrf_802154_transmit_raw_at(uint8_t                                 * p_data,
-                                uint32_t                                  t0,
-                                uint32_t                                  dt,
+                                uint64_t                                  tx_time,
                                 const nrf_802154_transmit_at_metadata_t * p_metadata);
 
 /**
@@ -702,7 +711,73 @@ int8_t nrf_802154_dbm_from_energy_level_calculate(uint8_t energy_level);
  * @return  Timestamp of the beginning of the first preamble symbol of a given frame,
  *          in microseconds.
  */
-uint32_t nrf_802154_first_symbol_timestamp_get(uint32_t end_timestamp, uint8_t psdu_length);
+uint64_t nrf_802154_first_symbol_timestamp_get(uint64_t end_timestamp, uint8_t psdu_length);
+
+/**
+ * @}
+ * @defgroup nrf_802154_ifs Inter-frame spacing feature
+ * @{
+ */
+#if NRF_802154_IFS_ENABLED || defined(DOXYGEN)
+
+/**
+ * @brief Gets IFS operation mode.
+ *
+ * @note This function is available if @ref NRF_802154_IFS_ENABLED is enabled.
+ *
+ * @return Current IFS operation mode. Refer to @ref nrf_802154_ifs_mode_t for details.
+ */
+nrf_802154_ifs_mode_t nrf_802154_ifs_mode_get(void);
+
+/**
+ * @brief Sets IFS operation mode.
+ *
+ * @note This function is available if @ref NRF_802154_IFS_ENABLED is enabled.
+ *
+ * @param[in] mode  IFS operation mode. Refer to @ref nrf_802154_ifs_mode_t for details.
+ *
+ * @retval    true  The update of IFS operation mode was successful.
+ * @retval    false The update of IFS operation mode failed. Provided mode is unsupported
+ */
+bool nrf_802154_ifs_mode_set(nrf_802154_ifs_mode_t mode);
+
+/**
+ * @brief Gets Short IFS period in microseconds.
+ *
+ * @note This function is available if @ref NRF_802154_IFS_ENABLED is enabled.
+ *
+ * @return Current Short IFS period in microseconds.
+ */
+uint16_t nrf_802154_ifs_min_sifs_period_get(void);
+
+/**
+ * @brief Sets Short IFS period in microseconds.
+ *
+ * @note This function is available if @ref NRF_802154_IFS_ENABLED is enabled.
+ *
+ * @param[in] period Short IFS period in microseconds.
+ */
+void nrf_802154_ifs_min_sifs_period_set(uint16_t period);
+
+/**
+ * @brief Gets Long IFS period in microseconds.
+ *
+ * @note This function is available if @ref NRF_802154_IFS_ENABLED is enabled.
+ *
+ * @return Current Long IFS period in microseconds.
+ */
+uint16_t nrf_802154_ifs_min_lifs_period_get(void);
+
+/**
+ * @brief Sets Long IFS period in microseconds.
+ *
+ * @note This function is available if @ref NRF_802154_IFS_ENABLED is enabled.
+ *
+ * @param[in] period Long IFS period in microseconds.
+ */
+void nrf_802154_ifs_min_lifs_period_set(uint16_t period);
+
+#endif // NRF_802154_IFS_ENABLED
 
 /**
  * @}
@@ -725,7 +800,7 @@ nrf_802154_capabilities_t nrf_802154_capabilities_get(void);
  *
  * @returns Current time in microseconds.
  */
-uint32_t nrf_802154_time_get(void);
+uint64_t nrf_802154_time_get(void);
 
 /**
  * @}
@@ -787,7 +862,11 @@ nrf_802154_security_error_t nrf_802154_security_key_remove(nrf_802154_key_id_t *
  */
 void nrf_802154_csl_writer_period_set(uint16_t period);
 
-/** @} */
+/**
+ * @}
+ * @defgroup nrf_802154_stats Statistics and measurements
+ * @{
+ */
 
 /**
  * @brief Get time stamps of events gathered by the last operation.
@@ -795,5 +874,31 @@ void nrf_802154_csl_writer_period_set(uint16_t period);
  * @param[out] p_stat_timestamps Structure that will be filled with current time stamps of events.
  */
 void nrf_802154_stat_timestamps_get(nrf_802154_stat_timestamps_t * p_stat_timestamps);
+
+/**
+ * @}
+ * @defgroup nrf_802154_test_modes Test modes
+ * @{
+ */
+
+#if NRF_802154_TEST_MODES_ENABLED
+/**
+ * @brief Gets the current CSMA/CA backoff test mode.
+ *
+ * @return Current CSMA/CA backoff test mode.
+ */
+nrf_802154_test_mode_csmaca_backoff_t nrf_802154_test_mode_csmaca_backoff_get(void);
+
+/**
+ * @brief Sets the csmaca backoff test mode.
+ *
+ * @param[in] value     CSMA/CA backoff test mode (See @ref nrf_802154_test_mode_csmaca_backoff_t
+ *                      for defined values).
+ */
+void nrf_802154_test_mode_csmaca_backoff_set(nrf_802154_test_mode_csmaca_backoff_t value);
+
+#endif // NRF_802154_TEST_MODES_ENABLED
+
+/** @} */
 
 #endif

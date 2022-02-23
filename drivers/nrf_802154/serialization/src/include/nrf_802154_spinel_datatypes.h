@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2020 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -387,6 +387,60 @@ typedef enum
     SPINEL_PROP_VENDOR_NORDIC_NRF_802154_MODULATED_CARRIER =
         SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 53,
 
+    /**
+     * Vendor property for nrf_802154_sleep_if_idle serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SLEEP_IF_IDLE =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 54,
+
+    /**
+     * Vendor property for nrf_802154_test_mode_csmaca_backoff_set serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TEST_MODE_CSMACA_BACKOFF_SET =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 55,
+
+    /**
+     * Vendor property for nrf_802154_test_mode_csmaca_backoff_get serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TEST_MODE_CSMACA_BACKOFF_GET =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 56,
+
+    /**
+     * Vendor property for nrf_802154_ifs_mode_set serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MODE_SET =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 57,
+
+    /**
+     * Vendor property for nrf_802154_ifs_mode_get serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MODE_GET =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 58,
+
+    /**
+     * Vendor property for nrf_802154_ifs_min_sifs_period_set serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_SIFS_PERIOD_SET =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 59,
+
+    /**
+     * Vendor property for nrf_802154_ifs_min_sifs_period_get serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_SIFS_PERIOD_GET =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 60,
+
+    /**
+     * Vendor property for nrf_802154_ifs_min_lifs_period_set serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_LIFS_PERIOD_SET =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 61,
+
+    /**
+     * Vendor property for nrf_802154_ifs_min_lifs_period_get serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_LIFS_PERIOD_GET =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 62,
+
 } spinel_prop_vendor_key_t;
 
 /**
@@ -500,57 +554,72 @@ typedef enum
 /**
  * @brief Spinel data type description for nrf_802154_csma_ca_min_be_set.
  */
-#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MIN_BE_SET           SPINEL_DATATYPE_UINT8_S
+#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MIN_BE_SET               SPINEL_DATATYPE_UINT8_S
 
 /**
  * @brief Spinel data type description for nrf_802154_csma_ca_min_be_set result.
  */
-#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MIN_BE_SET_RET       SPINEL_DATATYPE_BOOL_S
+#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MIN_BE_SET_RET           SPINEL_DATATYPE_BOOL_S
 
 /**
  * @brief Spinel data type description for nrf_802154_csma_ca_min_be_get.
  */
-#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MIN_BE_GET           SPINEL_DATATYPE_NULL_S
+#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MIN_BE_GET               SPINEL_DATATYPE_NULL_S
 
 /**
  * @brief Spinel data type description for nrf_802154_csma_ca_min_be_get result.
  */
-#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MIN_BE_GET_RET       SPINEL_DATATYPE_UINT8_S
+#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MIN_BE_GET_RET           SPINEL_DATATYPE_UINT8_S
 
 /**
  * @brief Spinel data type description for nrf_802154_csma_ca_max_be_set.
  */
-#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BE_SET           SPINEL_DATATYPE_UINT8_S
+#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BE_SET               SPINEL_DATATYPE_UINT8_S
 
 /**
  * @brief Spinel data type description for nrf_802154_csma_ca_max_be_set result.
  */
-#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BE_SET_RET       SPINEL_DATATYPE_BOOL_S
+#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BE_SET_RET           SPINEL_DATATYPE_BOOL_S
 
 /**
  * @brief Spinel data type description for nrf_802154_csma_ca_max_be_get.
  */
-#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BE_GET           SPINEL_DATATYPE_NULL_S
+#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BE_GET               SPINEL_DATATYPE_NULL_S
 
 /**
  * @brief Spinel data type description for nrf_802154_csma_ca_max_be_get result.
  */
-#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BE_GET_RET       SPINEL_DATATYPE_UINT8_S
+#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BE_GET_RET           SPINEL_DATATYPE_UINT8_S
 
 /**
  * @brief Spinel data type description for nrf_802154_csma_ca_max_backoffs_set.
  */
-#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BACKOFFS_SET     SPINEL_DATATYPE_UINT8_S
+#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BACKOFFS_SET         SPINEL_DATATYPE_UINT8_S
 
 /**
  * @brief Spinel data type description for nrf_802154_csma_ca_max_backoffs_get.
  */
-#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BACKOFFS_GET     SPINEL_DATATYPE_NULL_S
+#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BACKOFFS_GET         SPINEL_DATATYPE_NULL_S
 
 /**
  * @brief Spinel data type description for nrf_802154_csma_ca_max_backoffs_get result.
  */
-#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BACKOFFS_GET_RET SPINEL_DATATYPE_UINT8_S
+#define SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BACKOFFS_GET_RET     SPINEL_DATATYPE_UINT8_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_test_mode_csmaca_backoff_set.
+ */
+#define SPINEL_DATATYPE_NRF_802154_TEST_MODE_CSMACA_BACKOFF_SET     SPINEL_DATATYPE_UINT8_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_test_mode_csmaca_backoff_get.
+ */
+#define SPINEL_DATATYPE_NRF_802154_TEST_MODE_CSMACA_BACKOFF_GET     SPINEL_DATATYPE_NULL_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_test_mode_csmaca_backoff_get result.
+ */
+#define SPINEL_DATATYPE_NRF_802154_TEST_MODE_CSMACA_BACKOFF_GET_RET SPINEL_DATATYPE_UINT8_S
 
 /**
  * @brief Spinel data type description for nrf_802154_transmit_at_metadata_t.
@@ -604,12 +673,12 @@ typedef enum
  * @brief Spinel data type description for nrf_802154_stat_timestamps_t
  */
 #define SPINEL_DATATYPE_NRF_802154_STAT_TIMESTAMPS_S \
-    SPINEL_DATATYPE_UINT32_S                         \
-    SPINEL_DATATYPE_UINT32_S                         \
-    SPINEL_DATATYPE_UINT32_S                         \
-    SPINEL_DATATYPE_UINT32_S                         \
-    SPINEL_DATATYPE_UINT32_S                         \
-    SPINEL_DATATYPE_UINT32_S
+    SPINEL_DATATYPE_UINT64_S                         \
+    SPINEL_DATATYPE_UINT64_S                         \
+    SPINEL_DATATYPE_UINT64_S                         \
+    SPINEL_DATATYPE_UINT64_S                         \
+    SPINEL_DATATYPE_UINT64_S                         \
+    SPINEL_DATATYPE_UINT64_S
 
 /**
  * @brief Encodes an instance of @ref SPINEL_DATATYPE_NRF_802154_STAT_TIMESTAMPS_S data type.
@@ -636,34 +705,43 @@ typedef enum
 /**
  * @brief Spinel data type description for SPINEL_PROP_LAST_STATUS.
  */
-#define SPINEL_DATATYPE_SPINEL_PROP_LAST_STATUS SPINEL_DATATYPE_UINT_PACKED_S
+#define SPINEL_DATATYPE_SPINEL_PROP_LAST_STATUS      SPINEL_DATATYPE_UINT_PACKED_S
 
 /**
  * @brief Spinel data type description for nrf_802154_sleep.
  */
-#define SPINEL_DATATYPE_NRF_802154_SLEEP        SPINEL_DATATYPE_NULL_S
+#define SPINEL_DATATYPE_NRF_802154_SLEEP             SPINEL_DATATYPE_NULL_S
 
 /**
  * @brief Spinel data type description for nrf_802154_sleep result.
  */
-#define SPINEL_DATATYPE_NRF_802154_SLEEP_RET    SPINEL_DATATYPE_BOOL_S
+#define SPINEL_DATATYPE_NRF_802154_SLEEP_RET         SPINEL_DATATYPE_BOOL_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_sleep_if_idle.
+ */
+#define SPINEL_DATATYPE_NRF_802154_SLEEP_IF_IDLE     SPINEL_DATATYPE_NULL_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_sleep_if_idle result.
+ */
+#define SPINEL_DATATYPE_NRF_802154_SLEEP_IF_IDLE_RET SPINEL_DATATYPE_UINT8_S
 
 /**
  * @brief Spinel data type description for nrf_802154_receive.
  */
-#define SPINEL_DATATYPE_NRF_802154_RECEIVE      SPINEL_DATATYPE_NULL_S
+#define SPINEL_DATATYPE_NRF_802154_RECEIVE           SPINEL_DATATYPE_NULL_S
 
 /**
  * @brief Spinel data type description for nrf_802154_receive result.
  */
-#define SPINEL_DATATYPE_NRF_802154_RECEIVE_RET  SPINEL_DATATYPE_BOOL_S
+#define SPINEL_DATATYPE_NRF_802154_RECEIVE_RET       SPINEL_DATATYPE_BOOL_S
 
 /**
  * @brief Spinel data type description for nrf_802154_receive_at.
  */
 #define SPINEL_DATATYPE_NRF_802154_RECEIVE_AT \
-    SPINEL_DATATYPE_UINT32_S /* t0 */         \
-    SPINEL_DATATYPE_UINT32_S /* dt */         \
+    SPINEL_DATATYPE_UINT64_S /* rx_time */    \
     SPINEL_DATATYPE_UINT32_S /* timeout */    \
     SPINEL_DATATYPE_UINT8_S  /* channel */    \
     SPINEL_DATATYPE_UINT32_S /* window id */  \
@@ -790,7 +868,7 @@ typedef enum
     SPINEL_DATATYPE_NRF_802154_HDATA_S /* Received frame */ \
     SPINEL_DATATYPE_INT8_S             /* Power */          \
     SPINEL_DATATYPE_UINT8_S            /* lqi */            \
-    SPINEL_DATATYPE_UINT32_S           /* timestamp */
+    SPINEL_DATATYPE_UINT64_S           /* timestamp */
 
 /**
  * @brief Spinel data type description for nrf_802154_receive_failed
@@ -918,8 +996,7 @@ typedef enum
  */
 #define SPINEL_DATATYPE_NRF_802154_TRANSMIT_RAW_AT    \
     SPINEL_DATATYPE_NRF_802154_TRANSMIT_AT_METADATA_S \
-    SPINEL_DATATYPE_UINT32_S           /* t0 */       \
-    SPINEL_DATATYPE_UINT32_S           /* dt */       \
+    SPINEL_DATATYPE_UINT64_S           /* tx_time */  \
     SPINEL_DATATYPE_NRF_802154_HDATA_S /* Frame to transmit with its handle */
 
 /**
@@ -935,7 +1012,7 @@ typedef enum
     SPINEL_DATATYPE_UINT8_S                              /* Length */      \
     SPINEL_DATATYPE_INT8_S                               /* Power */       \
     SPINEL_DATATYPE_UINT8_S                              /* LQI */         \
-    SPINEL_DATATYPE_UINT32_S                             /* Timestamp */   \
+    SPINEL_DATATYPE_UINT64_S                             /* Timestamp */   \
     SPINEL_DATATYPE_NRF_802154_HDATA_S                   /* Ack frame with its handle */
 
 /**
@@ -1087,7 +1164,7 @@ typedef enum
 /**
  * @brief Spinel data type description for nrf_802154_time_get_ret.
  */
-#define SPINEL_DATATYPE_NRF_802154_TIME_GET_RET         SPINEL_DATATYPE_UINT32_S
+#define SPINEL_DATATYPE_NRF_802154_TIME_GET_RET         SPINEL_DATATYPE_UINT64_S
 
 /**
  * @brief Spinel data type description for nrf_802154_cca_cfg_get.
@@ -1211,6 +1288,56 @@ typedef enum
  */
 #define SPINEL_DATATYPE_NRF_802154_STAT_TIMESTAMPS_GET_RET \
     SPINEL_DATATYPE_NRF_802154_STAT_TIMESTAMPS_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_ifs_mode_get
+ */
+#define SPINEL_DATATYPE_NRF_802154_IFS_MODE_GET                SPINEL_DATATYPE_NULL_S
+
+/**
+ * @brief Spinel data type description for returning ifs_mode value.
+ */
+#define SPINEL_DATATYPE_NRF_802154_IFS_MODE_GET_RET            SPINEL_DATATYPE_UINT8_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_ifs_mode_set
+ */
+#define SPINEL_DATATYPE_NRF_802154_IFS_MODE_SET                SPINEL_DATATYPE_UINT8_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_ifs_mode_set result.
+ */
+#define SPINEL_DATATYPE_NRF_802154_IFS_MODE_SET_RET            SPINEL_DATATYPE_BOOL_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_ifs_min_sifs_period_get
+ */
+#define SPINEL_DATATYPE_NRF_802154_IFS_MIN_SIFS_PERIOD_GET     SPINEL_DATATYPE_NULL_S
+
+/**
+ * @brief Spinel data type description for returning min_sifs_period value.
+ */
+#define SPINEL_DATATYPE_NRF_802154_IFS_MIN_SIFS_PERIOD_GET_RET SPINEL_DATATYPE_UINT16_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_ifs_min_sifs_period_set
+ */
+#define SPINEL_DATATYPE_NRF_802154_IFS_MIN_SIFS_PERIOD_SET     SPINEL_DATATYPE_UINT16_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_ifs_min_lifs_period_get
+ */
+#define SPINEL_DATATYPE_NRF_802154_IFS_MIN_LIFS_PERIOD_GET     SPINEL_DATATYPE_NULL_S
+
+/**
+ * @brief Spinel data type description for returning min_lifs_period value.
+ */
+#define SPINEL_DATATYPE_NRF_802154_IFS_MIN_LIFS_PERIOD_GET_RET SPINEL_DATATYPE_UINT16_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_ifs_min_lifs_period_set
+ */
+#define SPINEL_DATATYPE_NRF_802154_IFS_MIN_LIFS_PERIOD_SET     SPINEL_DATATYPE_UINT16_S
 
 #ifdef __cplusplus
 }

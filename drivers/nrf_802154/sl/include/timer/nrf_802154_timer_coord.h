@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2018 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -109,7 +109,7 @@ void nrf_802154_timer_coord_timestamp_prepare(const nrf_802154_sl_event_handle_t
  * @retval true   Timestamp is available.
  * @retval false  Timestamp is unavailable.
  */
-bool nrf_802154_timer_coord_timestamp_get(uint32_t * p_timestamp);
+bool nrf_802154_timer_coord_timestamp_get(uint64_t * p_timestamp);
 
 /**
  *@}

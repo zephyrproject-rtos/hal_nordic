@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2017 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -324,6 +324,23 @@ uint16_t nrf_802154_pib_ifs_min_lifs_period_get(void);
  */
 void nrf_802154_pib_ifs_min_lifs_period_set(uint16_t period);
 #endif // NRF_802154_IFS_ENABLED
+
+#if NRF_802154_TEST_MODES_ENABLED
+/**
+ * @brief Gets the current CSMA/CA backoff test mode.
+ *
+ * @return Current CSMA/CA backoff test mode.
+ */
+nrf_802154_test_mode_csmaca_backoff_t nrf_802154_pib_test_mode_csmaca_backoff_get(void);
+
+/**
+ * @brief Sets the csmaca backoff test mode.
+ *
+ * @param[in] value     CSMA/CA backoff test mode.
+ */
+void nrf_802154_pib_test_mode_csmaca_backoff_set(nrf_802154_test_mode_csmaca_backoff_t value);
+
+#endif // NRF_802154_TEST_MODES_ENABLED
 
 #ifdef __cplusplus
 }

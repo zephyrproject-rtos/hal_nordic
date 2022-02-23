@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2021, Nordic Semiconductor ASA
+# Copyright (c) 2021 - 2022, Nordic Semiconductor ASA
 # All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -99,12 +99,6 @@ if (SL_OPENSOURCE)
       NRF_802154_FRAME_TIMESTAMP_ENABLED=0
       # Disable DTRX
       NRF_802154_DELAYED_TRX_ENABLED=0
-      # Disable IFS
-      NRF_802154_IFS_ENABLED=0
-  )
-elseif (NRF53_SERIES)
-  target_compile_definitions(nrf-802154-driver-interface
-    INTERFACE
       # Disable IFS
       NRF_802154_IFS_ENABLED=0
   )

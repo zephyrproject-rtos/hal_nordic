@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2020 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -125,7 +125,7 @@ extern void nrf_802154_tx_ack_started(const uint8_t * p_data);
 extern void nrf_802154_received_timestamp_raw(uint8_t * p_data,
                                               int8_t    power,
                                               uint8_t   lqi,
-                                              uint32_t  time);
+                                              uint64_t  time);
 
 /**
  * @brief Notifies that the reception of a frame failed.

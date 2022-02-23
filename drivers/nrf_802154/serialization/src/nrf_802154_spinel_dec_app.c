@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2020 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -177,7 +177,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_received_timestamp_raw
     size_t   frame_hdata_len;
     int8_t   power;
     uint8_t  lqi;
-    uint32_t timestamp;
+    uint64_t timestamp;
     void   * p_local_ptr;
 
     spinel_ssize_t siz = spinel_datatype_unpack(p_property_data,
@@ -468,6 +468,20 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_generic_uint8(
             NRF_802154_SERIALIZATION_ERROR_OK);
 }
 
+nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_generic_uint16(
+    const void * p_property_data,
+    size_t       property_data_len,
+    uint16_t   * p_uint16_response)
+{
+    spinel_ssize_t siz = spinel_datatype_unpack(p_property_data,
+                                                property_data_len,
+                                                SPINEL_DATATYPE_UINT16_S,
+                                                p_uint16_response);
+
+    return ((siz) < 0 ? NRF_802154_SERIALIZATION_ERROR_DECODING_FAILURE :
+            NRF_802154_SERIALIZATION_ERROR_OK);
+}
+
 nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_nrf_802154_tx_power_get_ret(
     const void * p_property_data,
     size_t       property_data_len,
@@ -499,7 +513,7 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_nrf_802154_capabilities_get_r
 nrf_802154_ser_err_t nrf_802154_spinel_decode_prop_nrf_802154_time_get_ret(
     const void * p_property_data,
     size_t       property_data_len,
-    uint32_t   * p_time)
+    uint64_t   * p_time)
 {
     spinel_ssize_t siz = spinel_datatype_unpack(p_property_data,
                                                 property_data_len,
@@ -566,6 +580,8 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_is(
         // fall through
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SLEEP:
         // fall through
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SLEEP_IF_IDLE:
+        // fall through
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_RECEIVE:
         // fall through
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_RECEIVE_AT:
@@ -626,6 +642,22 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_is(
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CSMA_CA_MAX_BACKOFFS_GET:
             // fall through
 #endif // NRF_802154_CSMA_CA_ENABLED
+#if NRF_802154_TEST_MODES_ENABLED
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TEST_MODE_CSMACA_BACKOFF_SET:
+        // fall through
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TEST_MODE_CSMACA_BACKOFF_GET:
+            // fall through
+#endif // NRF_802154_TEST_MODES_ENABLED
+#if NRF_802154_IFS_ENABLED
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MODE_SET:
+        // fall through
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MODE_GET:
+        // fall through
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_SIFS_PERIOD_GET:
+        // fall through
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_LIFS_PERIOD_GET:
+            // fall through
+#endif // NRF_802154_IFS_ENABLED
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_STAT_TIMESTAMPS_GET:
             nrf_802154_spinel_response_notifier_property_notify(property,
                                                                 p_property_data,
@@ -697,7 +729,7 @@ nrf_802154_ser_err_t nrf_802154_spinel_dispatch_cmd(spinel_command_t cmd,
 __WEAK void nrf_802154_received_timestamp_raw(uint8_t * p_data,
                                               int8_t    rssi,
                                               uint8_t   lqi,
-                                              uint32_t  timestamp)
+                                              uint64_t  timestamp)
 {
     (void)p_data;
     (void)rssi;

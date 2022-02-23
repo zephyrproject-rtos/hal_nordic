@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 - 2021, Nordic Semiconductor ASA
+ * Copyright (c) 2020 - 2022, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -52,6 +52,7 @@
 
 #if NRF_802154_DELAYED_TRX_ENABLED
 static uint8_t * mp_transmit_at_frame; ///< Pointer to the frame that was requested to delay-transmit
+
 #endif
 
 /**
@@ -74,6 +75,28 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_sleep(const void * p_p
     return nrf_802154_spinel_send_cmd_prop_value_is(SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SLEEP,
                                                     SPINEL_DATATYPE_NRF_802154_SLEEP_RET,
                                                     sleep_response);
+}
+
+/**
+ * @brief Deal with SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SLEEP_IF_IDLE request and send response.
+ *
+ * @param[in]  p_property_data    Pointer to a buffer - unused here (no additional data to decode).
+ * @param[in]  property_data_len  Size of the @ref p_data buffer - unused here.
+ *
+ */
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_sleep_if_idle(
+    const void * p_property_data,
+    size_t       property_data_len)
+{
+    (void)p_property_data;
+    (void)property_data_len;
+
+    nrf_802154_sleep_error_t sleep_response = nrf_802154_sleep_if_idle();
+
+    return nrf_802154_spinel_send_cmd_prop_value_is(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SLEEP_IF_IDLE,
+        SPINEL_DATATYPE_NRF_802154_SLEEP_IF_IDLE_RET,
+        sleep_response);
 }
 
 /**
@@ -110,8 +133,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_receive_at(
     const void * p_property_data,
     size_t       property_data_len)
 {
-    uint32_t       t0;
-    uint32_t       dt;
+    uint64_t       rx_time;
     uint32_t       timeout;
     uint8_t        channel;
     uint32_t       id;
@@ -120,8 +142,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_receive_at(
     siz = spinel_datatype_unpack(p_property_data,
                                  property_data_len,
                                  SPINEL_DATATYPE_NRF_802154_RECEIVE_AT,
-                                 &t0,
-                                 &dt,
+                                 &rx_time,
                                  &timeout,
                                  &channel,
                                  &id);
@@ -131,7 +152,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_receive_at(
         return NRF_802154_SERIALIZATION_ERROR_DECODING_FAILURE;
     }
 
-    bool result = nrf_802154_receive_at(t0, dt, timeout, channel, id);
+    bool result = nrf_802154_receive_at(rx_time, timeout, channel, id);
 
     return nrf_802154_spinel_send_cmd_prop_value_is(
         SPINEL_PROP_VENDOR_NORDIC_NRF_802154_RECEIVE_AT,
@@ -173,7 +194,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_receive_at_cancel(
 
 #endif // NRF_802154_DELAYED_TRX_ENABLED
 
-static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_channel_get(const void * p_property_data,
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_channel_get(const void * p_property_data,
                                                                       size_t       property_data_len)
 {
     (void)p_property_data;
@@ -187,7 +208,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_channel_get(const void
         channel);
 }
 
-static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_channel_set(const void * p_property_data,
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_channel_set(const void * p_property_data,
                                                                       size_t       property_data_len)
 {
     uint8_t        channel;
@@ -209,7 +230,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_channel_set(const void
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_PAN_ID_SET.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_PAN_ID_SET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
@@ -798,7 +819,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_ack_data_clear(
 #if NRF_802154_CSMA_CA_ENABLED
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_TRANSMIT_CSMA_CA_RAW.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TRANSMIT_CSMA_CA_RAW.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
@@ -855,13 +876,13 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_transmit_csma_ca_raw(
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_CSMA_CA_MIN_BE_SET.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CSMA_CA_MIN_BE_SET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
  *
  */
-static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_min_be_set(
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_csma_ca_min_be_set(
     const void * p_property_data,
     size_t       property_data_len)
 {
@@ -871,7 +892,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_min_be_set(
 
     siz = spinel_datatype_unpack(p_property_data,
                                  property_data_len,
-                                 SPINEL_DATATYPE_NRF_802154_CHANNEL_SET,
+                                 SPINEL_DATATYPE_NRF_802154_CSMA_CA_MIN_BE_SET,
                                  &min_be);
 
     if (siz < 0)
@@ -888,13 +909,13 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_min_be_set(
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_CSMA_CA_MIN_BE_GET.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_802154_CSMA_CA_MIN_BE_GET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
  *
  */
-static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_min_be_get(
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_csma_ca_min_be_get(
     const void * p_property_data,
     size_t       property_data_len)
 {
@@ -910,13 +931,13 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_min_be_get(
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BE_SET.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CSMA_CA_MAX_BE_SET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
  *
  */
-static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_max_be_set(
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_csma_ca_max_be_set(
     const void * p_property_data,
     size_t       property_data_len)
 {
@@ -926,7 +947,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_max_be_set(
 
     siz = spinel_datatype_unpack(p_property_data,
                                  property_data_len,
-                                 SPINEL_DATATYPE_NRF_802154_CHANNEL_SET,
+                                 SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BE_SET,
                                  &max_be);
 
     if (siz < 0)
@@ -943,13 +964,13 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_max_be_set(
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BE_GET.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CSMA_CA_MAX_BE_GET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
  *
  */
-static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_max_be_get(
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_csma_ca_max_be_get(
     const void * p_property_data,
     size_t       property_data_len)
 {
@@ -965,13 +986,13 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_max_be_get(
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BACKOFFS_SET.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CSMA_CA_MAX_BACKOFFS_SET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
  *
  */
-static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_max_backoffs_set(
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_csma_ca_max_backoffs_set(
     const void * p_property_data,
     size_t       property_data_len)
 {
@@ -980,7 +1001,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_max_backoffs_s
 
     siz = spinel_datatype_unpack(p_property_data,
                                  property_data_len,
-                                 SPINEL_DATATYPE_NRF_802154_CHANNEL_SET,
+                                 SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BACKOFFS_SET,
                                  &max_backoffs);
 
     if (siz < 0)
@@ -994,13 +1015,13 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_max_backoffs_s
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_CSMA_CA_MAX_BACKOFFS_GET.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CSMA_CA_MAX_BACKOFFS_GET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to backoffs decoded.
  * @param[in]  property_data_len  Size of the @ref p_data buffer.
  *
  */
-static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_max_backoffs_get(
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_csma_ca_max_backoffs_get(
     const void * p_property_data,
     size_t       property_data_len)
 {
@@ -1017,8 +1038,223 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_csma_ca_max_backoffs_g
 
 #endif // NRF_802154_CSMA_CA_ENABLED
 
+#if NRF_802154_TEST_MODES_ENABLED
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_TRANSMIT_RAW.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TEST_MODE_CSMACA_BACKOFF_SET.
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
+ *
+ */
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_test_mode_csmaca_backoff_set(
+    const void * p_property_data,
+    size_t       property_data_len)
+{
+    nrf_802154_test_mode_csmaca_backoff_t value;
+    spinel_ssize_t                        siz;
+
+    siz = spinel_datatype_unpack(p_property_data,
+                                 property_data_len,
+                                 SPINEL_DATATYPE_NRF_802154_TEST_MODE_CSMACA_BACKOFF_SET,
+                                 &value);
+
+    if (siz < 0)
+    {
+        return NRF_802154_SERIALIZATION_ERROR_DECODING_FAILURE;
+    }
+
+    nrf_802154_test_mode_csmaca_backoff_set(value);
+
+    return nrf_802154_spinel_send_prop_last_status_is(SPINEL_STATUS_OK);
+}
+
+/**
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TEST_MODE_CSMACA_BACKOFF_GET.
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
+ *
+ */
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_test_mode_csmaca_backoff_get(
+    const void * p_property_data,
+    size_t       property_data_len)
+{
+    (void)p_property_data;
+    (void)property_data_len;
+
+    nrf_802154_test_mode_csmaca_backoff_t value = nrf_802154_test_mode_csmaca_backoff_get();
+
+    return nrf_802154_spinel_send_cmd_prop_value_is(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TEST_MODE_CSMACA_BACKOFF_GET,
+        SPINEL_DATATYPE_NRF_802154_TEST_MODE_CSMACA_BACKOFF_GET_RET,
+        value);
+}
+
+#endif // NRF_802154_TEST_MODES_ENABLED
+
+#if NRF_802154_IFS_ENABLED
+
+/**
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MODE_SET
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
+ *
+ */
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_ifs_mode_set(
+    const void * p_property_data,
+    size_t       property_data_len)
+{
+    nrf_802154_ifs_mode_t value;
+    spinel_ssize_t        siz;
+    bool                  result;
+
+    siz = spinel_datatype_unpack(p_property_data,
+                                 property_data_len,
+                                 SPINEL_DATATYPE_NRF_802154_IFS_MODE_SET,
+                                 &value);
+
+    if (siz < 0)
+    {
+        return NRF_802154_SERIALIZATION_ERROR_DECODING_FAILURE;
+    }
+
+    result = nrf_802154_ifs_mode_set(value);
+
+    return nrf_802154_spinel_send_cmd_prop_value_is(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MODE_SET,
+        SPINEL_DATATYPE_NRF_802154_IFS_MODE_SET_RET,
+        result);
+}
+
+/**
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MODE_GET
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
+ *
+ */
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_ifs_mode_get(
+    const void * p_property_data,
+    size_t       property_data_len)
+{
+    (void)p_property_data;
+    (void)property_data_len;
+
+    nrf_802154_ifs_mode_t value = nrf_802154_ifs_mode_get();
+
+    return nrf_802154_spinel_send_cmd_prop_value_is(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MODE_GET,
+        SPINEL_DATATYPE_NRF_802154_IFS_MODE_GET_RET,
+        value);
+}
+
+/**
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_SIFS_PERIOD_SET
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
+ *
+ */
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_ifs_min_sifs_period_set(
+    const void * p_property_data,
+    size_t       property_data_len)
+{
+    uint16_t       value;
+    spinel_ssize_t siz;
+
+    siz = spinel_datatype_unpack(p_property_data,
+                                 property_data_len,
+                                 SPINEL_DATATYPE_NRF_802154_IFS_MIN_SIFS_PERIOD_SET,
+                                 &value);
+
+    if (siz < 0)
+    {
+        return NRF_802154_SERIALIZATION_ERROR_DECODING_FAILURE;
+    }
+
+    nrf_802154_ifs_min_sifs_period_set(value);
+
+    return nrf_802154_spinel_send_prop_last_status_is(SPINEL_STATUS_OK);
+}
+
+/**
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_SIFS_PERIOD_GET
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
+ *
+ */
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_ifs_min_sifs_period_get(
+    const void * p_property_data,
+    size_t       property_data_len)
+{
+    (void)p_property_data;
+    (void)property_data_len;
+
+    uint16_t value = nrf_802154_ifs_min_sifs_period_get();
+
+    return nrf_802154_spinel_send_cmd_prop_value_is(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_SIFS_PERIOD_GET,
+        SPINEL_DATATYPE_NRF_802154_IFS_MIN_SIFS_PERIOD_GET_RET,
+        value);
+}
+
+/**
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_LIFS_PERIOD_SET
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
+ *
+ */
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_ifs_min_lifs_period_set(
+    const void * p_property_data,
+    size_t       property_data_len)
+{
+    uint16_t       value;
+    spinel_ssize_t siz;
+
+    siz = spinel_datatype_unpack(p_property_data,
+                                 property_data_len,
+                                 SPINEL_DATATYPE_NRF_802154_IFS_MIN_LIFS_PERIOD_SET,
+                                 &value);
+
+    if (siz < 0)
+    {
+        return NRF_802154_SERIALIZATION_ERROR_DECODING_FAILURE;
+    }
+
+    nrf_802154_ifs_min_lifs_period_set(value);
+
+    return nrf_802154_spinel_send_prop_last_status_is(SPINEL_STATUS_OK);
+}
+
+/**
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_LIFS_PERIOD_GET
+ *
+ * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
+ * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
+ *
+ */
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_ifs_min_lifs_period_get(
+    const void * p_property_data,
+    size_t       property_data_len)
+{
+    (void)p_property_data;
+    (void)property_data_len;
+
+    uint16_t value = nrf_802154_ifs_min_lifs_period_get();
+
+    return nrf_802154_spinel_send_cmd_prop_value_is(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_LIFS_PERIOD_GET,
+        SPINEL_DATATYPE_NRF_802154_IFS_MIN_LIFS_PERIOD_GET_RET,
+        value);
+}
+
+#endif // NRF_802154_IFS_ENABLED
+
+/**
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TRANSMIT_RAW.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
@@ -1075,7 +1311,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_transmit_raw(
 
 #if NRF_802154_DELAYED_TRX_ENABLED
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_TRANSMIT_RAW_AT.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TRANSMIT_RAW_AT.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
@@ -1090,16 +1326,14 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_transmit_raw_at(
     size_t                            frame_hdata_len;
     void                            * p_local_frame_ptr;
     nrf_802154_transmit_at_metadata_t tx_metadata;
-    uint32_t                          t0;
-    uint32_t                          dt;
+    uint64_t                          tx_time;
 
     spinel_ssize_t siz = spinel_datatype_unpack(
         p_property_data,
         property_data_len,
         SPINEL_DATATYPE_NRF_802154_TRANSMIT_RAW_AT,
         NRF_802154_TRANSMIT_AT_METADATA_DECODE(tx_metadata),
-        &t0,
-        &dt,
+        &tx_time,
         NRF_802154_HDATA_DECODE(remote_frame_handle, p_frame, frame_hdata_len));
 
     if (siz < 0)
@@ -1120,7 +1354,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_transmit_raw_at(
         return NRF_802154_SERIALIZATION_ERROR_NO_MEMORY;
     }
 
-    bool result = nrf_802154_transmit_raw_at(p_local_frame_ptr, t0, dt, &tx_metadata);
+    bool result = nrf_802154_transmit_raw_at(p_local_frame_ptr, tx_time, &tx_metadata);
 
     if (!result)
     {
@@ -1184,7 +1418,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_transmit_at_cancel(
 #endif // NRF_802154_DELAYED_TRX_ENABLED
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_BUFFER_FREE_RAW.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_BUFFER_FREE_RAW.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
@@ -1233,7 +1467,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_buffer_free_raw(
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_TX_POWER_SET.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TX_POWER_SET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
@@ -1260,7 +1494,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_tx_power_set(const voi
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_TX_POWER_GET.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TX_POWER_GET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
@@ -1283,7 +1517,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_tx_power_get(const voi
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_CAPABILITIES_GET.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CAPABILITIES_GET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
@@ -1307,7 +1541,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_capabilities_get(
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_TIME_GET.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TIME_GET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
@@ -1320,7 +1554,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_time_get(
     (void)p_property_data;
     (void)property_data_len;
 
-    uint32_t time;
+    uint64_t time;
 
     time = nrf_802154_time_get();
 
@@ -1330,7 +1564,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_time_get(
         time);
 }
 
-static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_cca_cfg_get(const void * p_property_data,
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_cca_cfg_get(const void * p_property_data,
                                                                       size_t       property_data_len)
 {
     (void)p_property_data;
@@ -1346,7 +1580,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_cca_cfg_get(const void
         NRF_802154_CCA_CFG_ENCODE(cfg));
 }
 
-static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_stat_timestamps_get(
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_stat_timestamps_get(
     const void * p_property_data,
     size_t       property_data_len)
 {
@@ -1363,7 +1597,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_stat_timestamps_get(
         NRF_802154_STAT_TIMESTAMPS_ENCODE(t));
 }
 
-static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_cca_cfg_set(const void * p_property_data,
+static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_cca_cfg_set(const void * p_property_data,
                                                                       size_t       property_data_len)
 {
     nrf_802154_cca_cfg_t cfg;
@@ -1385,7 +1619,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802514_cca_cfg_set(const void
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_SECURITY_GLOBAL_FRAME_COUNTER_SET.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SECURITY_GLOBAL_FRAME_COUNTER_SET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
@@ -1413,7 +1647,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_security_global_frame_
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_SECURITY_KEY_STORE.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SECURITY_KEY_STORE.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
@@ -1447,7 +1681,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_security_key_store(
 }
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_SECURITY_KEY_REMOVE.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SECURITY_KEY_REMOVE.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
@@ -1483,7 +1717,7 @@ static nrf_802154_ser_err_t spinel_decode_prop_nrf_802154_security_key_remove(
 #if NRF_802154_DELAYED_TRX_ENABLED && NRF_802154_IE_WRITER_ENABLED
 
 /**
- * @brief Decode and dispatch SPINEL_DATATYPE_NRF_802154_CSL_WRITER_PERIOD_SET.
+ * @brief Decode and dispatch SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CSL_WRITER_PERIOD_SET.
  *
  * @param[in]  p_property_data    Pointer to a buffer that contains data to be decoded.
  * @param[in]  property_data_len  Size of the @ref p_property_data buffer.
@@ -1537,6 +1771,9 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_set(const void * p_
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SLEEP:
             return spinel_decode_prop_nrf_802154_sleep(p_property_data, property_data_len);
 
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SLEEP_IF_IDLE:
+            return spinel_decode_prop_nrf_802154_sleep_if_idle(p_property_data, property_data_len);
+
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_RECEIVE:
             return spinel_decode_prop_nrf_802154_receive(p_property_data, property_data_len);
 
@@ -1547,13 +1784,13 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_set(const void * p_
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_RECEIVE_AT_CANCEL:
             return spinel_decode_prop_nrf_802154_receive_at_cancel(p_property_data,
                                                                    property_data_len);
-#endif // NRF_802154_DELAYED_TRX_ENABLED
 
+#endif // NRF_802154_DELAYED_TRX_ENABLED
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CHANNEL_GET:
-            return spinel_decode_prop_nrf_802514_channel_get(p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_channel_get(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CHANNEL_SET:
-            return spinel_decode_prop_nrf_802514_channel_set(p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_channel_set(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_AUTO_PENDING_BIT_SET:
             return spinel_decode_prop_nrf_802154_auto_pending_bit_set(p_property_data,
@@ -1624,29 +1861,66 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_set(const void * p_
                                                                       property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CSMA_CA_MIN_BE_SET:
-            return spinel_decode_prop_nrf_802514_csma_ca_min_be_set(p_property_data,
+            return spinel_decode_prop_nrf_802154_csma_ca_min_be_set(p_property_data,
                                                                     property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CSMA_CA_MIN_BE_GET:
-            return spinel_decode_prop_nrf_802514_csma_ca_min_be_get(p_property_data,
+            return spinel_decode_prop_nrf_802154_csma_ca_min_be_get(p_property_data,
                                                                     property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CSMA_CA_MAX_BE_SET:
-            return spinel_decode_prop_nrf_802514_csma_ca_max_be_set(p_property_data,
+            return spinel_decode_prop_nrf_802154_csma_ca_max_be_set(p_property_data,
                                                                     property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CSMA_CA_MAX_BE_GET:
-            return spinel_decode_prop_nrf_802514_csma_ca_max_be_get(p_property_data,
+            return spinel_decode_prop_nrf_802154_csma_ca_max_be_get(p_property_data,
                                                                     property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CSMA_CA_MAX_BACKOFFS_SET:
-            return spinel_decode_prop_nrf_802514_csma_ca_max_backoffs_set(p_property_data,
+            return spinel_decode_prop_nrf_802154_csma_ca_max_backoffs_set(p_property_data,
                                                                           property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CSMA_CA_MAX_BACKOFFS_GET:
-            return spinel_decode_prop_nrf_802514_csma_ca_max_backoffs_get(p_property_data,
+            return spinel_decode_prop_nrf_802154_csma_ca_max_backoffs_get(p_property_data,
                                                                           property_data_len);
 #endif // NRF_802154_CSMA_CA_ENABLED
+
+#if NRF_802154_TEST_MODES_ENABLED
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TEST_MODE_CSMACA_BACKOFF_SET:
+            return spinel_decode_prop_nrf_802154_test_mode_csmaca_backoff_set(p_property_data,
+                                                                              property_data_len);
+
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TEST_MODE_CSMACA_BACKOFF_GET:
+            return spinel_decode_prop_nrf_802154_test_mode_csmaca_backoff_get(p_property_data,
+                                                                              property_data_len);
+#endif // NRF_802154_TEST_MODES_ENABLED
+
+#if NRF_802154_IFS_ENABLED
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MODE_SET:
+            return spinel_decode_prop_nrf_802154_ifs_mode_set(p_property_data,
+                                                              property_data_len);
+
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MODE_GET:
+            return spinel_decode_prop_nrf_802154_ifs_mode_get(p_property_data,
+                                                              property_data_len);
+
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_SIFS_PERIOD_SET:
+            return spinel_decode_prop_nrf_802154_ifs_min_sifs_period_set(p_property_data,
+                                                                         property_data_len);
+
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_SIFS_PERIOD_GET:
+            return spinel_decode_prop_nrf_802154_ifs_min_sifs_period_get(p_property_data,
+                                                                         property_data_len);
+
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_LIFS_PERIOD_SET:
+            return spinel_decode_prop_nrf_802154_ifs_min_lifs_period_set(p_property_data,
+                                                                         property_data_len);
+
+        case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_IFS_MIN_LIFS_PERIOD_GET:
+            return spinel_decode_prop_nrf_802154_ifs_min_lifs_period_get(p_property_data,
+                                                                         property_data_len);
+
+#endif // NRF_802154_IFS_ENABLED
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TRANSMIT_RAW:
             return spinel_decode_prop_nrf_802154_transmit_raw(p_property_data, property_data_len);
@@ -1659,8 +1933,8 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_set(const void * p_
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_TRANSMIT_AT_CANCEL:
             return spinel_decode_prop_nrf_802154_transmit_at_cancel(p_property_data,
                                                                     property_data_len);
-#endif // NRF_802154_DELAYED_TRX_ENABLED
 
+#endif // NRF_802154_DELAYED_TRX_ENABLED
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_BUFFER_FREE_RAW:
             return spinel_decode_prop_nrf_802154_buffer_free_raw(p_property_data,
                                                                  property_data_len);
@@ -1674,10 +1948,10 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_set(const void * p_
                                                           property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CCA_CFG_GET:
-            return spinel_decode_prop_nrf_802514_cca_cfg_get(p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_cca_cfg_get(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CCA_CFG_SET:
-            return spinel_decode_prop_nrf_802514_cca_cfg_set(p_property_data, property_data_len);
+            return spinel_decode_prop_nrf_802154_cca_cfg_set(p_property_data, property_data_len);
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_ACK_DATA_SET:
             return spinel_decode_prop_nrf_802154_ack_data_set(p_property_data,
@@ -1706,7 +1980,7 @@ nrf_802154_ser_err_t nrf_802154_spinel_decode_cmd_prop_value_set(const void * p_
 #endif // NRF_802154_DELAYED_TRX_ENABLED && NRF_802154_IE_WRITER_ENABLED
 
         case SPINEL_PROP_VENDOR_NORDIC_NRF_802154_STAT_TIMESTAMPS_GET:
-            return spinel_decode_prop_nrf_802514_stat_timestamps_get(p_property_data,
+            return spinel_decode_prop_nrf_802154_stat_timestamps_get(p_property_data,
                                                                      property_data_len);
 
         default:
