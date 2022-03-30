@@ -58,6 +58,7 @@
 #include "nrf_802154_pib.h"
 #include "nrf_802154_request.h"
 #include "nrf_802154_rx_buffer.h"
+#include "nrf_802154_tx_power.h"
 #include "nrf_802154_stats.h"
 #include "hal/nrf_radio.h"
 #include "platform/nrf_802154_clock.h"
@@ -65,7 +66,6 @@
 #include "platform/nrf_802154_temperature.h"
 #include "rsch/nrf_802154_rsch.h"
 #include "rsch/nrf_802154_rsch_crit_sect.h"
-#include "rsch/nrf_802154_rsch_prio_drop.h"
 #include "timer/nrf_802154_timer_coord.h"
 
 #include "mac_features/nrf_802154_ack_timeout.h"
@@ -156,7 +156,7 @@ void nrf_802154_tx_power_set(int8_t power)
 
 int8_t nrf_802154_tx_power_get(void)
 {
-    return nrf_802154_pib_tx_power_get();
+    return nrf_802154_tx_power_constrained_pib_power_get();
 }
 
 bool nrf_802154_coex_rx_request_mode_set(nrf_802154_coex_rx_request_mode_t mode)
@@ -236,7 +236,6 @@ void nrf_802154_init(void)
     nrf_802154_pib_init();
     nrf_802154_security_pib_init();
     nrf_802154_sl_timer_module_init();
-    nrf_802154_rsch_prio_drop_init();
     nrf_802154_random_init();
     nrf_802154_request_init();
     nrf_802154_rsch_crit_sect_init();
@@ -481,7 +480,8 @@ bool nrf_802154_transmit_raw(uint8_t                              * p_data,
         static const nrf_802154_transmit_metadata_t metadata_default =
         {
             .frame_props = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
-            .cca         = true
+            .cca         = true,
+            .tx_power    = {.use_metadata_value = false}
         };
 
         p_metadata = &metadata_default;
@@ -490,8 +490,11 @@ bool nrf_802154_transmit_raw(uint8_t                              * p_data,
     nrf_802154_transmit_params_t params =
     {
         .frame_props = p_metadata->frame_props,
-        .cca         = p_metadata->cca,
-        .immediate   = false
+        .tx_power    = nrf_802154_tx_power_convert_metadata_to_raw_value(
+            nrf_802154_pib_channel_get(),
+            p_metadata->tx_power),
+        .cca       = p_metadata->cca,
+        .immediate = false
     };
 
     result = are_frame_properties_valid(&params.frame_props);
@@ -523,7 +526,8 @@ bool nrf_802154_transmit(const uint8_t                        * p_data,
         static const nrf_802154_transmit_metadata_t metadata_default =
         {
             .frame_props = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
-            .cca         = true
+            .cca         = true,
+            .tx_power    = {.use_metadata_value = false}
         };
 
         p_metadata = &metadata_default;
@@ -532,8 +536,11 @@ bool nrf_802154_transmit(const uint8_t                        * p_data,
     nrf_802154_transmit_params_t params =
     {
         .frame_props = p_metadata->frame_props,
-        .cca         = p_metadata->cca,
-        .immediate   = false
+        .tx_power    = nrf_802154_tx_power_convert_metadata_to_raw_value(
+            nrf_802154_pib_channel_get(),
+            p_metadata->tx_power),
+        .cca       = p_metadata->cca,
+        .immediate = false
     };
 
     result = are_frame_properties_valid(&params.frame_props);
@@ -562,7 +569,8 @@ bool nrf_802154_transmit_raw_at(uint8_t                                 * p_data
     nrf_802154_transmit_at_metadata_t metadata_default =
     {
         .frame_props = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
-        .cca         = true
+        .cca         = true,
+        .tx_power    = {.use_metadata_value = false}
     };
 
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
@@ -869,6 +877,7 @@ bool nrf_802154_transmit_csma_ca_raw(uint8_t                                    
         static const nrf_802154_transmit_csma_ca_metadata_t metadata_default =
         {
             .frame_props = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
+            .tx_power    = {.use_metadata_value = false}
         };
 
         p_metadata = &metadata_default;
@@ -899,6 +908,7 @@ bool nrf_802154_transmit_csma_ca(const uint8_t                                * 
         static const nrf_802154_transmit_csma_ca_metadata_t metadata_default =
         {
             .frame_props = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
+            .tx_power    = {.use_metadata_value = false}
         };
 
         p_metadata = &metadata_default;
