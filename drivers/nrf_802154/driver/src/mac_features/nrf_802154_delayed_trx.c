@@ -56,6 +56,7 @@
 #include "nrf_802154_queue.h"
 #include "nrf_802154_request.h"
 #include "nrf_802154_utils.h"
+#include "nrf_802154_tx_power.h"
 #include "rsch/nrf_802154_rsch.h"
 #include "nrf_802154_sl_timer.h"
 #include "nrf_802154_sl_utils.h"
@@ -771,10 +772,13 @@ bool nrf_802154_delayed_trx_transmit(uint8_t                                 * p
 
         p_dly_tx_data->tx.p_data             = p_data;
         p_dly_tx_data->tx.params.frame_props = p_metadata->frame_props;
-        p_dly_tx_data->tx.params.cca         = p_metadata->cca;
-        p_dly_tx_data->tx.params.immediate   = true;
-        p_dly_tx_data->tx.channel            = p_metadata->channel;
-        p_dly_tx_data->id                    = NRF_802154_RESERVED_DTX_ID;
+        p_dly_tx_data->tx.params.tx_power    = nrf_802154_tx_power_convert_metadata_to_raw_value(
+            p_metadata->channel,
+            p_metadata->tx_power);
+        p_dly_tx_data->tx.params.cca       = p_metadata->cca;
+        p_dly_tx_data->tx.params.immediate = true;
+        p_dly_tx_data->tx.channel          = p_metadata->channel;
+        p_dly_tx_data->id                  = NRF_802154_RESERVED_DTX_ID;
 
         rsch_dly_ts_param_t dly_ts_param =
         {
@@ -923,7 +927,7 @@ bool nrf_802154_delayed_trx_nearest_drx_time_to_midpoint_get(uint32_t * p_drx_ti
 {
     bool     result            = false;
     uint32_t min_time_to_start = 0xffffffff;
-    uint64_t drx_time_to_start;
+    uint64_t drx_time_to_start = UINT64_C(0xffffffff);
     uint32_t drx_time_to_midpoint;
 
     for (int i = 0; i < sizeof(m_dly_rx_data) / sizeof(m_dly_rx_data[0]); i++)

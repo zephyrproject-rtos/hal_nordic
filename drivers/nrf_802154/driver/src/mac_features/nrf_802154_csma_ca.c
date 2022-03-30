@@ -54,6 +54,7 @@
 #include "nrf_802154_notification.h"
 #include "nrf_802154_pib.h"
 #include "nrf_802154_request.h"
+#include "nrf_802154_tx_power.h"
 #include "nrf_802154_stats.h"
 #include "platform/nrf_802154_random.h"
 #include "rsch/nrf_802154_rsch.h"
@@ -67,7 +68,8 @@ typedef enum
 {
     CSMA_CA_STATE_IDLE,                                   ///< The CSMA-CA procedure is inactive.
     CSMA_CA_STATE_BACKOFF,                                ///< The CSMA-CA procedure is in backoff stage.
-    CSMA_CA_STATE_ONGOING                                 ///< The frame is being sent.
+    CSMA_CA_STATE_ONGOING,                                ///< The frame is being sent.
+    CSMA_CA_STATE_ABORTED                                 ///< The CSMA-CA procedure is being aborted.
 } csma_ca_state_t;
 
 static uint8_t m_nb;                                      ///< The number of times the CSMA-CA algorithm was required to back off while attempting the current transmission.
@@ -75,6 +77,7 @@ static uint8_t m_be;                                      ///< Backoff exponent,
 
 static uint8_t                            * mp_data;      ///< Pointer to a buffer containing PHR and PSDU of the frame being transmitted.
 static nrf_802154_transmitted_frame_props_t m_data_props; ///< Structure containing detailed properties of data in buffer.
+static int8_t                               m_tx_power;   ///< Power in dBm to be used when transmitting the frame.
 static csma_ca_state_t                      m_state;      ///< The current state of the CSMA-CA procedure.
 
 /**
@@ -189,6 +192,7 @@ static void frame_transmit(rsch_dly_ts_id_t dly_ts_id)
         nrf_802154_transmit_params_t params =
         {
             .frame_props = m_data_props,
+            .tx_power    = m_tx_power,
             .cca         = true,
             .immediate   = NRF_802154_CSMA_CA_WAIT_FOR_TIMESLOT ? false : true,
         };
@@ -359,6 +363,9 @@ bool nrf_802154_csma_ca_start(uint8_t                                      * p_d
     m_data_props = p_metadata->frame_props;
     m_nb         = 0;
     m_be         = nrf_802154_pib_csmaca_min_be_get();
+    m_tx_power   =
+        nrf_802154_tx_power_convert_metadata_to_raw_value(nrf_802154_pib_channel_get(),
+                                                          p_metadata->tx_power);
 
     random_backoff_start();
 
@@ -371,19 +378,28 @@ bool nrf_802154_csma_ca_abort(nrf_802154_term_t term_lvl, req_originator_t req_o
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
-    // Stop CSMA-CA only if request by the core or the higher layer.
-    if ((req_orig != REQ_ORIG_CORE) && (req_orig != REQ_ORIG_HIGHER_LAYER))
-    {
-        nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
-        return true;
-    }
-
     bool result = true;
 
-    if (term_lvl < NRF_802154_TERM_802154)
+    if (((req_orig != REQ_ORIG_CORE) && (req_orig != REQ_ORIG_HIGHER_LAYER)) ||
+        (CSMA_CA_STATE_IDLE == nrf_802154_sl_atomic_load_u8(&m_state)))
     {
-        // Return success in case procedure is already stopped.
-        result = nrf_802154_sl_atomic_load_u8(&m_state) == CSMA_CA_STATE_IDLE;
+        // The request does not originate from core or the higher layer or the procedure
+        // is stopped already. Ignore the abort request and return success, no matter
+        // the termination level.
+    }
+    else if (term_lvl >= NRF_802154_TERM_802154)
+    {
+        // The procedure is active and the termination level allows the abort
+        // request to be executed. Force aborted state. Don't clear the frame
+        // pointer - it might be needed to notify failure.
+        nrf_802154_sl_atomic_store_u8(&m_state, CSMA_CA_STATE_ABORTED);
+        nrf_802154_rsch_delayed_timeslot_cancel(NRF_802154_RESERVED_CSMACA_ID, false);
+    }
+    else
+    {
+        // The procedure is active and the termination level does not allow
+        // the abort request to be executed. Return failure
+        result = false;
     }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
@@ -414,9 +430,26 @@ bool nrf_802154_csma_ca_tx_failed_hook(uint8_t * p_frame, nrf_802154_tx_error_t 
             break;
 
         default:
-            if (p_frame == mp_data)
+            if (csma_ca_state_set(CSMA_CA_STATE_ABORTED, CSMA_CA_STATE_IDLE))
             {
+                // The procedure was successfully aborted.
+
+                if (p_frame != mp_data)
+                {
+                    // The procedure was aborted while another operation was holding
+                    // frame pointer in the core - hence p_frame points to a different
+                    // frame than mp_data. CSMA-CA failure must be notified directly.
+                    notify_failed(error);
+                }
+            }
+            else if (p_frame == mp_data)
+            {
+                // The procedure is active and transmission attempt failed. Try again
                 result = channel_busy();
+            }
+            else
+            {
+                // Intentionally empty.
             }
             break;
     }
