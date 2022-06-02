@@ -59,6 +59,7 @@
 #include "nrf_802154_request.h"
 #include "nrf_802154_rx_buffer.h"
 #include "nrf_802154_tx_power.h"
+#include "nrf_802154_rssi.h"
 #include "nrf_802154_stats.h"
 #include "hal/nrf_radio.h"
 #include "platform/nrf_802154_clock.h"
@@ -156,7 +157,11 @@ void nrf_802154_tx_power_set(int8_t power)
 
 int8_t nrf_802154_tx_power_get(void)
 {
-    return nrf_802154_tx_power_constrained_pib_power_get();
+    nrf_802154_tx_power_split_t split_power = {0};
+
+    (void)nrf_802154_tx_power_split_pib_power_get(&split_power);
+
+    return split_power.fem_gain + split_power.radio_tx_power;
 }
 
 bool nrf_802154_coex_rx_request_mode_set(nrf_802154_coex_rx_request_mode_t mode)
@@ -201,12 +206,12 @@ void nrf_802154_short_address_set(const uint8_t * p_short_address)
 
 int8_t nrf_802154_dbm_from_energy_level_calculate(uint8_t energy_level)
 {
-    return ED_MIN_DBM + (energy_level / ED_RESULT_FACTOR);
+    return nrf_802154_addons_dbm_from_energy_level_calculate(energy_level);
 }
 
 uint8_t nrf_802154_ccaedthres_from_dbm_calculate(int8_t dbm)
 {
-    return dbm - ED_MIN_DBM;
+    return dbm - ED_RSSIOFFS;
 }
 
 uint64_t nrf_802154_first_symbol_timestamp_get(uint64_t end_timestamp, uint8_t psdu_length)
@@ -216,6 +221,11 @@ uint64_t nrf_802154_first_symbol_timestamp_get(uint64_t end_timestamp, uint8_t p
     frame_symbols += (PHR_SIZE + psdu_length) * PHY_SYMBOLS_PER_OCTET;
 
     return end_timestamp - (frame_symbols * PHY_US_PER_SYMBOL);
+}
+
+uint64_t nrf_802154_mhr_timestamp_get(uint64_t end_timestamp, uint8_t psdu_length)
+{
+    return end_timestamp - (psdu_length * PHY_SYMBOLS_PER_OCTET * PHY_US_PER_SYMBOL);
 }
 
 void nrf_802154_init(void)
@@ -490,12 +500,14 @@ bool nrf_802154_transmit_raw(uint8_t                              * p_data,
     nrf_802154_transmit_params_t params =
     {
         .frame_props = p_metadata->frame_props,
-        .tx_power    = nrf_802154_tx_power_convert_metadata_to_raw_value(
-            nrf_802154_pib_channel_get(),
-            p_metadata->tx_power),
-        .cca       = p_metadata->cca,
-        .immediate = false
+        .tx_power    = {0},
+        .cca         = p_metadata->cca,
+        .immediate   = false
     };
+
+    (void)nrf_802154_tx_power_convert_metadata_to_tx_power_split(nrf_802154_pib_channel_get(),
+                                                                 p_metadata->tx_power,
+                                                                 &params.tx_power);
 
     result = are_frame_properties_valid(&params.frame_props);
     if (result)
@@ -536,12 +548,14 @@ bool nrf_802154_transmit(const uint8_t                        * p_data,
     nrf_802154_transmit_params_t params =
     {
         .frame_props = p_metadata->frame_props,
-        .tx_power    = nrf_802154_tx_power_convert_metadata_to_raw_value(
-            nrf_802154_pib_channel_get(),
-            p_metadata->tx_power),
-        .cca       = p_metadata->cca,
-        .immediate = false
+        .tx_power    = {0},
+        .cca         = p_metadata->cca,
+        .immediate   = false
     };
+
+    (void)nrf_802154_tx_power_convert_metadata_to_tx_power_split(nrf_802154_pib_channel_get(),
+                                                                 p_metadata->tx_power,
+                                                                 &params.tx_power);
 
     result = are_frame_properties_valid(&params.frame_props);
     if (result)
