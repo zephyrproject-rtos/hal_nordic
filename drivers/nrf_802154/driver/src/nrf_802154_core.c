@@ -115,13 +115,13 @@ static rx_buffer_t * const mp_current_rx_buffer = &nrf_802154_rx_buffers[0];
 
 #endif
 
-static uint8_t * mp_ack;                                       ///< Pointer to Ack frame buffer.
-static uint8_t * mp_tx_data;                                   ///< Pointer to the data to transmit.
-static uint32_t  m_ed_time_left;                               ///< Remaining time of the current energy detection procedure [us].
-static uint8_t   m_ed_result;                                  ///< Result of the current energy detection procedure.
-static uint8_t   m_last_lqi;                                   ///< LQI of the last received non-ACK frame, corrected for the temperature.
-static int8_t    m_last_rssi;                                  ///< RSSI of the last received non-ACK frame, corrected for the temperature.
-static int8_t    m_tx_power;                                   ///< Power in dBm to be used to transmit the current frame.
+static uint8_t                   * mp_ack;                     ///< Pointer to Ack frame buffer.
+static uint8_t                   * mp_tx_data;                 ///< Pointer to the data to transmit.
+static uint32_t                    m_ed_time_left;             ///< Remaining time of the current energy detection procedure [us].
+static uint8_t                     m_ed_result;                ///< Result of the current energy detection procedure.
+static uint8_t                     m_last_lqi;                 ///< LQI of the last received non-ACK frame, corrected for the temperature.
+static nrf_802154_tx_power_split_t m_tx_power;                 ///< Power to be used to transmit the current frame split into components.
+static int8_t                      m_last_rssi;                ///< RSSI of the last received non-ACK frame, corrected for the temperature.
 
 static nrf_802154_frame_parser_data_t m_current_rx_frame_data; ///< RX frame parser data.
 
@@ -498,26 +498,6 @@ static bool ack_is_requested(const uint8_t * p_frame)
 /***************************************************************************************************
  * @section Energy detection management
  **************************************************************************************************/
-
-/** Get ED result value.
- *
- *  @param[in]  ed_sample   Energy Detection sample gathered from TRX module
- *  @returns ED result based on data collected during Energy Detection procedure.
- */
-static uint8_t ed_result_get(uint8_t ed_sample)
-{
-    uint32_t result;
-
-    result  = nrf_802154_rssi_ed_corrected_get(ed_sample);
-    result *= ED_RESULT_FACTOR;
-
-    if (result > ED_RESULT_MAX)
-    {
-        result = ED_RESULT_MAX;
-    }
-
-    return (uint8_t)result;
-}
 
 /** Setup next iteration of energy detection procedure.
  *
@@ -1045,9 +1025,13 @@ static void rx_init(void)
 
     nrf_802154_trx_receive_buffer_set(rx_buffer_get());
 
+    nrf_802154_tx_power_split_t split_power = {0};
+
+    (void)nrf_802154_tx_power_split_pib_power_get(&split_power);
+
     nrf_802154_trx_receive_frame(BCC_INIT / 8U,
                                  m_trx_receive_frame_notifications_mask,
-                                 nrf_802154_tx_power_constrained_pib_power_get());
+                                 &split_power);
 
 #if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
     m_listening_start_hp_timestamp = nrf_802154_hp_timer_current_time_get();
@@ -1109,7 +1093,7 @@ static bool tx_init(const uint8_t * p_data, bool cca)
     m_flags.tx_with_cca = cca;
     nrf_802154_trx_transmit_frame(nrf_802154_tx_work_buffer_get(p_data),
                                   cca,
-                                  m_tx_power,
+                                  &m_tx_power,
                                   m_trx_transmit_frame_notifications_mask);
 
     return true;
@@ -1173,8 +1157,11 @@ static void continuous_carrier_init(void)
     {
         return;
     }
+    nrf_802154_tx_power_split_t split_power = {0};
 
-    nrf_802154_trx_continuous_carrier(nrf_802154_tx_power_constrained_pib_power_get());
+    (void)nrf_802154_tx_power_split_pib_power_get(&split_power);
+
+    nrf_802154_trx_continuous_carrier(&split_power);
 }
 
 /** Initialize Modulated Carrier operation. */
@@ -1190,7 +1177,11 @@ static void modulated_carrier_init(const uint8_t * p_data)
         return;
     }
 
-    nrf_802154_trx_modulated_carrier(p_data, nrf_802154_tx_power_constrained_pib_power_get());
+    nrf_802154_tx_power_split_t split_power = {0};
+
+    (void)nrf_802154_tx_power_split_pib_power_get(&split_power);
+
+    nrf_802154_trx_modulated_carrier(p_data, &split_power);
 }
 
 #endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
@@ -1917,9 +1908,14 @@ void nrf_802154_trx_receive_frame_crcerror(void)
     // We don't change receive buffer, receive will go to the same that was already used
 #if !NRF_802154_DISABLE_BCC_MATCHING
     request_preconditions_for_state(m_state);
+
+    nrf_802154_tx_power_split_t split_power = {0};
+
+    (void)nrf_802154_tx_power_split_pib_power_get(&split_power);
+
     nrf_802154_trx_receive_frame(BCC_INIT / 8U,
                                  m_trx_receive_frame_notifications_mask,
-                                 nrf_802154_tx_power_constrained_pib_power_get());
+                                 &split_power);
 
 #if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
     m_listening_start_hp_timestamp = nrf_802154_hp_timer_current_time_get();
@@ -2550,7 +2546,7 @@ void nrf_802154_trx_energy_detection_finished(uint8_t ed_sample)
         state_set(RADIO_STATE_RX);
         rx_init();
 
-        energy_detected_notify(ed_result_get(m_ed_result));
+        energy_detected_notify(nrf_802154_rssi_ed_sample_convert(m_ed_result));
 
     }
 

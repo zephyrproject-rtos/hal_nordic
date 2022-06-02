@@ -405,6 +405,17 @@ uint8_t nrf_802154_ccaedthres_from_dbm_calculate(int8_t dbm);
 uint64_t nrf_802154_first_symbol_timestamp_get(uint64_t end_timestamp, uint8_t psdu_length);
 
 /**
+ * @brief  Calculates the timestamp of the MAC Header in a received frame.
+ *
+ * @param[in]  end_timestamp  Timestamp of the end of the last symbol in the frame,
+ *                            in microseconds.
+ * @param[in]  psdu_length    Number of bytes in the frame PSDU.
+ *
+ * @return  Timestamp of the MHR of a given frame, in microseconds.
+ */
+uint64_t nrf_802154_mhr_timestamp_get(uint64_t end_timestamp, uint8_t psdu_length);
+
+/**
  * @}
  * @defgroup nrf_802154_transitions Functions to request FSM transitions and check current state
  * @{
@@ -971,7 +982,9 @@ extern void nrf_802154_transmit_failed(uint8_t                                  
  * @brief Notifies that the energy detection procedure finished.
  *
  * @note This function passes the EnergyLevel defined in the 802.15.4-2006 specification:
- *       0x00 - 0xff, proportionally to the detected energy level (dBm above receiver sensitivity).
+ *       0x00 - 0xff, where 0x00 represents -75dBm (10dBm above the worst allowed sensitivity level,
+ *       which is -85dBm) and 0xff is the highest possible energy detection level, for which
+ *       the measurements are guaranteed map linearly to the real energy level in dBm.
  *       To calculate the result in dBm, use @ref nrf_802154_dbm_from_energy_level_calculate.
  *
  * @param[in]  result  Maximum energy detected during the energy detection procedure.

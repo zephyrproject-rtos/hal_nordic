@@ -772,9 +772,9 @@ bool nrf_802154_delayed_trx_transmit(uint8_t                                 * p
 
         p_dly_tx_data->tx.p_data             = p_data;
         p_dly_tx_data->tx.params.frame_props = p_metadata->frame_props;
-        p_dly_tx_data->tx.params.tx_power    = nrf_802154_tx_power_convert_metadata_to_raw_value(
-            p_metadata->channel,
-            p_metadata->tx_power);
+        (void)nrf_802154_tx_power_convert_metadata_to_tx_power_split(p_metadata->channel,
+                                                                     p_metadata->tx_power,
+                                                                     &p_dly_tx_data->tx.params.tx_power);
         p_dly_tx_data->tx.params.cca       = p_metadata->cca;
         p_dly_tx_data->tx.params.immediate = true;
         p_dly_tx_data->tx.channel          = p_metadata->channel;
@@ -939,6 +939,8 @@ bool nrf_802154_delayed_trx_nearest_drx_time_to_midpoint_get(uint32_t * p_drx_ti
 
         result = nrf_802154_rsch_delayed_timeslot_time_to_start_get(m_dly_rx_data[i].id,
                                                                     &drx_time_to_start);
+        drx_time_to_start += RX_SETUP_TIME + RX_RAMP_UP_TIME;
+
         if (result)
         {
             min_time_to_start = drx_time_to_start < min_time_to_start ?
