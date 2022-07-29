@@ -150,7 +150,7 @@ NRF_STATIC_INLINE uint32_t nrf_egu_task_address_get(NRF_EGU_Type const * p_reg,
 NRF_STATIC_INLINE nrf_egu_task_t nrf_egu_trigger_task_get(uint8_t channel);
 
 /**
- * @brief Function for retrieving the state of the UARTE event.
+ * @brief Function for retrieving the state of the EGU event.
  *
  * @param[in] p_reg     Pointer to the structure of registers of the peripheral.
  * @param[in] egu_event EGU event to be checked.
