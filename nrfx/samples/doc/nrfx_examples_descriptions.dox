@@ -1,0 +1,73 @@
+/**
+@page nrfx_examples_desc Examples Descriptions
+The complete base, where you can find all the necessary information about examples:
+- @subpage nrfx_egu_example_desc
+- @subpage nrfx_gppi_example_desc
+- @subpage nrfx_pwm_example_desc
+- @subpage nrfx_rng_example_desc
+- @subpage nrfx_saadc_example_desc
+- @subpage nrfx_spim_example_desc
+- @subpage nrfx_spim_spis_example_desc
+- @subpage nrfx_temp_example_desc
+- @subpage nrfx_timer_example_desc
+- @subpage nrfx_twim_twis_example_desc
+- @subpage nrfx_uarte_example_desc
+
+@page nrfx_egu_example_desc EGU
+Here you can find all the necessary information about following examples:
+- @subpage egu_basic_desc
+
+@page nrfx_gppi_example_desc GPPI
+Here you can find all the necessary information about following examples:
+- @subpage gppi_basic_fork_desc
+- @subpage gppi_basic_one_to_one_desc
+
+@page nrfx_pwm_example_desc PWM
+Here you can find all the necessary information about following examples:
+- @subpage pwm_common_desc
+- @subpage pwm_grouped_desc
+
+@page nrfx_rng_example_desc RNG
+Here you can find all the necessary information about following examples:
+- @subpage rng_basic_desc
+
+@page nrfx_saadc_example_desc SAADC
+Here you can find all the necessary information about following examples:
+- @subpage saadc_simple_blocking
+- @subpage saadc_simple_non_blocking
+- @subpage saadc_advanced_blocking
+- @subpage saadc_advanced_non_blocking_internal_timer
+- @subpage saadc_maximum_performance
+
+@page nrfx_spim_example_desc SPIM
+Here you can find all the necessary information about following examples:
+- @subpage spim_basic_blocking
+- @subpage spim_basic_non_blocking
+
+@page nrfx_spim_spis_example_desc SPIM with SPIS
+Here you can find all the necessary information about following examples:
+- @subpage spim_spis_non_blocking
+- @subpage spim_spis_advanced_non_blocking_example
+
+@page nrfx_temp_example_desc TEMP
+Here you can find all the necessary information about following examples:
+- @subpage temp_blocking
+- @subpage temp_non_blocking
+
+@page nrfx_timer_example_desc TIMER
+Here you can find all the necessary information about following examples:
+- @subpage timer_basic
+- @subpage timer_counter
+
+@page nrfx_twim_twis_example_desc TWIM with TWIS
+Here you can find all the necessary information about following examples:
+- @subpage twim_twis_tx_rx_blocking
+- @subpage twim_twis_tx_rx_non_blocking
+- @subpage twim_twis_txrx
+- @subpage twim_twis_txtx
+
+@page nrfx_uarte_example_desc UARTE
+Here you can find all the necessary information about following examples:
+- @subpage uarte_tx_rx_non_blocking
+- @subpage uarte_rx_double_buffered
+*/

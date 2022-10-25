@@ -34,6 +34,7 @@
 #ifndef NRFX_CONFIG_H__
 #define NRFX_CONFIG_H__
 
+#include <nrfx_config_common.h>
 #if defined(NRF51)
     #include <nrfx_config_nrf51.h>
 #elif defined(NRF52805_XXAA)

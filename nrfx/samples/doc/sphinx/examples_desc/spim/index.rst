@@ -1,0 +1,7 @@
+SPIM
+====
+
+.. toctree::
+    :glob:
+
+    **/index

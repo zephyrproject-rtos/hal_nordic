@@ -1,0 +1,19 @@
+sample:
+  description: An example to showcase usage of the nrfx_temp driver in the blocking mode
+  name: nrfx_temp blocking example
+tests:
+  examples.nrfx_temp.blocking:
+    tags: temp
+    filter: dt_compat_enabled("nordic,nrf-temp")
+    platform_exclude: nrf52833dk_nrf52820
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: true
+      regex:
+        - "Starting nrfx_temp blocking example."
+        - "Measured temperature: ([0-9]*).([0-9]{2}) .C."
+        - "Measured temperature: ([0-9]*).([0-9]{2}) .C."
+        - "Measured temperature: ([0-9]*).([0-9]{2}) .C."
+        - "Measured temperature: ([0-9]*).([0-9]{2}) .C."
+        - "Measured temperature: ([0-9]*).([0-9]{2}) .C."

@@ -1,0 +1,27 @@
+sample:
+  description: An example to showcase usage of the nrfx_pwm driver for sequences loaded in grouped mode.
+  name: nrfx_pwm grouped mode example
+tests:
+  examples.nrfx_pwm.grouped_mode:
+    tags: pwm
+    filter: dt_compat_enabled("nordic,nrf-pwm")
+    platform_exclude: nrf52833dk_nrf52820
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: true
+      regex:
+        - "Starting nrfx_pwm example for sequences loaded in grouped mode."
+        - "Loops: 1 / 6"
+        - "SEQ1 changed to sequence number 2 from the seq array"
+        - "Loops: 2 / 6"
+        - "SEQ1 changed to sequence number 1 from the seq array"
+        - "Loops: 3 / 6"
+        - "SEQ1 changed to sequence number 2 from the seq array"
+        - "Loops: 4 / 6"
+        - "SEQ1 changed to sequence number 1 from the seq array"
+        - "Loops: 5 / 6"
+        - "SEQ1 changed to sequence number 2 from the seq array"
+        - "Loops: 6 / 6"
+        - "SEQ1 changed to sequence number 1 from the seq array"
+        - "PWM finished"

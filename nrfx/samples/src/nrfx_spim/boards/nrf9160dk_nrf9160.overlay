@@ -1,0 +1,8 @@
+&spi1 {
+    status = "okay";
+    compatible = "nordic,nrf-spim";
+};
+
+&uart1 {
+	status = "disabled";
+};

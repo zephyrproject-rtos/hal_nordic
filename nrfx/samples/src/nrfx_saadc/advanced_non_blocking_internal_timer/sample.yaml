@@ -1,0 +1,41 @@
+sample:
+  description: An example to showcase usage of the nrfx_saadc driver in the advanced non-blocking continuous sampling mode with internal timer
+  name: nrfx_saadc advanced non-blocking sampling with internal timer example
+tests:
+  examples.nrfx_saadc.advanced_non_blocking_internal_timer:
+    tags: saadc
+    filter: dt_compat_enabled("nordic,nrf-saadc")
+    platform_exclude: nrf52833dk_nrf52820 and nrf52dk_nrf52832
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: true
+      regex:
+        - "Starting nrfx_saadc advanced non-blocking sampling with internal timer example."
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: READY"
+        - "SAADC event: BUF_REQ"
+        - "SAADC event: DONE"
+        - "Sample buffer address == 0x([0-9a-z]{8})"
+        - ".Sample 0. value == -?[0-9]"
+        - ".Sample 1. value == ([0-9]{3})"
+        - ".Sample 2. value == -?[0-9]"
+        - "SAADC event: BUF_REQ"
+        - "SAADC event: DONE"
+        - "Sample buffer address == 0x([0-9a-z]{8})"
+        - ".Sample 0. value == ([0-9]{3})"
+        - ".Sample 1. value == -?[0-9]"
+        - ".Sample 2. value == ([0-9]{3})"
+        - "SAADC event: BUF_REQ"
+        - "SAADC event: DONE"
+        - "Sample buffer address == 0x([0-9a-z]{8})"
+        - ".Sample 0. value == -?[0-9]"
+        - ".Sample 1. value == ([0-9]{3})"
+        - ".Sample 2. value == -?[0-9]"
+        - "SAADC event: BUF_REQ"
+        - "SAADC event: DONE"
+        - "Sample buffer address == 0x([0-9a-z]{8})"
+        - ".Sample 0. value == ([0-9]{3})"
+        - ".Sample 1. value == -?[0-9]"
+        - ".Sample 2. value == ([0-9]{3})"
+        - "SAADC event: FINISHED"
