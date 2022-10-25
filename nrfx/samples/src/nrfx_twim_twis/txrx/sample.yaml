@@ -1,0 +1,41 @@
+sample:
+  description: An example to showcase usage of the nrfx_twim and nrfx_twis drivers, with the use of TXRX TWI transfer descriptor.
+  name: nrfx_twim_twis txrx example
+tests:
+  examples.nrfx_twim_twis.txrx:
+    tags: twim and twis
+    filter: dt_compat_enabled("nordic,nrf-twim") and dt_compat_enabled("nordic,nrf-twis")
+    platform_exclude: nrf52833dk_nrf52820
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: true
+      regex:
+        - "Starting nrfx_twim_twis txrx example."
+        - "................................"
+        - "DRONE REGISTERS:    DEC  |  HEX"
+        - "drone_idx:          1    |  0x1"
+        - "drone_mass:         10   |  0xA"
+        - "x_force:            50   |  0x32"
+        - "y_force:            100  |  0x64"
+        - "z_force:            150  |  0x96"
+        - "x_acceleration:     5    |  0x5"
+        - "y_acceleration:     10   |  0xA"
+        - "z_acceleration:     15   |  0xF"
+        - "additional_data[0]: 239  |  0xEF"
+        - "additional_data[1]: 190  |  0xBE"
+        - "additional_data[2]: 173  |  0xAD"
+        - "additional_data[3]: 222  |  0xDE"
+        - "................................"
+        - "Reading value of DRONE_REG_FORCE_X register:"
+        - "--> Master event: done - transfer completed"
+        - "ctrl buff: 0x32"
+        - "..."
+        - "Reading value of DRONE_REG_ACC_Y register:"
+        - "--> Master event: done - transfer completed"
+        - "ctrl buff: 0xA"
+        - "..."
+        - "Reading values of DRONE_REG_DATA registers:"
+        - "--> Master event: done - transfer completed"
+        - "ctrl buff: 0xDEADBEEF"
+        - "..."

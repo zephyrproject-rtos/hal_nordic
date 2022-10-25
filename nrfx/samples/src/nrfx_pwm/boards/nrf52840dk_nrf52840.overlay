@@ -1,0 +1,3 @@
+&pwm0 {
+    status = "okay";
+};

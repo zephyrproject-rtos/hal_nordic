@@ -1,0 +1,7 @@
+SAADC
+=====
+
+.. toctree::
+    :glob:
+
+    **/index

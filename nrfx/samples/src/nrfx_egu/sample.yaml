@@ -1,0 +1,15 @@
+sample:
+  description: An example to showcase usage of the nrfx_egu driver
+  name: nrfx_egu example
+tests:
+  examples.nrfx_egu:
+    tags: egu
+    filter: dt_compat_enabled("nordic,nrf-egu")
+    platform_exclude: nrf52833dk_nrf52820
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: true
+      regex:
+        - "Starting nrfx_egu example"
+        - "EGU handler triggered on channel: (.*). Context passed to the handler: >Some context<"

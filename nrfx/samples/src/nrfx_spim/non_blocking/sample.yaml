@@ -1,0 +1,16 @@
+sample:
+  description: An example to showcase usage of the nrfx_spim driver in the non-blocking mode
+  name: nrfx_spim non-blocking example
+tests:
+  examples.nrfx_spim.non_blocking:
+    tags: spim
+    filter: dt_compat_enabled("nordic,nrf-spim")
+    platform_exclude: nrf52833dk_nrf52820
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: true
+      regex:
+        - "Starting nrfx_spim basic non-blocking example."
+        - "SPIM finished. Context passed to the handler: >Some context<"
+        - "Message received: Nordic Semiconductor"

@@ -1,0 +1,22 @@
+sample:
+  description: An example to showcase usage of the nrfx_twim and nrfx_twis drivers in the non-blocking mode, with the use of TX or RX TWI transfer descriptor.
+  name: nrfx_twim_twis tx_rx_non_blocking example
+tests:
+  examples.nrfx_twim_twis.non_blocking:
+    tags: twim and twis
+    filter: dt_compat_enabled("nordic,nrf-twim") and dt_compat_enabled("nordic,nrf-twis")
+    platform_exclude: nrf52833dk_nrf52820
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: false
+      regex:
+        - "Starting nrfx_twim_twis non-blocking example."
+        - "Message to send: Nordic Semiconductor"
+        - "Content of master RX buffer:"
+        - "--> Slave event: write request"
+        - "--> Slave event: write done."
+        - "--> Master event: done - transfer completed"
+        - "--> Slave event: read request"
+        - "--> Slave event: read done."
+        - "Content of master RX buffer: Nordic Semiconductor"

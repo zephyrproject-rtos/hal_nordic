@@ -1,0 +1,23 @@
+sample:
+  description: An example to showcase usage of the nrfx_gppi helper
+  name: nrfx_gppi fork example
+tests:
+  examples.nrfx_gppi.fork:
+    tags: gppi
+    filter: dt_compat_enabled("nordic,nrf-ppi") or dt_compat_enabled("nordic,nrf-dppic")
+    platform_exclude: nrf52833dk_nrf52820
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: true
+      regex:
+        - "Starting nrfx_gppi basic fork example."
+        - "GPIOTE status: initialized"
+        - "Time to wait: 1000 ms"
+        - "Timer status: enabled"
+        - "Timer finished. Context passed to the handler: >Some context<"
+        - "GPIOTE output pin .primary.: ([0-9]*) is low"
+        - "GPIOTE output pin .fork.: ([0-9]*) is high"
+        - "Timer finished. Context passed to the handler: >Some context<"
+        - "GPIOTE output pin .primary.: ([0-9]*) is high"
+        - "GPIOTE output pin .fork.: ([0-9]*) is low"

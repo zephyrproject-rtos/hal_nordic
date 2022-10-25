@@ -1,0 +1,15 @@
+sample:
+  description: An example to showcase usage of the nrfx_rng driver
+  name: nrfx_rng example
+tests:
+  examples.nrfx_rng:
+    tags: rng
+    filter: dt_compat_enabled("nordic,nrf-rng")
+    platform_exclude: nrf52833dk_nrf52820
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: true
+      regex:
+        - "Starting nrfx_rng example"
+        - "Generated value: (.*)"

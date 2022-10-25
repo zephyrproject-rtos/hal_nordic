@@ -1,0 +1,27 @@
+sample:
+  description: An example to showcase usage of the nrfx_uarte driver in the double-buffered mode.
+  name: nrfx_uarte rx_double_buffered example
+tests:
+  examples.nrfx_uarte.rx_double_buffered:
+    tags: uarte
+    filter: dt_compat_enabled("nordic,nrf-uarte")
+    platform_exclude: nrf52833dk_nrf52820 and nrf52dk_nrf52832
+    harness: console
+    harness_config:
+      type: multi_line
+      ordered: true
+      regex:
+        - "Starting nrfx_uarte RX double-buffered example."
+        - "Content of TX buffer: Nordic Semiconductor nRF"
+        - "................................"
+        - "RX buffer1 - addr: (.*) | content:"
+        - "RX buffer2 - addr: (.*) | content:"
+        - "RX buffer3 - addr: (.*) | content:"
+        - "................................"
+        - "--> TX done"
+        - "--> Bytes transfered: 27"
+        - "................................"
+        - "RX buffer1 - addr: (.*) | content: Nordic"
+        - "RX buffer2 - addr: (.*) | content:  nRF"
+        - "RX buffer3 - addr: (.*) | content:  Secmiconductor"
+        - "................................"

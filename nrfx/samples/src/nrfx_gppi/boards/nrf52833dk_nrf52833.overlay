@@ -1,0 +1,11 @@
+&ppi {
+    status = "okay";
+};
+
+&timer0 {
+    status = "okay";
+};
+
+&gpiote {
+    status = "okay";
+};

@@ -1,0 +1,4 @@
+&uart1 {
+    status = "disabled";
+    compatible = "nordic,nrf-uarte";
+};

@@ -1,0 +1,10 @@
+&spi1 {
+    status = "okay";
+    compatible = "nordic,nrf-spim";
+};
+
+&spi2 {
+    status = "okay";
+    compatible = "nordic,nrf-spis";
+    def-char = <0xFF>;
+};
