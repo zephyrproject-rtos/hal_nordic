@@ -38,7 +38,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "nrf_802154_types.h"
+#include "nrf_802154_types_internal.h"
 
 /**
  * @defgroup nrf_802154_ie_writer Radio driver Information Element data injection feature.
@@ -133,6 +133,13 @@ bool nrf_802154_ie_writer_tx_started_hook(uint8_t * p_frame);
  * @param[in]  period  CSL period value.
  */
 void nrf_802154_ie_writer_csl_period_set(uint16_t period);
+
+/**
+ * @brief Sets the anchor time based on which the next CSL window time and the CSL phase is calculated.
+ *
+ * @param[in]  period  Anchor time value.
+ */
+void nrf_802154_ie_writer_csl_anchor_time_set(uint64_t anchor_time);
 
 /**
  *@}
