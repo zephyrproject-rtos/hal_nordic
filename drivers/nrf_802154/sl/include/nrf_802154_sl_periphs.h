@@ -41,10 +41,9 @@
 #define NRF_802154_SL_PERIPHS_H__
 
 #include <nrfx.h>
-#if defined(DPPI_PRESENT)
-#include "hal/nrf_dppi.h"
-#else
-#include "hal/nrf_ppi.h"
+
+#if NRF_802154_USE_INTERNAL_INCLUDES
+#include "nrf_802154_sl_periphs_internal.h"
 #endif
 
 /**
