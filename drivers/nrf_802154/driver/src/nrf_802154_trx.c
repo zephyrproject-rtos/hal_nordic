@@ -553,6 +553,13 @@ static inline void wait_until_radio_is_disabled(void)
             radio_is_disabled = true;
             break;
         }
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+        nrf_802154_delay_us(1);
+        /* In this simulated board, and in general in the POSIX ARCH,
+         * code takes 0 simulated time to execute.
+         * Let's hold for 1 microsecond to allow the RADIO HW to clear the state
+         */
+#endif
     }
 
     assert(radio_is_disabled);
