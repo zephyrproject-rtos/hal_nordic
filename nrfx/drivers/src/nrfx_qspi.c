@@ -37,6 +37,7 @@
 
 #include <nrfx_qspi.h>
 #include <hal/nrf_gpio.h>
+#include <nrf_erratas.h>
 
 /** @brief Command byte used to read status register. */
 #define QSPI_STD_CMD_RDSR 0x05
@@ -280,6 +281,25 @@ nrfx_err_t nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
         return NRFX_ERROR_INVALID_PARAM;
     }
 
+    /* The interrupt is disabled because of the anomaly handling below and
+     * because of the waiting for the READY event at the end of this function.
+     */
+    nrf_qspi_int_disable(NRF_QSPI, NRF_QSPI_INT_READY_MASK);
+
+    /* The code below accesses the IFTIMING and IFCONFIG1 registers what
+     * may trigger anomaly 215 on nRF52840 or anomaly 43 on nRF5340. Use
+     * the proper workaround then.
+     */
+    if (NRF52_ERRATA_215_ENABLE_WORKAROUND || NRF53_ERRATA_43_ENABLE_WORKAROUND)
+    {
+        nrf_qspi_event_clear(NRF_QSPI, NRF_QSPI_EVENT_READY);
+        nrf_qspi_task_trigger(NRF_QSPI, NRF_QSPI_TASK_ACTIVATE);
+        if (qspi_ready_wait() == NRFX_ERROR_TIMEOUT)
+        {
+            return NRFX_ERROR_TIMEOUT;
+        }
+    }
+
     nrf_qspi_xip_offset_set(NRF_QSPI, p_config->xip_offset);
 
     nrf_qspi_ifconfig0_set(NRF_QSPI, &p_config->prot_if);
@@ -302,10 +322,6 @@ nrfx_err_t nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
     m_cb.handler = handler;
     m_cb.p_context = p_context;
     m_cb.skip_gpio_cfg = p_config->skip_gpio_cfg;
-
-    /* QSPI interrupt is disabled because the device should be enabled in polling mode
-      (wait for activate task event ready) */
-    nrf_qspi_int_disable(NRF_QSPI, NRF_QSPI_INT_READY_MASK);
 
     if (handler)
     {
@@ -338,7 +354,6 @@ nrfx_err_t nrfx_qspi_cinstr_xfer(nrf_qspi_cinstr_conf_t const * p_config,
         return NRFX_ERROR_BUSY;
     }
 
-    nrf_qspi_event_clear(NRF_QSPI, NRF_QSPI_EVENT_READY);
     /* In some cases, only opcode should be sent. To prevent execution, set function code is
      * surrounded by an if.
      */
@@ -353,6 +368,21 @@ nrfx_err_t nrfx_qspi_cinstr_xfer(nrf_qspi_cinstr_conf_t const * p_config,
      */
     nrf_qspi_int_disable(NRF_QSPI, NRF_QSPI_INT_READY_MASK);
 
+    /* The code below accesses the CINSTRCONF register what may trigger
+     * anomaly 215 on nRF52840 or anomaly 43 on nRF5340. Use the proper
+     * workaround then.
+     */
+    if (NRF52_ERRATA_215_ENABLE_WORKAROUND || NRF53_ERRATA_43_ENABLE_WORKAROUND)
+    {
+        nrf_qspi_event_clear(NRF_QSPI, NRF_QSPI_EVENT_READY);
+        nrf_qspi_task_trigger(NRF_QSPI, NRF_QSPI_TASK_ACTIVATE);
+        if (qspi_ready_wait() == NRFX_ERROR_TIMEOUT)
+        {
+            return NRFX_ERROR_TIMEOUT;
+        }
+    }
+
+    nrf_qspi_event_clear(NRF_QSPI, NRF_QSPI_EVENT_READY);
     nrf_qspi_cinstr_transfer_start(NRF_QSPI, p_config);
 
     if (qspi_ready_wait() == NRFX_ERROR_TIMEOUT)
@@ -385,7 +415,6 @@ nrfx_err_t nrfx_qspi_cinstr_quick_send(uint8_t               opcode,
 nrfx_err_t nrfx_qspi_lfm_start(nrf_qspi_cinstr_conf_t const * p_config)
 {
     NRFX_ASSERT(m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
-    NRFX_ASSERT(!(nrf_qspi_cinstr_long_transfer_is_ongoing(NRF_QSPI)));
     NRFX_ASSERT(p_config->length == NRF_QSPI_CINSTR_LEN_1B);
 
     if (m_cb.state != NRFX_QSPI_STATE_IDLE)
@@ -399,6 +428,23 @@ nrfx_err_t nrfx_qspi_lfm_start(nrf_qspi_cinstr_conf_t const * p_config)
      */
     nrf_qspi_int_disable(NRF_QSPI, NRF_QSPI_INT_READY_MASK);
 
+    /* The code below accesses the CINSTRCONF register what may trigger
+     * anomaly 215 on nRF52840 or anomaly 43 on nRF5340. Use the proper
+     * workaround then.
+     */
+    if (NRF52_ERRATA_215_ENABLE_WORKAROUND || NRF53_ERRATA_43_ENABLE_WORKAROUND)
+    {
+        nrf_qspi_event_clear(NRF_QSPI, NRF_QSPI_EVENT_READY);
+        nrf_qspi_task_trigger(NRF_QSPI, NRF_QSPI_TASK_ACTIVATE);
+        if (qspi_ready_wait() == NRFX_ERROR_TIMEOUT)
+        {
+            return NRFX_ERROR_TIMEOUT;
+        }
+    }
+
+    NRFX_ASSERT(!(nrf_qspi_cinstr_long_transfer_is_ongoing(NRF_QSPI)));
+
+    nrf_qspi_event_clear(NRF_QSPI, NRF_QSPI_EVENT_READY);
     nrf_qspi_cinstr_long_transfer_start(NRF_QSPI, p_config);
 
     if (qspi_ready_wait() == NRFX_ERROR_TIMEOUT)
