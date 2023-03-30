@@ -48,8 +48,16 @@
 /** @brief Default time used in timeout function. */
 #define QSPI_DEF_WAIT_TIME_US 10
 
-/** @brief Default number of tries in timeout function. */
-#define QSPI_DEF_WAIT_ATTEMPTS 100
+/**
+ * @brief Default number of tries in timeout function.
+ *
+ * When the flash memory is busy with some operation, waiting for the READY
+ * event even when only the ACTIVATE task is triggered may take significant
+ * amount of time. The below default number of attempts gives the maximum
+ * waiting time of 500 ms what should cover most cases, including erasing
+ * of sectors in most flash chips.
+ */
+#define QSPI_DEF_WAIT_ATTEMPTS 50000
 
 /**
  * @brief Macro for initializing a QSPI pin.
