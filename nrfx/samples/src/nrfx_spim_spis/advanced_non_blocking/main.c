@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2023, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -271,12 +271,10 @@ int main(void)
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
 #if defined(__ZEPHYR__)
-    #define SPIM_INST         NRFX_CONCAT_2(NRF_SPIM, SPIM_INST_IDX)
-    #define SPIM_INST_HANDLER NRFX_CONCAT_3(nrfx_spim_, SPIM_INST_IDX, _irq_handler)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(SPIM_INST), IRQ_PRIO_LOWEST, SPIM_INST_HANDLER, 0);
-    #define SPIS_INST         NRFX_CONCAT_2(NRF_SPIS, SPIS_INST_IDX)
-    #define SPIS_INST_HANDLER NRFX_CONCAT_3(nrfx_spis_, SPIS_INST_IDX, _irq_handler)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(SPIS_INST), IRQ_PRIO_LOWEST, SPIS_INST_HANDLER, 0)
+    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIM_INST_GET(SPIM_INST_IDX)), IRQ_PRIO_LOWEST,
+                       NRFX_SPIM_INST_HANDLER_GET(SPIM_INST_IDX), 0);
+    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIS_INST_GET(SPIS_INST_IDX)), IRQ_PRIO_LOWEST,
+                       NRFX_SPIS_INST_HANDLER_GET(SPIS_INST_IDX), 0);
 #endif
 
     status = nrfx_spis_buffers_set(&spis_inst, NULL, 0, m_rx_buffer_slave, BUFF_SIZE);

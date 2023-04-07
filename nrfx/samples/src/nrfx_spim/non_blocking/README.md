@@ -1,4 +1,4 @@
-# SPIM basic non-blocking example overview {#spim_basic_non_blocking}
+# SPIM basic non-blocking {#spim_basic_non_blocking}
 
 The sample demonstrates a basic functionality of the nrfx_spim driver operating in the non-blocking mode.
 
@@ -43,3 +43,6 @@ You should see the following output:
 - "SPIM finished. Context passed to the handler: >Some context<"
 - "Message received: Nordic Semiconductor"
 ```
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

@@ -1,4 +1,4 @@
-# SAADC simple blocking example overview {#saadc_simple_blocking}
+# SAADC simple blocking {#saadc_simple_blocking}
 
 The sample demonstrates a simple functionality of the nrfx_saadc driver operating in the blocking mode.
 
@@ -116,3 +116,5 @@ You should see the following output:
 - "[CHANNEL 1] Sampled value == -?[0-9]"
 - "[CHANNEL 2] Sampled value == -?[0-9]"
 ```
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

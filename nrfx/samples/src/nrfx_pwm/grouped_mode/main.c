@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2023, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -205,9 +205,8 @@ int main(void)
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
 #if defined(__ZEPHYR__)
-    #define PWM_INST         NRFX_CONCAT_2(NRF_PWM, PWM_INST_IDX)
-    #define PWM_INST_HANDLER NRFX_CONCAT_3(nrfx_pwm_, PWM_INST_IDX, _irq_handler)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(PWM_INST), IRQ_PRIO_LOWEST, PWM_INST_HANDLER, 0);
+    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_PWM_INST_GET(PWM_INST_IDX)), IRQ_PRIO_LOWEST,
+                       NRFX_PWM_INST_HANDLER_GET(PWM_INST_IDX), 0);
 #endif
 
     nrfx_pwm_complex_playback(&pwm_instance, &seq[0], &seq[1], PLAYBACK_COUNT, NRFX_PWM_FLAG_LOOP);

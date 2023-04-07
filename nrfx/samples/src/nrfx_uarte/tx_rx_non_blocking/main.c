@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2023, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -119,9 +119,8 @@ int main(void)
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
 #if defined(__ZEPHYR__)
-    #define UARTE_INST         NRFX_CONCAT_2(NRF_UARTE, UARTE_INST_IDX)
-    #define UARTE_INST_HANDLER NRFX_CONCAT_3(nrfx_uarte_, UARTE_INST_IDX, _irq_handler)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(UARTE_INST), IRQ_PRIO_LOWEST, UARTE_INST_HANDLER, 0);
+    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_UARTE_INST_GET(UARTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                       NRFX_UARTE_INST_HANDLER_GET(UARTE_INST_IDX), 0);
 #endif
 
     NRFX_LOG_INFO("Content of TX buffer: %s", m_tx_buffer);

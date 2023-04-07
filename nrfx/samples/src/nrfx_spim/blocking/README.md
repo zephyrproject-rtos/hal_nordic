@@ -1,4 +1,4 @@
-# SPIM basic blocking example overview {#spim_basic_blocking}
+# SPIM basic blocking {#spim_basic_blocking}
 
 The sample demonstrates a basic functionality of the nrfx_spim driver operating in the blocking mode.
 
@@ -42,3 +42,6 @@ You should see the following output:
 - "Starting nrfx_spim basic blocking example."
 - "Message received: Nordic Semiconductor"
 ```
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

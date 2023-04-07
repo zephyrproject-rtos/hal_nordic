@@ -1,4 +1,4 @@
-# GPPI one to one example overview {#gppi_basic_one_to_one_desc}
+# GPPI one to one {#gppi_basic_one_to_one_desc}
 
 The sample demonstrates a basic functionality of the nrfx_gppi helper.
 
@@ -45,3 +45,6 @@ You should see the following output:
 ```
 
 > In the output, instead of `<LED1_PIN>`, you should see the corresponding pin numbers defined in `common/nrfx_example.h`.
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

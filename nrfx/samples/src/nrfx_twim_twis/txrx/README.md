@@ -1,4 +1,4 @@
-# TWIM with TWIS TX-RX example overview {#twim_twis_txrx}
+# TWIM with TWIS TX-RX {#twim_twis_txrx}
 
 The sample demonstrates a functionality of nrfx_twim and nrfx_twis drivers, when TWI transfer is performed in the TX-RX mode.
 
@@ -75,3 +75,6 @@ You should see the following output:
 - "ctrl buff: 0xDEADBEEF"
 - "..."
 ```
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

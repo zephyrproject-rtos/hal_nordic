@@ -1,4 +1,4 @@
-# UARTE non-blocking example overview {#uarte_tx_rx_non_blocking}
+# UARTE non-blocking {#uarte_tx_rx_non_blocking}
 
 The sample demonstrates a functionality of the nrfx_uarte driver operating in the non-blocking mode.
 
@@ -48,3 +48,6 @@ You should see the following output:
 - "Content of TX buffer: Nordic Semiconductor"
 - "Content of RX buffer: Nordic Semiconductor"
 ```
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

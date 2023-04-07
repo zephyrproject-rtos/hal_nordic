@@ -1,4 +1,4 @@
-# SAADC advanced blocking example overview {#saadc_advanced_blocking}
+# SAADC advanced blocking {#saadc_advanced_blocking}
 
 The sample demonstrates an advanced functionality of the nrfx_saadc driver operating in the blocking mode.
 
@@ -69,3 +69,5 @@ You should see the following output:
 - ".Sample 0. value == ([0-9]{3})"
 - ".Sample 1. value == ([0-9]{3})"
 ```
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

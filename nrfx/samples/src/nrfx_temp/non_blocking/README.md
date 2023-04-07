@@ -1,4 +1,4 @@
-# TEMP non-blocking example overview {#temp_non_blocking}
+# TEMP non-blocking {#temp_non_blocking}
 
 The sample demonstrates a functionality of the nrfx_temp driver operating in the non-blocking mode.
 
@@ -43,3 +43,6 @@ You should see the following output:
 - "Measured temperature: <temp_value> [C]"
 ```
 > In the output, `temp_value` should be displayed as a temperature value in Celsius rounded to two decimal places.
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

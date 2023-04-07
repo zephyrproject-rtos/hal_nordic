@@ -1,4 +1,4 @@
-# TIMER counter example overview {#timer_counter}
+# TIMER counter {#timer_counter}
 
 The sample demonstrates a basic functionality of the nrfx_timer driver in Timer and Counter modes.
 
@@ -57,3 +57,6 @@ You should see the following output:
 - "Timer status: disabled"
 - "Counter status: disabled"
 ```
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

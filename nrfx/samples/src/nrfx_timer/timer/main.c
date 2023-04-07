@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2023, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -99,9 +99,8 @@ int main(void)
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
 #if defined(__ZEPHYR__)
-    #define TIMER_INST         NRFX_CONCAT_2(NRF_TIMER, TIMER_INST_IDX)
-    #define TIMER_INST_HANDLER NRFX_CONCAT_3(nrfx_timer_, TIMER_INST_IDX, _irq_handler)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(TIMER_INST), IRQ_PRIO_LOWEST, TIMER_INST_HANDLER, 0);
+    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
+                       NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0);
 #endif
 
     nrfx_timer_clear(&timer_inst);

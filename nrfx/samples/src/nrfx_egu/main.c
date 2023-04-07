@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2023, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -89,9 +89,8 @@ int main(void)
     NRFX_ASSERT(status);
 
 #if defined(__ZEPHYR__)
-    #define EGU_INST         NRFX_CONCAT_2(NRF_EGU, EGU_INST_IDX)
-    #define EGU_INST_HANDLER NRFX_CONCAT_3(nrfx_egu_, EGU_INST_IDX, _irq_handler)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(EGU_INST), IRQ_PRIO_LOWEST, EGU_INST_HANDLER, 0);
+    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_EGU_INST_GET(EGU_INST_IDX)), IRQ_PRIO_LOWEST,
+                       NRFX_EGU_INST_HANDLER_GET(EGU_INST_IDX), 0);
 #endif
 
     uint32_t ch0_idx = 0;

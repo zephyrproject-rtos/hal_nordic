@@ -1,4 +1,4 @@
-# EGU example overview {#egu_basic_desc}
+# EGU {#egu_basic_desc}
 
 The sample demonstrates a basic functionality of the nrfx_egu driver.
 ## Requirements
@@ -28,6 +28,7 @@ You should monitor the output from the board to check if it is as expected.
 ## Building and running
 
 To run this sample, build it for the appropriate board and then flash it as per instructions in [Building and running](@ref building_and_running) section.
+
 ## Sample output
 
 You should see the following output:
@@ -38,3 +39,6 @@ You should see the following output:
 - "EGU handler triggered on channel: 1. Context passed to the handler: >Some context<"
 - "EGU handler triggered on channel: 2. Context passed to the handler: >Some context<"
 ```
+
+[//]: #
+[Building and running]: <../../README.md#building-and-running>

@@ -1,4 +1,4 @@
-# TWIM with TWIS TX-TX example overview {#twim_twis_txtx}
+# TWIM with TWIS TX-TX {#twim_twis_txtx}
 
 The sample demonstrates a functionality of nrfx_twim and nrfx_twis drivers, when TWI transfer is performed in the TX-TX mode.
 
@@ -80,3 +80,6 @@ You should see the following output:
 - "additional_data[2]: 173  |  0xAD"
 - "additional_data[3]: 222  |  0xDE"
 ```
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>
