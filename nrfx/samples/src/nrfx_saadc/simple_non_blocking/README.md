@@ -1,4 +1,4 @@
-# SAADC simple non-blocking example overview {#saadc_simple_non_blocking}
+# SAADC simple non-blocking {#saadc_simple_non_blocking}
 
 The sample demonstrates a simple functionality of the nrfx_saadc driver operating in the non-blocking mode.
 
@@ -118,3 +118,6 @@ You should see the following output:
 - "[Sample 1] value == -?[0-9]"
 - "[Sample 2] value == -?[0-9]"
 ```
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

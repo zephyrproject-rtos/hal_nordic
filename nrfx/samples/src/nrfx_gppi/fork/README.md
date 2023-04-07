@@ -1,4 +1,4 @@
-# GPPI fork example overview {#gppi_basic_fork_desc}
+# GPPI fork {#gppi_basic_fork_desc}
 
 The sample demonstrates a basic fork functionality of the nrfx_gppi helper.
 ## Requirements
@@ -47,3 +47,6 @@ You should see the following output:
 ```
 
 > In the output, instead of `<LED1_PIN>` and `<LED2_PIN>`, you should see the corresponding pin numbers defined in `common/nrfx_example.h`.
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

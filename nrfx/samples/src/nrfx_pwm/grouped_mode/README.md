@@ -1,4 +1,4 @@
-# PWM grouped mode example overview {#pwm_grouped_desc}
+# PWM grouped mode {#pwm_grouped_desc}
 
 The sample demonstrates a basic functionality of the nrfx_pwm driver for a sequence loaded in the group mode.
 
@@ -59,3 +59,6 @@ You should see the following output:
 @endcond
 
 @image html pwm_grouped_desc.gif "PWM grouped example"
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

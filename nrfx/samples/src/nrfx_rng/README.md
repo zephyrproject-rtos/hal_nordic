@@ -1,4 +1,4 @@
-# RNG example overview {#rng_basic_desc}
+# RNG {#rng_basic_desc}
 
 The sample demonstrates a basic functionality of the nrfx_rng driver.
 
@@ -38,3 +38,6 @@ You should see the following output:
     - "Generated value: (.*)"
 ```
 > `(.*)` stands for the generated random number [0..255].
+
+[//]: #
+[Building and running]: <../../README.md#building-and-running>

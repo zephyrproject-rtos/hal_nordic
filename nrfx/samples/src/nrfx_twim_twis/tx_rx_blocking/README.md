@@ -1,4 +1,4 @@
-# TWIM with TWIS blocking example overview {#twim_twis_tx_rx_blocking}
+# TWIM with TWIS blocking {#twim_twis_tx_rx_blocking}
 
 The sample demonstrates a functionality of nrfx_twim and nrfx_twis drivers operating in the blocking mode.
 
@@ -49,3 +49,6 @@ You should see the following output:
 - "Content of slave RX buffer:  Nordic Semiconductor"
 - "Content of master RX buffer: Nordic Semiconductor"
 ```
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

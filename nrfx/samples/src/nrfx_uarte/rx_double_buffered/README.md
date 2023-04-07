@@ -1,4 +1,4 @@
-# UARTE double-buffered example overview {#uarte_rx_double_buffered}
+# UARTE double-buffered {#uarte_rx_double_buffered}
 
 The sample demonstrates a functionality of the nrfx_uarte driver utilizing double-buffering feature.
 
@@ -59,3 +59,6 @@ You should see the following output:
 - "................................"
 ```
 > (.*) stands for memory address
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

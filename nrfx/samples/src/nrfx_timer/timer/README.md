@@ -1,4 +1,4 @@
-# TIMER example overview {#timer_basic}
+# TIMER {#timer_basic}
 
 The sample demonstrates a basic functionality of the nrfx_timer driver in the Timer mode.
 
@@ -41,3 +41,6 @@ You should see the following output:
     - "Timer status: enabled"
     - "Timer finished. Context passed to the handler: >Some context<"
 ```
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

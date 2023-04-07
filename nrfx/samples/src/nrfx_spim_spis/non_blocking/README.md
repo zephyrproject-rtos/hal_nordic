@@ -1,4 +1,4 @@
-# SPIM with SPIS non-blocking example overview {#spim_spis_non_blocking}
+# SPIM with SPIS non-blocking {#spim_spis_non_blocking}
 
 The sample demonstrates a basic functionality of nrfx_spim and nrfx_spis drivers operating in the non-blocking mode.
 
@@ -51,3 +51,6 @@ You should see the following output:
 - "SPIS finished. Context passed to the handler: >Some context<"
 - "SPIS rx buffer: Semiconductor"
 ```
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

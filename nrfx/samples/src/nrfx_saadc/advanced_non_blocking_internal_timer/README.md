@@ -1,4 +1,4 @@
-# SAADC advanced non-blocking internal timer example overview {#saadc_advanced_non_blocking_internal_timer}
+# SAADC advanced non-blocking internal timer {#saadc_advanced_non_blocking_internal_timer}
 
 The sample demonstrates an advanced functionality of the nrfx_saadc driver operating in the non-blocking continuous sampling mode with internal timer.
 
@@ -8,7 +8,7 @@ The sample supports the following development kits:
 
 | **Board**           | **Support** |
 |---------------------|:-----------:|
-| nrf52dk_nrf52832    |     Yes     |
+| nrf52dk_nrf52832    |      No     |
 | nrf52833dk_nrf52833 |     Yes     |
 | nrf52840dk_nrf52840 |     Yes     |
 | nrf5340dk_nrf5340   |     Yes     |
@@ -74,3 +74,6 @@ You should see the following output:
 - ".Sample 2. value == ([0-9]{3})"
 - "SAADC event: FINISHED"
 ```
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

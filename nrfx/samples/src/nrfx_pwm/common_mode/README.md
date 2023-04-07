@@ -1,4 +1,4 @@
-# PWM common mode example overview {#pwm_common_desc}
+# PWM common mode {#pwm_common_desc}
 
 The sample demonstrates a basic functionality of the nrfx_pwm driver for a sequence loaded in the common mode.
 
@@ -50,3 +50,6 @@ You should see the following output:
 @endcond
 
 @image html pwm_common_desc.gif "PWM common example"
+
+[//]: #
+[Building and running]: <../../../README.md#building-and-running>

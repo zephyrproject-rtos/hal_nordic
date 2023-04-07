@@ -5,9 +5,18 @@ tests:
   examples.nrfx_spim.non_blocking:
     tags: spim
     filter: dt_compat_enabled("nordic,nrf-spim")
-    platform_exclude: nrf52833dk_nrf52820
+    platform_allow: |
+      nrf52dk_nrf52832 nrf52833dk_nrf52833 nrf52840dk_nrf52840
+      nrf5340dk_nrf5340_cpuapp nrf9160dk_nrf9160
+    integration_platforms:
+      - nrf52dk_nrf52832
+      - nrf52833dk_nrf52833
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+      - nrf9160dk_nrf9160
     harness: console
     harness_config:
+      fixture: nrfx_example_loopbacks
       type: multi_line
       ordered: true
       regex:

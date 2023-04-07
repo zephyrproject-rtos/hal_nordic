@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2023, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -204,15 +204,13 @@ int main(void)
     status = nrfx_twis_init(&twis_inst, &twis_config, twis_handler);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    #if defined(__ZEPHYR__)
-        #define TWIM_INST         NRFX_CONCAT_2(NRF_TWIM, TWIM_INST_IDX)
-        #define TWIM_INST_HANDLER NRFX_CONCAT_3(nrfx_twim_, TWIM_INST_IDX, _irq_handler)
-        IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(TWIM_INST), IRQ_PRIO_LOWEST, TWIM_INST_HANDLER, 0);
+#if defined(__ZEPHYR__)
+    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TWIM_INST_GET(TWIM_INST_IDX)), IRQ_PRIO_LOWEST,
+                       NRFX_TWIM_INST_HANDLER_GET(TWIM_INST_IDX), 0);
 
-        #define TWIS_INST         NRFX_CONCAT_2(NRF_TWIS, TWIS_INST_IDX)
-        #define TWIS_INST_HANDLER NRFX_CONCAT_3(nrfx_twis_, TWIS_INST_IDX, _irq_handler)
-        IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(TWIS_INST), IRQ_PRIO_LOWEST, TWIS_INST_HANDLER, 0);
-    #endif
+    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TWIS_INST_GET(TWIS_INST_IDX)), IRQ_PRIO_LOWEST,
+                       NRFX_TWIS_INST_HANDLER_GET(TWIS_INST_IDX), 0);
+#endif
 
     NRFX_LOG_INFO("Message to send: %s", m_tx_buffer_master);
     NRFX_LOG_INFO("Content of master RX buffer: %s", m_rx_buffer_master);
