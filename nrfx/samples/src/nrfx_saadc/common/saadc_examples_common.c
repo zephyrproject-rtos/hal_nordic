@@ -78,7 +78,7 @@ void pin_on_event_toggle_setup(nrfx_gpiote_pin_t pin,
     status = nrfx_gppi_channel_alloc(&gppi_channel);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    nrfx_gppi_channel_endpoints_setup(gppi_channel, eep, nrfx_gpiote_out_task_addr_get(pin));
+    nrfx_gppi_channel_endpoints_setup(gppi_channel, eep, nrfx_gpiote_out_task_address_get(pin));
 
     nrfx_gppi_channels_enable(NRFX_BIT(gppi_channel));
 }

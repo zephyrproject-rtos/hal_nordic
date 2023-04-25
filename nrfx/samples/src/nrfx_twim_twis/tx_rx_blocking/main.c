@@ -139,6 +139,7 @@ int main(void)
 
     twim_xfer_desc.type = NRFX_TWIM_XFER_RX;
     twim_xfer_desc.p_primary_buf = m_rx_buffer_master;
+    twim_xfer_desc.primary_length = sizeof(m_rx_buffer_master);
 
     status = nrfx_twis_tx_prepare(&twis_inst, m_rx_buffer_slave, sizeof(m_rx_buffer_slave));
     NRFX_ASSERT(status == NRFX_SUCCESS);

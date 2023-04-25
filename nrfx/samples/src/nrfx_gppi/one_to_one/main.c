@@ -136,7 +136,8 @@ int main(void)
     nrfx_gpiote_out_task_enable(OUTPUT_PIN);
 
     nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
-    nrfx_timer_config_t timer_config = NRFX_TIMER_DEFAULT_CONFIG;
+    uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
+    nrfx_timer_config_t timer_config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
     timer_config.bit_width = NRF_TIMER_BIT_WIDTH_32;
     timer_config.p_context = "Some context";
 
@@ -166,7 +167,7 @@ int main(void)
      */
     nrfx_gppi_channel_endpoints_setup(gppi_channel,
         nrfx_timer_compare_event_address_get(&timer_inst, NRF_TIMER_CC_CHANNEL0),
-        nrfx_gpiote_out_task_addr_get(OUTPUT_PIN));
+        nrfx_gpiote_out_task_address_get(OUTPUT_PIN));
 
     nrfx_gppi_channels_enable(BIT(gppi_channel));
 

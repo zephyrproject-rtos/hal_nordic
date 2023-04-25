@@ -108,7 +108,7 @@ int main(void)
     nrfx_spim_config_t spim_config = NRFX_SPIM_DEFAULT_CONFIG(SCK_PIN,
                                                               MOSI_PIN,
                                                               MISO_PIN,
-                                                              NRFX_SPIM_PIN_NOT_USED);
+                                                              NRF_SPIM_PIN_NOT_CONNECTED);
 
     void * p_context = "Some context";
     status = nrfx_spim_init(&spim_inst, &spim_config, spim_handler, p_context);
