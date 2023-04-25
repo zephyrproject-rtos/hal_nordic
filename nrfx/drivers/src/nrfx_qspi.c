@@ -274,25 +274,14 @@ static nrfx_err_t qspi_ready_wait(void)
     return NRFX_SUCCESS;
 }
 
-nrfx_err_t nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
-                          nrfx_qspi_handler_t        handler,
-                          void *                     p_context)
+static nrfx_err_t qspi_configure(nrfx_qspi_config_t const * p_config)
 {
-    NRFX_ASSERT(p_config);
-    if (m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED)
-    {
-        return NRFX_ERROR_INVALID_STATE;
-    }
-
     if (!qspi_pins_configure(p_config))
     {
         return NRFX_ERROR_INVALID_PARAM;
     }
 
-    /* The interrupt is disabled because of the anomaly handling below and
-     * because of the waiting for the READY event at the end of this function.
-     */
-    nrf_qspi_int_disable(NRF_QSPI, NRF_QSPI_INT_READY_MASK);
+    m_cb.skip_gpio_cfg = p_config->skip_gpio_cfg;
 
     /* The code below accesses the IFTIMING and IFCONFIG1 registers what
      * may trigger anomaly 215 on nRF52840 or anomaly 43 on nRF5340. Use
@@ -327,14 +316,39 @@ nrfx_err_t nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
 #endif
     nrf_qspi_ifconfig1_set(NRF_QSPI, &p_config->phy_if);
 
-    m_cb.handler = handler;
-    m_cb.p_context = p_context;
-    m_cb.skip_gpio_cfg = p_config->skip_gpio_cfg;
-
-    if (handler)
+    if (m_cb.handler)
     {
         NRFX_IRQ_PRIORITY_SET(QSPI_IRQn, p_config->irq_priority);
         NRFX_IRQ_ENABLE(QSPI_IRQn);
+    }
+
+    return NRFX_SUCCESS;
+}
+
+nrfx_err_t nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
+                          nrfx_qspi_handler_t        handler,
+                          void *                     p_context)
+{
+    NRFX_ASSERT(p_config);
+    if (m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED)
+    {
+        return NRFX_ERROR_INVALID_STATE;
+    }
+
+    m_cb.handler = handler;
+    m_cb.p_context = p_context;
+
+    /* QSPI interrupt is disabled because the device should be enabled in polling mode
+      (wait for activate task event ready) */
+    nrf_qspi_int_disable(NRF_QSPI, NRF_QSPI_INT_READY_MASK);
+
+    if (p_config)
+    {
+        nrfx_err_t result = qspi_configure(p_config);
+        if (result != NRFX_SUCCESS)
+        {
+            return result;
+        }
     }
 
     m_cb.p_buffer_primary = NULL;
@@ -349,6 +363,32 @@ nrfx_err_t nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
     // Waiting for the peripheral to activate
 
     return qspi_ready_wait();
+}
+
+nrfx_err_t nrfx_qspi_reconfigure(nrfx_qspi_config_t const * p_config)
+{
+    NRFX_ASSERT(p_config);
+    nrfx_err_t err_code = NRFX_SUCCESS;
+    if (m_cb.state == NRFX_QSPI_STATE_UNINITIALIZED)
+    {
+        return NRFX_ERROR_INVALID_STATE;
+    }
+    if (m_cb.state != NRFX_QSPI_STATE_IDLE)
+    {
+        return NRFX_ERROR_BUSY;
+    }
+
+    /* The interrupt is disabled because of the anomaly handling performed
+     * in qspi_configure(). It will be reenabled if needed before the next
+     * QSPI operation.
+     */
+    nrf_qspi_int_disable(NRF_QSPI, NRF_QSPI_INT_READY_MASK);
+
+    nrf_qspi_disable(NRF_QSPI);
+    err_code = qspi_configure(p_config);
+    nrf_qspi_enable(NRF_QSPI);
+
+    return err_code;
 }
 
 nrfx_err_t nrfx_qspi_cinstr_xfer(nrf_qspi_cinstr_conf_t const * p_config,

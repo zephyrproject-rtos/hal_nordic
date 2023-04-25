@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project are documented in this file.
 
+## [3.0.0] - 2023-04-21
+### Changed
+- Applied nrfx 3.0 changes to existing samples for the following drivers: GPPI, SAADC, SPIM, TIMER, TWIM, TWIS.
+- Removed support for the nRF5340 in the maximum performance SAADC sample.
+
 ## [2.11.0] - 2023-04-07
 ### Added
 - Added `pinctrl` definitions to align with pin handling changes introduced in the Zephyr RTOS. Pins utilized by samples are still defined through symbols from the `nrfx_examples.h` file.

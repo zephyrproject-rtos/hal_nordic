@@ -147,7 +147,7 @@ static void uarte_handler(nrfx_uarte_event_t const * p_event, void * p_context)
     if (p_event->type == NRFX_UARTE_EVT_TX_DONE)
     {
         NRFX_LOG_INFO("--> TX done");
-        NRFX_LOG_INFO("--> Bytes transfered: %u", p_event->data.error.rxtx.bytes);
+        NRFX_LOG_INFO("--> Bytes transfered: %u", p_event->data.tx.bytes);
         nrfx_uarte_uninit(p_inst);
     }
 }
@@ -191,7 +191,7 @@ int main(void)
                            NRFX_ARRAY_SIZE(m_rx_buffers.buff_1) - 1);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    status = nrfx_uarte_tx(&uarte_inst, m_tx_buffer, NRFX_ARRAY_SIZE(m_tx_buffer));
+    status = nrfx_uarte_tx(&uarte_inst, m_tx_buffer, NRFX_ARRAY_SIZE(m_tx_buffer), 0);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
     while (nrfx_uarte_tx_in_progress(&uarte_inst))

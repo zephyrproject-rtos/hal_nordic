@@ -130,7 +130,7 @@ int main(void)
     status = nrfx_uarte_rx(&uarte_inst, m_rx_buffer, sizeof(m_rx_buffer));
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    status = nrfx_uarte_tx(&uarte_inst, m_tx_buffer, sizeof(m_tx_buffer));
+    status = nrfx_uarte_tx(&uarte_inst, m_tx_buffer, sizeof(m_tx_buffer), 0);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
     while (1)

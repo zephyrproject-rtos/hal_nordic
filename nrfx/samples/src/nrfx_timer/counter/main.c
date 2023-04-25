@@ -128,16 +128,19 @@ int main(void)
 
     /* Configuring timer instances, one in timer mode and one in counter mode.
      * Assigning their own addresses to p_context variable - in order to reference them
-     * in timer_handler() function.
+     * in timer_handler() function. Setting frequency to the base frequency value of the
+     * specified timer instance.
      */
     nrfx_timer_t timer_t_inst = NRFX_TIMER_INSTANCE(TIMER_T_INST_IDX);
-    nrfx_timer_config_t config = NRFX_TIMER_DEFAULT_CONFIG;
+    uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_t_inst.p_reg);
+    nrfx_timer_config_t config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
     config.bit_width = NRF_TIMER_BIT_WIDTH_32;
     config.p_context = &timer_t_inst;
     status = nrfx_timer_init(&timer_t_inst, &config, timer_handler);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
     nrfx_timer_t timer_c_inst = NRFX_TIMER_INSTANCE(TIMER_C_INST_IDX);
+    config.frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_c_inst.p_reg);
     config.mode = NRF_TIMER_MODE_COUNTER;
     config.p_context = &timer_c_inst;
     status = nrfx_timer_init(&timer_c_inst, &config, timer_handler);

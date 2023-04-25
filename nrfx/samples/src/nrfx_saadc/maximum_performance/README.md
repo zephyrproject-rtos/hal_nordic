@@ -11,7 +11,7 @@ The sample supports the following development kits:
 | nrf52dk_nrf52832    |      No     |
 | nrf52833dk_nrf52833 |     Yes     |
 | nrf52840dk_nrf52840 |     Yes     |
-| nrf5340dk_nrf5340   |     Yes     |
+| nrf5340dk_nrf5340   |     No      |
 | nrf9160dk_nrf9160   |     Yes     |
 
 ## Overview
