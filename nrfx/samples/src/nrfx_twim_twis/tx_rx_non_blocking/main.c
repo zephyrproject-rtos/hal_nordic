@@ -121,6 +121,7 @@ static void twim_handler(nrfx_twim_evt_t const * p_event, void * p_context)
         NRFX_LOG_INFO("--> Master event: done - transfer completed");
         twim_desc->type = NRFX_TWIM_XFER_RX;
         twim_desc->p_primary_buf = m_rx_buffer_master;
+        twim_desc->primary_length = sizeof(m_rx_buffer_master);
 
         if (!m_master_done)
         {

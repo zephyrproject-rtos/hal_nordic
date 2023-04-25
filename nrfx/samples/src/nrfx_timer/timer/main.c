@@ -90,8 +90,8 @@ int main(void)
     NRFX_EXAMPLE_LOG_PROCESS();
 
     nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
-
-    nrfx_timer_config_t config = NRFX_TIMER_DEFAULT_CONFIG;
+    uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
+    nrfx_timer_config_t config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
     config.bit_width = NRF_TIMER_BIT_WIDTH_32;
     config.p_context = "Some context";
 
