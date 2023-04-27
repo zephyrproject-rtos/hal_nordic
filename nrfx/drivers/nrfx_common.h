@@ -37,6 +37,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include <nrf.h>
 #include <nrf_peripherals.h>
