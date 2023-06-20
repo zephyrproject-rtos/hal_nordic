@@ -736,6 +736,7 @@ static nrfx_err_t spim_xfer(NRF_SPIM_Type               * p_spim,
 #if NRFX_CHECK(NRFX_SPIM_NRF52_ANOMALY_109_WORKAROUND_ENABLED)
     if (flags & NRFX_SPIM_FLAG_HOLD_XFER)
     {
+        nrfy_spim_event_clear(p_spim, NRF_SPIM_EVENT_STARTED);
         xfer_desc.tx_length = 0;
         xfer_desc.rx_length = 0;
         nrfy_spim_int_enable(p_spim, NRF_SPIM_INT_STARTED_MASK);
@@ -837,17 +838,14 @@ void nrfx_spim_abort(nrfx_spim_t const * p_instance)
 
 static void irq_handler(NRF_SPIM_Type * p_spim, spim_control_block_t * p_cb)
 {
-    uint32_t evt_mask = nrfy_spim_events_process(p_spim,
 #if NRFX_CHECK(NRFX_SPIM_NRF52_ANOMALY_109_WORKAROUND_ENABLED)
-                                                 NRFY_EVENT_TO_INT_BITMASK(NRF_SPIM_EVENT_STARTED) |
-#endif
-                                                 NRFY_EVENT_TO_INT_BITMASK(NRF_SPIM_EVENT_END),
-                                                 &p_cb->evt.xfer_desc);
-
-#if NRFX_CHECK(NRFX_SPIM_NRF52_ANOMALY_109_WORKAROUND_ENABLED)
-    if (evt_mask & NRFY_EVENT_TO_INT_BITMASK(NRF_SPIM_EVENT_STARTED))
+    if (nrfy_spim_int_enable_check(p_spim, NRF_SPIM_INT_STARTED_MASK) &&
+        nrfy_spim_event_check(p_spim, NRF_SPIM_EVENT_STARTED))
     {
         /* Handle first, zero-length, auxiliary transmission. */
+        nrfy_spim_event_clear(p_spim, NRF_SPIM_EVENT_STARTED);
+        nrfy_spim_event_clear(p_spim, NRF_SPIM_EVENT_END);
+
         NRFX_ASSERT(nrfy_spim_tx_maxcnt_get(p_spim) == 0);
         NRFX_ASSERT(nrfy_spim_rx_maxcnt_get(p_spim) == 0);
 
@@ -861,7 +859,9 @@ static void irq_handler(NRF_SPIM_Type * p_spim, spim_control_block_t * p_cb)
     }
 #endif
 
-    if (evt_mask & NRFY_EVENT_TO_INT_BITMASK(NRF_SPIM_EVENT_END))
+    if (nrfy_spim_events_process(p_spim,
+                                 NRFY_EVENT_TO_INT_BITMASK(NRF_SPIM_EVENT_END),
+                                 &p_cb->evt.xfer_desc))
     {
 #if NRFX_CHECK(NRFX_SPIM3_NRF52840_ANOMALY_198_WORKAROUND_ENABLED)
         if (p_spim == NRF_SPIM3)
