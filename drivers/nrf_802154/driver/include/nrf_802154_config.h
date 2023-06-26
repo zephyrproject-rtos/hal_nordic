@@ -230,18 +230,6 @@ extern "C" {
 #endif
 
 /**
- * @def NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
- *
- * If measurement of total time spent in certain states is to be calculated.
- *
- * This option can be enabled when @ref NRF_802154_FRAME_TIMESTAMP_ENABLED is 1.
- */
-#ifndef NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-#define NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED \
-    (1 && NRF_802154_FRAME_TIMESTAMP_ENABLED)
-#endif
-
-/**
  * @def NRF_802154_DELAYED_TRX_ENABLED
  *
  * If the delayed transmission and the receive window features are available.
@@ -262,6 +250,15 @@ extern "C" {
  */
 #ifndef NRF_802154_TEST_MODES_ENABLED
 #define NRF_802154_TEST_MODES_ENABLED 0
+#endif
+
+/**
+ * @def NRF_802154_PAN_COORD_GET_ENABLED
+ *
+ * Enables the @ref nrf_802154_pan_coord_get function.
+ */
+#ifndef NRF_802154_PAN_COORD_GET_ENABLED
+#define NRF_802154_PAN_COORD_GET_ENABLED 0
 #endif
 
 /**

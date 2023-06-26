@@ -71,15 +71,13 @@
 #define EGU_SYNC_TASK         NRF_EGU_TASK_TRIGGER3
 #define EGU_SYNC_INTMASK      NRF_EGU_INT_TRIGGERED3
 
-#if defined(NRF52840_XXAA) || \
-    defined(NRF52833_XXAA)
+#if defined(DPPI_PRESENT)
+#define RADIO_BASE            NRF_RADIO_NS_BASE
+#define FICR_BASE             NRF_FICR_NS_BASE
+#else
 #define PPI_CCAIDLE_FEM       NRF_802154_PPI_RADIO_CCAIDLE_TO_FEM_GPIOTE ///< PPI that connects RADIO CCAIDLE event with GPIOTE tasks used by FEM
 #define PPI_CHGRP_ABORT       NRF_802154_PPI_ABORT_GROUP                 ///< PPI group used to disable PPIs when async event aborting radio operation is propagated through the system
 #define RADIO_BASE            NRF_RADIO_BASE
-#elif defined(NRF5340_XXAA)
-#define PPI_CCAIDLE_FEM       0
-#define RADIO_BASE            NRF_RADIO_NS_BASE
-#define FICR_BASE             NRF_FICR_NS_BASE
 #endif
 
 #define SHORT_ADDRESS_BCSTART NRF_RADIO_SHORT_ADDRESS_BCSTART_MASK
@@ -88,9 +86,15 @@
 #define SHORTS_IDLE           0
 
 /// Value set to SHORTS register for RX operation.
+#if !defined(NRF52_SERIES)
+#define SHORTS_RX             (NRF_RADIO_SHORT_ADDRESS_RSSISTART_MASK | \
+                               NRF_RADIO_SHORT_PHYEND_DISABLE_MASK |    \
+                               SHORT_ADDRESS_BCSTART)
+#else
 #define SHORTS_RX             (NRF_RADIO_SHORT_ADDRESS_RSSISTART_MASK | \
                                NRF_RADIO_SHORT_END_DISABLE_MASK |       \
                                SHORT_ADDRESS_BCSTART)
+#endif
 
 #define SHORTS_RX_FREE_BUFFER (NRF_RADIO_SHORT_RXREADY_START_MASK)
 
@@ -106,8 +110,14 @@
 #define SHORTS_TX             (NRF_RADIO_SHORT_TXREADY_START_MASK | \
                                NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
 
+#if !defined(NRF52_SERIES)
+#define SHORTS_RX_ACK         (NRF_RADIO_SHORT_ADDRESS_RSSISTART_MASK | \
+                               NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
+#else
 #define SHORTS_RX_ACK         (NRF_RADIO_SHORT_ADDRESS_RSSISTART_MASK | \
                                NRF_RADIO_SHORT_END_DISABLE_MASK)
+
+#endif
 
 #define SHORTS_MOD_CARRIER    (NRF_RADIO_SHORT_TXREADY_START_MASK | \
                                NRF_RADIO_SHORT_PHYEND_START_MASK)
@@ -180,12 +190,12 @@ static const mpsl_fem_event_t m_activate_tx_cc0 =
 static const mpsl_fem_event_t m_ccaidle =
 {
     .type = MPSL_FEM_EVENT_TYPE_GENERIC,
-#if defined(NRF52_SERIES)
+#if defined(DPPI_PRESENT)
+    .event.generic.event = NRF_802154_DPPI_RADIO_CCAIDLE
+#else
     .override_ppi        = true,
     .ppi_ch_id           = PPI_CCAIDLE_FEM,
     .event.generic.event = ((uint32_t)RADIO_BASE + (uint32_t)NRF_RADIO_EVENT_CCAIDLE)
-#elif defined(NRF53_SERIES)
-    .event.generic.event = NRF_802154_DPPI_RADIO_CCAIDLE
 #endif
 };
 
@@ -232,7 +242,7 @@ static void modulated_carrier_abort(void);
 static void energy_detection_abort(void);
 
 /** Clear flags describing frame being received. */
-void rx_flags_clear(void)
+static void rx_flags_clear(void)
 {
     m_flags.missing_receive_buffer = false;
     m_flags.psdu_being_received    = false;
@@ -257,7 +267,7 @@ static void txpower_set(nrf_radio_txpower_t txpower)
 }
 
 /** Initialize TIMER peripheral used by the driver. */
-void nrf_timer_init(void)
+static void nrf_timer_init(void)
 {
     nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
     nrf_timer_mode_set(NRF_802154_TIMER_INSTANCE, NRF_TIMER_MODE_TIMER);
@@ -300,7 +310,7 @@ static void yopan_158_workaround(void)
 static void timer_frequency_set_1mhz(void)
 {
     uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(NRF_802154_TIMER_INSTANCE);
-    uint32_t prescaler      = 31 - NRF_CLZ(base_frequency / 1000000);
+    uint32_t prescaler      = NRF_TIMER_PRESCALER_CALCULATE(base_frequency, 1000000);
 
     nrf_timer_prescaler_set(NRF_802154_TIMER_INSTANCE, prescaler);
 }
@@ -533,6 +543,40 @@ static void errata_117_apply(void)
     *p_radio_reg = ficr_reg;
 }
 
+static uint32_t m_pa_mod_filter_latched    = 0;
+static bool     m_pa_mod_filter_is_latched = false;
+
+/** @brief Applies modulation fix when PA is used.
+ *
+ * Shall be called after setting RADIO mode to NRF_RADIO_MODE_IEEE802154_250KBIT.
+ *
+ * @param[in]  enable   @c true if the appropriate register should be modified
+ *                      @c false if it should return to its previous, latched value
+ */
+static void pa_modulation_fix_apply(bool enable)
+{
+    volatile uint32_t * p_radio_reg = (volatile uint32_t *)(RADIO_BASE + 0x584UL);
+
+    if (enable)
+    {
+        int8_t pa_gain = 0;
+
+        mpsl_fem_pa_is_configured(&pa_gain);
+
+        if (pa_gain > 0)
+        {
+            m_pa_mod_filter_latched    = *(p_radio_reg);
+            m_pa_mod_filter_is_latched = true;
+            *(p_radio_reg)             = 0x40081B08;
+        }
+    }
+    else if (m_pa_mod_filter_is_latched)
+    {
+        *(p_radio_reg)             = m_pa_mod_filter_latched;
+        m_pa_mod_filter_is_latched = false;
+    }
+}
+
 #endif
 
 static inline void wait_until_radio_is_disabled(void)
@@ -616,6 +660,7 @@ void nrf_802154_trx_enable(void)
 #if defined(NRF5340_XXAA)
     // Apply ERRATA-117 after setting RADIO mode to NRF_RADIO_MODE_IEEE802154_250KBIT.
     errata_117_apply();
+    pa_modulation_fix_apply(true);
 #endif
 
     memset(&packet_conf, 0, sizeof(packet_conf));
@@ -649,13 +694,12 @@ void nrf_802154_trx_enable(void)
 
     assert(nrf_radio_shorts_get(NRF_RADIO) == SHORTS_IDLE);
 
-#if defined(NRF52840_XXAA) || \
-    defined(NRF52833_XXAA)
+#if defined(DPPI_PRESENT)
+    mpsl_fem_abort_set(NRF_802154_DPPI_RADIO_DISABLED,
+                       0U); /* The group parameter is ignored by FEM for SoCs with DPPIs */
+#else
     mpsl_fem_abort_set(nrf_radio_event_address_get(NRF_RADIO, NRF_RADIO_EVENT_DISABLED),
                        PPI_CHGRP_ABORT);
-#elif defined(NRF53_SERIES)
-    mpsl_fem_abort_set(NRF_802154_DPPI_RADIO_DISABLED,
-                       0U); /* The group parameter is ignored by FEM for nRF53 */
 #endif
 
     mpsl_fem_deactivate_now(MPSL_FEM_ALL);
@@ -736,10 +780,13 @@ void nrf_802154_trx_disable(void)
 
     if (m_trx_state != TRX_STATE_DISABLED)
     {
+#if defined(NRF5340_XXAA)
+        pa_modulation_fix_apply(false);
+#endif
+
 #if defined(RADIO_POWER_POWER_Msk)
         nrf_radio_power_set(NRF_RADIO, false);
 #endif
-        nrf_802154_irq_clear_pending(nrfx_get_irq_number(NRF_RADIO));
 
         /* While the RADIO is powered off deconfigure any PPIs used directly by trx module */
         ppi_all_clear();
@@ -749,6 +796,8 @@ void nrf_802154_trx_disable(void)
         wait_until_radio_is_disabled();
         nrf_radio_reset();
 #endif
+
+        nrf_802154_irq_clear_pending(nrfx_get_irq_number(NRF_RADIO));
 
 #if defined(RADIO_INTENSET_SYNC_Msk)
         nrf_egu_int_disable(NRF_802154_EGU_INSTANCE, EGU_SYNC_INTMASK);
@@ -1020,6 +1069,13 @@ void nrf_802154_trx_receive_frame(uint8_t                                 bcc,
     uint32_t ints_to_enable = 0U;
     uint32_t shorts         = SHORTS_RX;
 
+    if (nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_DISABLED))
+    {
+        // For DRX a DISABLE event might be pending as a leftover from
+        // an aborted operation. Clear it to avoid spurious interrupts.
+        nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
+    }
+
     // Force the TIMER to be stopped and count from 0.
     nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
 
@@ -1068,7 +1124,11 @@ void nrf_802154_trx_receive_frame(uint8_t                                 bcc,
     if (rampup_trigg_mode == TRX_RAMP_UP_HW_TRIGGER)
     {
         nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_READY);
+#if !defined(NRF53_SERIES)
+        ints_to_enable |= (NRF_RADIO_INT_READY_MASK | NRF_RADIO_INT_DISABLED_MASK);
+#else
         ints_to_enable |= NRF_RADIO_INT_READY_MASK;
+#endif
     }
 
     bool allow_sync_swi = false;
@@ -1252,6 +1312,13 @@ void nrf_802154_trx_transmit_frame(const void                            * p_tra
 
     uint32_t ints_to_enable = 0U;
 
+    if (nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_DISABLED))
+    {
+        // For DTX a DISABLE event might be pending as a leftover from
+        // an aborted operation. Clear it to avoid spurious interrupts.
+        nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
+    }
+
     // Force the TIMER to be stopped and count from 0.
     nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
 
@@ -1281,7 +1348,11 @@ void nrf_802154_trx_transmit_frame(const void                            * p_tra
     if (rampup_trigg_mode == TRX_RAMP_UP_HW_TRIGGER)
     {
         nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_READY);
+#if !defined(NRF53_SERIES)
+        ints_to_enable |= (NRF_RADIO_INT_READY_MASK | NRF_RADIO_INT_DISABLED_MASK);
+#else
         ints_to_enable |= NRF_RADIO_INT_READY_MASK;
+#endif
     }
 
     if (cca)
@@ -1435,7 +1506,16 @@ bool nrf_802154_trx_transmit_ack(const void * p_transmit_buffer, uint32_t delay_
 
     if (result)
     {
-        uint32_t ints_to_enable = NRF_RADIO_INT_PHYEND_MASK | NRF_RADIO_INT_ADDRESS_MASK;
+#if !defined(NRF53_SERIES)
+        uint32_t ints_to_enable = NRF_RADIO_INT_PHYEND_MASK |
+                                  NRF_RADIO_INT_ADDRESS_MASK |
+                                  NRF_RADIO_INT_DISABLED_MASK;
+
+#else
+        uint32_t ints_to_enable = NRF_RADIO_INT_PHYEND_MASK |
+                                  NRF_RADIO_INT_ADDRESS_MASK;
+
+#endif
 
         nrf_radio_int_enable(NRF_RADIO, ints_to_enable);
     }
@@ -1503,7 +1583,8 @@ static void rxframe_finish_disable_ints(void)
 
     uint32_t ints_to_disable = NRF_RADIO_INT_READY_MASK |
                                NRF_RADIO_INT_ADDRESS_MASK |
-                               NRF_RADIO_INT_CRCOK_MASK;
+                               NRF_RADIO_INT_CRCOK_MASK |
+                               NRF_RADIO_INT_DISABLED_MASK;
 
     ints_to_disable |= NRF_RADIO_INT_CRCERROR_MASK;
     ints_to_disable |= NRF_RADIO_INT_BCMATCH_MASK;
@@ -1530,12 +1611,12 @@ static void rxframe_finish(void)
      * Below shown what is happening in the hardware
      *
      * TIMER is started by path:
-     * RADIO.SHORT_END_DISABLE -> RADIO.TASKS_DISABLE -> RADIO.EVENTS_DISABLED ->
+     * RADIO.SHORT_PHYEND_DISABLE -> RADIO.TASKS_DISABLE -> RADIO.EVENTS_DISABLED ->
      *    PPI_DISABLED_EGU -> EGU.TASKS_TRIGGER -> EGU.EVENTS_TRIGGERED -> PPI_EGU_TIMER_START -> TIMER.TASKS_START
      *
      * FEM's LNA mode is disabled by path:
-     * RADIO.SHORT_END_DISABLE -> RADIO.TASKS_DISABLE -> RADIO.EVENTS_DISABLED -> (FEM's PPI triggering disable LNA operation,
-     *                                                                             see mpsl_fem_abort_set() )
+     * RADIO.SHORT_PHYEND_DISABLE -> RADIO.TASKS_DISABLE -> RADIO.EVENTS_DISABLED -> (FEM's PPI triggering disable LNA
+     *                                                                                operation, see mpsl_fem_abort_set() )
      *
      * RADIO will not ramp up, as PPI_EGU_RAMP_UP channel is self-disabling, and
      * it was disabled when receive ramp-up was started.
@@ -2078,10 +2159,6 @@ static void irq_handler_address(void)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
-    // NRF_RADIO_TASK_DISABLE may have been triggered by (D)PPI, therefore event reg
-    // cleanup is required. It's done here
-    nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
-
     switch (m_trx_state)
     {
         case TRX_STATE_RXFRAME:
@@ -2220,7 +2297,8 @@ static void txframe_finish_disable_ints(void)
                           NRF_RADIO_INT_CCAIDLE_MASK |
                           NRF_RADIO_INT_CCABUSY_MASK |
                           NRF_RADIO_INT_ADDRESS_MASK |
-                          NRF_RADIO_INT_READY_MASK);
+                          NRF_RADIO_INT_READY_MASK |
+                          NRF_RADIO_INT_DISABLED_MASK);
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_HIGH);
 }
@@ -2317,7 +2395,9 @@ static void txack_finish(void)
     // Anomaly 78: use SHUTDOWN instead of STOP and CLEAR.
     nrf_timer_task_trigger(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_SHUTDOWN);
 
-    nrf_radio_int_disable(NRF_RADIO, NRF_RADIO_INT_PHYEND_MASK | NRF_RADIO_INT_ADDRESS_MASK);
+    nrf_radio_int_disable(NRF_RADIO,
+                          NRF_RADIO_INT_PHYEND_MASK | NRF_RADIO_INT_ADDRESS_MASK |
+                          NRF_RADIO_INT_DISABLED_MASK);
 
     /* Current state of peripherals
      * RADIO is either in TXDISABLE or DISABLED
@@ -2404,6 +2484,17 @@ static void irq_handler_disabled(void)
     {
         case TRX_STATE_GOING_IDLE:
             go_idle_finish();
+            break;
+
+        case TRX_STATE_TXFRAME:
+        case TRX_STATE_TXACK:
+        case TRX_STATE_RXFRAME:
+            // Robust radio ramp-down requires that RADIO.DISABLE is cleared. If the ramp-up was
+            // triggered by software, the event was cleared already immediately after triggering
+            // RADIO.DISABLE task. If the ramp-up was triggered by (D)PPI, the event would need
+            // to be cleared. The IRQ handler does that on entry to irq_handler_disabled. What
+            // remains to be done is disabling the DISABLED interrupt, as it won't be needed.
+            nrf_radio_int_disable(NRF_RADIO, NRF_RADIO_INT_DISABLED_MASK);
             break;
 
         default:
