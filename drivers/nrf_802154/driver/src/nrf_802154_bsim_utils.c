@@ -32,55 +32,25 @@
  *
  */
 
-#include <stddef.h>
+#include "nrf_802154_bsim_utils.h"
 
-#include "nrf_802154.h"
-#include "nrf_802154_stats.h"
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
 
-#define NUMBER_OF_STAT_COUNTERS (sizeof(nrf_802154_stat_counters_t) / sizeof(uint32_t))
+/**
+ * @brief Storage for Tx started hook adjustments.
+ */
+static volatile nrf_802154_bsim_utils_core_hooks_adjustments_t m_nrf_802154_bsim_utils;
 
-/**@brief Structure holding statistics about the Radio Driver behavior. */
-volatile nrf_802154_stats_t g_nrf_802154_stats;
-
-void nrf_802154_stats_get(nrf_802154_stats_t * p_stats)
+void nrf_802154_bsim_utils_core_hooks_adjustments_get(
+    nrf_802154_bsim_utils_core_hooks_adjustments_t * p_obj)
 {
-    *p_stats = g_nrf_802154_stats;
+    *p_obj = m_nrf_802154_bsim_utils;
 }
 
-void nrf_802154_stat_counters_get(nrf_802154_stat_counters_t * p_stat_counters)
+void nrf_802154_bsim_utils_core_hooks_adjustments_set(
+    const nrf_802154_bsim_utils_core_hooks_adjustments_t * p_obj)
 {
-    *p_stat_counters = g_nrf_802154_stats.counters;
+    m_nrf_802154_bsim_utils = *p_obj;
 }
 
-void nrf_802154_stat_counters_subtract(const nrf_802154_stat_counters_t * p_stat_counters)
-{
-    volatile uint32_t * p_dst = (volatile uint32_t *)(&g_nrf_802154_stats.counters);
-    const uint32_t    * p_src = (const uint32_t *)p_stat_counters;
-
-    for (size_t i = 0; i < NUMBER_OF_STAT_COUNTERS; ++i)
-    {
-        nrf_802154_mcu_critical_state_t mcu_cs;
-
-        nrf_802154_mcu_critical_enter(mcu_cs);
-        *p_dst -= *p_src;
-        nrf_802154_mcu_critical_exit(mcu_cs);
-
-        p_dst++;
-        p_src++;
-    }
-}
-
-void nrf_802154_stat_timestamps_get(nrf_802154_stat_timestamps_t * p_stat_timestamps)
-{
-    *p_stat_timestamps = g_nrf_802154_stats.timestamps;
-}
-
-void nrf_802154_stat_counters_reset(void)
-{
-    volatile uint32_t * p_dst = (volatile uint32_t *)(&g_nrf_802154_stats.counters);
-
-    for (size_t i = 0; i < NUMBER_OF_STAT_COUNTERS; ++i)
-    {
-        *(p_dst++) = 0U;
-    }
-}
+#endif /* defined(CONFIG_SOC_SERIES_BSIM_NRFXX) */

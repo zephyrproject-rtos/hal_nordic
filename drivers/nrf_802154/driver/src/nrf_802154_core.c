@@ -74,12 +74,16 @@
 #include "rsch/nrf_802154_rsch.h"
 #include "rsch/nrf_802154_rsch_crit_sect.h"
 #include "timer/nrf_802154_timer_coord.h"
-#include "platform/nrf_802154_hp_timer.h"
 #include "platform/nrf_802154_irq.h"
 #include "protocol/mpsl_fem_protocol_api.h"
 
 #include "nrf_802154_core_hooks.h"
 #include "nrf_802154_sl_ant_div.h"
+
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+#include "nrf_802154_bsim_utils.h"
+#include "NRF_AES_ECB.h"
+#endif
 
 /// Delay before first check of received frame: 24 bits is PHY header and MAC Frame Control field.
 #define BCC_INIT                    (3 * 8)
@@ -128,11 +132,16 @@ static volatile radio_state_t m_state;                         ///< State of the
 
 typedef struct
 {
-    bool frame_filtered        : 1;                           ///< If frame being received passed filtering operation.
-    bool frame_parsed          : 1;                           ///< If frame being received has been parsed
-    bool rx_timeslot_requested : 1;                           ///< If timeslot for the frame being received is already requested.
-    bool tx_with_cca           : 1;                           ///< If currently transmitted frame is transmitted with cca.
-    bool tx_diminished_prio    : 1;                           ///< If priority of the current transmission should be diminished.
+    bool frame_filtered        : 1; ///< If frame being received passed filtering operation.
+    bool frame_parsed          : 1; ///< If frame being received has been parsed
+    bool rx_timeslot_requested : 1; ///< If timeslot for the frame being received is already requested.
+    bool tx_with_cca           : 1; ///< If currently transmitted frame is transmitted with cca.
+    bool tx_diminished_prio    : 1; ///< If priority of the current transmission should be diminished.
+
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+    bool tx_started_notify     : 1; ///< If higher layer should be notified that transmission started.
+
+#endif
 } nrf_802154_flags_t;
 
 static nrf_802154_flags_t m_flags;                            ///< Flags used to store the current driver state.
@@ -153,17 +162,6 @@ static nrf_802154_coex_tx_request_mode_t m_coex_tx_request_mode;
 
 /** @brief Identifier of currently active reception window. */
 static uint32_t m_rx_window_id;
-
-#if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-#if !NRF_802154_FRAME_TIMESTAMP_ENABLED
-#error NRF_802154_FRAME_TIMESTAMP_ENABLED == 0 when NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED != 0
-#endif
-#endif // NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-
-#if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-static uint32_t m_listening_start_hp_timestamp;
-
-#endif
 
 static const nrf_802154_transmitted_frame_props_t m_default_frame_props =
     NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT;
@@ -333,7 +331,14 @@ static void transmit_started_notify(void)
 {
     uint8_t * p_frame = mp_tx_data;
 
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+    /**
+     * TX started hooks were executed before transmission started. Use latched result
+     */
+    if (m_flags.tx_started_notify)
+#else
     if (nrf_802154_core_hooks_tx_started(p_frame))
+#endif
     {
         nrf_802154_tx_started(p_frame);
     }
@@ -343,7 +348,13 @@ static void transmit_started_notify(void)
 /** Notify MAC layer that transmission of ACK frame has started. */
 static void transmit_ack_started_notify()
 {
+#if !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
     nrf_802154_core_hooks_tx_ack_started(mp_ack);
+#else
+    /**
+     * Otherwise this was already called immediately after setting up the transmission.
+     */
+#endif
     nrf_802154_tx_ack_started(mp_ack);
 }
 
@@ -763,82 +774,6 @@ static void operation_terminated_notify(radio_state_t state, bool receiving_psdu
     }
 }
 
-#if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
-static void operation_terminated_update_total_times(trx_state_t trx_state, uint32_t timestamp)
-{
-    uint32_t t;
-
-    switch (trx_state)
-    {
-        case TRX_STATE_RXFRAME:
-        case TRX_STATE_RXACK:
-            t = timestamp - m_listening_start_hp_timestamp;
-            nrf_802154_stat_totals_increment(total_listening_time, t);
-            break;
-
-        default:
-            break;
-    }
-}
-
-static bool operation_terminated_update_total_times_is_required(trx_state_t trx_state)
-{
-    switch (trx_state)
-    {
-        case TRX_STATE_RXFRAME:
-        case TRX_STATE_RXACK:
-            /* These cases must be in-sync with implementation of
-             * operation_terminated_update_total_times
-             */
-            return true;
-
-        default:
-            return false;
-    }
-}
-
-#endif
-
-static void trx_abort(void)
-{
-#if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
-    trx_state_t trx_state       = nrf_802154_trx_state_get();
-    bool        update_required = operation_terminated_update_total_times_is_required(trx_state);
-
-#endif
-
-    nrf_802154_trx_abort();
-
-#if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
-    if (update_required)
-    {
-        uint32_t timestamp = nrf_802154_hp_timer_current_time_get();
-
-        operation_terminated_update_total_times(trx_state, timestamp);
-    }
-#endif
-}
-
-static void trx_disable(void)
-{
-#if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
-    trx_state_t trx_state       = nrf_802154_trx_state_get();
-    bool        update_required = operation_terminated_update_total_times_is_required(trx_state);
-
-#endif
-
-    nrf_802154_trx_disable();
-
-#if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
-    if (update_required)
-    {
-        uint32_t timestamp = nrf_802154_hp_timer_current_time_get();
-
-        operation_terminated_update_total_times(trx_state, timestamp);
-    }
-#endif
-}
-
 /** Terminate ongoing operation.
  *
  * This function is called when MAC layer requests transition to another operation.
@@ -872,7 +807,7 @@ static bool current_operation_terminate(nrf_802154_term_t term_lvl,
 
         if (result)
         {
-            trx_abort();
+            nrf_802154_trx_abort();
 
             if (m_state == RADIO_STATE_RX)
             {
@@ -1066,23 +1001,9 @@ static void rx_init(nrf_802154_trx_ramp_up_trigger_mode_t ru_tr_mode, bool * p_a
         }
     }
 
-#if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-    m_listening_start_hp_timestamp = nrf_802154_hp_timer_current_time_get();
-    // The introduction of TRX_RAMP_UP_HW_TRIGGER broke the measurement method used here.
-    // Obtained timestamp is no more related to the moment when listening starts.
-    // TODO: Remove TOTAL_TIMES_MEASUREMENT feature, as it has been verified that it is
-    // not needed.
-#endif
-
 #if (NRF_802154_FRAME_TIMESTAMP_ENABLED)
-#if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
-    // Configure the timer coordinator to get a timestamp of the END event which
-    // fires several cycles after CRCOK or CRCERROR events.
-    nrf_802154_timer_coord_timestamp_prepare(nrf_802154_trx_radio_end_event_handle_get());
-#else
     // Configure the timer coordinator to get a timestamp of the CRCOK event.
     nrf_802154_timer_coord_timestamp_prepare(nrf_802154_trx_radio_crcok_event_handle_get());
-#endif
 #endif
 
     // Find RX buffer if none available
@@ -1135,6 +1056,44 @@ static bool tx_init(const uint8_t                       * p_data,
                                   cca,
                                   &m_tx_power,
                                   m_trx_transmit_frame_notifications_mask);
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+    /**
+     * In simulation the frame contents are latched when the first bit of the preamble is
+     * "transmitted" by the simulated radio. Any modifications performed after that (for example in
+     * handler of RADIO.ADDRESS event) have no effect on the frame received by other devices in the
+     * simulation.
+     *
+     * Because of these limitations of the simulation, modification of the transmitted frame buffer
+     * is performed immediately after the radio ramp-up start. Also, since in simulation no time
+     * passes while the CPU is executing code and the radio ramp-up is shorter than the time needed
+     * by the ECB peripheral to encrypt the longest possible 802.15.4 frame, the ECB is artificially
+     * sped up to guarantee that encryption completes before the transmission starts.
+     */
+    nrf_802154_bsim_utils_core_hooks_adjustments_t adjustments;
+
+    adjustments.tx_started.time_to_radio_address_us =
+        nrf_802154_rsch_delayed_timeslot_time_to_hw_trigger_get();
+
+    if (cca)
+    {
+        adjustments.tx_started.time_to_radio_address_us +=
+            RX_RAMP_UP_TIME + CCA_TIME + RX_TX_TURNAROUND_TIME;
+    }
+    else
+    {
+        adjustments.tx_started.time_to_radio_address_us += TX_RAMP_UP_TIME;
+    }
+
+    adjustments.tx_started.time_to_radio_address_us += PHY_US_TIME_FROM_SYMBOLS(PHY_SHR_SYMBOLS);
+
+    nrf_802154_bsim_utils_core_hooks_adjustments_set(&adjustments);
+
+    m_flags.tx_started_notify = nrf_802154_core_hooks_tx_started(mp_tx_data);
+
+    nrf_802154_bsim_utils_core_hooks_adjustments_t zeroes = {0};
+
+    nrf_802154_bsim_utils_core_hooks_adjustments_set(&zeroes);
+#endif
 
     if (rampup_trigg_mode == TRX_RAMP_UP_HW_TRIGGER)
     {
@@ -1261,9 +1220,20 @@ static void on_timeslot_ended(void)
             receiving_psdu_now = nrf_802154_trx_psdu_is_being_received();
         }
 
-        trx_disable();
+        nrf_802154_trx_disable();
 
         nrf_802154_timer_coord_stop();
+
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+        /**
+         * In simulation no time passes while the CPU is executing code and the radio ramp-up is
+         * shorter than the time needed by the ECB peripheral to encrypt the longest possible
+         * 802.15.4 frame. The ECB is artificially sped up to guarantee that encryption completes
+         * before transmission starts. Reset its settings to not confuse other users of this
+         * peripheral outside of 802.15.4 timeslot.
+         */
+        nrf_aes_ecb_cheat_reset_t_ecb();
+#endif
 
         nrf_802154_rsch_continuous_ended();
 
@@ -1340,7 +1310,7 @@ static void on_preconditions_denied(radio_state_t state)
         receiving_psdu_now = nrf_802154_trx_psdu_is_being_received();
     }
 
-    trx_abort();
+    nrf_802154_trx_abort();
 
     switch (state)
     {
@@ -1392,7 +1362,7 @@ static void on_preconditions_approved(radio_state_t state)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
-    trx_abort();
+    nrf_802154_trx_abort();
 
     switch (state)
     {
@@ -1446,6 +1416,15 @@ static void on_timeslot_started(void)
     m_rsch_timeslot_is_granted = true;
 
     nrf_802154_timer_coord_start();
+
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+    /**
+     * In simulation no time passes while the CPU is executing code and the radio ramp-up is shorter
+     * than the time needed by the ECB peripheral to encrypt the longest possible 802.15.4 frame.
+     * Speed up the ECB to guarantee that encryption completes before transmission starts.
+     */
+    nrf_aes_ecb_cheat_set_t_ecb(1);
+#endif
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
 }
@@ -1780,21 +1759,25 @@ uint8_t nrf_802154_trx_receive_frame_bcmatched(uint8_t bcc)
             nrf_802154_rsch_crit_sect_prio_request(RSCH_PRIO_RX);
             nrf_802154_ack_generator_reset();
         }
+    }
 
-        if (nrf_802154_pib_promiscuous_get())
+    if (nrf_802154_pib_promiscuous_get())
+    {
+        /*
+         * In promiscuous mode all filtering should be ignored unless the frame has
+         * length 0 or above maximum frame length.
+         */
+        uint8_t psdu_length = nrf_802154_frame_parser_frame_length_get(&m_current_rx_frame_data);
+
+        if (psdu_length > 0 && psdu_length <= MAX_PACKET_SIZE)
         {
-            /*
-             * In promiscuous mode all filtering should be ignored unless the frame has
-             * invalid length.
-             */
-            filter_result = filter_result == NRF_802154_RX_ERROR_INVALID_LENGTH ?
-                            filter_result : NRF_802154_RX_ERROR_NONE;
+            filter_result = NRF_802154_RX_ERROR_NONE;
         }
     }
 
     if (filter_result != NRF_802154_RX_ERROR_NONE)
     {
-        trx_abort();
+        nrf_802154_trx_abort();
         rx_init(TRX_RAMP_UP_SW_TRIGGER, NULL);
 
         /* Release boosted preconditions */
@@ -1846,7 +1829,7 @@ uint8_t nrf_802154_trx_receive_frame_bcmatched(uint8_t bcc)
         else
         {
             // Disable receiver and wait for a new timeslot.
-            trx_abort();
+            nrf_802154_trx_abort();
 
             // We should not leave trx in temporary state, let's receive then.
             // We avoid hard reset of radio during TX ACK phase due to timeslot end,
@@ -1885,80 +1868,9 @@ void nrf_802154_trx_go_idle_finished(void)
 
 static void on_bad_ack(void);
 
-#if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-static void update_total_times_on_receive_end(uint32_t listening_start_hp_timestamp,
-                                              uint32_t receive_end_hp_timestamp, uint8_t phr)
-{
-    uint32_t t_listening;
-    uint32_t t_frame;
-
-    t_frame     = nrf_802154_frame_duration_get(phr, true, true);
-    t_listening = receive_end_hp_timestamp - listening_start_hp_timestamp;
-
-    if (t_frame > t_listening)
-    {
-        t_frame = t_listening;
-    }
-
-    t_listening -= t_frame;
-
-    nrf_802154_stat_totals_increment(total_listening_time, t_listening);
-    nrf_802154_stat_totals_increment(total_receive_time, t_frame);
-}
-
-#endif
-
-#if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-void nrf_802154_stat_totals_get_notify(void)
-{
-    // Total times are going to be read, update stat_totals to hold
-    // correct times until now.
-
-    nrf_802154_mcu_critical_state_t mcu_cs;
-
-    nrf_802154_mcu_critical_enter(mcu_cs);
-
-    trx_state_t trx_state = nrf_802154_trx_state_get();
-
-    if ((trx_state == TRX_STATE_RXFRAME) || (trx_state == TRX_STATE_RXACK))
-    {
-        uint32_t listening_end_timestamp = nrf_802154_hp_timer_current_time_get();
-
-        if (listening_end_timestamp - m_listening_start_hp_timestamp >= MAX_PHY_FRAME_TIME_US)
-        {
-            /* m_listening_start_hp_timestamp ... now - MAX_PHY_FRAME_TIME_US must be listening.
-             * Last MAX_PHY_FRAME_TIME_US is considered uncertain.
-             */
-            listening_end_timestamp -= MAX_PHY_FRAME_TIME_US;
-
-            uint32_t t_listening = listening_end_timestamp - m_listening_start_hp_timestamp;
-
-            m_listening_start_hp_timestamp = listening_end_timestamp;
-
-            nrf_802154_stat_totals_increment(total_listening_time, t_listening);
-        }
-        else
-        {
-            /* Too little time passed since m_listening_start_hp_timestamp, we don't know
-             * if frame is being received now until it is received. */
-        }
-    }
-
-    nrf_802154_mcu_critical_exit(mcu_cs);
-
-}
-
-#endif
-
 void nrf_802154_trx_receive_frame_crcerror(void)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
-
-#if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-    uint32_t receive_end_hp_timestamp     = nrf_802154_hp_timer_timestamp_get();
-    uint32_t listening_start_hp_timestamp = m_listening_start_hp_timestamp;
-
-#endif
 
     assert(m_state == RADIO_STATE_RX);
     rx_flags_clear();
@@ -1976,20 +1888,6 @@ void nrf_802154_trx_receive_frame_crcerror(void)
                                  m_trx_receive_frame_notifications_mask,
                                  &split_power);
 
-#if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-    m_listening_start_hp_timestamp = nrf_802154_hp_timer_current_time_get();
-
-    // Configure the timer coordinator to get a timestamp of the END event which
-    // fires several cycles after CRCOK or CRCERROR events.
-    nrf_802154_timer_coord_timestamp_prepare(nrf_802154_trx_radio_end_event_handle_get());
-#endif
-
-#if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-    update_total_times_on_receive_end(listening_start_hp_timestamp,
-                                      receive_end_hp_timestamp,
-                                      mp_current_rx_buffer->data[PHR_OFFSET]);
-#endif
-
 #if NRF_802154_NOTIFY_CRCERROR
     receive_failed_notify(NRF_802154_RX_ERROR_INVALID_FCS);
 #endif // NRF_802154_NOTIFY_CRCERROR
@@ -2002,15 +1900,6 @@ void nrf_802154_trx_receive_ack_crcerror(void)
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
     assert(m_state == RADIO_STATE_RX_ACK);
-
-#if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-    uint32_t receive_end_hp_timestamp     = nrf_802154_hp_timer_timestamp_get();
-    uint32_t listening_start_hp_timestamp = m_listening_start_hp_timestamp;
-
-    update_total_times_on_receive_end(listening_start_hp_timestamp,
-                                      receive_end_hp_timestamp,
-                                      mp_current_rx_buffer->data[PHR_OFFSET]);
-#endif
 
     on_bad_ack();
 
@@ -2027,15 +1916,6 @@ void nrf_802154_trx_receive_frame_received(void)
     // Latch RSSI and LQI values before sending ACK
     m_last_rssi = rssi_last_measurement_get();
     m_last_lqi  = lqi_get(p_received_data);
-
-#if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-    uint32_t receive_end_hp_timestamp     = nrf_802154_hp_timer_timestamp_get();
-    uint32_t listening_start_hp_timestamp = m_listening_start_hp_timestamp;
-
-    update_total_times_on_receive_end(listening_start_hp_timestamp,
-                                      receive_end_hp_timestamp,
-                                      mp_current_rx_buffer->data[PHR_OFFSET]);
-#endif
 
     bool parse_result = nrf_802154_frame_parser_valid_data_extend(
         &m_current_rx_frame_data,
@@ -2099,6 +1979,33 @@ void nrf_802154_trx_receive_frame_received(void)
                 if (nrf_802154_trx_transmit_ack(nrf_802154_tx_work_buffer_get(mp_ack), ACK_IFS))
                 {
                     // Intentionally empty: transmitting ack, because we can
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+                    /**
+                     * In simulation the frame contents are latched when the first bit of the
+                     * preamble is "transmitted" by the simulated radio. Any modifications performed
+                     * after that (for example in handler of RADIO.ADDRESS event) have no effect on
+                     * the frame received by other devices in the simulation.
+                     *
+                     * Because of these limitations of the simulation, modification of the transmitted
+                     * frame buffer is performed immediately after the radio ramp-up start. Also,
+                     * since in simulation no time passes while the CPU is executing code and the
+                     * radio ramp-up is shorter than the time needed by the ECB peripheral to encrypt
+                     * the longest possible 802.15.4 frame, the ECB is artificially sped up to
+                     * guarantee that encryption completes before the transmission starts.
+                     */
+                    nrf_802154_bsim_utils_core_hooks_adjustments_t adjustments;
+
+                    adjustments.tx_ack_started.time_to_radio_address_us =
+                        ACK_IFS + TX_RAMP_UP_TIME + PHY_US_TIME_FROM_SYMBOLS(PHY_SHR_SYMBOLS);
+
+                    nrf_802154_bsim_utils_core_hooks_adjustments_set(&adjustments);
+
+                    nrf_802154_core_hooks_tx_ack_started(mp_ack);
+
+                    nrf_802154_bsim_utils_core_hooks_adjustments_t zeroes = {0};
+
+                    nrf_802154_bsim_utils_core_hooks_adjustments_set(&zeroes);
+#endif /* defined(CONFIG_SOC_SERIES_BSIM_NRFXX) */
                 }
                 else
                 {
@@ -2190,14 +2097,6 @@ void nrf_802154_trx_transmit_ack_transmitted(void)
 
     assert(m_state == RADIO_STATE_TX_ACK);
 
-#if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
-    uint32_t t_transmit = TX_RAMP_UP_TIME + nrf_802154_frame_duration_get(mp_ack[PHR_OFFSET],
-                                                                          true,
-                                                                          true);
-
-    nrf_802154_stat_totals_increment(total_transmit_time, t_transmit);
-#endif
-
     uint8_t * p_received_data = mp_current_rx_buffer->data;
 
     // Current buffer used for receive operation will be passed to the application
@@ -2216,12 +2115,6 @@ void nrf_802154_trx_transmit_frame_transmitted(void)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
-#if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
-    uint32_t t_listening = 0U;
-    uint32_t t_transmit  = 0U;
-
-#endif
-
 #if (NRF_802154_FRAME_TIMESTAMP_ENABLED)
     uint64_t ts = timer_coord_timestamp_get();
 
@@ -2236,29 +2129,8 @@ void nrf_802154_trx_transmit_frame_transmitted(void)
         ts -= nrf_802154_frame_duration_get(mp_tx_data[0], true, true) + RX_TX_TURNAROUND_TIME;
 
         nrf_802154_stat_timestamp_write(last_cca_idle_timestamp, ts);
-
-#if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
-        uint64_t cca_start_ts;
-
-        nrf_802154_stat_timestamp_read(&cca_start_ts, last_cca_start_timestamp);
-
-        t_listening += RX_RAMP_UP_TIME + (uint32_t)(ts - cca_start_ts);
-        t_transmit  += RX_TX_TURNAROUND_TIME;
-#endif
-    }
-    else
-    {
-#if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
-        t_transmit += TX_RAMP_UP_TIME;
-#endif
     }
 
-#if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
-    t_transmit += nrf_802154_frame_duration_get(mp_tx_data[PHR_OFFSET], true, true);
-
-    nrf_802154_stat_totals_increment(total_listening_time, t_listening);
-    nrf_802154_stat_totals_increment(total_transmit_time, t_transmit);
-#endif
 #endif
 
     if (ack_is_requested(mp_tx_data))
@@ -2270,21 +2142,11 @@ void nrf_802154_trx_transmit_frame_transmitted(void)
         nrf_802154_trx_receive_buffer_set(rx_buffer_get());
 
 #if (NRF_802154_FRAME_TIMESTAMP_ENABLED)
-#if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
-        // Configure the timer coordinator to get a timestamp of the END event which
-        // fires several cycles after CRCOK or CRCERROR events.
-        nrf_802154_timer_coord_timestamp_prepare(nrf_802154_trx_radio_end_event_handle_get());
-#else
         // Configure the timer coordinator to get a timestamp of the CRCOK event.
         nrf_802154_timer_coord_timestamp_prepare(nrf_802154_trx_radio_crcok_event_handle_get());
 #endif
-#endif
 
         nrf_802154_trx_receive_ack();
-
-#if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-        m_listening_start_hp_timestamp = nrf_802154_hp_timer_current_time_get();
-#endif
 
         if (!rx_buffer_free)
         {
@@ -2430,15 +2292,6 @@ void nrf_802154_trx_receive_ack_received(void)
     // CRC of received frame is correct
     uint8_t * p_ack_data = mp_current_rx_buffer->data;
 
-#if NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED
-    uint32_t receive_end_hp_timestamp     = nrf_802154_hp_timer_timestamp_get();
-    uint32_t listening_start_hp_timestamp = m_listening_start_hp_timestamp;
-
-    update_total_times_on_receive_end(listening_start_hp_timestamp,
-                                      receive_end_hp_timestamp,
-                                      mp_current_rx_buffer->data[PHR_OFFSET]);
-#endif
-
     if (ack_match_check(mp_tx_data, p_ack_data))
     {
 #if (NRF_802154_FRAME_TIMESTAMP_ENABLED)
@@ -2516,12 +2369,6 @@ void nrf_802154_trx_transmit_frame_ccabusy(void)
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
     nrf_802154_stat_counter_increment(cca_failed_attempts);
-
-#if (NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED)
-    uint32_t t_listening = RX_RAMP_UP_TIME + PHY_US_TIME_FROM_SYMBOLS(A_CCA_DURATION_SYMBOLS);
-
-    nrf_802154_stat_totals_increment(total_listening_time, t_listening);
-#endif
 
     state_set(RADIO_STATE_RX);
     rx_init(TRX_RAMP_UP_SW_TRIGGER, NULL);
@@ -2652,6 +2499,38 @@ bool nrf_802154_core_sleep(nrf_802154_term_t term_lvl)
     return result;
 }
 
+static bool core_receive(nrf_802154_term_t term_lvl,
+                         req_originator_t  req_orig,
+                         bool              notify_abort,
+                         uint32_t          id)
+{
+    bool result = current_operation_terminate(term_lvl, req_orig, notify_abort);
+
+    if (result)
+    {
+        m_trx_receive_frame_notifications_mask =
+            make_trx_frame_receive_notification_mask();
+
+        m_rx_window_id = id;
+        state_set(RADIO_STATE_RX);
+
+        bool abort_shall_follow = false;
+
+        rx_init(ramp_up_mode_choose(req_orig), &abort_shall_follow);
+
+        if (abort_shall_follow)
+        {
+            nrf_802154_trx_abort();
+
+            // HW triggering failed, fallback is SW trigger.
+            // (fallback immunizes against the rare case of spurious lptimer firing)
+            rx_init(TRX_RAMP_UP_SW_TRIGGER, NULL);
+        }
+    }
+
+    return result;
+}
+
 bool nrf_802154_core_receive(nrf_802154_term_t              term_lvl,
                              req_originator_t               req_orig,
                              nrf_802154_notification_func_t notify_function,
@@ -2668,29 +2547,7 @@ bool nrf_802154_core_receive(nrf_802154_term_t              term_lvl,
         {
             if (critical_section_can_be_processed_now())
             {
-                result = current_operation_terminate(term_lvl, req_orig, notify_abort);
-
-                if (result)
-                {
-                    m_trx_receive_frame_notifications_mask =
-                        make_trx_frame_receive_notification_mask();
-
-                    m_rx_window_id = id;
-                    state_set(RADIO_STATE_RX);
-
-                    bool abort_shall_follow = false;
-
-                    rx_init(ramp_up_mode_choose(req_orig), &abort_shall_follow);
-
-                    if (abort_shall_follow)
-                    {
-                        nrf_802154_trx_abort();
-
-                        // HW triggering failed, fallback is SW trigger.
-                        // (fallback immunizes against the rare case of spurious lptimer firing)
-                        rx_init(TRX_RAMP_UP_SW_TRIGGER, NULL);
-                    }
-                }
+                result = core_receive(term_lvl, req_orig, notify_abort, id);
             }
             else
             {
@@ -2783,6 +2640,42 @@ bool nrf_802154_core_transmit(nrf_802154_term_t              term_lvl,
         {
             notify_function(false);
         }
+    }
+
+    nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
+
+    return result;
+}
+
+bool nrf_802154_core_ack_timeout_handle(const nrf_802154_ack_timeout_handle_params_t * p_param)
+{
+    nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
+
+    bool result = critical_section_enter_and_verify_timeslot_length();
+
+    if (result)
+    {
+        if ((m_state == RADIO_STATE_RX_ACK) && (p_param->p_frame == mp_tx_data))
+        {
+            bool r;
+
+            r = core_receive(NRF_802154_TERM_802154,
+                             REQ_ORIG_ACK_TIMEOUT,
+                             false,
+                             NRF_802154_RESERVED_IMM_RX_WINDOW_ID);
+            assert(r);
+            (void)r;
+
+            nrf_802154_transmit_done_metadata_t metadata = {0};
+
+            nrf_802154_tx_work_buffer_original_frame_update(p_param->p_frame,
+                                                            &metadata.frame_props);
+            nrf_802154_notify_transmit_failed(p_param->p_frame,
+                                              NRF_802154_TX_ERROR_NO_ACK,
+                                              &metadata);
+        }
+
+        nrf_802154_critical_section_exit();
     }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);

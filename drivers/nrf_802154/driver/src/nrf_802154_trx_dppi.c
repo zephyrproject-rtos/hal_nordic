@@ -48,6 +48,9 @@
 #include "hal/nrf_radio.h"
 #include "hal/nrf_timer.h"
 
+#define EGU_EVENT                   NRF_802154_EGU_RAMP_UP_EVENT
+#define EGU_TASK                    NRF_802154_EGU_RAMP_UP_TASK
+
 #define DPPI_CHGRP_RAMP_UP          NRF_DPPI_CHANNEL_GROUP0 ///< PPI group used to disable self-disabling PPIs
 #define DPPI_CHGRP_RAMP_UP_DIS_TASK NRF_DPPI_TASK_CHG0_DIS  ///< PPI task used to disable self-disabling PPIs
 
@@ -130,7 +133,7 @@ void nrf_802154_trx_ppi_for_ramp_up_set(nrf_radio_task_t                      ra
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_HIGH);
 
     // Clr event EGU (needed for nrf_802154_trx_ppi_for_ramp_up_was_triggered)
-    nrf_egu_event_clear(NRF_802154_EGU_INSTANCE, NRF_802154_EGU_RAMP_UP_EVENT);
+    nrf_egu_event_clear(NRF_802154_EGU_INSTANCE, EGU_EVENT);
 
     nrf_dppi_channels_include_in_group(NRF_802154_DPPIC_INSTANCE,
                                        1UL << PPI_EGU_RAMP_UP,
@@ -144,9 +147,9 @@ void nrf_802154_trx_ppi_for_ramp_up_set(nrf_radio_task_t                      ra
         nrf_timer_subscribe_set(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_START, PPI_DISABLED_EGU);
     }
 
-    nrf_egu_publish_set(NRF_802154_EGU_INSTANCE, NRF_802154_EGU_RAMP_UP_EVENT, PPI_EGU_RAMP_UP);
+    nrf_egu_publish_set(NRF_802154_EGU_INSTANCE, EGU_EVENT, PPI_EGU_RAMP_UP);
 
-    nrf_egu_subscribe_set(NRF_802154_EGU_INSTANCE, NRF_802154_EGU_RAMP_UP_TASK, PPI_DISABLED_EGU);
+    nrf_egu_subscribe_set(NRF_802154_EGU_INSTANCE, EGU_TASK, PPI_DISABLED_EGU);
 
     nrf_dppi_channels_enable(NRF_802154_DPPIC_INSTANCE,
                              (1UL << PPI_EGU_RAMP_UP));
@@ -173,7 +176,7 @@ void nrf_802154_trx_ppi_for_ramp_up_clear(nrf_radio_task_t ramp_up_task, bool st
     nrf_dppi_channels_disable(NRF_802154_DPPIC_INSTANCE,
                               (1UL << PPI_EGU_RAMP_UP));
 
-    nrf_egu_publish_clear(NRF_802154_EGU_INSTANCE, NRF_802154_EGU_RAMP_UP_EVENT);
+    nrf_egu_publish_clear(NRF_802154_EGU_INSTANCE, EGU_EVENT);
     nrf_radio_subscribe_clear(NRF_RADIO, ramp_up_task);
     nrf_radio_subscribe_clear(NRF_RADIO, NRF_RADIO_TASK_DISABLE);
     nrf_dppi_subscribe_clear(NRF_802154_DPPIC_INSTANCE, DPPI_CHGRP_RAMP_UP_DIS_TASK);
@@ -186,7 +189,7 @@ void nrf_802154_trx_ppi_for_ramp_up_clear(nrf_radio_task_t ramp_up_task, bool st
         nrf_timer_subscribe_clear(NRF_802154_TIMER_INSTANCE, NRF_TIMER_TASK_START);
     }
 
-    nrf_egu_subscribe_clear(NRF_802154_EGU_INSTANCE, NRF_802154_EGU_RAMP_UP_TASK);
+    nrf_egu_subscribe_clear(NRF_802154_EGU_INSTANCE, EGU_TASK);
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_HIGH);
 }
@@ -216,7 +219,7 @@ bool nrf_802154_trx_ppi_for_ramp_up_was_triggered(void)
     // Wait for PPIs
     nrf_802154_trx_ppi_for_ramp_up_propagation_delay_wait();
 
-    if (nrf_egu_event_check(NRF_802154_EGU_INSTANCE, NRF_802154_EGU_RAMP_UP_EVENT))
+    if (nrf_egu_event_check(NRF_802154_EGU_INSTANCE, EGU_EVENT))
     {
         // If EGU event is set, procedure is running.
         nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_HIGH);

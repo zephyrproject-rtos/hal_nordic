@@ -32,55 +32,40 @@
  *
  */
 
-#include <stddef.h>
+#ifndef NRF_802154_BSIM_UTILS_H__
+#define NRF_802154_BSIM_UTILS_H__
 
-#include "nrf_802154.h"
-#include "nrf_802154_stats.h"
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
 
-#define NUMBER_OF_STAT_COUNTERS (sizeof(nrf_802154_stat_counters_t) / sizeof(uint32_t))
+#include "nrf_802154_types.h"
+#include "nrf_802154_utils.h"
 
-/**@brief Structure holding statistics about the Radio Driver behavior. */
-volatile nrf_802154_stats_t g_nrf_802154_stats;
-
-void nrf_802154_stats_get(nrf_802154_stats_t * p_stats)
+typedef struct
 {
-    *p_stats = g_nrf_802154_stats;
-}
-
-void nrf_802154_stat_counters_get(nrf_802154_stat_counters_t * p_stat_counters)
-{
-    *p_stat_counters = g_nrf_802154_stats.counters;
-}
-
-void nrf_802154_stat_counters_subtract(const nrf_802154_stat_counters_t * p_stat_counters)
-{
-    volatile uint32_t * p_dst = (volatile uint32_t *)(&g_nrf_802154_stats.counters);
-    const uint32_t    * p_src = (const uint32_t *)p_stat_counters;
-
-    for (size_t i = 0; i < NUMBER_OF_STAT_COUNTERS; ++i)
+    struct
     {
-        nrf_802154_mcu_critical_state_t mcu_cs;
+        uint32_t time_to_radio_address_us; ///< Time until RADIO->ADDRESS event in microseconds.
+    } tx_started;
 
-        nrf_802154_mcu_critical_enter(mcu_cs);
-        *p_dst -= *p_src;
-        nrf_802154_mcu_critical_exit(mcu_cs);
-
-        p_dst++;
-        p_src++;
-    }
-}
-
-void nrf_802154_stat_timestamps_get(nrf_802154_stat_timestamps_t * p_stat_timestamps)
-{
-    *p_stat_timestamps = g_nrf_802154_stats.timestamps;
-}
-
-void nrf_802154_stat_counters_reset(void)
-{
-    volatile uint32_t * p_dst = (volatile uint32_t *)(&g_nrf_802154_stats.counters);
-
-    for (size_t i = 0; i < NUMBER_OF_STAT_COUNTERS; ++i)
+    struct
     {
-        *(p_dst++) = 0U;
-    }
-}
+        uint32_t time_to_radio_address_us; ///< Time until RADIO->ADDRESS event in microseconds.
+    } tx_ack_started;
+
+} nrf_802154_bsim_utils_core_hooks_adjustments_t;
+
+/**
+ * @brief Get adjustments for Tx started hook.
+ */
+void nrf_802154_bsim_utils_core_hooks_adjustments_get(
+    nrf_802154_bsim_utils_core_hooks_adjustments_t * p_obj);
+
+/**
+ * @brief Set adjustments for Tx started hook.
+ */
+void nrf_802154_bsim_utils_core_hooks_adjustments_set(
+    const nrf_802154_bsim_utils_core_hooks_adjustments_t * p_obj);
+
+#endif /* defined(CONFIG_SOC_SERIES_BSIM_NRFXX) */
+
+#endif /* NRF_802154_BSIM_UTILS_H__ */

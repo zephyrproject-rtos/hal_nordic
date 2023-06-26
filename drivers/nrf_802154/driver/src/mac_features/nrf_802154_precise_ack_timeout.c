@@ -53,6 +53,10 @@
 #include "nrf_802154_tx_work_buffer.h"
 #include "nrf_802154_sl_timer.h"
 
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+#include "nrf_802154_bsim_utils.h"
+#endif
+
 #if NRF_802154_ACK_TIMEOUT_ENABLED
 
 #define RETRY_DELAY     500     ///< Procedure is delayed by this time if it cannot be performed at the moment [us].
@@ -66,18 +70,6 @@ static uint32_t              m_dt;                                              
 static volatile bool         m_procedure_is_active;
 static uint8_t             * mp_frame;
 
-static void notify_tx_error(bool result)
-{
-    if (result)
-    {
-        // If waiting for ack timeout occurred, the transmission must had already finished.
-        nrf_802154_transmit_done_metadata_t metadata = {0};
-
-        nrf_802154_tx_work_buffer_original_frame_update(mp_frame, &metadata.frame_props);
-        nrf_802154_notify_transmit_failed(mp_frame, NRF_802154_TX_ERROR_NO_ACK, &metadata);
-    }
-}
-
 static void timeout_timer_fired(nrf_802154_sl_timer_t * p_timer)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
@@ -86,11 +78,11 @@ static void timeout_timer_fired(nrf_802154_sl_timer_t * p_timer)
 
     if (m_procedure_is_active)
     {
-        if (nrf_802154_request_receive(NRF_802154_TERM_802154,
-                                       REQ_ORIG_ACK_TIMEOUT,
-                                       notify_tx_error,
-                                       false,
-                                       NRF_802154_RESERVED_IMM_RX_WINDOW_ID))
+        nrf_802154_ack_timeout_handle_params_t param = {0};
+
+        param.p_frame = mp_frame;
+
+        if (nrf_802154_request_ack_timeout_handle(&param))
         {
             m_procedure_is_active = false;
         }
@@ -122,9 +114,19 @@ static void timeout_timer_start(void)
     uint64_t                  now = nrf_802154_sl_timer_current_time_get();
     nrf_802154_sl_timer_ret_t ret;
 
-    m_dt = m_timeout +
-           IMM_ACK_DURATION +
-           nrf_802154_frame_duration_get(mp_frame[0], false, true);
+    m_dt = m_timeout + IMM_ACK_DURATION + nrf_802154_frame_duration_get(mp_frame[0], false, true);
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+    /**
+     * In simulation, this function is executed immediately after setting up Tx ramp-up instead of
+     * handler of RADIO.ADDRESS event. The timeout must be increased with simulation-specific
+     * adjustments calculated earlier.
+     */
+    nrf_802154_bsim_utils_core_hooks_adjustments_t adjustments;
+
+    nrf_802154_bsim_utils_core_hooks_adjustments_get(&adjustments);
+
+    m_dt += adjustments.tx_started.time_to_radio_address_us;
+#endif
 
     m_timer.action_type              = NRF_802154_SL_TIMER_ACTION_TYPE_CALLBACK;
     m_timer.action.callback.callback = timeout_timer_fired;

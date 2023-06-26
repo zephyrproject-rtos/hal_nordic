@@ -44,13 +44,20 @@
 #include "mac_features/nrf_802154_delayed_trx.h"
 #include "nrf_802154_core.h"
 #include "nrf_802154_nrfx_addons.h"
+#include "nrf_802154_procedures_duration.h"
 #include "nrf_802154_tx_work_buffer.h"
 #include "nrf_802154_utils_byteorder.h"
 #include "nrf_802154_sl_timer.h"
 
 #include <assert.h>
 
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+#include "nrf_802154_bsim_utils.h"
+#endif
+
 #if NRF_802154_IE_WRITER_ENABLED
+
+#define CSL_US_PER_UNIT (IE_CSL_SYMBOLS_PER_UNIT * PHY_US_PER_SYMBOL)
 
 typedef enum
 {
@@ -69,9 +76,22 @@ static uint16_t  m_csl_period;          ///< CSL period value that will be injec
 static uint64_t  m_csl_anchor_time;     ///< The anchor time based on which CSL window times are calculated
 static bool      m_csl_anchor_time_set; ///< Information if CSL anchor time was set by the higher layer
 
-static bool csl_time_to_nearest_window_midpoint_get(uint32_t * p_time_to_midpoint)
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+static uint32_t m_csl_time_to_radio_address_us;
+
+#endif
+
+/** @brief Calulate CSL phase.
+ *
+ * @param[out]  p_csl_phase   Calculated CSL phase in units of 160us.
+ *
+ * @retval  true   The calculation was successful and @p p_csl_phase contains a valid CSL phase.
+ * @retval  false  The calculation failed and the value pointed to by @p p_csl_phase is undefined.
+ */
+static bool csl_phase_calc(uint32_t * p_csl_phase)
 {
-    bool result = false;
+    bool     result = false;
+    uint32_t us;
 
     if (m_csl_anchor_time_set)
     {
@@ -79,26 +99,64 @@ static bool csl_time_to_nearest_window_midpoint_get(uint32_t * p_time_to_midpoin
 
         if (result)
         {
-            uint64_t now           = nrf_802154_sl_timer_current_time_get();
-            uint32_t csl_period_us = m_csl_period * IE_CSL_SYMBOLS_PER_UNIT * PHY_US_PER_SYMBOL;
+            /*
+             * This function is executed in the handler of RADIO.ADDRESS event. According to the IPS,
+             * in 802.15.4 transmit sequence RADIO.FRAMESTART event is triggered after the SHR is
+             * transmitted (nRF52840 PS v1.7 -- 6.20.12.6 Transmit sequence). However, RADIO.ADDRESS
+             * event is also triggered in 802.15.4 transmit sequence with a constant 32us offset.
+             * This handler is therefore expected to execute 32us before the SHR transmission ends.
+             *
+             * The IEEE 802.15.4-2015 specification is unclear about which point in time the CSL Phase
+             * should refer to. Following the latest developments in the Thread specification, here
+             * it is going to be calculated relative to the beginning of the MHR. This function
+             * executes approximately 2 * 32us = 64us before the first bit of MHR. The calculation
+             * below takes it into account by adding 64us to the current time.
+             */
+            uint64_t csl_ref_time_us = nrf_802154_sl_timer_current_time_get() + 64;
+            uint32_t csl_period_us   = m_csl_period * IE_CSL_SYMBOLS_PER_UNIT * PHY_US_PER_SYMBOL;
+
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+            /**
+             * In simulation this function is executed immediately after setting up radio ramp-up.
+             * The reference time calculated above must be increased with simulation-specific
+             * adjustments calculated earlier.
+             */
+            csl_ref_time_us += m_csl_time_to_radio_address_us;
+#endif /* defined(CONFIG_SOC_SERIES_BSIM_NRFXX) */
 
             // Modulo of a negative number possibly will not be positive, so the below if-else clause is needed
-            if (now >= m_csl_anchor_time)
+            if (csl_ref_time_us >= m_csl_anchor_time)
             {
                 uint32_t time_from_previous_window =
-                    (uint32_t)((now - m_csl_anchor_time) % csl_period_us);
+                    (uint32_t)((csl_ref_time_us - m_csl_anchor_time) % csl_period_us);
 
-                *p_time_to_midpoint = csl_period_us - time_from_previous_window;
+                us = csl_period_us - time_from_previous_window;
             }
             else
             {
-                *p_time_to_midpoint = (uint32_t)((m_csl_anchor_time - now) % csl_period_us);
+                us = (uint32_t)((m_csl_anchor_time - csl_ref_time_us) % csl_period_us);
             }
         }
     }
     else
     {
-        result = nrf_802154_delayed_trx_nearest_drx_time_to_midpoint_get(p_time_to_midpoint);
+        // Fallback to legacy method
+        result = nrf_802154_delayed_trx_nearest_drx_time_to_midpoint_get(&us);
+
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+        /**
+         * In simulation this function is executed immediately after setting up radio ramp-up.
+         * The time to midpoint calculated above must be decreased with simulation-specific
+         * adjustments calculated earlier.
+         */
+        us -= m_csl_time_to_radio_address_us;
+#endif /* defined(CONFIG_SOC_SERIES_BSIM_NRFXX) */
+    }
+
+    if (result)
+    {
+        // Round to the nearest integer when converting us to CSL units
+        *p_csl_phase = (us + (CSL_US_PER_UNIT >> 1)) / CSL_US_PER_UNIT;
     }
 
     return result;
@@ -112,8 +170,6 @@ static bool csl_time_to_nearest_window_midpoint_get(uint32_t * p_time_to_midpoin
  */
 static void csl_ie_write_commit(bool * p_written)
 {
-    uint32_t time_remaining;
-    uint32_t symbols;
     uint32_t csl_phase;
 
     if ((mp_csl_phase_addr == NULL) || (mp_csl_period_addr == NULL))
@@ -122,21 +178,11 @@ static void csl_ie_write_commit(bool * p_written)
         return;
     }
 
-    if (csl_time_to_nearest_window_midpoint_get(&time_remaining) == false)
+    if (csl_phase_calc(&csl_phase) == false)
     {
-        // No delayed DRX is pending. Do not write to the CSL IE.
+        // CSL Phase could not be determined. Do not write to the CSL IE.
         return;
     }
-
-    /*
-     * Note: The csl_ie_write_commit executes after the FRAMESTART event, which is triggered
-     *       by the radio peripheral after the SHR (nRF52840 PS v1.2 -- 6.20.12.6 Transmit sequence).
-     *       The symbol calculation should take into account the time needed for two symbols of the PHR.
-     *       However, since we are measuring time to the DRX midpoint and not to the beginning, there
-     *       is a bit or margin to spare and the calculation does not have to account for the PHR.
-     */
-    symbols   = time_remaining / PHY_US_PER_SYMBOL;
-    csl_phase = symbols / IE_CSL_SYMBOLS_PER_UNIT;
 
     if (csl_phase > IE_CSL_PERIOD_MAX)
     {
@@ -505,6 +551,14 @@ bool nrf_802154_ie_writer_tx_started_hook(uint8_t * p_frame)
 
     bool written = false;
 
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+    nrf_802154_bsim_utils_core_hooks_adjustments_t adjustments;
+
+    nrf_802154_bsim_utils_core_hooks_adjustments_get(&adjustments);
+
+    m_csl_time_to_radio_address_us = adjustments.tx_started.time_to_radio_address_us;
+#endif
+
     ie_writer_commit(&written);
     ie_writer_reset();
 
@@ -526,6 +580,14 @@ void nrf_802154_ie_writer_tx_ack_started_hook(uint8_t * p_ack)
     }
 
     bool written = false;
+
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+    nrf_802154_bsim_utils_core_hooks_adjustments_t adjustments;
+
+    nrf_802154_bsim_utils_core_hooks_adjustments_get(&adjustments);
+
+    m_csl_time_to_radio_address_us = adjustments.tx_ack_started.time_to_radio_address_us;
+#endif
 
     ie_writer_commit(&written);
     ie_writer_reset();

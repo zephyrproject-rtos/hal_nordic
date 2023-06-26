@@ -154,6 +154,16 @@ bool nrf_802154_core_transmit(nrf_802154_term_t              term_lvl,
                               nrf_802154_notification_func_t notify_function);
 
 /**
+ * @brief Requests end of waiting for an ACK by the core.
+ *
+ * @param[in] p_param   Pointer to the notification parameters;
+ *
+ * @return true    Request handled.
+ * @return false   Request rejected due to already occupied critical section.
+ */
+bool nrf_802154_core_ack_timeout_handle(const nrf_802154_ack_timeout_handle_params_t * p_param);
+
+/**
  * @brief Requests the transition to the @ref RADIO_STATE_ED state.
  *
  * When the energy detection procedure is finished, the driver transitions
@@ -227,8 +237,8 @@ bool nrf_802154_core_notify_buffer_free(uint8_t * p_data);
  * @brief Notifies the core module that the next higher layer requested the change of the channel.
  *
  * The core is expected to update the frequency register of the peripheral and, if it is
- * in the @ref RADIO_STATE_RX, in the @ref RADIO_STATE_CONTINUOUS_CARRIER
- * or in the @ref RADIO_STATE_MODULATED_CARRIER state, the transceiver is disabled
+ * in the @c RADIO_STATE_RX, in the @c RADIO_STATE_CONTINUOUS_CARRIER
+ * or in the @c RADIO_STATE_MODULATED_CARRIER state, the transceiver is disabled
  * and enabled again to use the new channel.
  *
  * @param[in]  req_orig   Module that originates this request.

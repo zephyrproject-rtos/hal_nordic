@@ -45,6 +45,7 @@ target_sources(nrf-802154-driver
   PRIVATE
     src/nrf_802154.c
     src/nrf_802154_aes_ccm_acc_ecb.c
+    src/nrf_802154_bsim_utils.c
     src/nrf_802154_core.c
     src/nrf_802154_core_hooks.c
     src/nrf_802154_critical_section.c
@@ -105,12 +106,6 @@ if (SL_OPENSOURCE)
       NRF_802154_CSMA_CA_ENABLED=0
   )
 endif()
-
-target_compile_definitions(nrf-802154-driver-interface
-  INTERFACE
-    # Disable total times measurement
-    NRF_802154_TOTAL_TIMES_MEASUREMENT_ENABLED=0
-)
 
 if (NRF_802154_PROJECT_CONFIG)
   target_compile_definitions(nrf-802154-driver-interface
