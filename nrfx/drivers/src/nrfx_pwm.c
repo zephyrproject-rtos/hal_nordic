@@ -171,16 +171,16 @@ static bool pwm_stopped_check(nrfx_pwm_t const * p_instance)
 {
     pwm_control_block_t * p_cb  = &m_cb[p_instance->instance_id];
 
-    if (p_cb->handler)
+    if (!p_cb->handler)
     {
-        return (p_cb->state == NRFX_DRV_STATE_POWERED_ON ? false : true);
+        if (nrfy_pwm_events_process(p_instance->p_reg,
+                                    NRFY_EVENT_TO_INT_BITMASK(NRF_PWM_EVENT_STOPPED)))
+        {
+            p_cb->state = NRFX_DRV_STATE_INITIALIZED;
+        }
     }
-    else
-    {
-        return ((p_cb->state != NRFX_DRV_STATE_POWERED_ON) ||
-                (nrfy_pwm_events_process(p_instance->p_reg,
-                                         NRFY_EVENT_TO_INT_BITMASK(NRF_PWM_EVENT_STOPPED))));
-    }
+
+    return p_cb->state != NRFX_DRV_STATE_POWERED_ON;
 }
 
 nrfx_err_t nrfx_pwm_init(nrfx_pwm_t const *        p_instance,
