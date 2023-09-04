@@ -52,7 +52,7 @@
 // an interrupt. During the playback, the PWM interrupt triggered on SEQEND
 // event of a preceding sequence is used to protect the transfer done for
 // the next sequence to be played.
-#include <haly/nrfy_egu.h>
+#include <hal/nrf_egu.h>
 #define USE_DMA_ISSUE_WORKAROUND
 #endif
 #if defined(USE_DMA_ISSUE_WORKAROUND)
@@ -316,9 +316,9 @@ static uint32_t start_playback(nrfx_pwm_t const *    p_instance,
         // the PWM by triggering the proper task from EGU interrupt handler,
         // it is not safe to do it directly via PPI.
         p_cb->starting_task_address = starting_task_address;
-        nrfy_egu_int_enable(DMA_ISSUE_EGU, nrfy_egu_channel_int_get(p_instance->instance_id));
-        return nrfy_egu_task_address_get(DMA_ISSUE_EGU,
-                                         nrfy_egu_trigger_task_get(p_instance->instance_id));
+        nrf_egu_int_enable(DMA_ISSUE_EGU, nrf_egu_channel_int_get(p_instance->instance_id));
+        return nrf_egu_task_address_get(DMA_ISSUE_EGU,
+                                        nrf_egu_trigger_task_get(p_instance->instance_id));
 #else
         return starting_task_address;
 #endif
@@ -508,10 +508,10 @@ void DMA_ISSUE_EGU_IRQHandler(void)
 {
     for (uint8_t i = 0; i < NRFX_PWM_ENABLED_COUNT; i++)
     {
-        nrf_egu_event_t event = nrfy_egu_triggered_event_get(i);
-        if (nrfy_egu_event_check(DMA_ISSUE_EGU, event))
+        nrf_egu_event_t event = nrf_egu_triggered_event_get(i);
+        if (nrf_egu_event_check(DMA_ISSUE_EGU, event))
         {
-            nrfy_egu_event_clear(DMA_ISSUE_EGU, event);
+            nrf_egu_event_clear(DMA_ISSUE_EGU, event);
             *(volatile uint32_t *)(m_cb[i].starting_task_address) = 1;
         }
     }
