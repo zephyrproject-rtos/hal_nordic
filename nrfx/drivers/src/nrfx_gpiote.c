@@ -45,8 +45,13 @@
 /* Macro returning number of pins in the port */
 #define GPIO_PIN_NUM(periph, prefix, i, _) NRFX_CONCAT(periph, prefix, i, _PIN_NUM)
 
+#if defined(NRF52820_XXAA)
+/* nRF52820 has gaps between available pins. The symbol can't be based on P0_PIN_NUM. */
+#define MAX_PIN_NUMBER 32
+#else
 /* Macro for calculating total number of pins. */
 #define MAX_PIN_NUMBER NRFX_FOREACH_PRESENT(P, GPIO_PIN_NUM, (+), (0), _)
+#endif
 
 /* Macro returns true if port has 32 pins. */
 #define GPIO_IS_FULL_PORT(periph, prefix, i, _) \
