@@ -538,7 +538,7 @@ static void device_config_254_apply_tx(void)
  *
  * Shall be called after setting RADIO mode to NRF_RADIO_MODE_IEEE802154_250KBIT.
  */
-#if defined(NRF5340_XXAA)
+#if defined(NRF5340_XXAA) && !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
 static void errata_117_apply(void)
 {
     /* Register at 0x01FF0084. */
@@ -663,7 +663,7 @@ void nrf_802154_trx_enable(void)
 
     nrf_radio_mode_set(NRF_RADIO, NRF_RADIO_MODE_IEEE802154_250KBIT);
 
-#if defined(NRF5340_XXAA)
+#if defined(NRF5340_XXAA) && !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
     // Apply ERRATA-117 after setting RADIO mode to NRF_RADIO_MODE_IEEE802154_250KBIT.
     errata_117_apply();
     pa_modulation_fix_apply(true);
@@ -786,7 +786,7 @@ void nrf_802154_trx_disable(void)
 
     if (m_trx_state != TRX_STATE_DISABLED)
     {
-#if defined(NRF5340_XXAA)
+#if defined(NRF5340_XXAA) && !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
         pa_modulation_fix_apply(false);
 #endif
 
