@@ -407,11 +407,12 @@ extern "C" {
  * @def NRF_802154_IFS_ENABLED
  *
  * Indicates whether the Short/Long Interframe spacing feature is to be enabled in the driver.
+ * This is an experimental feature.
  *
  */
 #if !defined(CONFIG_NRF_802154_SL_OPENSOURCE)
 #ifndef NRF_802154_IFS_ENABLED
-#define NRF_802154_IFS_ENABLED 1
+#define NRF_802154_IFS_ENABLED 0
 #endif
 #endif
 
@@ -420,21 +421,6 @@ extern "C" {
  * @defgroup nrf_802154_config_transmission Transmission start notification feature configuration
  * @{
  */
-
-/**
- * @}
- * @defgroup nrf_802154_config_coex WiFi coexistence feature configuration
- * @{
- */
-
-/**
- * @def NRF_802154_COEX_INITIALLY_ENABLED
- *
- * Configures if WiFi coex is initially enabled or disabled.
- */
-#ifndef NRF_802154_COEX_INITIALLY_ENABLED
-#define NRF_802154_COEX_INITIALLY_ENABLED 1
-#endif
 
 /**
  * @}

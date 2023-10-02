@@ -58,6 +58,7 @@
 #include "nrf_802154_procedures_duration.h"
 #include "nrf_802154_critical_section.h"
 #include "mpsl_fem_config_common.h"
+#include "mpsl_tx_power.h"
 #include "platform/nrf_802154_irq.h"
 #include "protocol/mpsl_fem_protocol_api.h"
 
@@ -137,7 +138,9 @@
 
 #define TXRU_TIME             40         ///< Transmitter ramp up time [us]
 #define EVENT_LAT             23         ///< END event latency [us]
+#ifndef MAX_RXRAMPDOWN_CYCLES
 #define MAX_RXRAMPDOWN_CYCLES 32         ///< Maximum number of cycles that RX ramp-down might take
+#endif
 
 #define RSSI_SETTLE_TIME_US   15         ///< Time required for RSSI measurements to become valid after signal level change.
 
@@ -256,20 +259,21 @@ static void rx_flags_clear(void)
 
 static void * volatile mp_receive_buffer;
 
-static void txpower_set(nrf_radio_txpower_t txpower)
+static void txpower_set(int8_t txpower)
 {
 #ifdef NRF53_SERIES
     bool radio_high_voltage_enable = false;
 
-    if ((int8_t)txpower > 0)
+    if (txpower > 0)
     {
         /* To get higher than 0dBm raise operating voltage of the radio, giving 3dBm power boost */
         radio_high_voltage_enable = true;
-        txpower                  -= 3;
     }
     nrf_vreqctrl_radio_high_voltage_set(NRF_VREQCTRL_NS, radio_high_voltage_enable);
 #endif
-    nrf_radio_txpower_set(NRF_RADIO, txpower);
+    uint32_t reg = mpsl_tx_power_dbm_to_radio_register_convert(txpower);
+
+    nrf_radio_txpower_set(NRF_RADIO, reg);
 }
 
 /** Initialize TIMER peripheral used by the driver. */
@@ -538,7 +542,7 @@ static void device_config_254_apply_tx(void)
  *
  * Shall be called after setting RADIO mode to NRF_RADIO_MODE_IEEE802154_250KBIT.
  */
-#if defined(NRF5340_XXAA)
+#if defined(NRF5340_XXAA) && !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
 static void errata_117_apply(void)
 {
     /* Register at 0x01FF0084. */
@@ -663,7 +667,7 @@ void nrf_802154_trx_enable(void)
 
     nrf_radio_mode_set(NRF_RADIO, NRF_RADIO_MODE_IEEE802154_250KBIT);
 
-#if defined(NRF5340_XXAA)
+#if defined(NRF5340_XXAA) && !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
     // Apply ERRATA-117 after setting RADIO mode to NRF_RADIO_MODE_IEEE802154_250KBIT.
     errata_117_apply();
     pa_modulation_fix_apply(true);
@@ -786,7 +790,7 @@ void nrf_802154_trx_disable(void)
 
     if (m_trx_state != TRX_STATE_DISABLED)
     {
-#if defined(NRF5340_XXAA)
+#if defined(NRF5340_XXAA) && !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
         pa_modulation_fix_apply(false);
 #endif
 
