@@ -84,6 +84,11 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
 
     NRFX_LOG_INFO("Starting nrfx_timer basic example:");
@@ -97,11 +102,6 @@ int main(void)
 
     status = nrfx_timer_init(&timer_inst, &config, timer_handler);
     NRFX_ASSERT(status == NRFX_SUCCESS);
-
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0);
-#endif
 
     nrfx_timer_clear(&timer_inst);
 

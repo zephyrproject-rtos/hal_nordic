@@ -144,6 +144,13 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIM_INST_GET(SPIM_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_SPIM_INST_HANDLER_GET(SPIM_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIS_INST_GET(SPIS_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_SPIS_INST_HANDLER_GET(SPIS_INST_IDX), 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
 
     NRFX_LOG_INFO("Starting nrfx_spim_spis basic non-blocking example.");
@@ -168,13 +175,6 @@ int main(void)
 
     status = nrfx_spis_init(&spis_inst, &spis_config, spis_handler, p_context);
     NRFX_ASSERT(status == NRFX_SUCCESS);
-
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIM_INST_GET(SPIM_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_SPIM_INST_HANDLER_GET(SPIM_INST_IDX), 0);
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIS_INST_GET(SPIS_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_SPIS_INST_HANDLER_GET(SPIS_INST_IDX), 0);
-#endif
 
     status = nrfx_spis_buffers_set(&spis_inst,
                                    m_tx_buffer_slave, sizeof(m_tx_buffer_slave),

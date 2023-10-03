@@ -94,10 +94,9 @@ int main(void)
     uint8_t gppi_channel;
 
 #if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0);
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE), IRQ_PRIO_LOWEST, nrfx_gpiote_irq_handler,
-                       0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE), IRQ_PRIO_LOWEST, nrfx_gpiote_irq_handler, 0, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -107,7 +106,8 @@ int main(void)
 
     status = nrfx_gpiote_init(NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
-    NRFX_LOG_INFO("GPIOTE status: %s", nrfx_gpiote_is_init() ? "initialized" : "not initialized");
+    NRFX_LOG_INFO("GPIOTE status: %s",
+                  nrfx_gpiote_is_init() ? "initialized" : "not initialized");
 
     status = nrfx_gpiote_channel_alloc(&out_channel);
     NRFX_ASSERT(status == NRFX_SUCCESS);

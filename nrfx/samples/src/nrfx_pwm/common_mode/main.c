@@ -109,6 +109,11 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_PWM_INST_GET(PWM_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_PWM_INST_HANDLER_GET(PWM_INST_IDX), 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
 
     NRFX_LOG_INFO("Starting nrfx_pwm example for sequence loaded in common mode.");
@@ -118,11 +123,6 @@ int main(void)
     nrfx_pwm_config_t config = NRFX_PWM_DEFAULT_CONFIG(LED1_PIN, LED2_PIN, LED3_PIN, LED4_PIN);
     status = nrfx_pwm_init(&pwm_instance, &config, pwm_handler, &pwm_instance);
     NRFX_ASSERT(status == NRFX_SUCCESS);
-
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_PWM_INST_GET(PWM_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_PWM_INST_HANDLER_GET(PWM_INST_IDX), 0);
-#endif
 
     nrf_pwm_sequence_t seq =
     {

@@ -147,7 +147,7 @@ static void uarte_handler(nrfx_uarte_event_t const * p_event, void * p_context)
     if (p_event->type == NRFX_UARTE_EVT_TX_DONE)
     {
         NRFX_LOG_INFO("--> TX done");
-        NRFX_LOG_INFO("--> Bytes transfered: %u", p_event->data.tx.bytes);
+        NRFX_LOG_INFO("--> Bytes transfered: %u", p_event->data.tx.length);
         nrfx_uarte_uninit(p_inst);
     }
 }
@@ -162,6 +162,11 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_UARTE_INST_GET(UARTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_UARTE_INST_HANDLER_GET(UARTE_INST_IDX), 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
 
     NRFX_LOG_INFO("Starting nrfx_uarte RX double-buffered example.");
@@ -172,11 +177,6 @@ int main(void)
     uarte_config.p_context = &uarte_inst;
     status = nrfx_uarte_init(&uarte_inst, &uarte_config, uarte_handler);
     NRFX_ASSERT(status == NRFX_SUCCESS);
-
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_UARTE_INST_GET(UARTE_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_UARTE_INST_HANDLER_GET(UARTE_INST_IDX), 0);
-#endif
 
     /* Declaration and filling m_tx_buffer to store desired msg ("Nordic Semiconductor nRF"). */
     memcpy(m_tx_buffer                              , MSG1, strlen(MSG1));

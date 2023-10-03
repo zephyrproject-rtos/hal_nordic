@@ -81,18 +81,17 @@
 /**
  * @brief Function for setting up a GPIOTE task that toggles a given pin.
  *
- * @param pin The pin to toggle.
+ * @param[in] pin The pin to toggle.
  */
 void gpiote_pin_toggle_task_setup(nrfx_gpiote_pin_t pin);
 
 /**
  * @brief Function for setting up a pin to be toggled once specified event is triggered.
  *
- * @param pin The pin to toggle.
- * @param eep Address of the event register. This event will trigger the @p pin to toggle.
+ * @param[in] pin The pin to toggle.
+ * @param[in] eep Address of the event register. This event will trigger the @p pin to toggle.
  */
-void pin_on_event_toggle_setup(nrfx_gpiote_pin_t pin,
-                               uint32_t          eep);
+void pin_on_event_toggle_setup(nrfx_gpiote_pin_t pin, uint32_t eep);
 
 /** @} */
 

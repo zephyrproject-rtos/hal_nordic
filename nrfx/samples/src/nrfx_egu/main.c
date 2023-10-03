@@ -78,6 +78,11 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_EGU_INST_GET(EGU_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_EGU_INST_HANDLER_GET(EGU_INST_IDX), 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
 
     NRFX_LOG_INFO("Starting nrfx_egu example");
@@ -87,11 +92,6 @@ int main(void)
     void * p_context = "Some context";
     status = nrfx_egu_init(&egu_inst, NRFX_EGU_DEFAULT_CONFIG_IRQ_PRIORITY, egu_handler, p_context);
     NRFX_ASSERT(status);
-
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_EGU_INST_GET(EGU_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_EGU_INST_HANDLER_GET(EGU_INST_IDX), 0);
-#endif
 
     uint32_t ch0_idx = 0;
     uint32_t ch1_idx = 1;
