@@ -83,6 +83,10 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_RNG), IRQ_PRIO_LOWEST, nrfx_rng_irq_handler, 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
 
     NRFX_LOG_INFO("Starting nrfx_rng example:");
@@ -91,10 +95,6 @@ int main(void)
     nrfx_rng_config_t config = NRFX_RNG_DEFAULT_CONFIG;
     status = nrfx_rng_init(&config, rng_handler);
     NRFX_ASSERT(status == NRFX_SUCCESS);
-
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_RNG), IRQ_PRIO_LOWEST, nrfx_rng_irq_handler, 0);
-#endif
 
     nrfx_rng_start();
 

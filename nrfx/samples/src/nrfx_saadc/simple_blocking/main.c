@@ -97,14 +97,21 @@ static const nrfx_saadc_channel_t m_multiple_channels[] =
 /** @brief Symbol specifying numbers of multiple channels ( @ref m_multiple_channels) used by SAADC. */
 #define CHANNEL_COUNT NRFX_ARRAY_SIZE(m_multiple_channels)
 
+/** @brief Symbol specifying the number of SAADC samplings to trigger. */
+#define SAMPLING_ITERATIONS 8
+
+/** @brief Symbol specifying the resolution of the SAADC. */
+#define RESOLUTION NRF_SAADC_RESOLUTION_8BIT
+
 /** @brief Array specifying GPIO pins used to test the functionality of SAADC. */
 static uint8_t m_out_pins[CHANNEL_COUNT] = {LOOPBACK_PIN_1B, LOOPBACK_PIN_2B, LOOPBACK_PIN_3B};
 
 /** @brief Samples buffer defined with the size of @ref CHANNEL_COUNT symbol to store values from each channel ( @ref m_multiple_channels). */
-static nrf_saadc_value_t samples_buffer[CHANNEL_COUNT];
-
-/** @brief Symbol specifying the number of SAADC samplings to trigger. */
-#define SAMPLING_ITERATIONS 8
+#if (NRF_SAADC_8BIT_SAMPLE_WIDTH == 8) && (RESOLUTION == NRF_SAADC_RESOLUTION_8BIT)
+static uint8_t samples_buffer[CHANNEL_COUNT];
+#else
+static uint16_t samples_buffer[CHANNEL_COUNT];
+#endif
 
 /** @brief Enum with the current state of the simple state machine. */
 static state_t m_current_state = STATE_SINGLE_CONFIG;
@@ -119,12 +126,21 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE), IRQ_PRIO_LOWEST, nrfx_gpiote_irq_handler, 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
     NRFX_LOG_INFO("Starting nrfx_saadc simple blocking example.");
     NRFX_EXAMPLE_LOG_PROCESS();
 
     status = nrfx_saadc_init(NRFX_SAADC_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
+
+    status = nrfx_gpiote_init(NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
+    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_LOG_INFO("GPIOTE status: %s",
+                  nrfx_gpiote_is_init() ? "initialized" : "not initialized");
 
     uint8_t i;
     for (i = 0; i < CHANNEL_COUNT; i++)
@@ -145,7 +161,7 @@ int main(void)
 
                 uint32_t channels_mask = nrfx_saadc_channels_configured_get();
                 status = nrfx_saadc_simple_mode_set(channels_mask,
-                                                    NRF_SAADC_RESOLUTION_8BIT,
+                                                    RESOLUTION,
                                                     NRF_SAADC_OVERSAMPLE_DISABLED,
                                                     NULL);
                 NRFX_ASSERT(status == NRFX_SUCCESS);
@@ -172,7 +188,8 @@ int main(void)
                     NRFX_ASSERT(status == NRFX_SUCCESS);
 
                     NRFX_LOG_INFO("[CHANNEL %u] Sampled value == %d",
-                                  m_multiple_channels[0].channel_index, samples_buffer[0]);
+                                  m_multiple_channels[0].channel_index,
+                                  NRFX_SAADC_SAMPLE_GET(RESOLUTION, samples_buffer, 0));
                 }
                 else
                 {
@@ -189,7 +206,7 @@ int main(void)
 
                 channels_mask = nrfx_saadc_channels_configured_get();
                 status = nrfx_saadc_simple_mode_set(channels_mask,
-                                                    NRF_SAADC_RESOLUTION_8BIT,
+                                                    RESOLUTION,
                                                     NRF_SAADC_OVERSAMPLE_DISABLED,
                                                     NULL);
                 NRFX_ASSERT(status == NRFX_SUCCESS);
@@ -221,7 +238,8 @@ int main(void)
                     for (i = 0; i < CHANNEL_COUNT; i++)
                     {
                         NRFX_LOG_INFO("[CHANNEL %u] Sampled value == %d",
-                                      m_multiple_channels[i].channel_index, samples_buffer[i]);
+                                      m_multiple_channels[i].channel_index,
+                                      NRFX_SAADC_SAMPLE_GET(RESOLUTION, samples_buffer, i));
                     }
                 }
                 break;

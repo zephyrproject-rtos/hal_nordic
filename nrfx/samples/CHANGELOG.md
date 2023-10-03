@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project are documented in this file.
 
+## [3.2.0] - 2023-10-02
+### Changed
+- Applied nrfx 3.2 changes to existing samples for the following drivers: GPIOTE, SAADC.
+- Replaced routine used for initializing an interrupt handler for an IRQ. Now IRQ_CONNECT is used instead of IRQ_DIRECT_CONNECT.
+
 ## [3.0.0] - 2023-04-21
 ### Changed
 - Applied nrfx 3.0 changes to existing samples for the following drivers: GPPI, SAADC, SPIM, TIMER, TWIM, TWIS.

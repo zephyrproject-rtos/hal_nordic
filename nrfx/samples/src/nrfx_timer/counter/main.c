@@ -121,6 +121,13 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_T_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_TIMER_INST_HANDLER_GET(TIMER_T_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_C_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_TIMER_INST_HANDLER_GET(TIMER_C_INST_IDX), 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
 
     NRFX_LOG_INFO("Starting nrfx_timer basic counter example.");
@@ -145,13 +152,6 @@ int main(void)
     config.p_context = &timer_c_inst;
     status = nrfx_timer_init(&timer_c_inst, &config, timer_handler);
     NRFX_ASSERT(status == NRFX_SUCCESS);
-
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_T_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_TIMER_INST_HANDLER_GET(TIMER_T_INST_IDX), 0);
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_C_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_TIMER_INST_HANDLER_GET(TIMER_C_INST_IDX), 0);
-#endif
 
     NRFX_LOG_INFO("Time between timer ticks: %lu ms", TIME_TO_WAIT_MS);
 

@@ -107,6 +107,11 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_UARTE_INST_GET(UARTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_UARTE_INST_HANDLER_GET(UARTE_INST_IDX), 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
 
     NRFX_LOG_INFO("Starting nrfx_uarte non-blocking example.");
@@ -117,11 +122,6 @@ int main(void)
     uarte_config.p_context = &uarte_inst;
     status = nrfx_uarte_init(&uarte_inst, &uarte_config, uarte_handler);
     NRFX_ASSERT(status == NRFX_SUCCESS);
-
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_UARTE_INST_GET(UARTE_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_UARTE_INST_HANDLER_GET(UARTE_INST_IDX), 0);
-#endif
 
     NRFX_LOG_INFO("Content of TX buffer: %s", m_tx_buffer);
     NRFX_LOG_INFO("Content of RX buffer: %s", m_rx_buffer);

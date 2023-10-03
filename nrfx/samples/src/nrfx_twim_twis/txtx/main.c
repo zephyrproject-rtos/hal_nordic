@@ -262,6 +262,14 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TWIM_INST_GET(TWIM_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_TWIM_INST_HANDLER_GET(TWIM_INST_IDX), 0, 0);
+
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TWIS_INST_GET(TWIS_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_TWIS_INST_HANDLER_GET(TWIS_INST_IDX), 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
 
     NRFX_LOG_INFO("Starting nrfx_twim_twis txtx example.");
@@ -288,14 +296,6 @@ int main(void)
                                                               DRONE_IDX);
     status = nrfx_twis_init(&m_twis_inst, &twis_config, twis_handler);
     NRFX_ASSERT(status == NRFX_SUCCESS);
-
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TWIM_INST_GET(TWIM_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_TWIM_INST_HANDLER_GET(TWIM_INST_IDX), 0);
-
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TWIS_INST_GET(TWIS_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_TWIS_INST_HANDLER_GET(TWIS_INST_IDX), 0);
-#endif
 
     drone_reg_print(&m_drone_reg);
 

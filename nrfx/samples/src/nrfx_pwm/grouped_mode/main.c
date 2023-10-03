@@ -193,6 +193,11 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_PWM_INST_GET(PWM_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_PWM_INST_HANDLER_GET(PWM_INST_IDX), 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
 
     NRFX_LOG_INFO("Starting nrfx_pwm example for sequences loaded in grouped mode.");
@@ -203,11 +208,6 @@ int main(void)
     config.load_mode = NRF_PWM_LOAD_GROUPED;
     status = nrfx_pwm_init(&pwm_instance, &config, pwm_handler, &pwm_instance);
     NRFX_ASSERT(status == NRFX_SUCCESS);
-
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_PWM_INST_GET(PWM_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_PWM_INST_HANDLER_GET(PWM_INST_IDX), 0);
-#endif
 
     nrfx_pwm_complex_playback(&pwm_instance, &seq[0], &seq[1], PLAYBACK_COUNT, NRFX_PWM_FLAG_LOOP);
 

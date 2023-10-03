@@ -34,6 +34,7 @@
 #include <nrfx_example.h>
 #include <saadc_examples_common.h>
 #include <nrfx_saadc.h>
+#include <nrfx_gpiote.h>
 
 #define NRFX_LOG_MODULE                 EXAMPLE
 #define NRFX_EXAMPLE_CONFIG_LOG_ENABLED 1
@@ -69,11 +70,18 @@
 /** @brief Symbol specifying the number of SAADC samplings to trigger. */
 #define SAMPLING_ITERATIONS 5UL
 
+/** @brief Symbol specifying the resolution of the SAADC. */
+#define RESOLUTION NRF_SAADC_RESOLUTION_10BIT
+
 /** @brief SAADC channel configuration structure for single channel use. */
 static const nrfx_saadc_channel_t m_single_channel = SAADC_CHANNEL_SE_ACQ_3US(CH0_AIN, 0);
 
 /** @brief Samples buffer to store values from a SAADC channel. */
-static nrf_saadc_value_t m_samples_buffer[BUFFER_SIZE];
+#if (NRF_SAADC_8BIT_SAMPLE_WIDTH == 8) && (RESOLUTION == NRF_SAADC_RESOLUTION_8BIT)
+static uint8_t m_samples_buffer[BUFFER_SIZE];
+#else
+static uint16_t m_samples_buffer[BUFFER_SIZE];
+#endif
 
 /**
  * @brief Function for application main entry.
@@ -85,12 +93,21 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE), IRQ_PRIO_LOWEST, nrfx_gpiote_irq_handler, 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
     NRFX_LOG_INFO("Starting nrfx_saadc advanced blocking example.");
     NRFX_EXAMPLE_LOG_PROCESS();
 
     status = nrfx_saadc_init(NRFX_SAADC_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
+
+    status = nrfx_gpiote_init(NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
+    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_LOG_INFO("GPIOTE status: %s",
+                  nrfx_gpiote_is_init() ? "initialized" : "not initialized");
 
     gpiote_pin_toggle_task_setup(OUT_GPIO_PIN);
 
@@ -101,7 +118,7 @@ int main(void)
 
     uint32_t channel_mask = nrfx_saadc_channels_configured_get();
     status = nrfx_saadc_advanced_mode_set(channel_mask,
-                                          NRF_SAADC_RESOLUTION_10BIT,
+                                          RESOLUTION,
                                           &adv_config,
                                           NULL);
     NRFX_ASSERT(status == NRFX_SUCCESS);
@@ -131,8 +148,9 @@ int main(void)
 
             for (uint32_t buffer_index = 0; buffer_index < BUFFER_SIZE; buffer_index++)
             {
-                NRFX_LOG_INFO("[Sample %u] value == %d", buffer_index,
-                                                         m_samples_buffer[buffer_index]);
+                NRFX_LOG_INFO("[Sample %u] value == %d",
+                              buffer_index,
+                              NRFX_SAADC_SAMPLE_GET(RESOLUTION, m_samples_buffer, buffer_index));
             }
 
             status = nrfx_saadc_buffer_set(m_samples_buffer, BUFFER_SIZE);

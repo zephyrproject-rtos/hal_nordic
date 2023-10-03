@@ -93,6 +93,10 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TEMP), IRQ_PRIO_LOWEST, nrfx_temp_irq_handler, 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
 
     NRFX_LOG_INFO("Starting nrfx_temp non-blocking example.");
@@ -101,10 +105,6 @@ int main(void)
     nrfx_temp_config_t config = NRFX_TEMP_DEFAULT_CONFIG;
     status = nrfx_temp_init(&config, temp_handler);
     NRFX_ASSERT(status == NRFX_SUCCESS);
-
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TEMP), IRQ_PRIO_LOWEST, nrfx_temp_irq_handler, 0);
-#endif
 
     status = nrfx_temp_measure();
     NRFX_ASSERT(status == NRFX_SUCCESS);

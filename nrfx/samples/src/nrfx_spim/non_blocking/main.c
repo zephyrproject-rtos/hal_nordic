@@ -98,6 +98,11 @@ int main(void)
     nrfx_err_t status;
     (void)status;
 
+#if defined(__ZEPHYR__)
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIM_INST_GET(SPIM_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_SPIM_INST_HANDLER_GET(SPIM_INST_IDX), 0, 0);
+#endif
+
     NRFX_EXAMPLE_LOG_INIT();
 
     NRFX_LOG_INFO("Starting nrfx_spim basic non-blocking example.");
@@ -113,11 +118,6 @@ int main(void)
     void * p_context = "Some context";
     status = nrfx_spim_init(&spim_inst, &spim_config, spim_handler, p_context);
     NRFX_ASSERT(status == NRFX_SUCCESS);
-
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIM_INST_GET(SPIM_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_SPIM_INST_HANDLER_GET(SPIM_INST_IDX), 0);
-#endif
 
     nrfx_spim_xfer_desc_t spim_xfer_desc = NRFX_SPIM_XFER_TRX(m_tx_buffer, sizeof(m_tx_buffer),
                                                               m_rx_buffer, sizeof(m_rx_buffer));
