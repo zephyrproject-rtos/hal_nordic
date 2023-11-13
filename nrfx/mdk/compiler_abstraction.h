@@ -338,7 +338,7 @@ POSSIBILITY OF SUCH DAMAGE.
     #endif
 
     #ifndef __VECTOR_TABLE_ATTRIBUTE
-        #define __VECTOR_TABLE_ATTRIBUTE  __attribute__((used, section(".isr_vector")))
+        #define __VECTOR_TABLE_ATTRIBUTE  __attribute__((used, section(".vectors")))
     #endif
 
     #ifndef __STACK_ATTRIBUTES
