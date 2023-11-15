@@ -198,6 +198,7 @@ typedef enum
     NRFX_UARTE_EVT_RX_BUF_REQUEST,  ///< Request for a RX buffer.
     NRFX_UARTE_EVT_RX_DISABLED,     ///< Receiver is disabled.
     NRFX_UARTE_EVT_RX_BUF_TOO_LATE, ///< RX buffer request handled too late.
+    NRFX_UARTE_EVT_RX_BYTE,         ///< Byte was received.
     NRFX_UARTE_EVT_TRIGGER,         ///< Result of @ref nrfx_uarte_int_trigger.
 } nrfx_uarte_evt_type_t;
 
@@ -661,6 +662,33 @@ uint32_t nrfx_uarte_errorsrc_get(nrfx_uarte_t const * p_instance);
 bool nrfx_uarte_rx_new_data_check(nrfx_uarte_t const * p_instance);
 
 /**
+ * @brief Function for enabling @ref NRFX_UARTE_EVT_RX_BYTE event.
+ *
+ * The function enables the @ref NRF_UARTE_EVENT_RXDRDY hardware event which is generated whenever a byte is
+ * received in RXD registers. The event indicates only that data is received, hence it must not be used yet
+ * because it may not be present yet in the RAM buffer handled by the EasyDMA. The event can be used only to
+ * detect a receiver activity. The event can be enabled at any time. Enabling it may increase the number of interrupts (after each received byte).
+ *
+ * @note If there were a receiver activity prior to enabling the @ref NRF_UARTE_EVENT_RXDRDY event,
+ * the @ref NRF_UARTE_EVENT_RXDRDY event may already be set and the @ref NRFX_UARTE_EVT_RX_BYTE will be
+ * triggered immediately. To avoid that, it is recommended to clear that event by calling
+ * the @ref nrfx_uarte_rx_new_data_check.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ */
+NRFX_STATIC_INLINE void nrfx_uarte_rxdrdy_enable(nrfx_uarte_t const * p_instance);
+
+/**
+ * @brief Function for disabling @ref NRFX_UARTE_EVT_RX_BYTE event.
+ *
+ * The function disables the RXDRDY hardware event. See the @ref nrfx_uarte_rxdrdy_enable for more details.
+ * The event can be disabled at any time.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ */
+NRFX_STATIC_INLINE void nrfx_uarte_rxdrdy_disable(nrfx_uarte_t const * p_instance);
+
+/**
  * @brief Function for triggering UARTE interrupt.
  *
  * Function can be used to jump into UARTE interrupt context. User handler is
@@ -685,6 +713,17 @@ NRFX_STATIC_INLINE uint32_t nrfx_uarte_event_address_get(nrfx_uarte_t const * p_
 {
     return nrfy_uarte_event_address_get(p_instance->p_reg, event);
 }
+
+NRFX_STATIC_INLINE void nrfx_uarte_rxdrdy_enable(nrfx_uarte_t const * p_instance)
+{
+	nrfy_uarte_int_enable(p_instance->p_reg, NRF_UARTE_INT_RXDRDY_MASK);
+}
+
+NRFX_STATIC_INLINE void nrfx_uarte_rxdrdy_disable(nrfx_uarte_t const * p_instance)
+{
+	nrfy_uarte_int_disable(p_instance->p_reg, NRF_UARTE_INT_RXDRDY_MASK);
+}
+
 #endif // NRFX_DECLARE_ONLY
 
 /**

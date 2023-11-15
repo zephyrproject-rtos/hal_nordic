@@ -1856,6 +1856,14 @@ static void irq_handler(NRF_UARTE_Type * p_uarte, uarte_control_block_t * p_cb)
                                                NRFY_EVENT_TO_INT_BITMASK(NRF_UARTE_EVENT_ENDRX),
                                                &p_cb->rx.curr);
 
+        // Report RXDRDY only if enabled
+        if (nrfy_uarte_int_enable_check(p_uarte, NRF_UARTE_INT_RXDRDY_MASK) &&
+            nrfy_uarte_event_check(p_uarte, NRF_UARTE_EVENT_RXDRDY))
+        {
+            nrfy_uarte_event_clear(p_uarte, NRF_UARTE_EVENT_RXDRDY);
+            user_handler(p_cb, NRFX_UARTE_EVT_RX_BYTE);
+        }
+
         if (endrx)
         {
             if (endrx_irq_handler(p_uarte, p_cb, rxstarted) == true)
