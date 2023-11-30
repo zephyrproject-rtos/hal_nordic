@@ -372,11 +372,6 @@ static void qspi_deactivate(void)
 {
     m_cb.activated = false;
 
-    if (nrf_qspi_cinstr_long_transfer_is_ongoing(NRF_QSPI))
-    {
-        nrf_qspi_cinstr_long_transfer_continue(NRF_QSPI, NRF_QSPI_CINSTR_LEN_1B, true);
-    }
-
     nrf_qspi_int_disable(NRF_QSPI, NRF_QSPI_INT_READY_MASK);
 
     nrf_qspi_task_trigger(NRF_QSPI, NRF_QSPI_TASK_DEACTIVATE);
@@ -508,14 +503,6 @@ nrfx_err_t nrfx_qspi_cinstr_xfer(nrf_qspi_cinstr_conf_t const * p_config,
         return NRFX_ERROR_TIMEOUT;
     }
 
-    /* In some cases, only opcode should be sent. To prevent execution, set function code is
-     * surrounded by an if.
-     */
-    if (p_tx_buffer)
-    {
-        nrf_qspi_cinstrdata_set(NRF_QSPI, p_config->length, p_tx_buffer);
-    }
-
     /* For custom instruction transfer driver has to switch to blocking mode.
      * If driver was previously configured to non-blocking mode, interrupts
      * will get reenabled before next standard transfer.
@@ -529,6 +516,14 @@ nrfx_err_t nrfx_qspi_cinstr_xfer(nrf_qspi_cinstr_conf_t const * p_config,
     if (NRF52_ERRATA_215_ENABLE_WORKAROUND || NRF53_ERRATA_43_ENABLE_WORKAROUND)
     {
         qspi_workaround_apply();
+    }
+
+    /* In some cases, only opcode should be sent. To prevent execution, set function code is
+     * surrounded by an if.
+     */
+    if (p_tx_buffer)
+    {
+        nrf_qspi_cinstrdata_set(NRF_QSPI, p_config->length, p_tx_buffer);
     }
 
     m_cb.timeout_signal = false;
