@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 - 2023, Nordic Semiconductor ASA
+ * Copyright (c) 2017, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -200,6 +200,18 @@ extern "C" {
  */
 #ifndef NRF_802154_RX_BUFFERS
 #define NRF_802154_RX_BUFFERS 16
+#endif
+
+/**
+ * @def NRF_802154_MAX_DISREGARDABLE_NOTIFICATIONS
+ *
+ * The number of slots in the driver's notification queue intended for notifications that can be
+ * disregarded with no impact on the driver, for instance failed reception notifications.
+ *
+ * @note Setting this macro to 0 will cause the driver to not issue any disregardable notifications.
+ */
+#ifndef NRF_802154_MAX_DISREGARDABLE_NOTIFICATIONS
+#define NRF_802154_MAX_DISREGARDABLE_NOTIFICATIONS 4
 #endif
 
 /**

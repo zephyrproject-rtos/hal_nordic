@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 - 2023, Nordic Semiconductor ASA
+ * Copyright (c) 2021, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -82,6 +82,13 @@ nrf_802154_security_error_t nrf_802154_security_pib_key_store(nrf_802154_key_t *
  * @retval NRF_802154_SECURITY_ERROR_KEY_NOT_FOUND Failed to remove the key - no such key found.
  */
 nrf_802154_security_error_t nrf_802154_security_pib_key_remove(nrf_802154_key_id_t * p_id);
+
+/**
+ * @brief Removes all stored 802.15.4 MAC Security Keys from the nRF 802.15.4 Radio Driver.
+ *
+ * @note This function is not reentrant and must be called from thread context only.
+ */
+void nrf_802154_security_pib_key_remove_all(void);
 
 /**
  * @brief Uses the 802.15.4 MAC Security Key stored previously in the nRF 802.15.4 Radio Driver.

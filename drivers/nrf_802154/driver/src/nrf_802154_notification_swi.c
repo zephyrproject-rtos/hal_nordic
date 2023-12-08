@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 - 2023, Nordic Semiconductor ASA
+ * Copyright (c) 2017, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -42,7 +42,7 @@
 
 #include "nrf_802154_notification.h"
 
-#include <assert.h>
+#include "nrf_802154_assert.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -73,7 +73,7 @@
  *  - frame received notifications for each receive buffer.
  */
 #define NTF_PRIMARY_POOL_SIZE \
-    (NRF_802154_RX_BUFFERS + NRF_802154_RSCH_DLY_TS_OP_DRX_SLOTS + 3)
+    (NRF_802154_RX_BUFFERS + NRF_802154_RSCH_DLY_TS_SLOTS + 1)
 
 /**
  * The implementation uses 8-bit integers to address slots with the oldest bit
@@ -85,10 +85,8 @@
 #endif
 
 /** @brief Size of pool of slots for notifications that can be ignored.
- *
- * The pool needs to contain slots for failed receptions. Its size is chosen arbitrarily.
  */
-#define NTF_SECONDARY_POOL_SIZE    4
+#define NTF_SECONDARY_POOL_SIZE    NRF_802154_MAX_DISREGARDABLE_NOTIFICATIONS
 
 /** @brief Bitmask that represents slot pool used.
  */
@@ -205,6 +203,10 @@ static nrf_802154_queue_entry_t m_notifications_queue_memory[NTF_QUEUE_SIZE];
 
 static volatile nrf_802154_mcu_critical_state_t m_mcu_cs;
 
+#if (NRF_802154_MAX_PENDING_NOTIFICATIONS + 1) != (NTF_QUEUE_SIZE)
+#error "Mismatching sizes of notification queue and maximum number of pending notifications"
+#endif
+
 /** @brief Allocate notification slot from the specified pool.
  *
  * @param[inout]  p_pool    Pointer to a pool of slots.
@@ -267,7 +269,7 @@ static nrf_802154_queue_entry_t * ntf_enter(void)
 {
     nrf_802154_mcu_critical_enter(m_mcu_cs);
 
-    assert(!nrf_802154_queue_is_full(&m_notifications_queue));
+    NRF_802154_ASSERT(!nrf_802154_queue_is_full(&m_notifications_queue));
 
     return nrf_802154_queue_push_begin(&m_notifications_queue);
 }
@@ -604,7 +606,7 @@ void nrf_802154_notify_received(uint8_t * p_data, int8_t power, uint8_t lqi)
     bool notified = swi_notify_received(p_data, power, lqi);
 
     // It should always be possible to notify a successful reception
-    assert(notified);
+    NRF_802154_ASSERT(notified);
     (void)notified;
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
@@ -633,7 +635,7 @@ void nrf_802154_notify_transmitted(uint8_t                             * p_frame
     bool notified = swi_notify_transmitted(p_frame, p_metadata);
 
     // It should always be possible to notify transmission result
-    assert(notified);
+    NRF_802154_ASSERT(notified);
     (void)notified;
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
@@ -648,7 +650,7 @@ void nrf_802154_notify_transmit_failed(uint8_t                                  
     bool notified = swi_notify_transmit_failed(p_frame, error, p_metadata);
 
     // It should always be possible to notify transmission result
-    assert(notified);
+    NRF_802154_ASSERT(notified);
     (void)notified;
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
@@ -671,7 +673,7 @@ void nrf_802154_notify_energy_detected(uint8_t result)
 #endif
 
     // It should always be possible to notify energy detection result
-    assert(notified);
+    NRF_802154_ASSERT(notified);
     (void)notified;
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
@@ -684,7 +686,7 @@ void nrf_802154_notify_energy_detection_failed(nrf_802154_ed_error_t error)
     bool notified = swi_notify_energy_detection_failed(error);
 
     // It should always be possible to notify energy detection result
-    assert(notified);
+    NRF_802154_ASSERT(notified);
     (void)notified;
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
@@ -697,7 +699,7 @@ void nrf_802154_notify_cca(bool is_free)
     bool notified = swi_notify_cca(is_free);
 
     // It should always be possible to notify CCA result
-    assert(notified);
+    NRF_802154_ASSERT(notified);
     (void)notified;
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
@@ -710,7 +712,7 @@ void nrf_802154_notify_cca_failed(nrf_802154_cca_error_t error)
     bool notified = swi_notify_cca_failed(error);
 
     // It should always be possible to notify CCA result
-    assert(notified);
+    NRF_802154_ASSERT(notified);
     (void)notified;
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
@@ -805,7 +807,7 @@ static void irq_handler_ntf_event(void)
                 break;
 
             default:
-                assert(false);
+                NRF_802154_ASSERT(false);
         }
 
         nrf_802154_queue_pop_commit(&m_notifications_queue);
