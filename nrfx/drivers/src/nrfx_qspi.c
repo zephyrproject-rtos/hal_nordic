@@ -46,7 +46,7 @@
 #define QSPI_STD_CMD_RDSR 0x05
 
 /** @brief Byte used to mask status register and retrieve the write-in-progess bit. */
-#define QSPI_MEM_STATUSREG_WIP_Pos 0x01
+#define QSPI_MEM_STATUSREG_WIP_MASK 0x01
 
 /** @brief Default time used in timeout function. */
 #define QSPI_DEF_WAIT_TIME_US 10
@@ -433,7 +433,7 @@ nrfx_err_t nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
 
     if (p_config)
     {
-        nrfx_err_t err_code = qspi_configure(p_config);
+        err_code = qspi_configure(p_config);
         if (err_code != NRFX_SUCCESS)
         {
             NRFX_LOG_WARNING("Function: %s, error code: %s.",
@@ -698,7 +698,7 @@ nrfx_err_t nrfx_qspi_mem_busy_check(void)
         return ret_code;
     }
 
-    if ((status_value & QSPI_MEM_STATUSREG_WIP_Pos) != 0x00)
+    if ((status_value & QSPI_MEM_STATUSREG_WIP_MASK) != 0x00)
     {
         return NRFX_ERROR_BUSY;
     }
@@ -756,7 +756,15 @@ nrfx_err_t nrfx_qspi_write(void const * p_tx_buffer,
                            size_t       tx_buffer_length,
                            uint32_t     dst_address)
 {
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
+#endif
     return qspi_xfer((void *)p_tx_buffer, tx_buffer_length, dst_address, NRFX_QSPI_STATE_WRITE);
+
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 }
 
 nrfx_err_t nrfx_qspi_read(void *   p_rx_buffer,
