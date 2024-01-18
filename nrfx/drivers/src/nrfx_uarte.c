@@ -43,6 +43,7 @@
 #include "prs/nrfx_prs.h"
 #include <haly/nrfy_gpio.h>
 #include <string.h>
+#include <soc/nrfx_coredep.h>
 
 #define NRFX_LOG_MODULE UARTE
 #include <nrfx_log.h>
@@ -711,7 +712,15 @@ static nrfx_err_t wait_for_endtx(NRF_UARTE_Type * p_uarte,
             ready = is_tx_ready(p_uarte, stop_on_end);
             amount = nrfy_uarte_tx_amount_get(p_uarte);
             p_tx = nrfy_uarte_tx_buffer_get(p_uarte);
-    } while (!ready && p_tx == p_buf);
+
+            if (ready || (p_tx != p_buf))
+            {
+                break;
+            }
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+            nrfx_coredep_delay_us(3);
+#endif
+    } while (true);
 
     // Check if transfer got aborted. Note that aborted transfer can only be
     // detected if new transfer is not started.
@@ -835,13 +844,19 @@ static nrfx_err_t blocking_tx(nrfx_uarte_t const * p_instance,
     {
         do {
             err = poll_out(p_instance, &p_buffer[i], early_ret);
-            if ((err != NRFX_SUCCESS) && (err != NRFX_ERROR_BUSY))
+            if (err == NRFX_SUCCESS)
+            {
+                break;
+            }
+            if (err != NRFX_ERROR_BUSY)
             {
                 // TX aborted or other error
                 return err;
             }
-
-        } while (err != NRFX_SUCCESS);
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+            nrfx_coredep_delay_us(3);
+#endif
+        } while (true);
 
         if (!p_cb->handler && (p_cb->flags & UARTE_FLAG_TX_ABORTED))
         {
