@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2023, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -103,6 +103,9 @@ static const nrfx_saadc_channel_t m_multiple_channels[] =
 /** @brief Symbol specifying the resolution of the SAADC. */
 #define RESOLUTION NRF_SAADC_RESOLUTION_8BIT
 
+/** @brief Symbol specifying GPIOTE instance to be used. */
+#define GPIOTE_INST_IDX 0
+
 /** @brief Array specifying GPIO pins used to test the functionality of SAADC. */
 static uint8_t m_out_pins[CHANNEL_COUNT] = {LOOPBACK_PIN_1B, LOOPBACK_PIN_2B, LOOPBACK_PIN_3B};
 
@@ -127,7 +130,8 @@ int main(void)
     (void)status;
 
 #if defined(__ZEPHYR__)
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE), IRQ_PRIO_LOWEST, nrfx_gpiote_irq_handler, 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_GPIOTE_INST_HANDLER_GET(GPIOTE_INST_IDX), 0, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -137,18 +141,20 @@ int main(void)
     status = nrfx_saadc_init(NRFX_SAADC_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    status = nrfx_gpiote_init(NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
+    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPIOTE_INST_IDX);
+    status = nrfx_gpiote_init(&gpiote_inst, NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
     NRFX_LOG_INFO("GPIOTE status: %s",
-                  nrfx_gpiote_is_init() ? "initialized" : "not initialized");
+                  nrfx_gpiote_init_check(&gpiote_inst) ? "initialized" : "not initialized");
 
     uint8_t i;
     for (i = 0; i < CHANNEL_COUNT; i++)
     {
-        gpiote_pin_toggle_task_setup(m_out_pins[i]);
+        gpiote_pin_toggle_task_setup(&gpiote_inst, m_out_pins[i]);
     }
 
     uint32_t sampling_index = 0;
+    uint32_t channels_mask = 0;
     while (1)
     {
         switch (m_current_state)
@@ -159,7 +165,7 @@ int main(void)
                 status = nrfx_saadc_channel_config(&m_single_channel);
                 NRFX_ASSERT(status == NRFX_SUCCESS);
 
-                uint32_t channels_mask = nrfx_saadc_channels_configured_get();
+                channels_mask = nrfx_saadc_channels_configured_get();
                 status = nrfx_saadc_simple_mode_set(channels_mask,
                                                     RESOLUTION,
                                                     NRF_SAADC_OVERSAMPLE_DISABLED,
@@ -175,7 +181,7 @@ int main(void)
             case STATE_SINGLE_SAMPLING:
                 if (sampling_index++ < SAMPLING_ITERATIONS)
                 {
-                    nrfx_gpiote_out_task_trigger(m_out_pins[0]);
+                    nrfx_gpiote_out_task_trigger(&gpiote_inst, m_out_pins[0]);
 
                     status = nrfx_saadc_offset_calibrate(NULL);
                     NRFX_ASSERT(status == NRFX_SUCCESS);
@@ -222,7 +228,7 @@ int main(void)
                 {
                     for (i = 0; i < CHANNEL_COUNT; i++)
                     {
-                        nrfx_gpiote_out_task_trigger(m_out_pins[i]);
+                        nrfx_gpiote_out_task_trigger(&gpiote_inst, m_out_pins[i]);
                     }
 
                     status = nrfx_saadc_offset_calibrate(NULL);

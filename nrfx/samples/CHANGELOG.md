@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project are documented in this file.
 
+## [3.3.0] - 2023-12-21
+### Changed
+- Applied nrfx 3.2 changes related to modified GPIOTE driver API to existing samples for the following drivers: GPPI, SAADC.
+
 ## [3.2.0] - 2023-10-02
 ### Changed
 - Applied nrfx 3.2 changes to existing samples for the following drivers: GPIOTE, SAADC.

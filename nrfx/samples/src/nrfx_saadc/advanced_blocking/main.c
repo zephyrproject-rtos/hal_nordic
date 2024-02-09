@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2023, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -61,6 +61,9 @@
 /** @brief Symbol specifying analog input to be observed by SAADC channel 0. */
 #define CH0_AIN ANALOG_INPUT_TO_SAADC_AIN(ANALOG_INPUT_A0)
 
+/** @brief Symbol specifying GPIOTE instance to be used. */
+#define GPIOTE_INST_IDX 0
+
 /** @brief Symbol specifying GPIO pin used to test the functionality of SAADC. */
 #define OUT_GPIO_PIN LOOPBACK_PIN_1B
 
@@ -94,7 +97,8 @@ int main(void)
     (void)status;
 
 #if defined(__ZEPHYR__)
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE), IRQ_PRIO_LOWEST, nrfx_gpiote_irq_handler, 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_GPIOTE_INST_HANDLER_GET(GPIOTE_INST_IDX), 0, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -104,12 +108,13 @@ int main(void)
     status = nrfx_saadc_init(NRFX_SAADC_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    status = nrfx_gpiote_init(NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
+    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPIOTE_INST_IDX);
+    status = nrfx_gpiote_init(&gpiote_inst, NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
     NRFX_LOG_INFO("GPIOTE status: %s",
-                  nrfx_gpiote_is_init() ? "initialized" : "not initialized");
+                  nrfx_gpiote_init_check(&gpiote_inst) ? "initialized" : "not initialized");
 
-    gpiote_pin_toggle_task_setup(OUT_GPIO_PIN);
+    gpiote_pin_toggle_task_setup(&gpiote_inst, OUT_GPIO_PIN);
 
     status = nrfx_saadc_channel_config(&m_single_channel);
     NRFX_ASSERT(status == NRFX_SUCCESS);
@@ -131,7 +136,7 @@ int main(void)
     {
         if (sampling_index < SAMPLING_ITERATIONS)
         {
-            nrfx_gpiote_out_task_trigger(OUT_GPIO_PIN);
+            nrfx_gpiote_out_task_trigger(&gpiote_inst, OUT_GPIO_PIN);
 
             status = nrfx_saadc_offset_calibrate(NULL);
             NRFX_ASSERT(status == NRFX_SUCCESS);
