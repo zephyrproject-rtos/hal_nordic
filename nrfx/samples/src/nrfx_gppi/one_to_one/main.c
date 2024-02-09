@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2023, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -58,6 +58,9 @@
 /** @brief Symbol specifying time in milliseconds to wait for handler execution. */
 #define TIME_TO_WAIT_MS 1000UL
 
+/** @brief Symbol specifying GPIOTE instance to be used. */
+#define GPIOTE_INST_IDX 0
+
 /** @brief Symbol specifying ouput pin associated with the task. */
 #define OUTPUT_PIN LED1_PIN
 
@@ -96,7 +99,8 @@ int main(void)
 #if defined(__ZEPHYR__)
     IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
                 NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0, 0);
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE), IRQ_PRIO_LOWEST, nrfx_gpiote_irq_handler, 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_GPIOTE_INST_HANDLER_GET(GPIOTE_INST_IDX), 0, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -104,12 +108,13 @@ int main(void)
     NRFX_LOG_INFO("Starting nrfx_gppi basic one-to-one example.");
     NRFX_EXAMPLE_LOG_PROCESS();
 
-    status = nrfx_gpiote_init(NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
+    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPIOTE_INST_IDX);
+    status = nrfx_gpiote_init(&gpiote_inst, NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
     NRFX_LOG_INFO("GPIOTE status: %s",
-                  nrfx_gpiote_is_init() ? "initialized" : "not initialized");
+                  nrfx_gpiote_init_check(&gpiote_inst) ? "initialized" : "not initialized");
 
-    status = nrfx_gpiote_channel_alloc(&out_channel);
+    status = nrfx_gpiote_channel_alloc(&gpiote_inst, &out_channel);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
     /*
@@ -130,10 +135,10 @@ int main(void)
         .init_val = NRF_GPIOTE_INITIAL_VALUE_HIGH,
     };
 
-    status = nrfx_gpiote_output_configure(OUTPUT_PIN, &output_config, &task_config);
+    status = nrfx_gpiote_output_configure(&gpiote_inst, OUTPUT_PIN, &output_config, &task_config);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    nrfx_gpiote_out_task_enable(OUTPUT_PIN);
+    nrfx_gpiote_out_task_enable(&gpiote_inst, OUTPUT_PIN);
 
     nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
     uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
@@ -167,7 +172,7 @@ int main(void)
      */
     nrfx_gppi_channel_endpoints_setup(gppi_channel,
         nrfx_timer_compare_event_address_get(&timer_inst, NRF_TIMER_CC_CHANNEL0),
-        nrfx_gpiote_out_task_address_get(OUTPUT_PIN));
+        nrfx_gpiote_out_task_address_get(&gpiote_inst, OUTPUT_PIN));
 
     nrfx_gppi_channels_enable(BIT(gppi_channel));
 

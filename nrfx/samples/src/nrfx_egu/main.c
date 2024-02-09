@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2023, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -91,7 +91,7 @@ int main(void)
     nrfx_egu_t egu_inst = NRFX_EGU_INSTANCE(EGU_INST_IDX);
     void * p_context = "Some context";
     status = nrfx_egu_init(&egu_inst, NRFX_EGU_DEFAULT_CONFIG_IRQ_PRIORITY, egu_handler, p_context);
-    NRFX_ASSERT(status);
+    NRFX_ASSERT(status == NRFX_SUCCESS);
 
     uint32_t ch0_idx = 0;
     uint32_t ch1_idx = 1;

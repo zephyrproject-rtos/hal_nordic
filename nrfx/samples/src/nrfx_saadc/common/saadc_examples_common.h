@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2023, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -81,17 +81,19 @@
 /**
  * @brief Function for setting up a GPIOTE task that toggles a given pin.
  *
- * @param[in] pin The pin to toggle.
+ * @param[in] p_gpiote Pointer to the GPIOTE driver instance structure.
+ * @param[in] pin      The pin to toggle.
  */
-void gpiote_pin_toggle_task_setup(nrfx_gpiote_pin_t pin);
+void gpiote_pin_toggle_task_setup(nrfx_gpiote_t const * p_gpiote, nrfx_gpiote_pin_t pin);
 
 /**
  * @brief Function for setting up a pin to be toggled once specified event is triggered.
  *
- * @param[in] pin The pin to toggle.
- * @param[in] eep Address of the event register. This event will trigger the @p pin to toggle.
+ * @param[in] p_gpiote Pointer to the GPIOTE driver instance structure.
+ * @param[in] pin      The pin to toggle.
+ * @param[in] eep      Address of the event register. This event will trigger the @p pin to toggle.
  */
-void pin_on_event_toggle_setup(nrfx_gpiote_pin_t pin, uint32_t eep);
+void pin_on_event_toggle_setup(nrfx_gpiote_t const * p_gpiote, nrfx_gpiote_pin_t pin, uint32_t eep);
 
 /** @} */
 

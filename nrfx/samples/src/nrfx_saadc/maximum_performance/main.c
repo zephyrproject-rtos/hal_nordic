@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2023, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -71,6 +71,9 @@
 
 /** @brief Symbol specifying timer instance to be used. */
 #define TIMER_INST_IDX 0
+
+/** @brief Symbol specifying GPIOTE instance to be used. */
+#define GPIOTE_INST_IDX 0
 
 /** @brief Symbol specifying analog input to be observed by SAADC channel 0. */
 #define CH0_AIN ANALOG_INPUT_TO_SAADC_AIN(ANALOG_INPUT_A0)
@@ -228,7 +231,8 @@ int main(void)
 
 #if defined(__ZEPHYR__)
     IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SAADC), IRQ_PRIO_LOWEST, nrfx_saadc_irq_handler, 0, 0);
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE), IRQ_PRIO_LOWEST, nrfx_gpiote_irq_handler, 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_GPIOTE_INST_HANDLER_GET(GPIOTE_INST_IDX), 0, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -308,13 +312,14 @@ int main(void)
         nrf_saadc_event_address_get(NRF_SAADC, NRF_SAADC_EVENT_END),
         nrf_saadc_task_address_get(NRF_SAADC, NRF_SAADC_TASK_START));
 
-    status = nrfx_gpiote_init(NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
+    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPIOTE_INST_IDX);
+    status = nrfx_gpiote_init(&gpiote_inst, NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
     NRFX_LOG_INFO("GPIOTE status: %s",
-                  nrfx_gpiote_is_init() ? "initialized" : "not initialized");
+                  nrfx_gpiote_init_check(&gpiote_inst) ? "initialized" : "not initialized");
 
-    pin_on_event_toggle_setup(OUT_GPIO_PIN,
-                              nrf_saadc_event_address_get(NRF_SAADC, NRF_SAADC_EVENT_RESULTDONE));
+    pin_on_event_toggle_setup(&gpiote_inst, OUT_GPIO_PIN,
+                        nrf_saadc_event_address_get(NRF_SAADC, NRF_SAADC_EVENT_RESULTDONE));
 
     nrfx_timer_enable(&timer_inst);
 
