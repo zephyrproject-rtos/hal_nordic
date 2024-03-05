@@ -36,7 +36,7 @@
 
 #include <nrfx.h>
 #include <hal/nrf_ipct.h>
-#include <interconnect/apb/nrfx_interconnect_apb.h>
+#include <soc/interconnect/apb/nrfx_interconnect_apb.h>
 
 #ifdef __cplusplus
 extern "C" {
