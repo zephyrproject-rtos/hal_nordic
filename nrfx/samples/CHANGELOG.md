@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project are documented in this file.
 
+## [3.4.0] - 2023-03-08
+### Changed
+- Aligned all samples to Zephyr hardware model v2.
+
 ## [3.3.0] - 2023-12-21
 ### Changed
 - Applied nrfx 3.2 changes related to modified GPIOTE driver API to existing samples for the following drivers: GPPI, SAADC.
