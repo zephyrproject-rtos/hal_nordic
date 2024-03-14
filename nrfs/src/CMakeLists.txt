@@ -1,0 +1,18 @@
+if(CONFIG_NRFS)
+    if(CONFIG_NRFS_LOCAL_DOMAIN)
+        zephyr_sources_ifdef(CONFIG_TEMP_SERVICE_ENABLED services/nrfs_temp.c)
+        zephyr_sources_ifdef(CONFIG_MRAM_SERVICE_ENABLED services/nrfs_mram.c)
+        zephyr_sources_ifdef(CONFIG_RESET_SERVICE_ENABLED services/nrfs_reset.c)
+        zephyr_sources_ifdef(CONFIG_USB_SERVICE_ENABLED services/nrfs_usb.c)
+        zephyr_sources_ifdef(CONFIG_PMIC_SERVICE_ENABLED services/nrfs_pmic.c)
+        zephyr_sources_ifdef(CONFIG_DVFS_SERVICE_ENABLED services/nrfs_dvfs.c)
+        zephyr_sources_ifdef(CONFIG_DIAG_SERVICE_ENABLED services/nrfs_diag.c)
+        zephyr_sources_ifdef(CONFIG_CLOCK_SERVICE_ENABLED services/nrfs_clock.c)
+
+        zephyr_sources(internal/nrfs_dispatcher.c)
+
+        if(CONFIG_DIAG_SERVICE_ENABLED)
+            message(WARNING "This service is for Nordic Semiconductor INTERNAL purposes ONLY. Use it with caution due to risk of hardware damage!")
+        endif()
+    endif()
+endif()
