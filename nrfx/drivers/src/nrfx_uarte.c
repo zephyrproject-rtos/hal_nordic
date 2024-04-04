@@ -1978,13 +1978,10 @@ static void irq_handler(NRF_UARTE_Type * p_uarte, uarte_control_block_t * p_cb)
 {
     // ENDTX must be handled before TXSTOPPED so we read event status in the reversed order of
     // handling.
-    uint32_t mask = NRFY_EVENT_TO_INT_BITMASK(NRF_UARTE_EVENT_TXSTOPPED);
-    bool txstopped = nrfy_uarte_int_enable_check(p_uarte, mask) &&
+    uint32_t int_mask = nrfy_uarte_int_enable_check(p_uarte, UINT32_MAX);
+    bool txstopped = (int_mask & NRF_UARTE_INT_TXSTOPPED_MASK) &&
                      nrfy_uarte_event_check(p_uarte, NRF_UARTE_EVENT_TXSTOPPED);
-
-    mask = NRFY_EVENT_TO_INT_BITMASK(NRF_UARTE_EVENT_ENDTX);
-
-    bool endtx = nrfy_uarte_int_enable_check(p_uarte, mask) &&
+    bool endtx = (int_mask & NRF_UARTE_INT_ENDTX_MASK) &&
                  nrfy_uarte_event_check(p_uarte, NRF_UARTE_EVENT_ENDTX);
 
     if (p_cb->handler)
@@ -2008,7 +2005,7 @@ static void irq_handler(NRF_UARTE_Type * p_uarte, uarte_control_block_t * p_cb)
                                                &p_cb->rx.curr);
 
         // Report RXDRDY only if enabled
-        if (nrfy_uarte_int_enable_check(p_uarte, NRF_UARTE_INT_RXDRDY_MASK) &&
+        if ((int_mask & NRF_UARTE_INT_RXDRDY_MASK) &&
             nrfy_uarte_event_check(p_uarte, NRF_UARTE_EVENT_RXDRDY))
         {
             nrfy_uarte_event_clear(p_uarte, NRF_UARTE_EVENT_RXDRDY);
@@ -2017,6 +2014,16 @@ static void irq_handler(NRF_UARTE_Type * p_uarte, uarte_control_block_t * p_cb)
 
         if (endrx)
         {
+            // If interrupt was executed exactly when ENDRX occurred it is possible
+            // that RXSTARTED (which is read before ENDRX) is read as false but it
+            // actually occurred (if there is a linked reception). Read again to be sure.
+            if (!rxstarted)
+            {
+                rxstarted = nrfy_uarte_events_process(p_uarte,
+                                       NRFY_EVENT_TO_INT_BITMASK(NRF_UARTE_EVENT_RXSTARTED),
+                                       NULL);
+            }
+
             if (endrx_irq_handler(p_uarte, p_cb, rxstarted) == true)
             {
                 rxstarted = false;
