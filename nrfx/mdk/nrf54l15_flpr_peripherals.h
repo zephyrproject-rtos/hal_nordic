@@ -485,8 +485,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #define UARTE_COUNT 5
 
 #define UARTE00_EASYDMA_MAXCNT_MIN 0                 /*!< (unspecified)                                                        */
-#define UARTE00_EASYDMA_MAXCNT_MAX 7                 /*!< (unspecified)                                                        */
-#define UARTE00_EASYDMA_MAXCNT_SIZE 8                /*!< (unspecified)                                                        */
+#define UARTE00_EASYDMA_MAXCNT_MAX 15                /*!< (unspecified)                                                        */
+#define UARTE00_EASYDMA_MAXCNT_SIZE 16               /*!< (unspecified)                                                        */
 #define UARTE00_TIMEOUT_INTERRUPT 1                  /*!< (unspecified)                                                        */
 #define UARTE00_CONFIGURABLE_DATA_FRAME_SIZE 1       /*!< (unspecified)                                                        */
 #define UARTE00_CORE_FREQUENCY 128                   /*!< Peripheral clock frequency is 128 MHz.                               */
@@ -495,8 +495,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #define UARTE00_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                  */
 
 #define UARTE20_EASYDMA_MAXCNT_MIN 0                 /*!< (unspecified)                                                        */
-#define UARTE20_EASYDMA_MAXCNT_MAX 7                 /*!< (unspecified)                                                        */
-#define UARTE20_EASYDMA_MAXCNT_SIZE 8                /*!< (unspecified)                                                        */
+#define UARTE20_EASYDMA_MAXCNT_MAX 15                /*!< (unspecified)                                                        */
+#define UARTE20_EASYDMA_MAXCNT_SIZE 16               /*!< (unspecified)                                                        */
 #define UARTE20_TIMEOUT_INTERRUPT 1                  /*!< (unspecified)                                                        */
 #define UARTE20_CONFIGURABLE_DATA_FRAME_SIZE 1       /*!< (unspecified)                                                        */
 #define UARTE20_CORE_FREQUENCY 16                    /*!< Peripheral clock frequency is 16 MHz.                                */
@@ -505,8 +505,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #define UARTE20_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                  */
 
 #define UARTE21_EASYDMA_MAXCNT_MIN 0                 /*!< (unspecified)                                                        */
-#define UARTE21_EASYDMA_MAXCNT_MAX 7                 /*!< (unspecified)                                                        */
-#define UARTE21_EASYDMA_MAXCNT_SIZE 8                /*!< (unspecified)                                                        */
+#define UARTE21_EASYDMA_MAXCNT_MAX 15                /*!< (unspecified)                                                        */
+#define UARTE21_EASYDMA_MAXCNT_SIZE 16               /*!< (unspecified)                                                        */
 #define UARTE21_TIMEOUT_INTERRUPT 1                  /*!< (unspecified)                                                        */
 #define UARTE21_CONFIGURABLE_DATA_FRAME_SIZE 1       /*!< (unspecified)                                                        */
 #define UARTE21_CORE_FREQUENCY 16                    /*!< Peripheral clock frequency is 16 MHz.                                */
@@ -515,8 +515,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #define UARTE21_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                  */
 
 #define UARTE22_EASYDMA_MAXCNT_MIN 0                 /*!< (unspecified)                                                        */
-#define UARTE22_EASYDMA_MAXCNT_MAX 7                 /*!< (unspecified)                                                        */
-#define UARTE22_EASYDMA_MAXCNT_SIZE 8                /*!< (unspecified)                                                        */
+#define UARTE22_EASYDMA_MAXCNT_MAX 15                /*!< (unspecified)                                                        */
+#define UARTE22_EASYDMA_MAXCNT_SIZE 16               /*!< (unspecified)                                                        */
 #define UARTE22_TIMEOUT_INTERRUPT 1                  /*!< (unspecified)                                                        */
 #define UARTE22_CONFIGURABLE_DATA_FRAME_SIZE 1       /*!< (unspecified)                                                        */
 #define UARTE22_CORE_FREQUENCY 16                    /*!< Peripheral clock frequency is 16 MHz.                                */
@@ -525,8 +525,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #define UARTE22_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                  */
 
 #define UARTE30_EASYDMA_MAXCNT_MIN 0                 /*!< (unspecified)                                                        */
-#define UARTE30_EASYDMA_MAXCNT_MAX 7                 /*!< (unspecified)                                                        */
-#define UARTE30_EASYDMA_MAXCNT_SIZE 8                /*!< (unspecified)                                                        */
+#define UARTE30_EASYDMA_MAXCNT_MAX 15                /*!< (unspecified)                                                        */
+#define UARTE30_EASYDMA_MAXCNT_SIZE 16               /*!< (unspecified)                                                        */
 #define UARTE30_TIMEOUT_INTERRUPT 1                  /*!< (unspecified)                                                        */
 #define UARTE30_CONFIGURABLE_DATA_FRAME_SIZE 1       /*!< (unspecified)                                                        */
 #define UARTE30_CORE_FREQUENCY 16                    /*!< Peripheral clock frequency is 16 MHz.                                */
