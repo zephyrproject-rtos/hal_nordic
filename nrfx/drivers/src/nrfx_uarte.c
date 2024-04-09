@@ -1508,6 +1508,10 @@ static void wait_for_rx_completion(NRF_UARTE_Type *        p_uarte,
     while(nrfy_uarte_event_check(p_uarte, NRF_UARTE_EVENT_RXTO) == false)
     {}
 
+    nrfy_uarte_event_clear(p_uarte, NRF_UARTE_EVENT_RXSTARTED);
+    nrfy_uarte_event_clear(p_uarte, NRF_UARTE_EVENT_ENDRX);
+    nrfy_uarte_event_clear(p_uarte, NRF_UARTE_EVENT_RXTO);
+
     rx_flush(p_uarte, p_cb);
     disable_hw_from_rx(p_uarte);
 
