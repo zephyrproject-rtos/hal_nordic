@@ -1760,15 +1760,15 @@ static void handler_on_rx_done(uarte_control_block_t * p_cb,
 static void rxto_irq_handler(NRF_UARTE_Type *        p_uarte,
                              uarte_control_block_t * p_cb)
 {
-    if (RX_CACHE_SUPPORTED && (p_cb->flags & UARTE_FLAG_RX_USE_CACHE))
-    {
-	p_cb->rx.p_cache->user[0] = (nrfy_uarte_buffer_t){ NULL, 0 };
-    }
-
     if (p_cb->rx.curr.p_buffer)
     {
         handler_on_rx_done(p_cb, p_cb->rx.curr.p_buffer, 0, true);
         p_cb->rx.curr.p_buffer = NULL;
+    }
+
+    if (RX_CACHE_SUPPORTED && (p_cb->flags & UARTE_FLAG_RX_USE_CACHE))
+    {
+	p_cb->rx.p_cache->user[0] = (nrfy_uarte_buffer_t){ NULL, 0 };
     }
 
     rx_flush(p_uarte, p_cb);
