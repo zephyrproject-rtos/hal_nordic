@@ -1637,7 +1637,8 @@ nrfx_err_t nrfx_uarte_rx_ready(nrfx_uarte_t const * p_instance, size_t * p_rx_am
         return NRFX_ERROR_FORBIDDEN;
     }
 
-    if (nrfy_uarte_event_check(p_instance->p_reg, NRF_UARTE_EVENT_ENDRX))
+    if (nrfy_uarte_event_check(p_instance->p_reg, NRF_UARTE_EVENT_ENDRX) ||
+        !nrfy_uarte_enable_check(p_instance->p_reg))
     {
         if (p_rx_amount)
         {
@@ -1760,15 +1761,15 @@ static void handler_on_rx_done(uarte_control_block_t * p_cb,
 static void rxto_irq_handler(NRF_UARTE_Type *        p_uarte,
                              uarte_control_block_t * p_cb)
 {
-    if (RX_CACHE_SUPPORTED && (p_cb->flags & UARTE_FLAG_RX_USE_CACHE))
-    {
-	p_cb->rx.p_cache->user[0] = (nrfy_uarte_buffer_t){ NULL, 0 };
-    }
-
     if (p_cb->rx.curr.p_buffer)
     {
         handler_on_rx_done(p_cb, p_cb->rx.curr.p_buffer, 0, true);
         p_cb->rx.curr.p_buffer = NULL;
+    }
+
+    if (RX_CACHE_SUPPORTED && (p_cb->flags & UARTE_FLAG_RX_USE_CACHE))
+    {
+        p_cb->rx.p_cache->user[0] = (nrfy_uarte_buffer_t){ NULL, 0 };
     }
 
     rx_flush(p_uarte, p_cb);
@@ -1978,6 +1979,16 @@ static void int_trigger_handler(uarte_control_block_t * p_cb)
     user_handler(p_cb, NRFX_UARTE_EVT_TRIGGER);
 }
 
+static inline bool event_check_and_clear(NRF_UARTE_Type * p_uarte, nrf_uarte_event_t event)
+{
+    if (nrfy_uarte_event_check(p_uarte, event)) {
+        nrfy_uarte_event_clear(p_uarte, event);
+        return true;
+    }
+
+    return false;
+}
+
 static void irq_handler(NRF_UARTE_Type * p_uarte, uarte_control_block_t * p_cb)
 {
     // ENDTX must be handled before TXSTOPPED so we read event status in the reversed order of
@@ -1990,7 +2001,7 @@ static void irq_handler(NRF_UARTE_Type * p_uarte, uarte_control_block_t * p_cb)
 
     if (p_cb->handler)
     {
-        if (nrfy_uarte_events_process(p_uarte, NRFY_EVENT_TO_INT_BITMASK(NRF_UARTE_EVENT_ERROR), NULL))
+        if (event_check_and_clear(p_uarte, NRF_UARTE_EVENT_ERROR))
         {
             error_irq_handler(p_uarte, p_cb);
         }
@@ -1998,15 +2009,9 @@ static void irq_handler(NRF_UARTE_Type * p_uarte, uarte_control_block_t * p_cb)
         // ENDRX must be handled before RXSTARTED. RXTO must be handled as the last one. We collect
         // state of all 3 events before processing to prevent reordering in case of higher interrupt
         // preemption. We read event status in the reversed order of handling.
-        bool rxto = nrfy_uarte_events_process(p_uarte,
-                                              NRFY_EVENT_TO_INT_BITMASK(NRF_UARTE_EVENT_RXTO),
-                                              &p_cb->rx.curr);
-        bool rxstarted = nrfy_uarte_events_process(p_uarte,
-                                              NRFY_EVENT_TO_INT_BITMASK(NRF_UARTE_EVENT_RXSTARTED),
-                                              NULL);
-        bool endrx = nrfy_uarte_events_process(p_uarte,
-                                               NRFY_EVENT_TO_INT_BITMASK(NRF_UARTE_EVENT_ENDRX),
-                                               &p_cb->rx.curr);
+        bool rxto = event_check_and_clear(p_uarte, NRF_UARTE_EVENT_RXTO);
+        bool rxstarted = event_check_and_clear(p_uarte, NRF_UARTE_EVENT_RXSTARTED);
+        bool endrx = event_check_and_clear(p_uarte, NRF_UARTE_EVENT_ENDRX);
 
         // Report RXDRDY only if enabled
         if ((int_mask & NRF_UARTE_INT_RXDRDY_MASK) &&
@@ -2023,9 +2028,7 @@ static void irq_handler(NRF_UARTE_Type * p_uarte, uarte_control_block_t * p_cb)
             // actually occurred (if there is a linked reception). Read again to be sure.
             if (!rxstarted)
             {
-                rxstarted = nrfy_uarte_events_process(p_uarte,
-                                       NRFY_EVENT_TO_INT_BITMASK(NRF_UARTE_EVENT_RXSTARTED),
-                                       NULL);
+                rxstarted = event_check_and_clear(p_uarte, NRF_UARTE_EVENT_RXSTARTED);
             }
 
             if (endrx_irq_handler(p_uarte, p_cb, rxstarted) == true)
