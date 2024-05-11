@@ -1000,6 +1000,15 @@
 #endif
 
 /**
+ * @brief NRFX_SPIM_NRF52_ANOMALY_89_WORKAROUND_ENABLED - Enables nRF52 Anomaly 89 workaround for SPIM.
+ *
+ * Boolean. Accepted values 0 and 1.
+ */
+#ifndef NRFX_SPIM_NRF52_ANOMALY_89_WORKAROUND_ENABLED
+#define NRFX_SPIM_NRF52_ANOMALY_89_WORKAROUND_ENABLED 0
+#endif
+
+/**
  * @brief NRFX_SPIM_CONFIG_LOG_LEVEL
  *
  * Integer value.
@@ -1351,6 +1360,15 @@
  */
 #ifndef NRFX_TWIM_NRF52_ANOMALY_109_WORKAROUND_ENABLED
 #define NRFX_TWIM_NRF52_ANOMALY_109_WORKAROUND_ENABLED 0
+#endif
+
+/**
+ * @brief NRFX_TWIM_NRF52_ANOMALY_89_WORKAROUND_ENABLED - Enables nRF52 Anomaly 89 workaround for TWIM.
+ *
+ * Boolean. Accepted values 0 and 1.
+ */
+#ifndef NRFX_TWIM_NRF52_ANOMALY_89_WORKAROUND_ENABLED
+#define NRFX_TWIM_NRF52_ANOMALY_89_WORKAROUND_ENABLED 0
 #endif
 
 /**
