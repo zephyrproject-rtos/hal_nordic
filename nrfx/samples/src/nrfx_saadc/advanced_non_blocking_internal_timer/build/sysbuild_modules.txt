@@ -1,1 +1,0 @@
-"nrf":"/home/cortex/ncs/v2.6.1/nrf":"/home/cortex/ncs/v2.6.1/nrf/sysbuild"

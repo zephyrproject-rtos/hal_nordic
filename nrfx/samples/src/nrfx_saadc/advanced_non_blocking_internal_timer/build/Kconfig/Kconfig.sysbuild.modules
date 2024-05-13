@@ -1,6 +1,0 @@
-menu "nrf (/home/cortex/ncs/v2.6.1/nrf)"
-osource "/home/cortex/ncs/v2.6.1/nrf/sysbuild/Kconfig.sysbuild"
-config ZEPHYR_NRF_MODULE
-	bool
-	default y
-endmenu
