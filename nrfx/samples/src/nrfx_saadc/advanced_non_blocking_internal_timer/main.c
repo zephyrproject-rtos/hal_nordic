@@ -103,7 +103,11 @@
 #define RESOLUTION NRF_SAADC_RESOLUTION_10BIT
 
 /** @brief SAADC channel configuration structure for single channel use. */
+#ifdef CONFIG_BOARD_NRF52DK_NRF52832
+static const nrfx_saadc_channel_t m_single_channel = NRFX_SAADC_DEFAULT_CHANNEL_SE(CH0_AIN, 0);
+#else
 static const nrfx_saadc_channel_t m_single_channel = SAADC_CHANNEL_SE_ACQ_3US(CH0_AIN, 0);
+#endif
 
 /** @brief Samples buffer to store values from a single channel ( @ref m_single_channel). */
 #if (NRF_SAADC_8BIT_SAMPLE_WIDTH == 8) && (RESOLUTION == NRF_SAADC_RESOLUTION_8BIT)
