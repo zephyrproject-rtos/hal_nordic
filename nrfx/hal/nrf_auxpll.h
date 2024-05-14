@@ -383,6 +383,35 @@ NRF_STATIC_INLINE void nrf_auxpll_unlock(NRF_AUXPLL_Type * p_reg);
  */
 NRF_STATIC_INLINE bool nrf_auxpll_lock_check(NRF_AUXPLL_Type const * p_reg);
 
+/**
+ * @brief Obtain static ratio when DSM is disabled.
+ *
+ * @param p_reg Pointer to the structure of registers of the peripheral.
+ *
+ * @return Static ratio value.
+ */
+NRF_STATIC_INLINE uint8_t nrf_auxpll_static_ratio_get(NRF_AUXPLL_Type const * p_reg);
+
+/**
+ * @brief Check if AUXPLL is locked.
+ * 
+ * @param p_reg Pointer to the structure of registers of the peripheral.
+ *
+ * @retval true The AUXPLL is locked.
+ * @retval false The AUXPLL is not locked.
+ */
+NRF_STATIC_INLINE bool nrf_auxpll_mode_locked_check(NRF_AUXPLL_Type const * p_reg);
+
+/**
+ * @brief Check if AUXPLL is running.
+ * 
+ * @param p_reg Pointer to the structure of registers of the peripheral.
+ *
+ * @retval true The AUXPLL is running.
+ * @retval false The AUXPLL is not running. 
+ */
+NRF_STATIC_INLINE bool nrf_auxpll_running_check(NRF_AUXPLL_Type const * p_reg);
+
 #ifndef NRF_DECLARE_ONLY
 
 NRF_STATIC_INLINE void nrf_auxpll_task_trigger(NRF_AUXPLL_Type * p_reg,
@@ -568,6 +597,24 @@ NRF_STATIC_INLINE void nrf_auxpll_unlock(NRF_AUXPLL_Type * p_reg)
 NRF_STATIC_INLINE bool nrf_auxpll_lock_check(NRF_AUXPLL_Type const * p_reg)
 {
     return ((p_reg->MIRROR) & AUXPLL_MIRROR_LOCK_Enabled);
+}
+
+NRF_STATIC_INLINE uint8_t nrf_auxpll_static_ratio_get(NRF_AUXPLL_Type const * p_reg)
+{
+    return ((p_reg->CONFIG.CFGSTATIC & AUXPLL_CONFIG_CFGSTATIC_AUXPLLRANGE_Msk) >>
+            AUXPLL_CONFIG_CFGSTATIC_AUXPLLRANGE_Pos) + 3U;
+}
+
+NRF_STATIC_INLINE bool nrf_auxpll_mode_locked_check(NRF_AUXPLL_Type const * p_reg)
+{
+    return (p_reg->STATUS & AUXPLL_STATUS_MODE_Msk) ==
+           (AUXPLL_STATUS_MODE_Locked << AUXPLL_STATUS_MODE_Pos);
+}
+
+NRF_STATIC_INLINE bool nrf_auxpll_running_check(NRF_AUXPLL_Type const * p_reg)
+{
+    return (p_reg->STATUS & AUXPLL_STATUS_PLLRUNNING_Msk) ==
+           (AUXPLL_STATUS_PLLRUNNING_Running << AUXPLL_STATUS_PLLRUNNING_Pos);
 }
 
 #endif // NRF_DECLARE_ONLY
