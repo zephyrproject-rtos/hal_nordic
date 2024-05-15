@@ -758,7 +758,7 @@ static void operation_terminated_notify(radio_state_t state, bool receiving_psdu
             nrf_802154_transmit_done_metadata_t metadata = {};
 
             nrf_802154_tx_work_buffer_original_frame_update(mp_tx_data, &metadata.frame_props);
-            transmit_failed_notify(mp_tx_data, NRF_802154_TX_ERROR_ABORTED, &metadata);
+            transmit_failed_notify(mp_tx_data, NRF_802154_TX_ERROR_NO_ACK, &metadata);
         }
         break;
 
@@ -843,16 +843,6 @@ static bool current_operation_terminate(nrf_802154_term_t term_lvl,
     return result;
 }
 
-/** Enter Sleep state. */
-static void sleep_init(void)
-{
-    // This function is always executed from a critical section, so this check is safe.
-    if (timeslot_is_granted())
-    {
-        nrf_802154_timer_coord_stop();
-    }
-}
-
 /** Initialize Falling Asleep operation. */
 static void falling_asleep_init(void)
 {
@@ -862,7 +852,6 @@ static void falling_asleep_init(void)
     }
     else
     {
-        sleep_init();
         state_set(RADIO_STATE_SLEEP);
     }
 }
@@ -1212,7 +1201,6 @@ static void switch_to_idle(void)
 {
     if (!nrf_802154_pib_rx_on_when_idle_get())
     {
-        sleep_init();
         state_set(RADIO_STATE_SLEEP);
     }
     else
@@ -1884,7 +1872,6 @@ void nrf_802154_trx_go_idle_finished(void)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
-    sleep_init();
     state_set(RADIO_STATE_SLEEP);
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
@@ -2093,12 +2080,43 @@ void nrf_802154_trx_receive_frame_received(void)
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
 }
 
+static bool fcf_is_security_enabled(const uint8_t * p_frame)
+{
+    return p_frame[SECURITY_ENABLED_OFFSET] & SECURITY_ENABLED_BIT;
+}
+
+static inline bool tx_started_core_hooks_will_fit_within_timeslot(const uint8_t * p_frame)
+{
+    if (!fcf_is_security_enabled(p_frame))
+    {
+        return true;
+    }
+
+    uint32_t estimated_max_hook_time = nrf_802154_frame_duration_get(p_frame[0], false, true) / 2U;
+
+    return nrf_802154_rsch_timeslot_us_left_get() >= estimated_max_hook_time;
+}
+
 void nrf_802154_trx_transmit_frame_started(void)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
     NRF_802154_ASSERT((m_state == RADIO_STATE_TX) || (m_state == RADIO_STATE_CCA_TX));
-    transmit_started_notify();
+    if (tx_started_core_hooks_will_fit_within_timeslot(mp_tx_data))
+    {
+        transmit_started_notify();
+    }
+    else
+    {
+        nrf_802154_trx_abort();
+        switch_to_idle();
+
+        nrf_802154_transmit_done_metadata_t metadata = {};
+
+        nrf_802154_tx_work_buffer_original_frame_update(mp_tx_data, &metadata.frame_props);
+
+        transmit_failed_notify(mp_tx_data, NRF_802154_TX_ERROR_TIMESLOT_ENDED, &metadata);
+    }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
 }
@@ -2108,7 +2126,21 @@ void nrf_802154_trx_transmit_ack_started(void)
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
     NRF_802154_ASSERT(m_state == RADIO_STATE_TX_ACK);
-    transmit_ack_started_notify();
+    if (tx_started_core_hooks_will_fit_within_timeslot(mp_ack))
+    {
+        transmit_ack_started_notify();
+    }
+    else
+    {
+        uint8_t * p_received_data = mp_current_rx_buffer->data;
+
+        nrf_802154_trx_abort();
+        mp_current_rx_buffer->free = false;
+
+        nrf_802154_core_hooks_tx_ack_failed(mp_ack, NRF_802154_RX_ERROR_TIMESLOT_ENDED);
+        switch_to_idle();
+        received_frame_notify_and_nesting_allow(p_received_data);
+    }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
 }
@@ -2523,7 +2555,6 @@ static bool core_sleep(nrf_802154_term_t term_lvl, req_originator_t req_orig, bo
         }
         else
         {
-            sleep_init();
             state_set(RADIO_STATE_SLEEP);
         }
     }
