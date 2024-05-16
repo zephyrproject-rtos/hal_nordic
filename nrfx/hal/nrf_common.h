@@ -47,7 +47,7 @@ extern "C" {
 #endif
 
 #ifndef NRFX_CONFIG_API_VER_MINOR
-#define NRFX_CONFIG_API_VER_MINOR 2
+#define NRFX_CONFIG_API_VER_MINOR 3
 #endif
 
 #ifndef NRFX_CONFIG_API_VER_MICRO
@@ -129,8 +129,8 @@ extern "C" {
 #define NRF_PIN_PORT_TO_PIN_NUMBER(pin, port) (((pin) & 0x1F) | ((port) << 5))
 
 #if defined(LUMOS_XXAA)
-typedef NRF_DOMAINS_t    nrf_domain_t;
-typedef NRF_OWNERID_Type nrf_owner_t;
+typedef NRF_DOMAINID_Type nrf_domain_t;
+typedef NRF_OWNERID_Type  nrf_owner_t;
 #endif
 
 #if defined(HALTIUM_XXAA)
