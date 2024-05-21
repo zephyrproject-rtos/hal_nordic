@@ -1264,6 +1264,14 @@ nrfx_err_t nrfx_uarte_rx_enable(nrfx_uarte_t const * p_instance, uint32_t flags)
     // Expecting to get buffer set as a response to the request.
     if (p_cb->rx.curr.p_buffer == NULL)
     {
+        // If RX is not active then it means that reception is already stopped.
+        // It may happen if RX flush had enough data to fill the user buffer.
+        // In that case reception is disabled from the context of RX buffer set function.
+        if (!is_rx_active(p_cb))
+        {
+            return NRFX_SUCCESS;
+        }
+
         release_rx(p_cb);
         return NRFX_ERROR_NO_MEM;
     }
