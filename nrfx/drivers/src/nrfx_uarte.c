@@ -1193,7 +1193,7 @@ static bool rx_flushed_handler(NRF_UARTE_Type * p_uarte, uarte_control_block_t *
         return true;
     }
 
-    if ((uint32_t)p_cb->rx.flush.length > p_cb->rx.curr.length)
+    if ((uint32_t)p_cb->rx.flush.length >= p_cb->rx.curr.length)
     {
         uint8_t * p_buf = p_cb->rx.curr.p_buffer;
         size_t len = p_cb->rx.curr.length;
@@ -1206,8 +1206,15 @@ static bool rx_flushed_handler(NRF_UARTE_Type * p_uarte, uarte_control_block_t *
 
         if (p_cb->handler)
         {
+            bool stop_on_end = p_cb->flags & UARTE_FLAG_RX_STOP_ON_END;
+
+            if (stop_on_end)
+            {
+                NRFX_ATOMIC_FETCH_OR(&p_cb->flags, UARTE_FLAG_RX_ABORTED);
+            }
+
             user_handler_on_rx_done(p_cb, p_buf, len);
-            if (p_cb->flags & UARTE_FLAG_RX_STOP_ON_END)
+            if (stop_on_end)
             {
                     on_rx_disabled(p_uarte, p_cb, 0);
             }
@@ -1321,6 +1328,7 @@ static nrfx_err_t rx_buffer_set(NRF_UARTE_Type *        p_uarte,
 
         if (rx_flushed_handler(p_uarte, p_cb))
         {
+
             nrfy_uarte_rx_buffer_set(p_uarte,
                                     &p_cb->rx.curr.p_buffer[p_cb->rx.off],
                                     p_cb->rx.curr.length - p_cb->rx.off);
@@ -1394,7 +1402,11 @@ nrfx_err_t nrfx_uarte_rx_buffer_set(nrfx_uarte_t const * p_instance,
 
     int_enabled = uarte_int_lock(p_uarte);
 
-    if (!nrf_dma_accessible_check(p_uarte, p_data))
+    if (p_cb->flags & UARTE_FLAG_RX_ABORTED)
+    {
+        err = NRFX_ERROR_INVALID_STATE;
+    }
+    else if (!nrf_dma_accessible_check(p_uarte, p_data))
     {
         // No cache buffer provided or blocking mode, transfer cannot be handled.
         if (!RX_CACHE_SUPPORTED || !p_cb->rx.p_cache || !p_cb->handler)
