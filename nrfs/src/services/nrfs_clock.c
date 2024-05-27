@@ -36,6 +36,8 @@ void nrfs_clock_service_notify(void *p_notification, size_t size)
 	case NRFS_CLOCK_REQ_SUBSCRIBE:
 		evt.type = NRFS_CLOCK_EVT_CHANGE;
 		m_cb.handler(&evt, (void *)p_rsp->ctx.ctx);
+		break;
+
 	case NRFS_CLOCK_REQ_LFCLK_SRC:
 	case NRFS_CLOCK_REQ_HSFLL_MODE:
 		evt.type = NRFS_CLOCK_EVT_APPLIED;
