@@ -1384,6 +1384,14 @@ enum nrf_wifi_status nrf_wifi_fmac_rawtx_done_event_process(
 		goto out;
 	}
 
+	def_dev_ctx = wifi_dev_priv(fmac_dev_ctx);
+	if (!def_dev_ctx || !def_dev_ctx->tx_config.tx_lock) {
+		/* This is a valid case when the TX_DONE event is received
+		 * during the driver deinit, so, silently ignore the failure.
+		 */
+		return NRF_WIFI_STATUS_SUCCESS;
+	}
+
 	nrf_wifi_osal_spinlock_take(def_dev_ctx->tx_config.tx_lock);
 
 	if (config->status == NRF_WIFI_STATUS_FAIL) {
