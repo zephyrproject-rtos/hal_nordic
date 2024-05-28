@@ -124,6 +124,27 @@ typedef struct
 } nrf_auxpll_config_t;
 
 /**
+ * @brief AUXPLL static configuration initializer.
+ * 
+ * @param out_drive Output buffer drive strength selection. Range 0..3.
+ * @param constant_i Constant current tune for ring oscillator. Range 0..15.
+ * @param sdm_off Turn off sigma delta modulation.
+ * @param dither_off Turn off dither in sigma delta modulator.
+ * @param range Loop divider base settings.
+ */
+#define NRF_AUXPLL_CFGSTATIC_RAW_INIT(out_drive, constant_i, sdm_off, dither_off, range) \
+    ((((out_drive) << AUXPLL_CONFIG_CFGSTATIC_OUTDRIVE_Pos) &                            \
+      AUXPLL_CONFIG_CFGSTATIC_OUTDRIVE_Msk) |                                            \
+     (((constant_i) << AUXPLL_CONFIG_CFGSTATIC_SELCONSTANTI_Pos) &                       \
+      AUXPLL_CONFIG_CFGSTATIC_SELCONSTANTI_Msk) |                                        \
+     (((sdm_off) << AUXPLL_CONFIG_CFGSTATIC_SDMOFF_Pos) &                                \
+      AUXPLL_CONFIG_CFGSTATIC_SDMOFF_Msk) |                                              \
+     (((dither_off) << AUXPLL_CONFIG_CFGSTATIC_SDMDITHEROFF_Pos) &                       \
+      AUXPLL_CONFIG_CFGSTATIC_SDMDITHEROFF_Msk) |                                        \
+     (((range) << AUXPLL_CONFIG_CFGSTATIC_AUXPLLRANGE_Pos) &                             \
+      AUXPLL_CONFIG_CFGSTATIC_AUXPLLRANGE_Msk))
+
+/**
  * @brief Function for activating the specified AUXPLL task.
  *
  * @param[in] p_reg Pointer to the structure of registers of the peripheral.
@@ -383,6 +404,16 @@ NRF_STATIC_INLINE void nrf_auxpll_unlock(NRF_AUXPLL_Type * p_reg);
  */
 NRF_STATIC_INLINE bool nrf_auxpll_lock_check(NRF_AUXPLL_Type const * p_reg);
 
+/**
+ * @brief Set the AUXPLL static configuration.
+ * 
+ * @param p_reg Pointer to the structure of registers of the peripheral.
+ * @param cfgstatic AUXPLL static configuration.
+ *
+ * @see AUXPLL_CFGSTATIC_RAW_INIT()
+ */
+NRF_STATIC_INLINE void nrf_auxpll_cfgstatic_raw_set(NRF_AUXPLL_Type * p_reg, uint32_t cfgstatic);
+
 #ifndef NRF_DECLARE_ONLY
 
 NRF_STATIC_INLINE void nrf_auxpll_task_trigger(NRF_AUXPLL_Type * p_reg,
@@ -568,6 +599,11 @@ NRF_STATIC_INLINE void nrf_auxpll_unlock(NRF_AUXPLL_Type * p_reg)
 NRF_STATIC_INLINE bool nrf_auxpll_lock_check(NRF_AUXPLL_Type const * p_reg)
 {
     return ((p_reg->MIRROR) & AUXPLL_MIRROR_LOCK_Enabled);
+}
+
+NRF_STATIC_INLINE void nrf_auxpll_cfgstatic_raw_set(NRF_AUXPLL_Type * p_reg, uint32_t cfgstatic)
+{
+    p_reg->CONFIG.CFGSTATIC = cfgstatic;
 }
 
 #endif // NRF_DECLARE_ONLY
