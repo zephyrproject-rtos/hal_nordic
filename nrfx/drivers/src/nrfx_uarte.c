@@ -1826,16 +1826,17 @@ static bool endrx_irq_handler(NRF_UARTE_Type *        p_uarte,
     bool premature = p_cb->flags & (UARTE_FLAG_RX_RESTARTED | UARTE_FLAG_RX_ABORTED);
     bool aborted = false;
     bool late = false;
+    uint8_t *p_buf = p_cb->rx.curr.p_buffer;
+    size_t len = rx_amount + p_cb->rx.off;
 
-    handler_on_rx_done(p_cb, p_cb->rx.curr.p_buffer, rx_amount + p_cb->rx.off, premature);
+    p_cb->rx.curr = p_cb->rx.next;
+    p_cb->rx.next = (nrfy_uarte_buffer_t){ NULL, 0 };
+    handler_on_rx_done(p_cb, p_buf, len, premature);
     p_cb->rx.off = 0;
 
     NRFX_CRITICAL_SECTION_ENTER();
 
     p_cb->flags &= ~UARTE_FLAG_RX_RESTARTED;
-    p_cb->rx.curr = p_cb->rx.next;
-    p_cb->rx.next = (nrfy_uarte_buffer_t){ NULL, 0 };
-
     nrfy_uarte_shorts_disable(p_uarte, NRF_UARTE_SHORT_ENDRX_STARTRX);
     if (p_cb->flags & UARTE_FLAG_RX_ABORTED)
     {
