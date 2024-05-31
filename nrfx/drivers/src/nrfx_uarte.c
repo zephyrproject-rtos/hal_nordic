@@ -1262,7 +1262,7 @@ static bool rx_flushed_handler(NRF_UARTE_Type * p_uarte, uarte_control_block_t *
                 NRFX_ATOMIC_FETCH_OR(&p_cb->flags, UARTE_FLAG_RX_ABORTED);
             }
 
-            user_handler_on_rx_done(p_cb, p_buf, len);
+            handler_on_rx_done(p_cb, p_buf, len, false);
             if (stop_on_end)
             {
                     on_rx_disabled(p_uarte, p_cb, 0);
