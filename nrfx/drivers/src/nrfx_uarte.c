@@ -1382,7 +1382,12 @@ static nrfx_err_t rx_buffer_set(NRF_UARTE_Type *        p_uarte,
                                     p_cb->rx.curr.length - p_cb->rx.off);
             if (p_cb->flags & UARTE_FLAG_RX_ENABLED)
             {
+                NRFX_ATOMIC_FETCH_AND(&p_cb->flags, ~UARTE_FLAG_RX_ABORTED);
                 nrfy_uarte_task_trigger(p_uarte, NRF_UARTE_TASK_STARTRX);
+                if (nrfy_uarte_event_check(p_uarte, NRF_UARTE_EVENT_RXTO))
+                {
+                    nrfy_uarte_event_clear(p_uarte, NRF_UARTE_EVENT_RXTO);
+                }
             }
         }
     }
@@ -1792,6 +1797,19 @@ bool nrfx_uarte_rx_new_data_check(nrfx_uarte_t const * p_instance)
 static void rxstarted_irq_handler(NRF_UARTE_Type * p_reg, uarte_control_block_t * p_cb)
 {
     bool cache_used = RX_CACHE_SUPPORTED && (p_cb->flags & UARTE_FLAG_RX_USE_CACHE);
+
+    // If both buffers are already setup just leave. It is possible in case
+    // of following scenario. 1 byte was requested and received. RX done event
+    // is generated and from that event nrfx_uarte_rx_buffer_set is called to
+    // receive next RX. This sets current buffer. After ENDRX event is processed
+    // then RXSTARTED event is processed (from that 1 byte transfer). From there
+    // RX buffer request is called and next buffer is provided - both buffers are
+    // set. Next RX is started and RXSTARTED event is triggered and we are in
+    // the situation where both buffers are already set.
+    if ((p_cb->rx.curr.p_buffer != NULL) && (p_cb->rx.next.p_buffer != NULL))
+    {
+        return;
+    }
 
     if (!cache_used)
     {
