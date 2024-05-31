@@ -1693,10 +1693,12 @@ nrfx_err_t nrfx_uarte_rx(nrfx_uarte_t const * p_instance,
     {
         size_t rx_amount;
 
-        while (nrfx_uarte_rx_ready(p_instance, &rx_amount) != NRFX_SUCCESS)
-        {}
+        do
+        {
+           err_code = nrfx_uarte_rx_ready(p_instance, &rx_amount);
+        } while (err_code == NRFX_ERROR_BUSY);
 
-        if (length > rx_amount)
+        if ((err_code == NRFX_ERROR_ALREADY) || (length > rx_amount))
         {
             err_code = NRFX_ERROR_FORBIDDEN;
         }
@@ -1721,8 +1723,16 @@ nrfx_err_t nrfx_uarte_rx_ready(nrfx_uarte_t const * p_instance, size_t * p_rx_am
         return NRFX_ERROR_FORBIDDEN;
     }
 
-    if (nrfy_uarte_event_check(p_instance->p_reg, NRF_UARTE_EVENT_ENDRX) ||
-        !nrfy_uarte_enable_check(p_instance->p_reg))
+    if (!nrfy_uarte_enable_check(p_instance->p_reg))
+    {
+        if (p_rx_amount)
+        {
+            *p_rx_amount = nrfy_uarte_rx_amount_get(p_instance->p_reg);
+        }
+
+        return NRFX_ERROR_ALREADY;
+    }
+    else if (nrfy_uarte_event_check(p_instance->p_reg, NRF_UARTE_EVENT_ENDRX))
     {
         if (p_rx_amount)
         {
