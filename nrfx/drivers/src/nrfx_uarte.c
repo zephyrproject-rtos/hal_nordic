@@ -1424,8 +1424,10 @@ static size_t get_cache_buf_len(nrfx_uarte_rx_cache_t * p_cache)
 
     if (!len)
     {
-        p_cache->started = 0;
-        len = get_curr_cache_buf_len(p_cache->cache_len, p_cache->user[1].length, 0);
+        if (p_cache->user[1].length) {
+            p_cache->started = 0;
+            len = get_curr_cache_buf_len(p_cache->cache_len, p_cache->user[1].length, 0);
+        }
     }
 
     p_cache->started += len;
