@@ -1193,6 +1193,44 @@ static void on_rx_disabled(NRF_UARTE_Type        * p_uarte,
     user_handler_on_rx_disabled(p_cb, flush_cnt);
 }
 
+static void handler_on_rx_done(uarte_control_block_t * p_cb,
+                               uint8_t *               p_data,
+                               size_t                  len,
+                               bool                    abort)
+{
+    bool cache_used = RX_CACHE_SUPPORTED && (p_cb->flags & UARTE_FLAG_RX_USE_CACHE);
+    nrfx_uarte_rx_cache_t * p_cache = p_cb->rx.p_cache;
+
+    if (!cache_used)
+    {
+        user_handler_on_rx_done(p_cb, p_data, len);
+        return;
+    }
+    else if (!p_cache->user[0].p_buffer)
+    {
+        return;
+    }
+
+    memcpy(&p_cache->user[0].p_buffer[p_cache->received], p_data, len);
+    p_cache->received += len;
+
+    bool user_buf_end = p_cache->user[0].length == p_cache->received;
+
+    if (user_buf_end || abort)
+    {
+        uint8_t *p_buf = p_cache->user[0].p_buffer;
+        size_t buf_len = p_cache->received;
+        p_cache->received = 0;
+        p_cache->user[0] = p_cache->user[1];
+        p_cache->user[1] = (nrfy_uarte_buffer_t){ NULL, 0 };
+        if (p_cache->user[0].length)
+        {
+            p_cache->buf_req = true;
+        }
+        user_handler_on_rx_done(p_cb, p_buf, buf_len);
+    }
+}
+
 /* Some data may be left in flush buffer. It need to be copied into rx buffer.
  * If flushed data exceeds input buffer rx enabled is terminated.
  * Returns true when flushed did not filled whole user buffer.
@@ -1765,42 +1803,6 @@ static void rxstarted_irq_handler(NRF_UARTE_Type * p_reg, uarte_control_block_t 
     {
         user_handler(p_cb, NRFX_UARTE_EVT_RX_BUF_REQUEST);
         p_cache->buf_req = false;
-    }
-}
-
-static void handler_on_rx_done(uarte_control_block_t * p_cb,
-                               uint8_t *               p_data,
-                               size_t                  len,
-                               bool                    abort)
-{
-    bool cache_used = RX_CACHE_SUPPORTED && (p_cb->flags & UARTE_FLAG_RX_USE_CACHE);
-    nrfx_uarte_rx_cache_t * p_cache = p_cb->rx.p_cache;
-
-    if (!cache_used)
-    {
-        user_handler_on_rx_done(p_cb, p_data, len);
-        return;
-    }
-    else if (!p_cache->user[0].p_buffer)
-    {
-        return;
-    }
-
-    memcpy(&p_cache->user[0].p_buffer[p_cache->received], p_data, len);
-    p_cache->received += len;
-
-    bool user_buf_end = p_cache->user[0].length == p_cache->received;
-
-    if (user_buf_end || abort)
-    {
-        user_handler_on_rx_done(p_cb, p_cache->user[0].p_buffer, p_cache->received);
-        p_cache->received = 0;
-        p_cache->user[0] = p_cache->user[1];
-        p_cache->user[1] = (nrfy_uarte_buffer_t){ NULL, 0 };
-        if (p_cache->user[0].length)
-        {
-            p_cache->buf_req = true;
-        }
     }
 }
 
