@@ -63,6 +63,7 @@
 #define RX_CACHE_SUPPORTED 0
 #endif
 
+#define MIN_RX_CACHE_SIZE 8
 // There is a HW bug which results in RX amount value not being updated when FIFO was empty.
 // It is then hard to determine if FIFO contained anything or not.
 #define USE_WORKAROUND_FOR_FLUSHRX_ANOMALY 1
@@ -495,7 +496,12 @@ nrfx_err_t nrfx_uarte_init(nrfx_uarte_t const *        p_instance,
         p_cb->rx.flush.length = 0;
         if (RX_CACHE_SUPPORTED && p_config->p_rx_cache_scratch)
         {
-            size_t buf_len = p_config->rx_cache.length / 2;
+            if (p_config->rx_cache.length < (UARTE_HW_RX_FIFO_SIZE + MIN_RX_CACHE_SIZE))
+            {
+                return NRFX_ERROR_INVALID_PARAM;
+            }
+            size_t cache_len = p_config->rx_cache.length - UARTE_HW_RX_FIFO_SIZE;
+            size_t buf_len = cache_len / 2;
 
             p_cb->rx.p_cache = p_config->p_rx_cache_scratch;
 
@@ -503,8 +509,10 @@ nrfx_err_t nrfx_uarte_init(nrfx_uarte_t const *        p_instance,
             // Split provided cache space into two equal buffers. Cache buffers can overlap with
             // flush buffer as they are not used simultaneously.
             p_cb->rx.p_cache->cache_len = buf_len;
-            p_cb->rx.p_cache->cache[0].p_buffer = p_config->rx_cache.p_buffer;
-            p_cb->rx.p_cache->cache[1].p_buffer = &p_config->rx_cache.p_buffer[buf_len];
+            p_cb->rx.p_cache->cache[0].p_buffer =
+                &p_config->rx_cache.p_buffer[UARTE_HW_RX_FIFO_SIZE];
+            p_cb->rx.p_cache->cache[1].p_buffer =
+                &p_config->rx_cache.p_buffer[UARTE_HW_RX_FIFO_SIZE + buf_len];
         }
     }
 
