@@ -1339,7 +1339,9 @@ typedef struct {                                /*!< (@ 0x40003000) TWIM0 Struct
   __IOM TWIM_TXD_Type TXD;                      /*!< (@ 0x00000544) TXD EasyDMA channel                                        */
   __IM  uint32_t  RESERVED14[13];
   __IOM uint32_t  ADDRESS;                      /*!< (@ 0x00000588) Address used in the TWI transfer                           */
-} NRF_TWIM_Type;                                /*!< Size = 1420 (0x58c)                                                       */
+  __IM  uint32_t  RESERVED15[668];
+  __IOM uint32_t  POWER;                        /*!< (@ 0x00000FFC) Peripheral power control                                   */
+} NRF_TWIM_Type;                                /*!< Size = 4096 (0x1000)                                                      */
 
 
 
