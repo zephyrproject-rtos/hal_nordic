@@ -2,3 +2,36 @@ name: hal_nordic
 build:
   cmake-ext: True
   kconfig-ext: True
+blobs:
+  - path: wifi_fw_bins/default/nrf70.bin
+    sha256: d321d489dfd2d34a75662d794c191f803ee0fe8afe742c3717142bdfa1959ecb
+    type: img
+    version: '1.0.0'
+    license-path: ./zephyr/LICENSE.txt
+    url: https://github.com/nrfconnect/sdk-nrfxlib/raw/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/fw_bins/default/nrf70.bin
+    description: "nRF70 series firmware patch binary for default mode"
+    doc-url: https://github.com/nrfconnect/sdk-nrfxlib/tree/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/doc
+  - path: wifi_fw_bins/scan_only/nrf70.bin
+    sha256: 0625d52a3aed58f206f2c81a1d4976c2d4d00812470d8f1ead9c731a3a960087
+    type: img
+    version: '1.0.0'
+    license-path: ./zephyr/LICENSE.txt
+    url: https://github.com/nrfconnect/sdk-nrfxlib/raw/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/fw_bins/scan_only/nrf70.bin
+    description: "nRF70 series firmware patch binary for scan only mode"
+    doc-url: https://github.com/nrfconnect/sdk-nrfxlib/tree/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/doc
+  - path: wifi_fw_bins/radio_test/nrf70.bin
+    sha256: 3d892d412f29add318f887b817f209c683d65a4429ae789038977fe6fac2c487
+    type: img
+    version: '1.0.0'
+    license-path: ./zephyr/LICENSE.txt
+    url: https://github.com/nrfconnect/sdk-nrfxlib/raw/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/fw_bins/radio_test/nrf70.bin
+    description: "nRF70 series firmware patch binary for radio test mode"
+    doc-url: https://github.com/nrfconnect/sdk-nrfxlib/tree/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/doc
+  - path: wifi_fw_bins/system_with_raw/nrf70.bin
+    sha256: ece1c089c47948071e00a95e8d49a3adf421e3f66896287facf8ff6f920bd16d
+    type: img
+    version: '1.0.0'
+    license-path: ./zephyr/LICENSE.txt
+    url: https://github.com/nrfconnect/sdk-nrfxlib/raw/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/fw_bins/system_with_raw/nrf70.bin
+    description: "nRF70 series firmware patch binary for system with raw mode"
+    doc-url: https://github.com/nrfconnect/sdk-nrfxlib/tree/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/doc
