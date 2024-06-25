@@ -114,7 +114,7 @@ void SystemInit(void)
         #endif
 
         #if !defined(NRF_TRUSTZONE_NONSECURE) && defined(__ARM_FEATURE_CMSE)
-            #if defined(NRF_CONFIG_NFCT_PINS_AS_GPIOS)
+            #if defined(CONFIG_NFCT_PINS_AS_GPIOS)
                 NRF_NFCT_S->PADCONFIG = (NFCT_PADCONFIG_ENABLE_Disabled << NFCT_PADCONFIG_ENABLE_Pos);
             #endif 
 
