@@ -25,7 +25,7 @@ nrfs_err_t nrfs_mram_init(nrfs_mram_latency_evt_handler_t handler)
 	return NRFS_SUCCESS;
 }
 
-void nrfs_mram_latency_uninit(void)
+void nrfs_mram_uninit(void)
 {
 	m_cb.is_initialized = false;
 }
