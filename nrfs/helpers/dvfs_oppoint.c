@@ -10,7 +10,7 @@
 
 #define MOVE_AND_MASK_32(x, mask, move) (((uint32_t)(x) << move) & (uint32_t)mask)
 
-#if !NRFS_UNIT_TESTS_ENABLED && NRF_SECURE
+#if !defined(NRFS_UNIT_TESTS_ENABLED) && defined(NRF_SECURE)
 
 /* TODO: Use MDK when HM-21530 is fixed */
 #define ABB_TRIM_LOCKRANGE_LOCKRANGELOWN_Pos_L                                                     \
