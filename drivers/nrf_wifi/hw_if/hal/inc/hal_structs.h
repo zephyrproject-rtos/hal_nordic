@@ -244,6 +244,8 @@ struct nrf_wifi_hal_dev_ctx {
 	/** TX frame offset */
 	unsigned long tx_frame_offset;
 #if defined(NRF_WIFI_LOW_POWER)  || defined(__DOXYGEN__)
+	/** RPU wake up now asserted flag */
+	bool is_wakeup_now_asserted;
 	/** RPU power state */
 	enum RPU_PS_STATE rpu_ps_state;
 	/** RPU power state timer */

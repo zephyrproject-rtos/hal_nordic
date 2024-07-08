@@ -477,7 +477,7 @@ static enum nrf_wifi_status hal_rpu_process_wdog(struct nrf_wifi_hal_dev_ctx *ha
 	nrf_wifi_osal_spinlock_irq_take(hal_dev_ctx->rpu_ps_lock,
 					&flags);
 
-	if (hal_dev_ctx->rpu_ps_state == RPU_PS_STATE_AWAKE) {
+	if (hal_dev_ctx->is_wakeup_now_asserted) {
 		nrf_wifi_osal_spinlock_irq_rel(hal_dev_ctx->rpu_ps_lock,
 					       &flags);
 		nrf_wifi_osal_log_dbg("Host has asserted WAKEUP_NOW, ignoring watchdog interrupt");
@@ -494,8 +494,7 @@ out:
 	hal_rpu_irq_wdog_rearm(hal_dev_ctx);
 #else
 	/* Skip re-arming, as we ignore the watchdog interrupt */
-	nrf_wifi_osal_log_dbg(hal_dev_ctx->hpriv->opriv,
-			      "RPU recovery disabled, ignoring watchdog interrupt");
+	nrf_wifi_osal_log_dbg("RPU recovery disabled, ignoring watchdog interrupt");
 #endif /* NRF_WIFI_LOW_POWER */
 
 	nrf_wifi_status = NRF_WIFI_STATUS_SUCCESS;
