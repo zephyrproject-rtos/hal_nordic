@@ -551,6 +551,20 @@ struct nrf_wifi_osal_ops {
 	 */
 	unsigned int (*time_elapsed_us)(unsigned long start_time);
 
+	/** @brief Get the current time of the day in milliseconds.
+	 *
+	 * @return The current time of the day in milliseconds.
+	 */
+	unsigned long (*time_get_curr_ms)(void);
+
+	/**
+	 * @brief Return the time elapsed in milliseconds since a specified time instant.
+	 *
+	 * @param start_time The time instant to measure the elapsed time from.
+	 * @return The time elapsed in milliseconds.
+	 */
+	unsigned int (*time_elapsed_ms)(unsigned long start_time_us);
+
 	/**
 	 * @brief Initialize the PCIe bus.
 	 *
