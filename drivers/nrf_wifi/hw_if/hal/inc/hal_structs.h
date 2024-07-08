@@ -246,6 +246,10 @@ struct nrf_wifi_hal_dev_ctx {
 #if defined(NRF_WIFI_LOW_POWER)  || defined(__DOXYGEN__)
 	/** RPU wake up now asserted flag */
 	bool is_wakeup_now_asserted;
+	/** RPU wake up now asserted time */
+	unsigned long last_wakeup_now_deasserted_time_ms;
+	/** RPU sleep opp time */
+	unsigned long last_rpu_sleep_opp_time_ms;
 	/** RPU power state */
 	enum RPU_PS_STATE rpu_ps_state;
 	/** RPU power state timer */
