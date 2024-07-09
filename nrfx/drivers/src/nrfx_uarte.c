@@ -1459,8 +1459,9 @@ static void rx_flush(NRF_UARTE_Type * p_uarte, uarte_control_block_t * p_cb)
 
     /* Flushing RX fifo requires buffer bigger than 4 bytes to empty fifo*/
     uint32_t prev_rx_amount = nrfy_uarte_rx_amount_get(p_uarte);
+    uint32_t check_content = prev_rx_amount <= UARTE_HW_RX_FIFO_SIZE;
 
-    if (USE_WORKAROUND_FOR_FLUSHRX_ANOMALY )
+    if (USE_WORKAROUND_FOR_FLUSHRX_ANOMALY && check_content)
     {
         /* There is a HW bug which results in rx amount value not being updated
          * when fifo was empty. It is then hard to determine if fifo contained
@@ -1468,7 +1469,7 @@ static void rx_flush(NRF_UARTE_Type * p_uarte, uarte_control_block_t * p_cb)
          * determine that by watermarking flush buffer to check if it was overwritten.
          * However, if fifo contained amount of bytes equal to last transfer and
          * bytes are equal to watermarking it will be dropped. */
-        memset(p_cb->rx.flush.p_buffer, 0xAA, UARTE_HW_RX_FIFO_SIZE);
+        memset(p_cb->rx.flush.p_buffer, 0xAB, UARTE_HW_RX_FIFO_SIZE);
     }
 
     nrfy_uarte_rx_buffer_set(p_uarte, p_cb->rx.flush.p_buffer, UARTE_HW_RX_FIFO_SIZE);
@@ -1490,9 +1491,14 @@ static void rx_flush(NRF_UARTE_Type * p_uarte, uarte_control_block_t * p_cb)
     {
         if ((uint32_t)p_cb->rx.flush.length == prev_rx_amount)
         {
+            if (!check_content) {
+                p_cb->rx.flush.length = 0;
+                return;
+            }
+
             for (size_t i = 0; i < UARTE_HW_RX_FIFO_SIZE; i++)
             {
-                if (p_cb->rx.flush.p_buffer[i] != 0xAA)
+                if (p_cb->rx.flush.p_buffer[i] != 0xAB)
                 {
                     return;
                 }
