@@ -1693,7 +1693,12 @@ void tx_deinit(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
 
 	for (i = 0; i < def_priv->num_tx_tokens; i++) {
 		if (def_dev_ctx->tx_config.pkt_info_p) {
-			nrf_wifi_utils_list_free(def_dev_ctx->tx_config.pkt_info_p[i].pkt);
+			while (nrf_wifi_utils_q_len(def_dev_ctx->tx_config.pkt_info_p[i].pkt)) {
+				nrf_wifi_osal_nbuf_free(
+					nrf_wifi_utils_q_dequeue(def_dev_ctx->tx_config.pkt_info_p[i].pkt));
+			}
+			nrf_wifi_utils_list_free(
+						 def_dev_ctx->tx_config.pkt_info_p[i].pkt);
 		}
 	}
 
@@ -1701,7 +1706,12 @@ void tx_deinit(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
 
 	for (i = 0; i < NRF_WIFI_FMAC_AC_MAX; i++) {
 		for (j = 0; j < MAX_SW_PEERS; j++) {
-			nrf_wifi_utils_q_free(def_dev_ctx->tx_config.data_pending_txq[j][i]);
+			while (nrf_wifi_utils_q_len(def_dev_ctx->tx_config.data_pending_txq[j][i])) {
+				nrf_wifi_osal_nbuf_free(
+					nrf_wifi_utils_q_dequeue(def_dev_ctx->tx_config.data_pending_txq[j][i]));
+			}
+			nrf_wifi_utils_q_free(
+					      def_dev_ctx->tx_config.data_pending_txq[j][i]);
 		}
 	}
 
