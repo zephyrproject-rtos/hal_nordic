@@ -386,6 +386,11 @@ enum nrf_wifi_status hal_rpu_ps_wake(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 #ifdef NRF_WIFI_RPU_RECOVERY
 	did_rpu_had_sleep_opp(hal_dev_ctx);
 #endif /* NRF_WIFI_RPU_RECOVERY */
+#ifdef NRF_WIFI_RPU_RECOVERY_PS_STATE_DEBUG
+	nrf_wifi_osal_log_info(hal_dev_ctx->hpriv->opriv,
+			       "%s: RPU PS state is AWAKE\n",
+			       __func__);
+#endif /* NRF_WIFI_RPU_RECOVERY_PS_STATE_DEBUG */
 
 out:
 	if (!hal_dev_ctx->irq_ctx) {
@@ -414,7 +419,13 @@ static void hal_rpu_ps_sleep(unsigned long data)
 #endif /* NRF_WIFI_RPU_RECOVERY */
 	hal_dev_ctx->rpu_ps_state = RPU_PS_STATE_ASLEEP;
 
-	nrf_wifi_osal_spinlock_irq_rel(hal_dev_ctx->rpu_ps_lock,
+#ifdef NRF_WIFI_RPU_RECOVERY_PS_STATE_DEBUG
+	nrf_wifi_osal_log_info(hal_dev_ctx->hpriv->opriv,
+			       "%s: RPU PS state is ASLEEP\n",
+			       __func__);
+#endif /* NRF_WIFI_RPU_RECOVERY_PS_STATE_DEBUG */
+	nrf_wifi_osal_spinlock_irq_rel(hal_dev_ctx->hpriv->opriv,
+				       hal_dev_ctx->rpu_ps_lock,
 				       &flags);
 }
 
