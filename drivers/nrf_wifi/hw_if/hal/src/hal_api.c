@@ -65,8 +65,7 @@ unsigned long nrf_wifi_hal_buf_map_rx(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx,
 	unsigned long rpu_addr = 0;
 
 	if (!hal_dev_ctx || !hal_dev_ctx->rx_buf_info[pool_id]) {
-		nrf_wifi_osal_log_err(hal_dev_ctx->hpriv->opriv,
-				      "%s: Invalid parameters\n",
+		nrf_wifi_osal_log_err("%s: Invalid parameters\n",
 				      __func__);
 		goto out;
 	}
@@ -339,9 +338,9 @@ enum nrf_wifi_status hal_rpu_ps_wake(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 #ifdef NRF_WIFI_RPU_RECOVERY
 	hal_dev_ctx->is_wakup_now_asserted = true;
 	hal_dev_ctx->last_wakeup_now_asserted_time_ms =
-		nrf_wifi_osal_time_get_curr_ms(hal_dev_ctx->hpriv->opriv);
+		nrf_wifi_osal_time_get_curr_ms();
 #endif /* NRF_WIFI_RPU_RECOVERY */
-	start_time_us = nrf_wifi_osal_time_get_curr_us(hal_dev_ctx->hpriv->opriv);
+	start_time_us = nrf_wifi_osal_time_get_curr_us();
 
 	rpu_ps_state_mask = ((1 << RPU_REG_BIT_PS_STATE) |
 			     (1 << RPU_REG_BIT_READY_STATE));
@@ -377,7 +376,7 @@ enum nrf_wifi_status hal_rpu_ps_wake(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 				      reg_val,
 				      rpu_ps_state_mask);
 #ifdef NRF_WIFI_RPU_RECOVERY
-		nrf_wifi_osal_tasklet_schedule(hal_dev_ctx->hpriv->opriv,
+		nrf_wifi_osal_tasklet_schedule(,
 					       hal_dev_ctx->recovery_tasklet);
 #endif /* NRF_WIFI_RPU_RECOVERY */
 		goto out;
@@ -387,7 +386,7 @@ enum nrf_wifi_status hal_rpu_ps_wake(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 	did_rpu_had_sleep_opp(hal_dev_ctx);
 #endif /* NRF_WIFI_RPU_RECOVERY */
 #ifdef NRF_WIFI_RPU_RECOVERY_PS_STATE_DEBUG
-	nrf_wifi_osal_log_info(hal_dev_ctx->hpriv->opriv,
+	nrf_wifi_osal_log_info(,
 			       "%s: RPU PS state is AWAKE\n",
 			       __func__);
 #endif /* NRF_WIFI_RPU_RECOVERY_PS_STATE_DEBUG */
@@ -415,17 +414,16 @@ static void hal_rpu_ps_sleep(unsigned long data)
 #ifdef NRF_WIFI_RPU_RECOVERY
 	hal_dev_ctx->is_wakup_now_asserted = false;
 	hal_dev_ctx->last_wakeup_now_deasserted_time_ms =
-		nrf_wifi_osal_time_get_curr_ms(hal_dev_ctx->hpriv->opriv);
+		nrf_wifi_osal_time_get_curr_ms();
 #endif /* NRF_WIFI_RPU_RECOVERY */
 	hal_dev_ctx->rpu_ps_state = RPU_PS_STATE_ASLEEP;
 
 #ifdef NRF_WIFI_RPU_RECOVERY_PS_STATE_DEBUG
-	nrf_wifi_osal_log_info(hal_dev_ctx->hpriv->opriv,
+	nrf_wifi_osal_log_info(,
 			       "%s: RPU PS state is ASLEEP\n",
 			       __func__);
 #endif /* NRF_WIFI_RPU_RECOVERY_PS_STATE_DEBUG */
-	nrf_wifi_osal_spinlock_irq_rel(hal_dev_ctx->hpriv->opriv,
-				       hal_dev_ctx->rpu_ps_lock,
+	nrf_wifi_osal_spinlock_irq_rel(hal_dev_ctx->rpu_ps_lock,
 				       &flags);
 }
 
@@ -864,6 +862,16 @@ enum nrf_wifi_status nrf_wifi_hal_ctrl_cmd_send(struct nrf_wifi_hal_dev_ctx *hal
 {
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
 
+
+#ifdef CONFIG_NRF_WIFI_CMD_EVENT_LOG
+	nrf_wifi_osal_log_info("%s: caller %p\n",
+			      __func__,
+			      __builtin_return_address(0));
+#else
+	nrf_wifi_osal_log_dbg("%s: caller %p\n",
+			     __func__,
+			     __builtin_return_address(0));
+#endif
 	nrf_wifi_osal_spinlock_take(hal_dev_ctx->lock_hal);
 
 	status = hal_rpu_cmd_queue(hal_dev_ctx,
