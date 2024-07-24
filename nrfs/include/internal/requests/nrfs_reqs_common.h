@@ -42,10 +42,8 @@
 
 #define NRFS_FILTER_ERR_SET(_req)  ((_req) |= NRFS_FILTER_ERR_MASK)
 
-/* Warning! All "UNSOLICITED" features are not supported. This is intended for possible future use. */
 #define NRFS_UNSOLICITED_GET(_req) (((_req) & NRFS_UNSOLICITED_MASK) >> NRFS_UNSOLICITED_BITPOS)
 
-/* Warning! All "UNSOLICITED" features are not supported. This is intended for possible future use. */
 #define NRFS_UNSOLICITED_SET(_req) ((_req) |= NRFS_UNSOLICITED_MASK)
 
 #ifdef __cplusplus

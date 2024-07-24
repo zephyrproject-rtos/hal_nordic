@@ -52,7 +52,13 @@ static const nrfs_service_cb_t services_callbacks[] = {
 #endif
 };
 
-/* Warning! All "UNSOLICITED" features are not supported. This is intended for possible future use. */
+/**
+ * @brief Callback function for general messages, not related to any service.
+ *
+ * @param p_buffer Data associated with the message,
+ * @param size     Size of the data buffer.
+ *
+ */
 void __attribute__((weak)) nrfs_unsolicited_handler(void *p_buffer, size_t size)
 {
 	(void)p_buffer;
@@ -74,7 +80,7 @@ void nrfs_dispatcher_notify(void *p_notification, size_t size)
 		    (services_callbacks[srv_id] != NULL)) {
 			services_callbacks[srv_id](p_notification, size);
 		} else {
-			/* TODO: error! unknown service */
+			nrfs_unsolicited_handler(NULL, 0);
 		}
 	}
 }
