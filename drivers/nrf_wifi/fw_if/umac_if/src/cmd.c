@@ -141,7 +141,14 @@ enum nrf_wifi_status umac_cmd_init(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 #ifdef NRF70_TCP_IP_CHECKSUM_OFFLOAD
 	umac_cmd_data->tcp_ip_checksum_offload = 1;
 #endif /* NRF70_TCP_IP_CHECKSUM_OFFLOAD */
-	umac_cmd_data->discon_timeout = NRF_WIFI_AP_DEAD_DETECT_TIMEOUT;
+	umac_cmd_data->discon_timeout = CONFIG_NRF_WIFI_AP_DEAD_DETECT_TIMEOUT;
+#ifdef NRF_WIFI_RPU_RECOVERY
+	umac_cmd_data->watchdog_timer_val =
+		(NRF_WIFI_RPU_RECOVERY_PS_ACTIVE_TIMEOUT_MS) / 1000;
+#else
+	/* Disable watchdog */
+	umac_cmd_data->watchdog_timer_val = 0xFFFFFF;
+#endif /* NRF_WIFI_RPU_RECOVERY */
 
 	nrf_wifi_osal_log_dbg("RPU LPM type: %s",
 		umac_cmd_data->sys_params.sleep_enable == 2 ? "HW" :
