@@ -65,35 +65,35 @@ extern "C" {
 {                                        \
     {                                    \
         .dppic = NRF_DPPIC00,            \
-        .ppib  = NRF_PPIB00_S,           \
+        .ppib  = NRF_PPIB00,             \
     },                                   \
     {                                    \
         .dppic = NRF_DPPIC00,            \
-        .ppib  = NRF_PPIB01_S,           \
+        .ppib  = NRF_PPIB01,             \
     },                                   \
     {                                    \
         .dppic = NRF_DPPIC10,            \
-        .ppib  = NRF_PPIB10_S,           \
+        .ppib  = NRF_PPIB10,             \
     },                                   \
     {                                    \
         .dppic = NRF_DPPIC10,            \
-        .ppib  = NRF_PPIB11_S,           \
+        .ppib  = NRF_PPIB11,             \
     },                                   \
     {                                    \
         .dppic = NRF_DPPIC20,            \
-        .ppib  = NRF_PPIB20_S,           \
+        .ppib  = NRF_PPIB20,             \
     },                                   \
     {                                    \
         .dppic = NRF_DPPIC20,            \
-        .ppib  = NRF_PPIB21_S,           \
+        .ppib  = NRF_PPIB21,             \
     },                                   \
     {                                    \
         .dppic = NRF_DPPIC20,            \
-        .ppib  = NRF_PPIB22_S,           \
+        .ppib  = NRF_PPIB22,             \
     },                                   \
     {                                    \
         .dppic = NRF_DPPIC30,            \
-        .ppib  = NRF_PPIB30_S,           \
+        .ppib  = NRF_PPIB30,             \
     },                                   \
 }
 
