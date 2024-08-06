@@ -1,37 +1,42 @@
+# Auto-generated file, do not edit, use update_wifi_fw.py to update
 name: hal_nordic
 build:
   cmake-ext: True
   kconfig-ext: True
 blobs:
-  - path: wifi_fw_bins/default/nrf70.bin
-    sha256: d321d489dfd2d34a75662d794c191f803ee0fe8afe742c3717142bdfa1959ecb
-    type: img
-    version: '1.0.0'
-    license-path: ./zephyr/LICENSE.txt
-    url: https://github.com/nrfconnect/sdk-nrfxlib/raw/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/fw_bins/default/nrf70.bin
-    description: "nRF70 series firmware patch binary for default mode"
-    doc-url: https://github.com/nrfconnect/sdk-nrfxlib/tree/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/doc
-  - path: wifi_fw_bins/scan_only/nrf70.bin
-    sha256: 0625d52a3aed58f206f2c81a1d4976c2d4d00812470d8f1ead9c731a3a960087
-    type: img
-    version: '1.0.0'
-    license-path: ./zephyr/LICENSE.txt
-    url: https://github.com/nrfconnect/sdk-nrfxlib/raw/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/fw_bins/scan_only/nrf70.bin
-    description: "nRF70 series firmware patch binary for scan only mode"
-    doc-url: https://github.com/nrfconnect/sdk-nrfxlib/tree/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/doc
-  - path: wifi_fw_bins/radio_test/nrf70.bin
-    sha256: 3d892d412f29add318f887b817f209c683d65a4429ae789038977fe6fac2c487
-    type: img
-    version: '1.0.0'
-    license-path: ./zephyr/LICENSE.txt
-    url: https://github.com/nrfconnect/sdk-nrfxlib/raw/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/fw_bins/radio_test/nrf70.bin
-    description: "nRF70 series firmware patch binary for radio test mode"
-    doc-url: https://github.com/nrfconnect/sdk-nrfxlib/tree/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/doc
-  - path: wifi_fw_bins/system_with_raw/nrf70.bin
-    sha256: ece1c089c47948071e00a95e8d49a3adf421e3f66896287facf8ff6f920bd16d
-    type: img
-    version: '1.0.0'
-    license-path: ./zephyr/LICENSE.txt
-    url: https://github.com/nrfconnect/sdk-nrfxlib/raw/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/fw_bins/system_with_raw/nrf70.bin
-    description: "nRF70 series firmware patch binary for system with raw mode"
-    doc-url: https://github.com/nrfconnect/sdk-nrfxlib/tree/37e2ac22b6a6d9d9a62c95e8dc2c102d4371c62e/nrf_wifi/doc
+
+    - path: wifi_fw_bins/default/nrf70.bin
+      sha256: 937dd2c6bd7250da89b84b9093a3726ff42a32070a8a1ae822ffd69e05f32b19
+      type: img
+      version: '1.0.0'
+      license-path: ./LICENSE.txt
+      url: https://github.com/nrfconnect/sdk-nrfxlib/raw/51fc239e2b677bcadb720eb7af9efc98553feb4e/nrf_wifi/fw_bins/wifi_fw_bins/default/nrf70.bin
+      description: "nRF70 series firmware patch binary for default"
+      doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/51fc239e2b677bcadb720eb7af9efc98553feb4e/nrf_wifi/doc
+
+    - path: wifi_fw_bins/scan_only/nrf70.bin
+      sha256: 34c598de69821bdbb92541bfec8ba1fdabb458f5287a0cbb6d7178bc72958b7a
+      type: img
+      version: '1.0.0'
+      license-path: ./LICENSE.txt
+      url: https://github.com/nrfconnect/sdk-nrfxlib/raw/51fc239e2b677bcadb720eb7af9efc98553feb4e/nrf_wifi/fw_bins/wifi_fw_bins/scan_only/nrf70.bin
+      description: "nRF70 series firmware patch binary for scan_only"
+      doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/51fc239e2b677bcadb720eb7af9efc98553feb4e/nrf_wifi/doc
+
+    - path: wifi_fw_bins/radio_test/nrf70.bin
+      sha256: 707c40d4c741a79818dfb99574fe02be6d8d8f46bc557577b16e95ca6a443acf
+      type: img
+      version: '1.0.0'
+      license-path: ./LICENSE.txt
+      url: https://github.com/nrfconnect/sdk-nrfxlib/raw/51fc239e2b677bcadb720eb7af9efc98553feb4e/nrf_wifi/fw_bins/wifi_fw_bins/radio_test/nrf70.bin
+      description: "nRF70 series firmware patch binary for radio_test"
+      doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/51fc239e2b677bcadb720eb7af9efc98553feb4e/nrf_wifi/doc
+
+    - path: wifi_fw_bins/system_with_raw/nrf70.bin
+      sha256: 780f74e39204ab319dc309bfaef9938a984cf33b93d8fcd08d0dff4a7ab15eb9
+      type: img
+      version: '1.0.0'
+      license-path: ./LICENSE.txt
+      url: https://github.com/nrfconnect/sdk-nrfxlib/raw/51fc239e2b677bcadb720eb7af9efc98553feb4e/nrf_wifi/fw_bins/wifi_fw_bins/system_with_raw/nrf70.bin
+      description: "nRF70 series firmware patch binary for system_with_raw"
+      doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/51fc239e2b677bcadb720eb7af9efc98553feb4e/nrf_wifi/doc
