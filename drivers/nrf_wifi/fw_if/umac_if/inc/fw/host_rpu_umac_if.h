@@ -783,7 +783,7 @@ struct nrf_wifi_signal {
 
 #define NRF_WIFI_CMD_CONNECT_COMMON_INFO_USE_RRM (1 << 14)
 #define NRF_WIFI_CONNECT_COMMON_INFO_PREV_BSSID (1 << 15)
-
+#define NRF_WIFI_CONNECT_COMMON_INFO_SECURITY (1 << 16)
 /**
  * @brief This structure contains parameters related to the connection.
  *
