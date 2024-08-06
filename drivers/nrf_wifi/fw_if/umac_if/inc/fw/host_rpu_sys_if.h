@@ -850,6 +850,17 @@ enum op_band {
 };
 
 /**
+ * @brief This enum defines keep alive state
+ *
+ */
+enum nrf_wifi_keep_alive_status {
+	/** Keep alive feature disabled */
+	KEEP_ALIVE_DISABLED = 0,
+	/** Keep alive feature enabled */
+	KEEP_ALIVE_ENABLED = 1
+};
+
+/**
  * @brief This enum specifies the type of frames used to retrieve buffered data
  *  from the AP in power save mode.
  */
