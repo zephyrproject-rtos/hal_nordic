@@ -151,6 +151,14 @@ enum nrf_wifi_status umac_cmd_init(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 	umac_cmd_data->mgmt_buff_offload =  1;
 	nrf_wifi_osal_log_info("Management buffer offload enabled\n");
 #endif /* NRF_WIFI_MGMT_BUFF_OFFLOAD */
+#ifdef NRF_WIFI_FEAT_KEEPALIVE
+	umac_cmd_data->keep_alive_enable = KEEP_ALIVE_ENABLED;
+	umac_cmd_data->keep_alive_period = NRF_WIFI_KEEPALIVE_PERIOD_S;
+	nrf_wifi_osal_log_dbg(fmac_dev_ctx->fpriv->opriv,
+			       "Keepalive enabled with period %d\n",
+				   umac_cmd_data->keepalive_period);
+#endif /* NRF_WIFI_FEAT_KEEPALIVE */
+
 #ifndef CONFIG_NRF700X_RADIO_TEST
 	nrf_wifi_osal_mem_cpy(			      umac_cmd_data->rx_buf_pools,
 			      def_priv->rx_buf_pools,
