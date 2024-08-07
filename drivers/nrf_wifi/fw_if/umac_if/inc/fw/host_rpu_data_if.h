@@ -7,6 +7,9 @@
 
 /**
  * @file
+ * @addtogroup nrf_wifi_fw_if Wi-Fi driver and firmware interface
+ * @{
+ *
  * @brief Data interface between host and RPU
  */
 
@@ -18,7 +21,6 @@
 
 #include "pack_def.h"
 
-#define NRF_WIFI_ETH_ADDR_LEN 6
 #define TX_BUF_HEADROOM 52
 
 /**
@@ -195,7 +197,7 @@ struct nrf_wifi_rx_buff {
 	struct nrf_wifi_umac_head umac_head;
 	/** Rx packet type. see &enum nrf_wifi_rx_pkt_type */
 	signed short rx_pkt_type;
-	/** Refer @enum rpu_tput_mode */
+	/** Refer rpu_tput_mode */
 	unsigned char rate_flags;
 	/** Rate: Legacy : 1, 2, 55, 6, 9, 11, 12, 18, 24, 36, 48, 54
 	  *		  11N VHT HE  : MCS index 0 to 7.
@@ -274,4 +276,7 @@ struct nrf_wifi_sap_ps_get_frames {
 
 } __NRF_WIFI_PKD;
 
+/**
+ * @}
+ */
 #endif /* __HOST_RPU_DATA_IF_H__ */

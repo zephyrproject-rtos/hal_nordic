@@ -5,6 +5,9 @@
  */
 
 /**
+ * @file
+ * @addtogroup nrf_wifi_fw_if Wi-Fi driver and firmware interface
+ * @{
  * @brief nRF70 patch version.
  */
 #ifndef _PATCH_INFO_H
@@ -58,6 +61,9 @@ struct nrf70_fw_image_info {
 #define RPU_FAMILY         (1)
 #define RPU_MAJOR_VERSION   (2)
 #define RPU_MINOR_VERSION   (11)
-#define RPU_PATCH_VERSION   (0)
+#define RPU_PATCH_VERSION   (2)
 
+/**
+ * @}
+ */
 #endif /* _PATCH_INFO_H */

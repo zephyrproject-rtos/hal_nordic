@@ -293,7 +293,6 @@ enum nrf_wifi_status nrf_wifi_fmac_get_power_save_info(void *fmac_dev_ctx,
 
 /**
  * @brief Initialize RF parameters.
- * @param opriv Pointer to the OSAL context.
  * @param prf Pointer to the RF parameter structure.
  * @param package_info Package information, QFN, CSP etc.
  * @param str String of RF params
@@ -302,8 +301,7 @@ enum nrf_wifi_status nrf_wifi_fmac_get_power_save_info(void *fmac_dev_ctx,
  * with the XO, power ceiling info, voltage and temperature based
  * backoffs etc.
  */
-int nrf_wifi_phy_rf_params_init(struct nrf_wifi_osal_priv *opriv,
-				struct nrf_wifi_phy_rf_params *prf,
+int nrf_wifi_phy_rf_params_init(struct nrf_wifi_phy_rf_params *prf,
 				unsigned int package_info,
 				unsigned char *str);
 
@@ -361,6 +359,17 @@ enum nrf_wifi_status nrf_wifi_fmac_set_packet_filter(void *dev_ctx, unsigned cha
 						     unsigned char if_idx,
 						     unsigned short buffer_size);
 #endif /* NRF70_RAW_DATA_RX || NRF70_PROMISC_DATA_RX */
+
+/**
+ * @brief Issue a request to reset stats of the RPU.
+ * @param fmac_dev_ctx Pointer to the UMAC IF context for a RPU WLAN device.
+ *
+ * This function is used to send a command to
+ * instruct the firmware to reset current RPU statistics.
+ *
+ * @return Command execution status
+ */
+enum nrf_wifi_status nrf_wifi_fmac_stats_reset(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
 
 /**
  * @}

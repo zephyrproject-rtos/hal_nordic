@@ -7,6 +7,8 @@
 
 /**
  * @file
+ * @addtogroup nrf_wifi_fw_if Wi-Fi driver and firmware interface
+ * @{
  * @brief System interface between host and RPU
  */
 
@@ -161,6 +163,8 @@ enum nrf_wifi_sys_commands {
 	NRF_WIFI_CMD_RAW_CONFIG_FILTER,
 	/** Command to configure packet injector mode or Raw Tx mode */
 	NRF_WIFI_CMD_RAW_TX_PKT,
+	/** Command to reset interface statistics */
+	NRF_WIFI_CMD_RESET_STATISTICS,
 };
 
 /**
@@ -843,6 +847,19 @@ enum op_band {
 	BAND_24G
 };
 
+/**
+ * @brief This enum specifies the type of frames used to retrieve buffered data
+ *  from the AP in power save mode.
+ */
+enum data_retrieve_mechanism {
+	/** Retrieves data from the AP using a PS-Poll frame */
+	PS_POLL_FRAME,
+	/** Retrieves data from the AP using a QoS Null frame */
+	QOS_NULL_FRAME,
+	/** For future implementation. The RPU will decide which frame to use */
+	AUTOMATIC
+};
+
 #define TWT_EXTEND_SP_EDCA  0x1
 #define DISABLE_DFS_CHANNELS 0x2
 
@@ -887,6 +904,10 @@ struct nrf_wifi_cmd_sys_init {
 	 *  without receiving beacons before disconnection.
 	 */
 	unsigned int discon_timeout;
+	/** RPU uses QoS null frame or PS-Poll frame to retrieve buffered frames
+	 * from the AP in power save data_retrieve_mechanism.
+	 */
+	unsigned char ps_data_retrieval_mech;
 } __NRF_WIFI_PKD;
 
 /**
@@ -1037,6 +1058,8 @@ struct rpu_conf_params {
 	unsigned char bb_gain;
 	/** Number of RX samples to be captured */
 	unsigned short int capture_length;
+	/** Capture timeout in seconds */
+	unsigned short int capture_timeout;
 	/** Configure WLAN to bypass regulatory */
 	unsigned char bypass_regulatory;
 	/** Two letter country code (00: Default for WORLD) */
@@ -1218,7 +1241,7 @@ enum UMAC_QUEUE_NUM {
  *
  */
 struct nrf_wifi_raw_tx_pkt {
-	/** Queue number will be BK, BE, VI, VO and BCN refer @enum UMAC_QUEUE_NUM. */
+	/** Queue number will be BK, BE, VI, VO and BCN refer UMAC_QUEUE_NUM. */
 	unsigned char queue_num;
 	/** Descriptor identifier or token identifier. */
 	unsigned char desc_num;
@@ -1597,4 +1620,16 @@ struct nrf_wifi_event_deinit_done {
 	struct nrf_wifi_sys_head sys_head;
 } __NRF_WIFI_PKD;
 
+/**
+ * @brief This structure describes the command for reset of interface statistics.
+ *
+ */
+struct nrf_wifi_cmd_reset_stats {
+       /** UMAC header, @ref nrf_wifi_sys_head */
+       struct nrf_wifi_sys_head sys_head;
+} __NRF_WIFI_PKD;
+
+/**
+ * @}
+ */
 #endif /* __HOST_RPU_SYS_IF_H__ */
