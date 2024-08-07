@@ -1,0 +1,15 @@
+# CODEOWNERS for autoreview assigning in github
+
+# https://help.github.com/en/articles/about-code-owners#codeowners-syntax
+
+# Order is important; for each modified file, the last matching
+# pattern takes the most precedence.
+# That is, with the last pattern being
+# *.rst                                     @nashif
+# if only .rst files are being modified, only nashif is
+# automatically requested for review, but you can manually
+# add others as needed.
+
+/drivers/nrf_wifi/                                @krish2718 @sachinthegreen @rado17 @jukkar
+/drivers/nrf_wifi/fw_if/umac_if/inc/fw/           @udaynordic @rajb9 @srkanordic
+/drivers/nrf_wifi/hw_if/hal/inc/fw/               @udaynordic @rajb9 @srkanordic
