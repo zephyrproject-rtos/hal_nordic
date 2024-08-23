@@ -48,6 +48,7 @@ def render_template(template_path: str, output_path: str, latest_sha: str) -> No
         url = f"https://github.com/nrfconnect/sdk-nrfxlib/raw/{latest_sha}/nrf_wifi/fw_bins/{firmware}/{FW_BIN_NAME}"
         firmware_info: Dict[str, Any] = {}
         firmware_info['path'] = f"wifi_fw_bins/{firmware}/{FW_BIN_NAME}"
+        firmware_info['rpath'] = f"{firmware}/{FW_BIN_NAME}"
         firmware_info['sha256'] = compute_sha256(url)
         firmware_info['description'] = firmware.rsplit('.', 1)[0]  # Filename without extension
         firmwares[firmware] = firmware_info
