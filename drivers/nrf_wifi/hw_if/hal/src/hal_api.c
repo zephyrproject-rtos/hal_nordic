@@ -1541,7 +1541,7 @@ enum nrf_wifi_status nrf_wifi_hal_fw_chk_boot(struct nrf_wifi_hal_dev_ctx *hal_d
 	unsigned int addr = 0;
 	unsigned int val = 0;
 	unsigned int exp_val = 0;
-	unsigned int mcu_ready_wait_count = MCU_FW_BOOT_TIMEOUT_MS / 10;
+	int mcu_ready_wait_count = MCU_FW_BOOT_TIMEOUT_MS / 10;
 
 	if (rpu_proc == RPU_PROC_TYPE_MCU_LMAC) {
 		addr = RPU_MEM_LMAC_BOOT_SIG;
