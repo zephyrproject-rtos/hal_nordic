@@ -214,12 +214,12 @@ enum nrf_wifi_status umac_cmd_init(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 		umac_cmd_data->disable_beamforming = 1;
 	}
 
-#if defined(CONFIG_NRF_WIFI_QOS_NULL_BASED_RETRIEVAL)
-	umac_cmd_data->ps_data_retrieval_mech = QOS_NULL_FRAME;
+#if defined(NRF_WIFI_PS_INT_PS)
+	umac_cmd_data->ps_exit_strategy = INT_PS;
 #else
-	umac_cmd_data->ps_data_retrieval_mech = PS_POLL_FRAME;
-#endif  /* CONFIG_NRF_WIFI_QOS_NULL_BASED_RETRIEVAL */
-#endif /* !NRF70_OFFLOADED_RAW_TX */
+	umac_cmd_data->ps_exit_strategy = EVERY_TIM;
+#endif  /* NRF_WIFI_PS_INT_PS */
+
 	status = nrf_wifi_hal_ctrl_cmd_send(fmac_dev_ctx->hal_dev_ctx,
 					    umac_cmd,
 					    (sizeof(*umac_cmd) + len));
