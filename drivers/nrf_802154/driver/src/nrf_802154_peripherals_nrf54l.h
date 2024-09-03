@@ -82,20 +82,6 @@ extern "C" {
     NRFX_CONCAT_3(EGU, NRF_802154_EGU_INSTANCE_NO, _IRQHandler)
 
 /**
- * @def NRF_802154_EGU_RAMP_UP_EVENT
- *
- * The EGU event used by the driver to trigger radio ramp-up.
- */
-#define NRF_802154_EGU_RAMP_UP_EVENT NRF_EGU_EVENT_TRIGGERED15
-
-/**
- * @def NRF_802154_EGU_RAMP_UP_TASK
- *
- * The EGU task used by the driver to trigger radio ramp-up.
- */
-#define NRF_802154_EGU_RAMP_UP_TASK  NRF_EGU_TASK_TRIGGER15
-
-/**
  * @def NRF_802154_EGU_USED_MASK
  *
  * Bit mask of instances of SWI/EGU peripherals used by the 802.15.4 driver.
@@ -175,18 +161,6 @@ extern "C" {
 #endif
 
 /**
- * @def NRF_802154_DPPI_RADIO_TXREADY
- *
- * The DPPI channel that publishes RADIO_TXREADY event.
- *
- * @note This option is used by the core module regardless of the driver configuration.
- *
- */
-#ifndef NRF_802154_DPPI_RADIO_TXREADY
-#define NRF_802154_DPPI_RADIO_TXREADY 3U
-#endif
-
-/**
  * @def NRF_802154_DPPI_RADIO_ADDRESS
  *
  * The DPPI channel that publishes RADIO_ADDRESS event.
@@ -219,7 +193,7 @@ extern "C" {
  *
  */
 #ifndef NRF_802154_DPPI_RADIO_PHYEND
-#define NRF_802154_DPPI_RADIO_PHYEND 12U
+#define NRF_802154_DPPI_RADIO_PHYEND 8U
 #endif
 
 /**
@@ -232,7 +206,7 @@ extern "C" {
  *
  */
 #ifndef NRF_802154_DPPI_EGU_TO_RADIO_RAMP_UP
-#define NRF_802154_DPPI_EGU_TO_RADIO_RAMP_UP 10U
+#define NRF_802154_DPPI_EGU_TO_RADIO_RAMP_UP 23U
 #endif
 
 /**
@@ -245,7 +219,7 @@ extern "C" {
  *
  */
 #ifndef NRF_802154_DPPI_TIMER_COMPARE_TO_RADIO_TXEN
-#define NRF_802154_DPPI_TIMER_COMPARE_TO_RADIO_TXEN 10U
+#define NRF_802154_DPPI_TIMER_COMPARE_TO_RADIO_TXEN 23U
 #endif
 
 /**
@@ -256,7 +230,7 @@ extern "C" {
  *
  */
 #ifndef NRF_802154_DPPI_RADIO_SYNC_TO_EGU_SYNC
-#define NRF_802154_DPPI_RADIO_SYNC_TO_EGU_SYNC 8U
+#define NRF_802154_DPPI_RADIO_SYNC_TO_EGU_SYNC 22U
 #endif
 
 /**
@@ -274,7 +248,7 @@ extern "C" {
  * The DPPI channel that RADIO.CCABUSY event publishes to
  */
 #ifndef NRF_802154_DPPI_RADIO_CCABUSY
-#define NRF_802154_DPPI_RADIO_CCABUSY 14U
+#define NRF_802154_DPPI_RADIO_CCABUSY 3U
 #endif
 
 /**
@@ -283,20 +257,8 @@ extern "C" {
  * The DPPI channel that triggers radio.
  */
 #ifndef NRF_802154_DPPI_RADIO_HW_TRIGGER
-#define NRF_802154_DPPI_RADIO_HW_TRIGGER 15U
+#define NRF_802154_DPPI_RADIO_HW_TRIGGER 10U
 #endif
-
-/**
- * @def NRF_802154_DPPI_TIMESTAMPS_USED_MASK
- *
- * Helper bit mask of DPPI channels used by the 802.15.4 driver for timestamping.
- */
-#ifdef NRF_802154_FRAME_TIMESTAMP_ENABLED
-#define NRF_802154_DPPI_TIMESTAMPS_USED_MASK \
-    (1UL << NRF_802154_PPI_TIMESTAMP_EVENT_TO_TIMER_CAPTURE)
-#else // NRF_802154_FRAME_TIMESTAMP_ENABLED
-#define NRF_802154_DPPI_TIMESTAMPS_USED_MASK 0U
-#endif  // NRF_802154_FRAME_TIMESTAMP_ENABLED
 
 /**
  * @def NRF_802154_DPPI_CHANNELS_USED_MASK
@@ -307,7 +269,6 @@ extern "C" {
 #define NRF_802154_DPPI_CHANNELS_USED_MASK (                   \
         (1UL << NRF_802154_DPPI_RADIO_DISABLED) |              \
         (1UL << NRF_802154_DPPI_RADIO_READY) |                 \
-        (1UL << NRF_802154_DPPI_RADIO_TXREADY) |               \
         (1UL << NRF_802154_DPPI_RADIO_ADDRESS) |               \
         (1UL << NRF_802154_DPPI_RADIO_END) |                   \
         (1UL << NRF_802154_DPPI_RADIO_PHYEND) |                \
@@ -317,7 +278,7 @@ extern "C" {
         (1UL << NRF_802154_DPPI_RADIO_CCAIDLE) |               \
         (1UL << NRF_802154_DPPI_RADIO_CCABUSY) |               \
         (1UL << NRF_802154_DPPI_RADIO_HW_TRIGGER) |            \
-        NRF_802154_DPPI_TIMESTAMPS_USED_MASK)
+        NRF_802154_SL_PPI_CHANNELS_USED_MASK)
 #endif // NRF_802154_DPPI_CHANNELS_USED_MASK
 
 /**

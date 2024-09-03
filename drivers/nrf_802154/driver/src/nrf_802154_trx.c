@@ -68,9 +68,9 @@
 #include "nrf_802154_trx_internal.h"
 #endif
 
-#define EGU_SYNC_EVENT        NRF_EGU_EVENT_TRIGGERED3
-#define EGU_SYNC_TASK         NRF_EGU_TASK_TRIGGER3
-#define EGU_SYNC_INTMASK      NRF_EGU_INT_TRIGGERED3
+#define EGU_SYNC_EVENT        NRFX_CONCAT_2(NRF_EGU_EVENT_TRIGGERED, NRF_802154_EGU_SYNC_CHANNEL_NO)
+#define EGU_SYNC_TASK         NRFX_CONCAT_2(NRF_EGU_TASK_TRIGGER, NRF_802154_EGU_SYNC_CHANNEL_NO)
+#define EGU_SYNC_INTMASK      NRFX_CONCAT_2(NRF_EGU_INT_TRIGGERED, NRF_802154_EGU_SYNC_CHANNEL_NO)
 
 #if defined(DPPI_PRESENT)
 #define RADIO_BASE            NRF_RADIO_NS_BASE
@@ -142,7 +142,7 @@
 #if !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
 #define MAX_RAMPDOWN_CYCLES (50 * (SystemCoreClock / 1000000UL)) ///< Maximum number of busy wait loop cycles that radio ramp-down is allowed to take
 #else
-#define MAX_RAMPDOWN_CYCLES 10
+#define MAX_RAMPDOWN_CYCLES 20
 #endif
 #define RSSI_SETTLE_TIME_US 15           ///< Time required for RSSI measurements to become valid after signal level change.
 
@@ -612,9 +612,9 @@ static void fem_for_lna_reset(void)
  *
  * @note This function must be called before ramp up PPIs are configured.
  */
-static void fem_for_pa_set(const mpsl_fem_gain_t * p_fem_gain_data)
+static void fem_for_pa_set(mpsl_fem_pa_power_control_t pa_power_control)
 {
-    (void)mpsl_fem_pa_gain_set(p_fem_gain_data);
+    (void)mpsl_fem_pa_power_control_set(pa_power_control);
     if (mpsl_fem_pa_configuration_set(&m_activate_tx_cc0, NULL) == 0)
     {
         nrf_timer_shorts_enable(m_activate_tx_cc0.event.timer.p_timer_instance,
@@ -641,11 +641,11 @@ static void fem_for_pa_reset(void)
  *
  * @note This function must be called before ramp up PPIs are configured.
  */
-static void fem_for_tx_set(bool cca, const mpsl_fem_gain_t * p_fem_gain_data)
+static void fem_for_tx_set(bool cca, mpsl_fem_pa_power_control_t pa_power_control)
 {
     bool success;
 
-    (void)mpsl_fem_pa_gain_set(p_fem_gain_data);
+    (void)mpsl_fem_pa_power_control_set(pa_power_control);
 
     if (cca)
     {
@@ -764,11 +764,11 @@ static void pa_modulation_fix_apply(bool enable)
 
     if (enable)
     {
-        int8_t pa_gain = 0;
+        mpsl_fem_caps_t fem_caps = {};
 
-        mpsl_fem_pa_is_configured(&pa_gain);
+        mpsl_fem_caps_get(&fem_caps);
 
-        if (pa_gain > 0)
+        if ((fem_caps.flags & MPSL_FEM_CAPS_FLAG_PA_SETUP_REQUIRED) != 0)
         {
             m_pa_mod_filter_latched    = *(p_radio_reg);
             m_pa_mod_filter_is_latched = true;
@@ -810,53 +810,27 @@ void nrf_802154_trx_init(void)
 #if defined(NRF54H_SERIES)
 static void radio_trims_apply(void)
 {
-#if defined(NRF54H20_ENGA_XXAA)
-    /* HMPAN-18 */
-    NRF_RADIO->TIMING               = 1;
-    NRF_RADIO->ADPLLSTARTUPCOMMAND1 = 0x01A80004;
-    NRF_RADIO->ADPLLSTARTUPCOMMAND2 = 0x02100002;
-    NRF_RADIO->ADPLLSTARTUPCOMMAND3 = 0x008C0032;
-    NRF_RADIO->ADPLLSTARTUPCOMMAND4 = 0x00280880;
-    NRF_RADIO->ADPLLSTARTUPCOMMAND5 = NRF_FICR->TRIM.RADIOCORE.RADIO.LOOPGAIN | 0x00580000;
-    NRF_RADIO->ADPLLSTARTUPCOMMAND6 = 0x01280000;
-
-    NRF_RADIO->SPHYNXANA.FSCTRL0       = NRF_FICR->TRIM.RADIOCORE.RADIO.SPHYNXANA.FSCTRL0;
-    NRF_RADIO->SPHYNXANA.FSCTRL1       = NRF_FICR->TRIM.RADIOCORE.RADIO.SPHYNXANA.FSCTRL1;
-    NRF_RADIO->SPHYNXANA.FSCTRL2       = NRF_FICR->TRIM.RADIOCORE.RADIO.SPHYNXANA.FSCTRL2;
-    NRF_RADIO->SPHYNXANA.RXCTRL        = NRF_FICR->TRIM.RADIOCORE.RADIO.SPHYNXANA.RXCTRL;
-    NRF_RADIO->SPHYNXANA.OVRRXTRIMCODE = NRF_FICR->TRIM.RADIOCORE.RADIO.SPHYNXANA.OVRRXTRIMCODE;
-    NRF_RADIO->RXAGC.CALIBRATION       = NRF_FICR->TRIM.RADIOCORE.RADIO.RXAGC.CALIBRATION;
-    NRF_RADIO->EXPECTEDPVTTOTRATIO     = NRF_FICR->TRIM.RADIOCORE.RADIO.PVTTOT;
-    NRF_RADIO->ESTKDTCVAL              = NRF_FICR->TRIM.RADIOCORE.RADIO.KDTC;
-    NRF_RADIO->TXINTERFACEHFGAIN       = NRF_FICR->TRIM.RADIOCORE.RADIO.TXHFGAIN;
-    NRF_RADIO->ADPLLSTARTUPCOMMAND7    = NRF_FICR->TRIM.RADIOCORE.RADIO.PVTTOFIX;
-
-    /* HMPAN-1 */
-    uint32_t temp;
-
-    NRF_RADIO->QOVERRIDE27 = 0;
-    temp                   = NRF_RADIO->DBCCORR & ~RADIO_DBCCORR_TH_Msk;
-    NRF_RADIO->DBCCORR     = temp | (0x2d << RADIO_DBCCORR_TH_Pos);
-    temp                   = NRF_RADIO->ADDRWINSIZE & ~RADIO_ADDRWINSIZE_IEEE802154_Msk;
-    NRF_RADIO->ADDRWINSIZE = temp | (0x18 << RADIO_ADDRWINSIZE_IEEE802154_Pos);
-
-#elif defined(NRF54H20_XXAA)
+#if defined(NRF54H20_XXAA) && !defined(TEST)
     /* HMPAN-76 */
-    if (NRF_RADIO->ADPLLTRIMCOMMAND0 == RADIO_ADPLLTRIMCOMMAND0_ResetValue)
+    if ((*(volatile uint32_t *)0x5302C8A0 == 0x80000000) ||
+        (*(volatile uint32_t *)0x5302C8A0 == 0x0058120E))
     {
-        NRF_RADIO->ADPLLTRIMCOMMAND0 = 0x0058120E;
+        *(volatile uint32_t *)0x5302C8A0 = 0x0058090E;
     }
 
-    NRF_RADIO->ADPLLTRIMCOMMAND1 = 0x008C0032;
-    NRF_RADIO->ADPLLTRIMCOMMAND2 = 0x00800005;
+    *(volatile uint32_t *)0x5302C8A4 = 0x008C0035;
+    *(volatile uint32_t *)0x5302C8A8 = 0x00800005;
 
-    NRF_RADIO->ADPLLSTARTUPCOMMAND1 = 0x01280000;
-    NRF_RADIO->ADPLLSTARTUPCOMMAND2 = 0x00F8AA4F;
-    NRF_RADIO->ADPLLSTARTUPCOMMAND3 = 0x007C0015;
-    NRF_RADIO->ADPLLSTARTUPCOMMAND4 = 0x00800005;
-    NRF_RADIO->ADPLLSTARTUPCOMMAND5 = 0x02100002;
-    NRF_RADIO->ADPLLSTARTUPCOMMAND6 = 0x00280640;
-    NRF_RADIO->ADPLLSTARTUPCOMMAND7 = 0x003005C0;
+    *(volatile uint32_t *)0x5302C8B4 = 0x01280000;
+    *(volatile uint32_t *)0x5302C8B8 = 0x00F8AA5F;
+    *(volatile uint32_t *)0x5302C8BC = 0x007C0015;
+    *(volatile uint32_t *)0x5302C8C4 = 0x02100002;
+    *(volatile uint32_t *)0x5302C8C8 = 0x00280640;
+    *(volatile uint32_t *)0x5302C8CC = 0x003005C0;
+
+    *(volatile uint32_t *)0x5302C7AC = 0x8672827A;
+    *(volatile uint32_t *)0x5302C7B0 = 0x7E768672;
+    *(volatile uint32_t *)0x5302C7B4 = 0x0406007E;
 #endif
 
     nrf_radio_fast_ramp_up_enable_set(NRF_RADIO, true);
@@ -1401,7 +1375,7 @@ void nrf_802154_trx_receive_frame(uint8_t                                 bcc,
     }
 
     // Set FEM PA gain for ACK transmission
-    mpsl_fem_pa_gain_set(&p_ack_tx_power->fem);
+    mpsl_fem_pa_power_control_set(p_ack_tx_power->fem_pa_power_control);
 
     m_timer_value_on_radio_end_event = delta_time;
 
@@ -1607,7 +1581,7 @@ void nrf_802154_trx_transmit_frame(const void                            * p_tra
 
     nrf_radio_int_enable(NRF_RADIO, ints_to_enable);
 
-    fem_for_tx_set(cca, &p_tx_power->fem);
+    fem_for_tx_set(cca, p_tx_power->fem_pa_power_control);
     nrf_802154_trx_antenna_update();
     nrf_802154_trx_ppi_for_ramp_up_set(cca ? NRF_RADIO_TASK_RXEN : NRF_RADIO_TASK_TXEN,
                                        rampup_trigg_mode,
@@ -2180,7 +2154,7 @@ void nrf_802154_trx_continuous_carrier(const nrf_802154_fal_tx_power_split_t * p
     txpower_set(p_tx_power->radio_tx_power);
 
     // Set FEM
-    fem_for_pa_set(&p_tx_power->fem);
+    fem_for_pa_set(p_tx_power->fem_pa_power_control);
 
     // Select antenna
     nrf_802154_trx_antenna_update();
@@ -2242,7 +2216,7 @@ void nrf_802154_trx_modulated_carrier(const void                            * p_
     nrf_radio_shorts_set(NRF_RADIO, SHORTS_MOD_CARRIER);
 
     // Set FEM
-    fem_for_pa_set(&p_tx_power->fem);
+    fem_for_pa_set(p_tx_power->fem_pa_power_control);
 
     // Select antenna
     nrf_802154_trx_antenna_update();
