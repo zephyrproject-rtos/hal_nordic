@@ -467,6 +467,12 @@ typedef enum
 #if defined(RADIO_MODE_MODE_Nrf_4Mbit0_25) || defined(__NRFX_DOXYGEN__)
     NRF_RADIO_MODE_NRF_4MBIT_H_0_25   = RADIO_MODE_MODE_Nrf_4Mbit0_25,      /*!< 4Mbit/s Nordic proprietary radio mode (BT=0.5/h=0.25). */
 #endif
+#if defined(RADIO_MODE_MODE_Nrf_4Mbit_0BT6) || defined(__NRFX_DOXYGEN__)
+    NRF_RADIO_MODE_NRF_4MBIT_BT_0_6   = RADIO_MODE_MODE_Nrf_4Mbit_0BT6,     /*!< 4Mbit/s Nordic proprietary radio mode (BT=0.6/h=0.5). */
+#endif
+#if defined(RADIO_MODE_MODE_Nrf_4Mbit_0BT4) || defined(__NRFX_DOXYGEN__)
+    NRF_RADIO_MODE_NRF_4MBIT_BT_0_4   = RADIO_MODE_MODE_Nrf_4Mbit_0BT4,     /*!< 4Mbit/s Nordic proprietary radio mode (BT=0.4/h=0.5). */
+#endif
     NRF_RADIO_MODE_BLE_1MBIT          = RADIO_MODE_MODE_Ble_1Mbit,          /**< 1 Mbit/s Bluetooth Low Energy. */
 #if defined(RADIO_MODE_MODE_Ble_2Mbit) || defined(__NRFX_DOXYGEN__)
     NRF_RADIO_MODE_BLE_2MBIT          = RADIO_MODE_MODE_Ble_2Mbit,          /**< 2 Mbit/s Bluetooth Low Energy. */
