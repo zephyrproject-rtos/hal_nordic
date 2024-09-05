@@ -392,10 +392,9 @@ enum nrf_wifi_status hal_rpu_ps_wake(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 #endif /* NRF_WIFI_RPU_RECOVERY_PS_STATE_DEBUG */
 
 out:
-	if (!hal_dev_ctx->irq_ctx) {
-		nrf_wifi_osal_timer_schedule(hal_dev_ctx->rpu_ps_timer,
-					     NRF70_RPU_PS_IDLE_TIMEOUT_MS);
-	}
+
+	nrf_wifi_osal_timer_schedule(hal_dev_ctx->rpu_ps_timer,
+		NRF70_RPU_PS_IDLE_TIMEOUT_MS);
 	return status;
 }
 
@@ -471,13 +470,6 @@ static void hal_rpu_ps_deinit(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 	nrf_wifi_osal_timer_free(hal_dev_ctx->rpu_ps_timer);
 
 	nrf_wifi_osal_spinlock_free(hal_dev_ctx->rpu_ps_lock);
-}
-
-
-static void hal_rpu_ps_set_state(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx,
-				 enum RPU_PS_STATE ps_state)
-{
-	hal_dev_ctx->rpu_ps_state = ps_state;
 }
 
 enum nrf_wifi_status nrf_wifi_hal_get_rpu_ps_state(
@@ -1413,9 +1405,6 @@ enum nrf_wifi_status nrf_wifi_hal_irq_handler(void *data)
 	struct nrf_wifi_hal_dev_ctx *hal_dev_ctx = NULL;
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
 	unsigned long flags = 0;
-#ifdef NRF_WIFI_LOW_POWER
-	enum RPU_PS_STATE ps_state = RPU_PS_STATE_ASLEEP;
-#endif /* NRF_WIFI_LOW_POWER */
 	bool do_rpu_recovery = false;
 
 	hal_dev_ctx = (struct nrf_wifi_hal_dev_ctx *)data;
@@ -1429,24 +1418,8 @@ enum nrf_wifi_status nrf_wifi_hal_irq_handler(void *data)
 		goto out;
 	}
 
-#ifdef NRF_WIFI_LOW_POWER
-	ps_state = hal_dev_ctx->rpu_ps_state;
-	hal_rpu_ps_set_state(hal_dev_ctx,
-			     RPU_PS_STATE_AWAKE);
-#ifdef NRF_WIFI_LOW_POWER_DBG
-	hal_dev_ctx->irq_ctx = true;
-#endif /* NRF_WIFI_LOW_POWER_DBG */
-#endif /* NRF_WIFI_LOW_POWER */
 
 	status = hal_rpu_irq_process(hal_dev_ctx, &do_rpu_recovery);
-
-#ifdef NRF_WIFI_LOW_POWER
-	hal_rpu_ps_set_state(hal_dev_ctx,
-			     ps_state);
-#ifdef NRF_WIFI_LOW_POWER_DBG
-	hal_dev_ctx->irq_ctx = false;
-#endif /* NRF_WIFI_LOW_POWER_DBG */
-#endif /* NRF_WIFI_LOW_POWER */
 
 	if (status != NRF_WIFI_STATUS_SUCCESS) {
 		goto out;
