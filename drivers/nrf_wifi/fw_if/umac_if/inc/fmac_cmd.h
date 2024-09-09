@@ -79,4 +79,14 @@ enum nrf_wifi_status umac_cmd_prog_stats_get(struct nrf_wifi_fmac_dev_ctx *fmac_
 #ifndef NRF70_OFFLOADED_RAW_TX
 enum nrf_wifi_status umac_cmd_prog_stats_reset(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
 #endif /* !NRF70_OFFLOADED_RAW_TX */
+
+#ifdef NRF70_OFFLOADED_RAW_TX
+enum nrf_wifi_status umac_cmd_off_raw_tx_conf(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
+					struct nrf_wifi_offload_ctrl_params *off_ctrl_params,
+					struct nrf_wifi_offload_tx_ctrl *offload_tx_params);
+
+enum nrf_wifi_status umac_cmd_off_raw_tx_ctrl(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
+					unsigned char ctrl_type);
+#endif /* NRF70_OFFLOADED_RAW_TX */
+
 #endif /* __FMAC_CMD_H__ */
