@@ -165,6 +165,8 @@ enum nrf_wifi_sys_commands {
 	NRF_WIFI_CMD_RAW_TX_PKT,
 	/** Command to reset interface statistics */
 	NRF_WIFI_CMD_RESET_STATISTICS,
+	/** Command to enable/disable raw tx offloading */
+	NRF_WIFI_CMD_OFFLOAD_RAW_TX,
 };
 
 /**
@@ -1271,6 +1273,76 @@ struct nrf_wifi_cmd_raw_tx {
 	/** Raw tx packet information. */
 	struct nrf_wifi_raw_tx_pkt  raw_tx_info;
 } __NRF_WIFI_PKD;
+
+/**
+ * @brief This enum provides a list of different raw tx offloading types.
+ */
+enum nrf_wifi_offload_tx_ctrl_type {
+	NRF_WIFI_OFFLOAD_TX_STOP,
+	NRF_WIFI_OFFLOAD_TX_START,
+	NRF_WIFI_OFFLOAD_TX_UPDATE,
+};
+
+/**
+ * @brief This structure defines the offloaded raw tx control information.
+ *
+ */
+struct nrf_wifi_offload_ctrl_params
+{
+    /** Offloading type &enum nrf_wifi_offload_tx_ctrl_type */
+    unsigned char offload_type;
+    /** Time interval in micro seconds */
+    unsigned int period_in_us;
+    /** Transmit power in dBm ( 0 to 20) */
+    int tx_pwr;
+    /** Channel number */
+    unsigned int channel_no;
+} __NRF_WIFI_PKD;
+
+#define NRF_WIFI_ENABLE_HE_SU 0x40
+#define NRF_WIFI_ENABLE_HE_ER_SU 0x80
+
+/**
+ * @brief This structure defines the offloading raw tx parameters
+ *
+ */
+struct nrf_wifi_offload_tx_ctrl
+{
+	/** Packet lengths of frames, min 26 bytes and max 600 bytes */
+	unsigned int pkt_length;
+	/** Rate preamble type (USE_SHORT_PREAMBLE/DONT_USE_SHORT_PREAMBLE) */
+	unsigned int rate_preamble_type;
+	/* Number of times a packet should be transmitted at each possible rate */
+	unsigned int rate_retries;
+	/* Rate: legacy rates: 1,2,55,11,6,9,12,18,24,36,48,54
+	 * 	 	 11N VHT HE: MCS index 0 to 7.
+	 */
+	unsigned int rate;
+	/** Refer see &enum rpu_tput_mode */
+	unsigned int rate_flags;
+	/** HE GI type (NRF_WIFI_HE_GI_800NS/NRF_WIFI_HE_GI_1600NS/NRF_WIFI_HE_GI_3200NS) */
+	unsigned char he_gi_type;
+	/** HE LTF (NRF_WIFI_HE_LTF_3200NS/NRF_WIFI_HE_LTF_6400NS/NRF_WIFI_HE_LTF_12800NS) */
+	unsigned char he_ltf;
+	/* Payload pointer*/
+	unsigned int  pkt_ram_ptr;
+} __NRF_WIFI_PKD;
+
+/**
+ * @brief This structure defines the command used for  offloading Raw tx
+ *
+ */
+struct nrf_wifi_cmd_offload_raw_tx {
+	/** UMAC header, @ref nrf_wifi_sys_head */
+	struct nrf_wifi_sys_head sys_head;
+	/** Id of the interface */
+	unsigned int wdev_id;
+	/** Offloaded raw tx control information. @ref nrf_wifi_offload_ctrl_params */
+	struct nrf_wifi_offload_ctrl_params ctrl_info;
+	/** Offloaded raw tx params. @ref nrf_wifi_offload_tx_ctrl */
+	struct nrf_wifi_offload_tx_ctrl tx_params;
+} __NRF_WIFI_PKD;
+
 /**
  * @brief This structure defines an event that indicates set channel command done.
  *
