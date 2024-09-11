@@ -24,7 +24,8 @@ firmware_variants: List[str] = [
     'default',
     'scan_only',
     'radio_test',
-    'system_with_raw'
+    'system_with_raw',
+    'offloaded_raw_tx'
 ]
 
 logger: logging.Logger = logging.getLogger(__name__)
