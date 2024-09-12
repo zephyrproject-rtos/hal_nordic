@@ -17,7 +17,7 @@
 #include "hal_interrupt.h"
 #include "pal.h"
 
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 static enum nrf_wifi_status
 nrf_wifi_hal_rpu_pktram_buf_map_init(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 {
@@ -281,7 +281,7 @@ unsigned long nrf_wifi_hal_buf_unmap_tx(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx
 out:
 	return virt_addr;
 }
-#endif /* !NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX */
 
 
 #ifdef NRF_WIFI_LOW_POWER
@@ -1055,11 +1055,11 @@ struct nrf_wifi_hal_dev_ctx *nrf_wifi_hal_dev_add(struct nrf_wifi_hal_priv *hpri
 {
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
 	struct nrf_wifi_hal_dev_ctx *hal_dev_ctx = NULL;
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 	unsigned int i = 0;
 	unsigned int num_rx_bufs = 0;
 	unsigned int size = 0;
-#endif /* !NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX*/
 
 	hal_dev_ctx = nrf_wifi_osal_mem_zalloc(sizeof(*hal_dev_ctx));
 
@@ -1168,7 +1168,7 @@ struct nrf_wifi_hal_dev_ctx *nrf_wifi_hal_dev_add(struct nrf_wifi_hal_priv *hpri
 		goto bal_dev_free;
 	}
 
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 	for (i = 0; i < MAX_NUM_OF_RX_QUEUES; i++) {
 		num_rx_bufs = hal_dev_ctx->hpriv->cfg_params.rx_buf_pool[i].num_bufs;
 
@@ -1205,10 +1205,10 @@ struct nrf_wifi_hal_dev_ctx *nrf_wifi_hal_dev_add(struct nrf_wifi_hal_priv *hpri
 		goto tx_buf_free;
 #endif /* NRF70_DATA_TX */
 	}
-#endif /* !NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX*/
 
 	return hal_dev_ctx;
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 #ifdef NRF70_DATA_TX
 tx_buf_free:
 	nrf_wifi_osal_mem_free(hal_dev_ctx->tx_buf_info);
@@ -1220,7 +1220,7 @@ rx_buf_free:
 		hal_dev_ctx->rx_buf_info[i] = NULL;
 	}
 #endif /* NRF70_DATA_TX */
-#endif /* !NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX*/
 bal_dev_free:
 	nrf_wifi_bal_dev_rem(hal_dev_ctx->bal_dev_ctx);
 lock_recovery_free:

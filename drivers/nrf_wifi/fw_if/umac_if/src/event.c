@@ -138,17 +138,17 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 {
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_SUCCESS;
 	struct nrf_wifi_umac_hdr *umac_hdr = NULL;
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 	struct nrf_wifi_fmac_vif_ctx *vif_ctx = NULL;
 	struct nrf_wifi_fmac_callbk_fns *callbk_fns = NULL;
 	struct nrf_wifi_umac_event_vif_state *evnt_vif_state = NULL;
 	struct nrf_wifi_fmac_dev_ctx_def *def_dev_ctx = NULL;
 	struct nrf_wifi_fmac_priv_def *def_priv = NULL;
 	bool more_res = false;
-#else
+#elif NRF70_RADIO_TEST
 	struct nrf_wifi_reg *get_reg_event = NULL;
 	struct nrf_wifi_event_regulatory_change *reg_change_event = NULL;
-#endif /* !NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX */
 	unsigned char if_id = 0;
 	unsigned int event_num = 0;
 
@@ -158,7 +158,7 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 		goto out;
 	}
 
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 	def_priv = wifi_fmac_priv(fmac_dev_ctx->fpriv);
 	def_dev_ctx = wifi_dev_priv(fmac_dev_ctx);
 
@@ -166,7 +166,7 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 		goto out;
 	}
 
-#endif /* !NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX */
 
 	umac_hdr = event_data;
 	if_id = umac_hdr->ids.wdev_id;
@@ -180,10 +180,10 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 		goto out;
 	}
 
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 	vif_ctx = def_dev_ctx->vif_ctx[if_id];
 	callbk_fns = &def_priv->callbk_fns;
-#endif /* !NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX */
 
 	nrf_wifi_osal_log_dbg("%s: Event %d received from UMAC",
 			      __func__,
@@ -238,7 +238,7 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 		fmac_dev_ctx->reg_set_status = true;
 #endif /* NRF70_RADIO_TEST */
 		break;
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 	case NRF_WIFI_UMAC_EVENT_TRIGGER_SCAN_START:
 		if (callbk_fns->scan_start_callbk_fn)
 			callbk_fns->scan_start_callbk_fn(vif_ctx->os_vif_ctx,
@@ -545,7 +545,7 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 					      umac_hdr->cmd_evnt);
 		break;
 #endif /* NRF70_STA_MODE */
-#endif /* !NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX */
 	default:
 		nrf_wifi_osal_log_dbg("%s: No callback registered for event %d",
 				      __func__,
@@ -561,7 +561,7 @@ out:
 	return status;
 }
 
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 static enum nrf_wifi_status
 nrf_wifi_fmac_data_event_process(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 				 void *umac_head)
@@ -711,7 +711,7 @@ nrf_wifi_fmac_data_events_process(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 out:
 	return status;
 }
-#else /* NRF70_RADIO_TEST */
+#elif NRF70_RADIO_TEST
 static enum nrf_wifi_status umac_event_rf_test_process(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 						       void *event)
 {
@@ -810,7 +810,7 @@ out:
 }
 
 
-#endif /* !NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX */
 
 
 static enum nrf_wifi_status umac_event_stats_process(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
@@ -1057,12 +1057,12 @@ enum nrf_wifi_status nrf_wifi_fmac_event_callback(void *mac_dev_ctx,
 			      rpu_msg->type);
 
 	switch (rpu_msg->type) {
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 	case NRF_WIFI_HOST_RPU_MSG_TYPE_DATA:
 		status = nrf_wifi_fmac_data_events_process(fmac_dev_ctx,
 							   rpu_msg);
 		break;
-#endif /* !NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX */
 	case NRF_WIFI_HOST_RPU_MSG_TYPE_UMAC:
 		status = umac_event_ctrl_process(fmac_dev_ctx,
 						 rpu_msg->msg,
