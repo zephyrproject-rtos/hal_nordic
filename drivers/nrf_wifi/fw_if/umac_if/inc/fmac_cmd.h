@@ -30,9 +30,9 @@ enum nrf_wifi_status umac_cmd_cfg(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 enum nrf_wifi_status umac_cmd_init(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 				   struct nrf_wifi_phy_rf_params *rf_params,
 				   bool rf_params_valid,
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 				   struct nrf_wifi_data_config_params *config,
-#endif /* !NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX */
 #ifdef NRF_WIFI_LOW_POWER
 				   int sleep_type,
 #endif /* NRF_WIFI_LOW_POWER */
@@ -46,7 +46,7 @@ enum nrf_wifi_status umac_cmd_deinit(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
 
 enum nrf_wifi_status umac_cmd_srcoex(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 	void *cmd, unsigned int cmd_len);
-
+#ifndef NRF70_OFFLOADED_RAW_TX
 enum nrf_wifi_status umac_cmd_he_ltf_gi(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 					unsigned char he_ltf,
 					unsigned char he_gi,
@@ -74,5 +74,5 @@ enum nrf_wifi_status umac_cmd_prog_stats_get(struct nrf_wifi_fmac_dev_ctx *fmac_
 					     int stat_type);
 
 enum nrf_wifi_status umac_cmd_prog_stats_reset(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
-
+#endif /* !NRF70_OFFLOADED_RAW_TX */
 #endif /* __FMAC_CMD_H__ */

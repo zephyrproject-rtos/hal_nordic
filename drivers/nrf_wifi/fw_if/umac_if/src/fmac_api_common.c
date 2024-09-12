@@ -96,6 +96,11 @@ static int nrf_wifi_patch_feature_flags_compat(struct nrf_wifi_fmac_dev_ctx *fma
 		nrf_wifi_osal_log_err("System with raw modes feature flag not set");
 		return -1;
 	}
+#elif defined(NRF70_OFFLOADED_RAW_TX)
+	if (!(feature_flags & NRF70_FEAT_OFFLOADED_RAW_TX)) {
+		nrf_wifi_osal_log_err("System with offloaded raw tx modes feature flag not set");
+		return -1;
+	}
 #else
 	nrf_wifi_osal_log_err("Invalid feature flags: 0x%x or build configuration",
 			      feature_flags);
@@ -344,10 +349,12 @@ struct nrf_wifi_fmac_dev_ctx *nrf_wifi_fmac_dev_add(struct nrf_wifi_fmac_priv *f
 						    void *os_dev_ctx)
 {
 	struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx = NULL;
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 	struct nrf_wifi_fmac_dev_ctx_def *fmac_dev_priv = NULL;
-#else
+#elif  NRF70_RADIO_TEST
 	struct nrf_wifi_fmac_dev_ctx_rt *fmac_dev_priv = NULL;
+#elif NRF70_OFFLOADED_RAW_TX
+	struct nrf_wifi_fmac_dev_ctx_offloaded_raw_tx *fmac_dev_priv = NULL;
 #endif
 #ifdef NRF70_DATA_TX
 	struct nrf_wifi_fmac_priv_def *def_priv = NULL;
@@ -388,6 +395,7 @@ out:
 	return fmac_dev_ctx;
 }
 
+#ifndef NRF70_OFFLOADED_RAW_TX
 enum nrf_wifi_status nrf_wifi_fmac_stats_get(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 					     enum rpu_op_mode op_mode,
 					     struct rpu_op_stats *stats)
@@ -457,6 +465,7 @@ enum nrf_wifi_status nrf_wifi_fmac_stats_get(struct nrf_wifi_fmac_dev_ctx *fmac_
 out:
 	return status;
 }
+#endif /* !NRF70_OFFLOADED_RAW_TX */
 
 enum nrf_wifi_status nrf_wifi_fmac_ver_get(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 					  unsigned int *fw_ver)
@@ -478,6 +487,7 @@ out:
 	return status;
 }
 
+#ifndef NRF70_OFFLOADED_RAW_TX
 enum nrf_wifi_status nrf_wifi_fmac_conf_ltf_gi(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 					       unsigned char he_ltf,
 					       unsigned char he_gi,
@@ -1236,3 +1246,4 @@ enum nrf_wifi_status nrf_wifi_fmac_stats_reset(struct nrf_wifi_fmac_dev_ctx *fma
 out:
 	return status;
 }
+#endif /* !NRF70_OFFLOADED_RAW_TX */

@@ -11,7 +11,7 @@
 #ifndef __FMAC_UTIL_H__
 #define __FMAC_UTIL_H__
 
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 #include "fmac_structs.h"
 #include "pack_def.h"
 
@@ -131,7 +131,7 @@ void nrf_wifi_util_rx_convert_amsdu_to_eth(struct nrf_wifi_fmac_dev_ctx *fmac_de
 bool nrf_wifi_util_is_arr_zero(unsigned char *arr,
 			       unsigned int arr_sz);
 
-#endif /* !NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX*/
 
 void *wifi_fmac_priv(struct nrf_wifi_fmac_priv *def);
 void *wifi_dev_priv(struct nrf_wifi_fmac_dev_ctx *def);
