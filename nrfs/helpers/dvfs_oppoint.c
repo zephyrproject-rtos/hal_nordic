@@ -75,7 +75,7 @@ static const struct dvfs_oppoint_data dvfs_oppoints_data[DVFS_FREQ_COUNT] = {
 		.abb_lockrange	  = ABB_LOCKRANGE(75, 168, 65, 176),
 		.abb_pvtmoncycles = 4,
 		.new_f_mult	  = 8,
-		.new_f_trim_entry = 5,
+		.new_f_trim_entry = 2,
 		.max_hsfll_freq	  = 128,
 	},
 	/* ABB oppoint 0.5V */
