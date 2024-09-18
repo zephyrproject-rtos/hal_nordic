@@ -40,3 +40,12 @@ blobs:
       url: https://github.com/nrfconnect/sdk-nrfxlib/raw/51fc239e2b677bcadb720eb7af9efc98553feb4e/nrf_wifi/fw_bins/system_with_raw/nrf70.bin
       description: "nRF70 series firmware patch binary for system_with_raw"
       doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/51fc239e2b677bcadb720eb7af9efc98553feb4e/nrf_wifi/doc
+
+    - path: suit/bin/suit_manifest_starter.hex
+      sha256: b0291b69fd841d5ea1f5f8d0391813b83a667f17b70ffbfd59f96f8e38d860a1
+      type: img
+      version: '1.0.0'
+      license-path: ./LICENSE.txt
+      url: https://github.com/nrfconnect/sdk-nrfxlib/raw/5d693dd2716d8bbfa5ee2e85f3dffe1bd18e7be8/suit/bin/suit_manifest_starter.hex
+      description: "nRF54H20 series SUIT manifest starter"
+      doc-url: https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/app_dev/device_guides/working_with_nrf/nrf54h/ug_nrf54h20_suit_intro.html
