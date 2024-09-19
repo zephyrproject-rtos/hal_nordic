@@ -107,6 +107,12 @@ enum nrf_wifi_status nrf_wifi_fmac_dev_init_offloaded_raw_tx(
  */
 void nrf_wifi_fmac_dev_deinit_offloaded_raw_tx(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
 
+enum nrf_wifi_status nrf_wifi_offloaded_raw_tx_conf(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
+						    struct beacon_offloaded_raw_tx *params);
+
+enum nrf_wifi_status nrf_wifi_offloaded_raw_tx_start(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
+
+enum nrf_wifi_status nrf_wifi_offloaded_raw_tx_stop(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
 /**
  * @}
  */
