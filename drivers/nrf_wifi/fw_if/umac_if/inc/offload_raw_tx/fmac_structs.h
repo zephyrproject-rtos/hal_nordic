@@ -35,6 +35,10 @@ struct nrf_wifi_fmac_dev_ctx_offloaded_raw_tx {
 	struct nrf_wifi_fmac_priv *fpriv;
 };
 
+struct beacon_offloaded_raw_tx {
+	struct nrf_wifi_offload_ctrl_params ctrl_params;
+	struct nrf_wifi_offload_tx_ctrl info;
+};
 /**
  * @}
  */
