@@ -4,13 +4,13 @@ build:
   cmake-ext: True
   kconfig-ext: True
 blobs:
-{% for _ , firmware in firmwares.items() %}
-    - path: {{ firmware.path }}
-      sha256: {{ firmware.sha256 }}
+{% for _ , blob in blobs.items() %}
+    - path: {{ blob.path }}
+      sha256: {{ blob.sha256 }}
       type: img
-      version: '1.0.0'
+      version: '{{ blob.version }}'
       license-path: ./LICENSE.txt
-      url: https://github.com/nrfconnect/sdk-nrfxlib/raw/{{ latest_sha }}/nrf_wifi/bin/zephyr/{{ firmware.rpath }}
-      description: "nRF70 series firmware patch binary for {{ firmware.description }}"
-      doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/{{ latest_sha }}/nrf_wifi/doc
+      url: {{ blob.url }}
+      description: {{ blob.description }}
+      doc-url: {{ blob.doc_url }}
 {% endfor %}
