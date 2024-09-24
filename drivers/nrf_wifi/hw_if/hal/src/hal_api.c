@@ -292,6 +292,7 @@ out:
 
 
 #ifdef NRF_WIFI_LOW_POWER
+#ifdef NRF_WIFI_RPU_RECOVERY
 static void did_rpu_had_sleep_opp(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 {
 	unsigned int deassert_time_diff_ms = nrf_wifi_osal_time_elapsed_ms(
@@ -302,6 +303,7 @@ static void did_rpu_had_sleep_opp(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 			hal_dev_ctx->last_wakeup_now_deasserted_time_ms;
 	}
 }
+#endif /* NRF_WIFI_RPU_RECOVERY */
 
 enum nrf_wifi_status hal_rpu_ps_wake(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 {
@@ -334,11 +336,12 @@ enum nrf_wifi_status hal_rpu_ps_wake(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 	}
 
 	nrf_wifi_bal_rpu_ps_wake(hal_dev_ctx->bal_dev_ctx);
-	hal_dev_ctx->is_wakeup_now_asserted = true;
+#ifdef NRF_WIFI_RPU_RECOVERY
+	hal_dev_ctx->is_wakup_now_asserted = true;
 	hal_dev_ctx->last_wakeup_now_asserted_time_ms =
-		nrf_wifi_osal_time_get_curr_ms();
-
-	start_time_us = nrf_wifi_osal_time_get_curr_us();
+		nrf_wifi_osal_time_get_curr_ms(hal_dev_ctx->hpriv->opriv);
+#endif /* NRF_WIFI_RPU_RECOVERY */
+	start_time_us = nrf_wifi_osal_time_get_curr_us(hal_dev_ctx->hpriv->opriv);
 
 	rpu_ps_state_mask = ((1 << RPU_REG_BIT_PS_STATE) |
 			     (1 << RPU_REG_BIT_READY_STATE));
@@ -373,11 +376,16 @@ enum nrf_wifi_status hal_rpu_ps_wake(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 				      RPU_PS_WAKE_TIMEOUT_S,
 				      reg_val,
 				      rpu_ps_state_mask);
-		nrf_wifi_osal_tasklet_schedule(hal_dev_ctx->recovery_tasklet);
+#ifdef NRF_WIFI_RPU_RECOVERY
+		nrf_wifi_osal_tasklet_schedule(hal_dev_ctx->hpriv->opriv,
+					       hal_dev_ctx->recovery_tasklet);
+#endif /* NRF_WIFI_RPU_RECOVERY */
 		goto out;
 	}
 	hal_dev_ctx->rpu_ps_state = RPU_PS_STATE_AWAKE;
+#ifdef NRF_WIFI_RPU_RECOVERY
 	did_rpu_had_sleep_opp(hal_dev_ctx);
+#endif /* NRF_WIFI_RPU_RECOVERY */
 
 out:
 	if (!hal_dev_ctx->irq_ctx) {
@@ -399,10 +407,11 @@ static void hal_rpu_ps_sleep(unsigned long data)
 					&flags);
 
 	nrf_wifi_bal_rpu_ps_sleep(hal_dev_ctx->bal_dev_ctx);
-	hal_dev_ctx->is_wakeup_now_asserted = false;
+#ifdef NRF_WIFI_RPU_RECOVERY
+	hal_dev_ctx->is_wakup_now_asserted = false;
 	hal_dev_ctx->last_wakeup_now_deasserted_time_ms =
-		nrf_wifi_osal_time_get_curr_ms();
-
+		nrf_wifi_osal_time_get_curr_ms(hal_dev_ctx->hpriv->opriv);
+#endif /* NRF_WIFI_RPU_RECOVERY */
 	hal_dev_ctx->rpu_ps_state = RPU_PS_STATE_ASLEEP;
 
 	nrf_wifi_osal_spinlock_irq_rel(hal_dev_ctx->rpu_ps_lock,

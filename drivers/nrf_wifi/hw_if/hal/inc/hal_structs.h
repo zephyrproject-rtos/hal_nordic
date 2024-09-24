@@ -243,13 +243,15 @@ struct nrf_wifi_hal_dev_ctx {
 	unsigned long addr_rpu_pktram_base_rx_pool[MAX_NUM_OF_RX_QUEUES];
 	/** TX frame offset */
 	unsigned long tx_frame_offset;
-#if defined(NRF_WIFI_LOW_POWER)  || defined(__DOXYGEN__)
+#if defined(NRF_WIFI_RPU_RECOVERY)  || defined(__DOXYGEN__)
 	/** RPU wake up now asserted flag */
 	bool is_wakeup_now_asserted;
 	/** RPU wake up now asserted time */
 	unsigned long last_wakeup_now_deasserted_time_ms;
 	/** RPU sleep opp time */
 	unsigned long last_rpu_sleep_opp_time_ms;
+#endif /* NRF_WIFI_RPU_RECOVERY */
+#if defined(NRF_WIFI_LOW_POWER)  || defined(__DOXYGEN__)
 	/** RPU power state */
 	enum RPU_PS_STATE rpu_ps_state;
 	/** RPU power state timer */
