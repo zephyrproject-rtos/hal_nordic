@@ -57,6 +57,7 @@
 /* Temperature based calibration params */
 #define NRF_WIFI_DEF_PHY_TEMP_CALIB (NRF_WIFI_PHY_CALIB_FLAG_RXDC |\
 				     NRF_WIFI_PHY_CALIB_FLAG_TXDC |\
+				     NRF_WIFI_PHY_CALIB_FLAG_ENHANCED_TXDC |\
 				     NRF_WIFI_PHY_CALIB_FLAG_RXIQ |\
 				     NRF_WIFI_PHY_CALIB_FLAG_TXIQ |\
 				     NRF_WIFI_PHY_CALIB_FLAG_TXPOW |\
