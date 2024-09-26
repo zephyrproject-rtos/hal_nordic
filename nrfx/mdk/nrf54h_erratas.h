@@ -39,5 +39,60 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <stdbool.h>
 #include "compiler_abstraction.h"
 
+static bool nrf54h_errata_77(void) __UNUSED;
+
+/* ========= Errata 77 ========= */
+#if    defined (NRF54H20_ENGA_XXAA) || defined (DEVELOP_IN_NRF54H20_ENGA) \
+    || defined (NRF54H20_ENGB_XXAA) || defined (DEVELOP_IN_NRF54H20_ENGB)
+    #define NRF54H_ERRATA_77_PRESENT 1
+#else
+    #define NRF54H_ERRATA_77_PRESENT 0
+#endif
+
+#ifndef NRF54H_ERRATA_77_ENABLE_WORKAROUND
+    #define NRF54H_ERRATA_77_ENABLE_WORKAROUND NRF54H_ERRATA_77_PRESENT
+#endif
+
+static bool nrf54h_errata_77(void)
+{
+    #ifndef NRF54H_SERIES
+        return false;
+    #else
+        #if defined (NRF54H20_ENGA_XXAA) || defined (DEVELOP_IN_NRF54H20_ENGA)\
+         || defined (NRF54H20_ENGB_XXAA) || defined (DEVELOP_IN_NRF54H20_ENGB)
+            uint32_t var1 = *(uint32_t *)0x0FFFE000ul;
+            uint32_t var2 = *(uint32_t *)0x0FFFE004ul;
+        #endif
+        #if defined (NRF54H20_ENGA_XXAA) || defined (DEVELOP_IN_NRF54H20_ENGA)
+            if (var1 == 0x16)
+            {
+                switch(var2)
+                {
+                    case 0x00ul:
+                        return false;
+                    case 0x01ul:
+                        return true;
+                    default:
+                        return true;
+                }
+            }
+        #endif
+        #if defined (NRF54H20_ENGB_XXAA) || defined (DEVELOP_IN_NRF54H20_ENGB)
+            if (var1 == 0x16)
+            {
+                switch(var2)
+                {
+                    case 0x00ul:
+                        return false;
+                    case 0x01ul:
+                        return true;
+                    default:
+                        return true;
+                }
+            }
+        #endif
+        return false;
+    #endif
+}
 
 #endif /* NRF54H_ERRATAS_H */
