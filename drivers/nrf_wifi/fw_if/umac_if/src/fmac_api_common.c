@@ -915,6 +915,13 @@ int nrf_wifi_phy_rf_params_init(struct nrf_wifi_phy_rf_params *prf,
 
 	if (package_info == CSP_PACKAGE_INFO) {
 		prf->xo_offset.xo_freq_offset = CSP_XO_VAL;
+
+		/* Configure systematic offset value */
+		prf->syst_tx_pwr_offset.syst_off_lb_chan = CSP_SYSTEM_OFFSET_LB;
+		prf->syst_tx_pwr_offset.syst_off_hb_low_chan = CSP_SYSTEM_OFFSET_HB_CHAN_LOW;
+		prf->syst_tx_pwr_offset.syst_off_hb_mid_chan = CSP_SYSTEM_OFFSET_HB_CHAN_MID;
+		prf->syst_tx_pwr_offset.syst_off_hb_high_chan = CSP_SYSTEM_OFFSET_HB_CHAN_HIGH;	
+
 		/* TX power ceiling */
 		prf->max_pwr_ceil.max_dsss_pwr = CSP_MAX_TX_PWR_DSSS;
 		prf->max_pwr_ceil.max_lb_mcs7_pwr = CSP_MAX_TX_PWR_LB_MCS7;
@@ -948,6 +955,12 @@ int nrf_wifi_phy_rf_params_init(struct nrf_wifi_phy_rf_params *prf,
 
 		/* Initialize XO */
 		prf->xo_offset.xo_freq_offset = QFN_XO_VAL;
+
+		/* Configure systematic offset value */
+		prf->syst_tx_pwr_offset.syst_off_lb_chan = QFN_SYSTEM_OFFSET_LB;
+		prf->syst_tx_pwr_offset.syst_off_hb_low_chan = QFN_SYSTEM_OFFSET_HB_CHAN_LOW;
+		prf->syst_tx_pwr_offset.syst_off_hb_mid_chan = QFN_SYSTEM_OFFSET_HB_CHAN_MID;
+		prf->syst_tx_pwr_offset.syst_off_hb_high_chan = QFN_SYSTEM_OFFSET_HB_CHAN_HIGH;			
 
 		/* TX power ceiling */
 		prf->max_pwr_ceil.max_dsss_pwr = QFN_MAX_TX_PWR_DSSS;
