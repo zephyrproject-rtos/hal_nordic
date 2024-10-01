@@ -50,6 +50,11 @@ static const nrfs_service_cb_t services_callbacks[] = {
 #else
 	[NRFS_SERVICE_ID_CLOCK]	= NULL,
 #endif
+#ifdef NRFS_GDPWR_SERVICE_ENABLED
+	[NRFS_SERVICE_ID_GDPWR] = nrfs_gdpwr_service_notify,
+#else
+	[NRFS_SERVICE_ID_GDPWR]	= NULL,
+#endif
 };
 
 /* Warning! All "UNSOLICITED" features are not supported. This is intended for possible future use. */
