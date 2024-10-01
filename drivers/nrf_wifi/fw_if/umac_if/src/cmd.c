@@ -180,7 +180,7 @@ enum nrf_wifi_status umac_cmd_init(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 			      NUM_EDGE_BACKOFF);
 
 	nrf_wifi_osal_mem_cpy(umac_cmd_data->country_code,
-			      NRF70_REG_DOMAIN,
+			      STRINGIFY(NRF70_REG_DOMAIN),
 			      NRF_WIFI_COUNTRY_CODE_LEN);
 
 #ifdef NRF70_RPU_EXTEND_TWT_SP
