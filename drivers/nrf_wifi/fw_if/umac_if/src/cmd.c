@@ -198,9 +198,9 @@ enum nrf_wifi_status umac_cmd_init(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 	}
 
 #if defined(CONFIG_NRF_WIFI_QOS_NULL_BASED_RETRIEVAL)
-	umac_cmd_data->ps_data_retrieval_mech = QOS_NULL_FRAME;
+	umac_cmd_data->ps_exit_strategy = EVERY_TIM;
 #else
-	umac_cmd_data->ps_data_retrieval_mech = PS_POLL_FRAME;
+	umac_cmd_data->ps_exit_strategy = INT_PS;
 #endif  /* CONFIG_NRF_WIFI_QOS_NULL_BASED_RETRIEVAL */
 #endif /* !NRF70_OFFLOADED_RAW_TX */
 	status = nrf_wifi_hal_ctrl_cmd_send(fmac_dev_ctx->hal_dev_ctx,
