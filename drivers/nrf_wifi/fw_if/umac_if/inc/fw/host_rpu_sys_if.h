@@ -864,6 +864,29 @@ enum op_band {
 	BAND_24G
 };
 
+/**
+ * @brief This enum defines keep alive status.
+ */
+enum nrf_wifi_keep_alive_status {
+	/** Keep alive feature disabled */
+	KEEP_ALIVE_DISABLED = 0,
+	/** Keep alive feature enabled */
+	KEEP_ALIVE_ENABLED = 1
+};
+
+/**
+ * @brief This enum specifies the type of frames used to retrieve buffered data
+ *  from the AP in power save mode.
+ */
+enum ps_exit_strategy {
+	/** Uses an intelligent algo and decide whether to
+	 * stay or exit power save mode
+	 */
+	INT_PS = 0,
+	/** Exits power save mode for every TIM */
+	EVERY_TIM
+};
+
 #define TWT_EXTEND_SP_EDCA  0x1
 #define DISABLE_DFS_CHANNELS 0x2
 
@@ -908,6 +931,20 @@ struct nrf_wifi_cmd_sys_init {
 	 *  without receiving beacons before disconnection.
 	 */
 	unsigned int discon_timeout;
+	/** RPU uses QoS null frame or PS-Poll frame to retrieve buffered frames
+	 * from the AP in power save data_retrieve_mechanism.
+	 */
+	unsigned char ps_exit_strategy;
+	/** The RPU uses this value to configure watchdog timer */
+	unsigned int watchdog_timer_val;
+	/** The RPU uses this value to decide whether keep alive
+	 *  feature is enabled or not see enum keep_alive_status
+	 */
+	unsigned char keep_alive_enable;
+	/** The RPU uses this value(in seconds) for periodicity of the keep
+	 *  alive frame.
+	 */
+	unsigned int keep_alive_period;
 } __NRF_WIFI_PKD;
 
 /**
