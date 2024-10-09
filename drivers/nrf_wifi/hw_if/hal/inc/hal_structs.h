@@ -120,7 +120,7 @@ struct nrf_wifi_hal_cfg_params {
 	/** Maximum event size */
 	unsigned int max_event_size;
 
-#if !defined(NRF70_RADIO_TEST)  || defined(__DOXYGEN__)
+#if (!defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)) || defined(__DOXYGEN__)
 	/** RX buffer headroom size */
 	unsigned char rx_buf_headroom_sz;
 	/** TX buffer headroom size */

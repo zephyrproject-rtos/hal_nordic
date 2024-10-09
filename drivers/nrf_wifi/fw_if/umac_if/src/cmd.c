@@ -11,7 +11,9 @@
 
 #include "host_rpu_umac_if.h"
 #include "hal_api.h"
+#ifndef NRF70_OFFLOADED_RAW_TX
 #include "fmac_structs.h"
+#endif /* !NRF70_OFFLOADED_RAW_TX */
 #include "fmac_util.h"
 
 struct host_rpu_msg *umac_cmd_alloc(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
@@ -83,9 +85,9 @@ out:
 enum nrf_wifi_status umac_cmd_init(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 				   struct nrf_wifi_phy_rf_params *rf_params,
 				   bool rf_params_valid,
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 				   struct nrf_wifi_data_config_params *config,
-#endif /* !NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX*/
 #ifdef NRF_WIFI_LOW_POWER
 				   int sleep_type,
 #endif /* NRF_WIFI_LOW_POWER */
@@ -146,6 +148,7 @@ enum nrf_wifi_status umac_cmd_init(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 	nrf_wifi_osal_log_dbg("RPU LPM type: %s",
 		umac_cmd_data->sys_params.sleep_enable == 2 ? "HW" :
 		umac_cmd_data->sys_params.sleep_enable == 1 ? "SW" : "DISABLED");
+#ifndef NRF70_OFFLOADED_RAW_TX
 #ifndef NRF70_RADIO_TEST
 	nrf_wifi_osal_mem_cpy(umac_cmd_data->rx_buf_pools,
 			      def_priv->rx_buf_pools,
@@ -195,11 +198,11 @@ enum nrf_wifi_status umac_cmd_init(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 	}
 
 #if defined(CONFIG_NRF_WIFI_QOS_NULL_BASED_RETRIEVAL)
-	umac_cmd_data->ps_data_retrieval_mech = QOS_NULL_FRAME;
+	umac_cmd_data->ps_exit_strategy = EVERY_TIM;
 #else
-	umac_cmd_data->ps_data_retrieval_mech = PS_POLL_FRAME;
+	umac_cmd_data->ps_exit_strategy = INT_PS;
 #endif  /* CONFIG_NRF_WIFI_QOS_NULL_BASED_RETRIEVAL */
-
+#endif /* !NRF70_OFFLOADED_RAW_TX */
 	status = nrf_wifi_hal_ctrl_cmd_send(fmac_dev_ctx->hal_dev_ctx,
 					    umac_cmd,
 					    (sizeof(*umac_cmd) + len));
@@ -235,7 +238,7 @@ out:
 	return status;
 }
 
-
+#ifndef NRF70_OFFLOADED_RAW_TX
 enum nrf_wifi_status umac_cmd_srcoex(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 				void *cmd, unsigned int cmd_len)
 {
@@ -477,6 +480,7 @@ out:
 }
 #endif /* NRF70_RADIO_TEST */
 
+#endif /* !NRF70_OFFLOADED_RAW_TX */
 
 enum nrf_wifi_status umac_cmd_prog_stats_get(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 #ifdef NRF70_RADIO_TEST
@@ -518,6 +522,7 @@ out:
 	return status;
 }
 
+#ifndef NRF70_OFFLOADED_RAW_TX
 enum nrf_wifi_status umac_cmd_prog_stats_reset(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
 {
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
@@ -548,3 +553,98 @@ enum nrf_wifi_status umac_cmd_prog_stats_reset(struct nrf_wifi_fmac_dev_ctx *fma
 out:
 	return status;
 }
+#endif /* NRF70_OFFLOADED_RAW_TX */
+
+#ifdef NRF70_OFFLOADED_RAW_TX
+enum nrf_wifi_status umac_cmd_off_raw_tx_conf(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
+					      struct nrf_wifi_offload_ctrl_params *off_ctrl_params,
+					      struct nrf_wifi_offload_tx_ctrl *offload_tx_params)
+{
+	struct host_rpu_msg *umac_cmd = NULL;
+	struct nrf_wifi_cmd_offload_raw_tx_params *umac_cmd_data = NULL;
+	int len = 0;
+	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
+
+	if (!fmac_dev_ctx->fw_init_done) {
+		nrf_wifi_osal_log_err("%s: UMAC buff config not yet done",__func__);
+		goto out;
+	}
+
+	if (!off_ctrl_params) {
+		nrf_wifi_osal_log_err("%s: offloaded raw tx control params is NULL", __func__);
+		goto out;
+	}
+
+	if (!offload_tx_params) {
+		nrf_wifi_osal_log_err("%s: offload raw tx params is NULL", __func__);
+		goto out;
+	}
+
+	len = sizeof(*umac_cmd_data);
+
+	umac_cmd = umac_cmd_alloc(fmac_dev_ctx,
+				  NRF_WIFI_HOST_RPU_MSG_TYPE_SYSTEM,
+				  len);
+
+	if (!umac_cmd) {
+		nrf_wifi_osal_log_err("%s: umac_cmd_alloc failed", __func__);
+		goto out;
+	}
+
+	umac_cmd_data = (struct nrf_wifi_cmd_offload_raw_tx_params *)(umac_cmd->msg);
+
+	umac_cmd_data->sys_head.cmd_event = NRF_WIFI_CMD_OFFLOAD_RAW_TX_PARAMS;
+	umac_cmd_data->sys_head.len = len;
+
+	nrf_wifi_osal_mem_cpy(&umac_cmd_data->ctrl_info,
+			      off_ctrl_params,
+			      sizeof(*off_ctrl_params));
+
+	nrf_wifi_osal_mem_cpy(&umac_cmd_data->tx_params,
+			      offload_tx_params,
+			      sizeof(*offload_tx_params));
+
+	status = nrf_wifi_hal_ctrl_cmd_send(fmac_dev_ctx->hal_dev_ctx,
+					    umac_cmd,
+					    (sizeof(*umac_cmd) + len));
+out:
+	return status;
+}
+
+enum nrf_wifi_status umac_cmd_off_raw_tx_ctrl(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
+					      unsigned char ctrl_type)
+{
+	struct host_rpu_msg *umac_cmd = NULL;
+	struct nrf_wifi_cmd_offload_raw_tx_ctrl *umac_cmd_data = NULL;
+	int len = 0;
+	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
+
+	if (!fmac_dev_ctx->fw_init_done) {
+		nrf_wifi_osal_log_err("%s: UMAC buff config not yet done", __func__);
+		goto out;
+	}
+
+	len = sizeof(*umac_cmd_data);
+
+	umac_cmd = umac_cmd_alloc(fmac_dev_ctx,
+				  NRF_WIFI_HOST_RPU_MSG_TYPE_SYSTEM,
+				  len);
+
+	if (!umac_cmd) {
+		nrf_wifi_osal_log_err("%s: umac_cmd_alloc failed", __func__);
+		goto out;
+	}
+
+	umac_cmd_data = (struct nrf_wifi_cmd_offload_raw_tx_ctrl *)(umac_cmd->msg);
+
+	umac_cmd_data->sys_head.cmd_event = NRF_WIFI_CMD_OFFLOAD_RAW_TX_CTRL;
+	umac_cmd_data->sys_head.len = len;
+	umac_cmd_data->ctrl_type = ctrl_type;
+
+	status = nrf_wifi_hal_ctrl_cmd_send(fmac_dev_ctx->hal_dev_ctx,
+					    umac_cmd,
+					    (sizeof(*umac_cmd) + len));
+out:
+	return status;
+}
+#endif /* NRF70_OFFLOADED_RAW_TX */
