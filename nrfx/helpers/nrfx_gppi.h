@@ -111,7 +111,7 @@ typedef enum
 } nrfx_gppi_task_t;
 
 #elif defined(DPPI_PRESENT)
-#include <haly/nrfy_dppi.h>
+#include <nrfx_dppi.h>
 
 #define NRFX_GPPI_GROUP_NUM              NRF_DPPI_GROUP_NUM_MAX
 #define NRFX_GPPI_GROUPS_USED            NRFX_DPPI_GROUPS_USED
@@ -430,6 +430,16 @@ nrfx_err_t nrfx_gppi_group_alloc(nrfx_gppi_channel_group_t * p_group);
  */
 nrfx_err_t nrfx_gppi_group_free(nrfx_gppi_channel_group_t group);
 /** @} */
+
+#if defined DPPI_PRESENT
+
+nrfx_err_t nrfx_gppi_channel_destination_setup(uint8_t             channel,
+                                               nrfx_dppi_t const * p_src_dppi,
+                                               uint8_t             src_channel,
+                                               nrfx_dppi_t const * p_dst_dppi,
+                                               uint8_t             dst_channel);
+
+#endif
 
 #ifdef __cplusplus
 }
