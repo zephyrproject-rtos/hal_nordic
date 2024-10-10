@@ -12,7 +12,7 @@
 #include "hal_api.h"
 #include "fmac_rx.h"
 #include "fmac_util.h"
-
+#include "fmac_promisc.h"
 
 static enum nrf_wifi_status
 nrf_wifi_fmac_map_desc_to_pool(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
@@ -211,6 +211,9 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 	struct nrf_wifi_fmac_rx_pool_map_info pool_info;
 #if defined(NRF70_RAW_DATA_RX) || defined(NRF70_PROMISC_DATA_RX)
 	struct raw_rx_pkt_header raw_rx_hdr;
+#if defined(NRF70_PROMISC_DATA_RX)
+	unsigned short frame_control;
+#endif
 #endif /* NRF70_RAW_DATA_RX || NRF70_PROMISC_DATA_RX */
 	void *nwb = NULL;
 	void *nwb_data = NULL;
@@ -282,6 +285,12 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 		rx_buf_info->nwb = 0;
 		rx_buf_info->mapped = false;
 
+#ifdef NRF70_PROMISC_DATA_RX
+		nrf_wifi_osal_mem_cpy(&frame_control,
+				      nwb_data,
+				      sizeof(unsigned short));
+#endif
+
 		if (config->rx_pkt_type == NRF_WIFI_RX_PKT_DATA) {
 #ifdef NRF70_PROMISC_DATA_RX
 			if (vif_ctx->promisc_mode) {
@@ -289,11 +298,12 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 				raw_rx_hdr.signal = config->signal;
 				raw_rx_hdr.rate_flags = config->rate_flags;
 				raw_rx_hdr.rate = config->rate;
-
-				def_priv->callbk_fns.rx_sniffer_frm_callbk_fn(vif_ctx->os_vif_ctx,
-									      nwb,
-									      &raw_rx_hdr,
-									      false);
+				if (nrf_wifi_util_check_filt_setting(vif_ctx, &frame_control)) {
+					def_priv->callbk_fns.sniffer_callbk_fn(vif_ctx->os_vif_ctx,
+									       nwb,
+									       &raw_rx_hdr,
+									       false);
+				}
 			}
 #endif
 #ifdef NRF70_STA_MODE
@@ -359,11 +369,26 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 			raw_rx_hdr.signal = config->signal;
 			raw_rx_hdr.rate_flags = config->rate_flags;
 			raw_rx_hdr.rate = config->rate;
-
-			def_priv->callbk_fns.rx_sniffer_frm_callbk_fn(vif_ctx->os_vif_ctx,
-								      nwb,
-								      &raw_rx_hdr,
-								      true);
+#if defined(NRF70_PROMISC_DATA_RX)
+			if (nrf_wifi_util_check_filt_setting(vif_ctx, &frame_control))
+#endif
+			{
+				def_priv->callbk_fns.sniffer_callbk_fn(vif_ctx->os_vif_ctx,
+								       nwb,
+								       &raw_rx_hdr,
+								       true);
+			}
+#if defined(NRF70_PROMISC_DATA_RX)
+			/**
+			 * In the case of Monitor mode, the sniffer callback function
+			 * will free the packet. For promiscuous mode, if the packet
+			 * is not meant to be sent up the stack, the packet needs
+			 * to be freed here.
+			 */
+			else {
+				nrf_wifi_osal_nbuf_free(nwb);
+			}
+#endif
 		}
 #endif /* NRF70_RAW_DATA_RX || NRF70_PROMISC_DATA_RX */
 		else {
