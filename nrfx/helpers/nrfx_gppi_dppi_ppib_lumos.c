@@ -377,9 +377,9 @@ nrfx_err_t gppi_dppi_connection_setup(uint8_t         virtual_channel,
                 return err;
             }
 #endif
+            dppic_virtual_channel_set(p_src_dppic, src_dppi_channel, virtual_channel);
+            dppic_virtual_channel_set(p_dst_dppic, dst_dppi_channel, virtual_channel);
         }
-        dppic_virtual_channel_set(p_src_dppic, src_dppi_channel, virtual_channel);
-        dppic_virtual_channel_set(p_dst_dppic, dst_dppi_channel, virtual_channel);
 
         err = create_ppib_connection(virtual_channel,
                                         &path,
@@ -467,6 +467,8 @@ nrfx_err_t gppi_dppi_connection_setup(uint8_t         virtual_channel,
                     return err;
                 }
 #endif
+                dppic_virtual_channel_set(p_src_dppic, src_dppi_channel, virtual_channel);
+                dppic_virtual_channel_set(p_dst_dppic, dst_dppi_channel, virtual_channel);
             }
             else
             {
@@ -504,14 +506,12 @@ nrfx_err_t gppi_dppi_connection_setup(uint8_t         virtual_channel,
 #endif
             }
 
-            dppic_virtual_channel_set(p_src_dppic, src_dppi_channel, virtual_channel);
             dppic_virtual_channel_set(p_main_dppic, main_dppi_channel, virtual_channel);
-            dppic_virtual_channel_set(p_dst_dppic, dst_dppi_channel, virtual_channel);
 
             err = create_ppib_connection(virtual_channel,
-                                            &path_src_to_main ,
-                                            src_dppi_channel,
-                                            main_dppi_channel);
+                                         &path_src_to_main ,
+                                         src_dppi_channel,
+                                         main_dppi_channel);
             if (err != NRFX_SUCCESS)
             {
                 clear_virtual_channel_path(virtual_channel);
@@ -520,9 +520,9 @@ nrfx_err_t gppi_dppi_connection_setup(uint8_t         virtual_channel,
             }
 
             err = create_ppib_connection(virtual_channel,
-                                            &path_main_to_dst,
-                                            main_dppi_channel,
-                                            dst_dppi_channel);
+                                         &path_main_to_dst,
+                                         main_dppi_channel,
+                                         dst_dppi_channel);
             if (err != NRFX_SUCCESS)
             {
                 clear_virtual_channel_path(virtual_channel);
@@ -741,17 +741,22 @@ void nrfx_gppi_channels_disable(uint32_t mask)
     }
 }
 
-nrfx_err_t nrfx_gppi_channel_destination_setup(uint8_t             channel,
-                                               nrfx_dppi_t const * p_src_dppi,
-                                               uint8_t             src_channel,
-                                               nrfx_dppi_t const * p_dst_dppi,
-                                               uint8_t             dst_channel)
+nrfx_err_t nrfx_gppi_edge_connection_setup(uint8_t             channel,
+                                           nrfx_dppi_t const * p_src_dppi,
+                                           uint8_t             src_channel,
+                                           nrfx_dppi_t const * p_dst_dppi,
+                                           uint8_t             dst_channel)
 {
     nrf_apb_index_t src_domain = nrfx_interconnect_apb_index_get((uint32_t)p_src_dppi->p_reg);
     nrf_apb_index_t dst_domain = nrfx_interconnect_apb_index_get((uint32_t)p_dst_dppi->p_reg);
 
     uint8_t src_dppi_channel = src_channel;
     uint8_t dst_dppi_channel = dst_channel;
+
+    if (p_src_dppi == p_dst_dppi)
+    {
+        return NRFX_SUCCESS; /* No OP */
+    }
 
     return gppi_dppi_connection_setup(channel, src_domain, &src_dppi_channel, dst_domain, &dst_dppi_channel);
 }

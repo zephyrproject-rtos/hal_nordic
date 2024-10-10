@@ -44,12 +44,12 @@ extern "C" {
  * Macro for generating if statement code blocks that allow extracting
  * the number of channels associated with the specific PPIB instance.
  */
-#define NRF_INTERNAL_PPIB_CHAN_NUM_EXTRACT(chan_num, p_reg)                                                \
-    if (0) {}                                                                                              \
-    NRFX_FOREACH_PRESENT(PPIB, NRF_INTERNAL_ELSE_IF_EXTRACT_1, (), (), chan_num, _NTASKSEVENTS_MAX, p_reg) \
-    else                                                                                                   \
-    {                                                                                                      \
-        chan_num = 0;                                                                                      \
+#define NRF_INTERNAL_PPIB_CHAN_NUM_EXTRACT(chan_num, p_reg)                                                    \
+    if (0) {}                                                                                                  \
+    NRFX_FOREACH_PRESENT(PPIB, NRF_INTERNAL_ELSE_IF_EXTRACT_1, (), (), chan_num, _NTASKSEVENTS_MAX + 1, p_reg) \
+    else                                                                                                       \
+    {                                                                                                          \
+        chan_num = 0;                                                                                          \
     }
 
 /**

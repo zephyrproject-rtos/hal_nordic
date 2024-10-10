@@ -433,11 +433,32 @@ nrfx_err_t nrfx_gppi_group_free(nrfx_gppi_channel_group_t group);
 
 #if defined DPPI_PRESENT
 
-nrfx_err_t nrfx_gppi_channel_destination_setup(uint8_t             channel,
-                                               nrfx_dppi_t const * p_src_dppi,
-                                               uint8_t             src_channel,
-                                               nrfx_dppi_t const * p_dst_dppi,
-                                               uint8_t             dst_channel);
+
+/**
+ * @brief Function for creating a connection between two edge DPPIs.
+ *
+ * This function takes a pair of edge DPPIs and creates an interconnect
+ * between them using a provided GPPI channel. The GPPI channel must be
+ * allocated with @ref nrfx_gppi_group_alloc.
+ * The configuration of the edge DPPIs is not affected by this function
+ * or when the GPPI channel is freed with @ref nrfx_gppi_group_free.
+ *
+ * @param[in] group       GPPI channel used to make the connection.
+ * @param[in] p_src_dppi  Instance of the source DPPI.
+ * @param[in] src_channel Source DPPI channel.
+ * @param[in] p_dst_dppi  Instance of the destination DPPI.
+ * @param[in] dst_channel Destination DPPI channel.
+ *
+ * @retval NRFX_SUCCESS             The channel was successfully freed.
+ * @retval NRFX_ERROR_INVALID_PARAM The specified channel is not allocated or
+ *                                  is not user-configurable.
+ * @retval NRFX_ERROR_NOT_SUPPORTED Driver is not enabled.
+ */
+nrfx_err_t nrfx_gppi_edge_connection_setup(uint8_t             channel,
+                                           nrfx_dppi_t const * p_src_dppi,
+                                           uint8_t             src_channel,
+                                           nrfx_dppi_t const * p_dst_dppi,
+                                           uint8_t             dst_channel);
 
 #endif
 
