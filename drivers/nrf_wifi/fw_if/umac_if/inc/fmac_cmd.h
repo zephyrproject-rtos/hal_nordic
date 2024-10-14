@@ -12,6 +12,8 @@
 #ifndef __FMAC_CMD_H__
 #define __FMAC_CMD_H__
 
+#include "fmac_structs_common.h"
+
 #define NRF_WIFI_FMAC_STATS_RECV_TIMEOUT 50 /* ms */
 #define NRF_WIFI_FMAC_PS_CONF_EVNT_RECV_TIMEOUT 50 /* ms */
 #ifdef NRF70_RADIO_TEST
@@ -66,6 +68,7 @@ enum nrf_wifi_status umac_cmd_prog_rf_test(struct nrf_wifi_fmac_dev_ctx *fmac_de
 					   void *rf_test_params,
 					   unsigned int rf_test_params_sz);
 #endif /* NRF70_RADIO_TEST */
+#endif /* NRF70_OFFLOADED_RAW_TX */
 
 enum nrf_wifi_status umac_cmd_prog_stats_get(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 #ifdef NRF70_RADIO_TEST
@@ -73,15 +76,16 @@ enum nrf_wifi_status umac_cmd_prog_stats_get(struct nrf_wifi_fmac_dev_ctx *fmac_
 #endif /* NRF70_RADIO_TEST */
 					     int stat_type);
 
+#ifndef NRF70_OFFLOADED_RAW_TX
 enum nrf_wifi_status umac_cmd_prog_stats_reset(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
 #endif /* !NRF70_OFFLOADED_RAW_TX */
 
 #ifdef NRF70_OFFLOADED_RAW_TX
-enum nrf_wifi_status umac_cmd_offloaded_raw_tx_conf(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
+enum nrf_wifi_status umac_cmd_off_raw_tx_conf(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 					struct nrf_wifi_offload_ctrl_params *offloaded_tx_params,
 					struct nrf_wifi_offload_tx_ctrl *offload_tx_ctr);
 
-enum nrf_wifi_status umac_cmd_offloaded_raw_tx_ctrl(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
+enum nrf_wifi_status umac_cmd_off_raw_tx_ctrl(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 					unsigned char ctrl_type);
 #endif /* NRF70_OFFLOADED_RAW_TX */
 

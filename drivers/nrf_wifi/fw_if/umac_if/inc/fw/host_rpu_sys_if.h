@@ -93,6 +93,8 @@ enum rpu_stats_type {
 	RPU_STATS_TYPE_LMAC,
 	/** PHY statistics */
 	RPU_STATS_TYPE_PHY,
+	/** Offloaded Raw TX statistics */
+	RPU_STATS_TYPE_OFFLOADED_RAW_TX,
 	/** Highest statistics type number currently defined */
 	RPU_STATS_TYPE_MAX
 };
@@ -165,8 +167,10 @@ enum nrf_wifi_sys_commands {
 	NRF_WIFI_CMD_RAW_TX_PKT,
 	/** Command to reset interface statistics */
 	NRF_WIFI_CMD_RESET_STATISTICS,
+	/** Command to configure raw tx offloading parameters */
+	NRF_WIFI_CMD_OFFLOAD_RAW_TX_PARAMS,
 	/** Command to enable/disable raw tx offloading */
-	NRF_WIFI_CMD_OFFLOAD_RAW_TX,
+	NRF_WIFI_CMD_OFFLOAD_RAW_TX_CTRL,
 };
 
 /**
@@ -661,6 +665,17 @@ struct rpu_phy_stats {
 	unsigned int dsss_crc32_pass_cnt;
 	/** Number of DSSS CRC Fail packets */
 	unsigned int dsss_crc32_fail_cnt;
+} __NRF_WIFI_PKD;
+
+/**
+ * @brief This structure defines the Offloaded raw tx debug statistics.
+ *
+ */
+struct rpu_offloaded_raw_tx_stats {
+      unsigned int offload_raw_tx_state;
+      unsigned int offload_raw_tx_cnt;
+      unsigned int offload_raw_tx_complete_cnt;
+      unsigned int warm_boot_cnt;
 } __NRF_WIFI_PKD;
 
 /**
@@ -1298,10 +1313,10 @@ struct nrf_wifi_cmd_raw_tx {
 /**
  * @brief This enum provides a list of different raw tx offloading types.
  */
-enum nrf_wifi_offload_tx_ctrl_type {
+enum nrf_wifi_offload_rawtx_ctrl_type {
 	NRF_WIFI_OFFLOAD_TX_STOP,
 	NRF_WIFI_OFFLOAD_TX_START,
-	NRF_WIFI_OFFLOAD_TX_UPDATE,
+	NRF_WIFI_OFFLOAD_TX_CONFIG,
 };
 
 /**
@@ -1310,8 +1325,6 @@ enum nrf_wifi_offload_tx_ctrl_type {
  */
 struct nrf_wifi_offload_ctrl_params
 {
-    /** Offloading type &enum nrf_wifi_offload_tx_ctrl_type */
-    unsigned char offload_type;
     /** Time interval in micro seconds */
     unsigned int period_in_us;
     /** Transmit power in dBm ( 0 to 20) */
@@ -1333,9 +1346,9 @@ struct nrf_wifi_offload_tx_ctrl
 	unsigned int pkt_length;
 	/** Rate preamble type (USE_SHORT_PREAMBLE/DONT_USE_SHORT_PREAMBLE) */
 	unsigned int rate_preamble_type;
-	/* Number of times a packet should be transmitted at each possible rate */
+	/** Number of times a packet should be transmitted at each possible rate */
 	unsigned int rate_retries;
-	/* Rate: legacy rates: 1,2,55,11,6,9,12,18,24,36,48,54
+	/** Rate: legacy rates: 1,2,55,11,6,9,12,18,24,36,48,54
 	 * 	 	 11N VHT HE: MCS index 0 to 7.
 	 */
 	unsigned int rate;
@@ -1345,7 +1358,7 @@ struct nrf_wifi_offload_tx_ctrl
 	unsigned char he_gi_type;
 	/** HE LTF (NRF_WIFI_HE_LTF_3200NS/NRF_WIFI_HE_LTF_6400NS/NRF_WIFI_HE_LTF_12800NS) */
 	unsigned char he_ltf;
-	/* Payload pointer*/
+	/** Payload pointer */
 	unsigned int  pkt_ram_ptr;
 } __NRF_WIFI_PKD;
 
@@ -1353,15 +1366,28 @@ struct nrf_wifi_offload_tx_ctrl
  * @brief This structure defines the command used for  offloading Raw tx
  *
  */
-struct nrf_wifi_cmd_offload_raw_tx {
+struct nrf_wifi_cmd_offload_raw_tx_params {
 	/** UMAC header, @ref nrf_wifi_sys_head */
 	struct nrf_wifi_sys_head sys_head;
 	/** Id of the interface */
 	unsigned int wdev_id;
-	/** Offloaded raw tx control information. @ref nrf_wifi_offload_ctrl_params */
+	/** Offloaded raw tx control information, @ref nrf_wifi_offload_ctrl_params */
 	struct nrf_wifi_offload_ctrl_params ctrl_info;
-	/** Offloaded raw tx params. @ref nrf_wifi_offload_tx_ctrl */
+	/** Offloaded raw tx params, @ref nrf_wifi_offload_tx_ctrl */
 	struct nrf_wifi_offload_tx_ctrl tx_params;
+} __NRF_WIFI_PKD;
+
+/**
+ * @brief This structure defines the command used for  offloading Raw tx
+ *
+ */
+struct nrf_wifi_cmd_offload_raw_tx_ctrl {
+	/** UMAC header, @ref nrf_wifi_sys_head */
+	struct nrf_wifi_sys_head sys_head;
+	/** Id of the interface */
+	unsigned int wdev_id;
+	/** Offloading type @ref nrf_wifi_offload_rawtx_ctrl_type */
+	unsigned char ctrl_type;
 } __NRF_WIFI_PKD;
 
 /**
@@ -1598,6 +1624,8 @@ struct rpu_fw_stats {
 	/** UMAC statistics @ref rpu_umac_stats */
 	struct rpu_umac_stats umac;
 #endif /* !NRF70_RADIO_TEST */
+	/** Offload raw tx statistics @ref rpu_offloaded_raw_tx_stats */
+	struct rpu_offloaded_raw_tx_stats offloaded_raw_tx;
 } __NRF_WIFI_PKD;
 
 /**

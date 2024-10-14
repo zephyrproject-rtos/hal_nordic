@@ -10,21 +10,12 @@
  */
 
 #include "host_rpu_umac_if.h"
-#include "fmac_api.h"
 #include "hal_api.h"
-#include "fmac_structs.h"
 #include "fmac_api.h"
-#include "fmac_util.h"
-#include "fmac_peer.h"
-#include "fmac_vif.h"
-#include "fmac_tx.h"
-#include "fmac_rx.h"
 #include "fmac_cmd.h"
-#include "fmac_event.h"
-#include "fmac_bb.h"
-#include "util.h"
+#include <stdio.h>
 
-struct nrf_wifi_fmac_priv *nrf_wifi_fmac_init_offloaded_raw_tx(void)
+struct nrf_wifi_fmac_priv *nrf_wifi_fmac_off_raw_tx_init(void)
 {
 	struct nrf_wifi_fmac_priv *fpriv = NULL;
 	struct nrf_wifi_hal_cfg_params hal_cfg_params;
@@ -57,7 +48,7 @@ out:
 	return fpriv;
 }
 
-static enum nrf_wifi_status nrf_wifi_fmac_fw_init_offloaded_raw_tx(
+static enum nrf_wifi_status nrf_wifi_fmac_off_raw_tx_fw_init(
 		struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 		struct nrf_wifi_phy_rf_params *rf_params,
 		bool rf_params_valid,
@@ -118,7 +109,7 @@ out:
 	return status;
 }
 
-enum nrf_wifi_status nrf_wifi_fmac_dev_init_offloaded_raw_tx(
+enum nrf_wifi_status nrf_wifi_fmac_off_raw_tx_dev_init(
 		struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 #ifdef NRF_WIFI_LOW_POWER
 		int sleep_type,
@@ -165,21 +156,29 @@ enum nrf_wifi_status nrf_wifi_fmac_dev_init_offloaded_raw_tx(
 		goto out;
 	}
 
-	status = nrf_wifi_fmac_fw_init_offloaded_raw_tx(
-			fmac_dev_ctx,
-			&phy_rf_params,
-			true,
+	status = nrf_wifi_fmac_rf_params_get(fmac_dev_ctx,
+		                             &phy_rf_params);
+
+	if (status != NRF_WIFI_STATUS_SUCCESS) {
+		nrf_wifi_osal_log_err("%s: RF parameters get failed",
+				     __func__);
+		goto out;
+	}
+
+	status = nrf_wifi_fmac_off_raw_tx_fw_init(fmac_dev_ctx,
+						  &phy_rf_params,
+						  true,
 #ifdef NRF_WIFI_LOW_POWER
-			sleep_type,
+						  sleep_type,
 #endif /* NRF_WIFI_LOW_POWER */
-			phy_calib,
-			op_band,
-			beamforming,
-			tx_pwr_ctrl_params,
-			board_params);
+						  phy_calib,
+						  op_band,
+						  beamforming,
+						  tx_pwr_ctrl_params,
+						  board_params);
 
 	if (status == NRF_WIFI_STATUS_FAIL) {
-		nrf_wifi_osal_log_err("%s: nrf_wifi_fmac_fw_init failed",
+		nrf_wifi_osal_log_err("%s: nrf_wifi_fmac_off_raw_tx_fw_init failed",
 				      __func__);
 		goto out;
 	}
@@ -187,86 +186,87 @@ out:
 	return status;
 }
 
-void nrf_wifi_fmac_dev_rem_offloaded_raw_tx(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
+void nrf_wifi_fmac_off_raw_tx_dev_rem(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
 {
 	nrf_wifi_hal_dev_rem(fmac_dev_ctx->hal_dev_ctx);
 	nrf_wifi_osal_mem_free(fmac_dev_ctx);
 }
 
-static void nrf_wifi_fmac_fw_deinit_offloaded_raw_tx(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
-{
-}
-
-void nrf_wifi_fmac_dev_deinit_offloaded_raw_tx(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
+void nrf_wifi_fmac_off_raw_tx_dev_deinit(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
 {
 	nrf_wifi_osal_mem_free(fmac_dev_ctx->tx_pwr_ceil_params);
-	nrf_wifi_fmac_fw_deinit_offloaded_raw_tx(fmac_dev_ctx);
 }
 
-void nrf_wifi_fmac_deinit_offloaded_raw_tx(struct nrf_wifi_fmac_priv *fpriv)
+void nrf_wifi_fmac_off_raw_tx_deinit(struct nrf_wifi_fmac_priv *fpriv)
 {
 	nrf_wifi_hal_deinit(fpriv->hpriv);
 	nrf_wifi_osal_mem_free(fpriv);
 }
 
-enum nrf_wifi_status nrf_wifi_offloaded_raw_tx_conf(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
-						    struct beacon_offloaded_raw_tx *params)
+enum nrf_wifi_status nrf_wifi_fmac_off_raw_tx_conf(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
+					           struct nrf_wifi_offload_ctrl_params *off_ctrl_params,
+						   struct nrf_wifi_offload_tx_ctrl *off_tx_params)
 {
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
 
-	struct nrf_wifi_offload_ctrl_params *offloaded_tx_params = nrf_wifi_osal_mem_zalloc(sizeof(*offloaded_tx_params));
-	struct nrf_wifi_offload_tx_ctrl *offload_tx_ctr = nrf_wifi_osal_mem_zalloc(sizeof(*offload_tx_ctr));;
+	if (!fmac_dev_ctx) {
+		nrf_wifi_osal_log_err("%s: Invalid device context",
+				      __func__);
+		goto out;
+	}
 
-	offloaded_tx_params->channel_no = params->ctrl_params.channel_no;
-	offloaded_tx_params->period_in_us = params->ctrl_params.period_in_us;
-	offloaded_tx_params->tx_pwr = params->ctrl_params.tx_pwr;
-	offload_tx_ctr->he_gi_type = params->info.he_gi_type;
-	offload_tx_ctr->he_ltf = params->info.he_ltf;
-	offload_tx_ctr->pkt_length = params->info.pkt_length;
-	offload_tx_ctr->pkt_ram_ptr = params->info.pkt_ram_ptr;
-	offload_tx_ctr->rate = params->info.rate;
-	offload_tx_ctr->rate_flags = params->info.rate_flags;
-	offload_tx_ctr->rate_preamble_type = params->info.rate_preamble_type;
-	offload_tx_ctr->rate_retries = params->info.rate_retries;
+	if (!off_ctrl_params || !off_tx_params) {
+		nrf_wifi_osal_log_err("%s: Invalid offloaded raw tx params",
+				      __func__);
+		goto out;
+	}
 
-	status = umac_cmd_offloaded_raw_tx_conf(fmac_dev_ctx,
-				    offloaded_tx_params, offload_tx_ctr);
+	status = umac_cmd_off_raw_tx_conf(fmac_dev_ctx,
+					  off_ctrl_params,
+					  off_tx_params);
 
 	if (status != NRF_WIFI_STATUS_SUCCESS) {
-		nrf_wifi_osal_log_err("%s: umac_cmd_offload_raw_tx_start failed",
-				      __func__);
+		nrf_wifi_osal_log_err("%s: umac_cmd_offload_raw_tx_conf failed", __func__);
 		goto out;
 	}
 out:
 	return status;
 }
 
-enum nrf_wifi_status nrf_wifi_offloaded_raw_tx_start(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
+enum nrf_wifi_status nrf_wifi_fmac_off_raw_tx_start(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
 {
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
-	unsigned char ctrl_type = 1;
 
-	status = umac_cmd_offloaded_raw_tx_ctrl(fmac_dev_ctx, ctrl_type);
+	if (!fmac_dev_ctx) {
+		nrf_wifi_osal_log_err("%s: Invalid device context",
+				      __func__);
+		goto out;
+	}
+
+	status = umac_cmd_off_raw_tx_ctrl(fmac_dev_ctx, 1);
 
 	if (status != NRF_WIFI_STATUS_SUCCESS) {
-		nrf_wifi_osal_log_err("%s: umac_cmd_offload_raw_tx_start failed",
-				      __func__);
+		nrf_wifi_osal_log_err("%s: umac_cmd_off_raw_tx_ctrl failed", __func__);
 		goto out;
 	}
 out:
 	return status;
 }
 
-enum nrf_wifi_status nrf_wifi_offloaded_raw_tx_stop(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
+enum nrf_wifi_status nrf_wifi_fmac_off_raw_tx_stop(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
 {
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
-	unsigned char ctrl_type = 0;
 
-	status = umac_cmd_offloaded_raw_tx_ctrl(fmac_dev_ctx, ctrl_type);
+	if (!fmac_dev_ctx) {
+		nrf_wifi_osal_log_err("%s: Invalid device context",
+				      __func__);
+		goto out;
+	}
+
+	status = umac_cmd_off_raw_tx_ctrl(fmac_dev_ctx, 0);
 
 	if (status != NRF_WIFI_STATUS_SUCCESS) {
-		nrf_wifi_osal_log_err("%s: umac_cmd_offload_raw_tx_start failed",
-				      __func__);
+		nrf_wifi_osal_log_err("%s: umac_cmd_offload_raw_tx_ctrl failed", __func__);
 		goto out;
 	}
 out:

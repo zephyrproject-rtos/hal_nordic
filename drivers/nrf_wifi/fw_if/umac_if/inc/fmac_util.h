@@ -11,6 +11,8 @@
 #ifndef __FMAC_UTIL_H__
 #define __FMAC_UTIL_H__
 
+#include "fmac_structs_common.h"
+
 #if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 #include "fmac_structs.h"
 #include "pack_def.h"

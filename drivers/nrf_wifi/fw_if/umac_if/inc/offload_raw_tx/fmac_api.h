@@ -6,57 +6,50 @@
 
 /** @file
  *
- * @addtogroup nrf_wifi_api_offloaded_raw_tx FMAC offloaded raw tx API
+ * @addtogroup nrf_wifi_fmac_off_raw_tx_api FMAC offloaded raw tx API
  * @{
  *
- * @brief Header containing API declarations for the
- * FMAC IF Layer of the Wi-Fi driver.
+ * @brief Header containing API declarations for FMAC IF Layer of the Wi-Fi driver.
  */
 
 #ifndef __FMAC_API_H__
 #define __FMAC_API_H__
 
-#include "osal_api.h"
-#include "host_rpu_umac_if.h"
-#include "host_rpu_data_if.h"
 #include "host_rpu_sys_if.h"
 
-#include "fmac_structs.h"
 #include "fmac_cmd.h"
-#include "fmac_event.h"
-#include "fmac_vif.h"
-#include "fmac_bb.h"
 #include "fmac_api_common.h"
+#include "fmac_structs_common.h"
+#include "util.h"
 
 
 /**
  * @brief Initialize the UMAC IF layer.
  *
  * This function initializes the UMAC IF layer of the RPU WLAN FullMAC driver.
- *     It does the following:
+ * It does the following:
+ *	- Creates and initializes the context for the UMAC IF layer.
+ *	- Initialize the OS abstraction Layer
+ *	- Initialize the HAL layer.
+ *	- Registers the driver to the underlying Operating System.
  *
- *		- Creates and initializes the context for the UMAC IF layer.
- *		- Initialize the OS abstraction Layer
- *		- Initialize the HAL layer.
- *		- Registers the driver to the underlying Operating System.
- *
- * @return	Pointer to the context of the UMAC IF layer.
+ * @return Pointer to the context of the UMAC IF layer.
  */
-struct nrf_wifi_fmac_priv *nrf_wifi_fmac_init_offloaded_raw_tx(void);
+struct nrf_wifi_fmac_priv *nrf_wifi_fmac_off_raw_tx_init(void);
 
 /**
  * @brief De-initialize the UMAC IF layer.
  * @param fpriv Pointer to the context of the UMAC IF layer.
  *
  * This function de-initializes the UMAC IF layer of the RPU WLAN FullMAC
- *	    driver. It does the following:
+ * driver. It does the following:
  *
  *	- De-initializes the HAL layer.
  *	- Frees the context for the UMAC IF layer.
  *
  * @return None
  */
-void nrf_wifi_fmac_deinit_offloaded_raw_tx(struct nrf_wifi_fmac_priv *fpriv);
+void nrf_wifi_fmac_off_raw_tx_deinit(struct nrf_wifi_fmac_priv *fpriv);
 
 /**
  * @brief Removes a RPU instance.
@@ -66,7 +59,7 @@ void nrf_wifi_fmac_deinit_offloaded_raw_tx(struct nrf_wifi_fmac_priv *fpriv);
  *
  * @return None.
  */
-void nrf_wifi_fmac_dev_rem_offloaded_raw_tx(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
+void nrf_wifi_fmac_off_raw_tx_dev_rem(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
 
 
 /**
@@ -85,7 +78,7 @@ void nrf_wifi_fmac_dev_rem_offloaded_raw_tx(struct nrf_wifi_fmac_dev_ctx *fmac_d
  * @retval NRF_WIFI_STATUS_SUCCESS On Success
  * @retval NRF_WIFI_STATUS_FAIL On failure to execute command
  */
-enum nrf_wifi_status nrf_wifi_fmac_dev_init_offloaded_raw_tx(
+enum nrf_wifi_status nrf_wifi_fmac_off_raw_tx_dev_init(
 		struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 #if defined(NRF_WIFI_LOW_POWER) || defined(__DOXYGEN__)
 		int sleep_type,
@@ -105,14 +98,44 @@ enum nrf_wifi_status nrf_wifi_fmac_dev_init_offloaded_raw_tx(
  *
  * @return None.
  */
-void nrf_wifi_fmac_dev_deinit_offloaded_raw_tx(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
+void nrf_wifi_fmac_off_raw_tx_dev_deinit(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
 
-enum nrf_wifi_status nrf_wifi_offloaded_raw_tx_conf(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
-						    struct beacon_offloaded_raw_tx *params);
+/**
+ * @brief Configure the offloaded raw TX parameters.
+ * @param fmac_dev_ctx Pointer to the context of the RPU instance to be removed.
+ * @param off_ctrl_params Offloaded raw tx control information.
+ * @param off_tx_params Offloaded raw tx parameters.
+ *
+ * This function configures offloaded raw TX.
+ *
+ * @retval NRF_WIFI_STATUS_SUCCESS On Success
+ * @retval NRF_WIFI_STATUS_FAIL On failure to execute command
+ */
+enum nrf_wifi_status nrf_wifi_fmac_off_raw_tx_conf(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
+						   struct nrf_wifi_offload_ctrl_params *off_ctrl_params,
+						   struct nrf_wifi_offload_tx_ctrl *off_tx_params);
 
-enum nrf_wifi_status nrf_wifi_offloaded_raw_tx_start(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
+/**
+ * @brief Start the offloaded raw TX.
+ * @param fmac_dev_ctx Pointer to the context of the RPU instance.
+ *
+ * This function starts offloaded raw TX.
+ *
+ * @retval NRF_WIFI_STATUS_SUCCESS On Success
+ * @retval NRF_WIFI_STATUS_FAIL On failure to execute command
+ */
+enum nrf_wifi_status nrf_wifi_fmac_off_raw_tx_start(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
 
-enum nrf_wifi_status nrf_wifi_offloaded_raw_tx_stop(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
+/**
+ * @brief Stop the offloaded raw TX.
+ * @param fmac_dev_ctx Pointer to the context of the RPU instance to be removed.
+ *
+ * This function stops offloaded raw TX.
+ *
+ * @retval NRF_WIFI_STATUS_SUCCESS On Success
+ * @retval NRF_WIFI_STATUS_FAIL On failure to execute command
+ */
+enum nrf_wifi_status nrf_wifi_fmac_off_raw_tx_stop(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
 /**
  * @}
  */

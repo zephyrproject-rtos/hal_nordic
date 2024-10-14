@@ -11,16 +11,17 @@
 
 #include "host_rpu_umac_if.h"
 #include "fmac_api.h"
+#ifndef NRF70_OFFLOADED_RAW_TX
 #include "fmac_structs.h"
-#include "fmac_api.h"
-#include "fmac_util.h"
 #include "fmac_peer.h"
 #include "fmac_vif.h"
 #include "fmac_tx.h"
 #include "fmac_rx.h"
+#include "fmac_bb.h"
+#endif /* !NRF70_OFFLOADED_RAW_TX */
+#include "fmac_util.h"
 #include "fmac_cmd.h"
 #include "fmac_event.h"
-#include "fmac_bb.h"
 #include "util.h"
 
 struct nrf_wifi_proc {
@@ -353,8 +354,6 @@ struct nrf_wifi_fmac_dev_ctx *nrf_wifi_fmac_dev_add(struct nrf_wifi_fmac_priv *f
 	struct nrf_wifi_fmac_dev_ctx_def *fmac_dev_priv = NULL;
 #elif  NRF70_RADIO_TEST
 	struct nrf_wifi_fmac_dev_ctx_rt *fmac_dev_priv = NULL;
-#elif NRF70_OFFLOADED_RAW_TX
-	struct nrf_wifi_fmac_dev_ctx_offloaded_raw_tx *fmac_dev_priv = NULL;
 #endif
 #ifdef NRF70_DATA_TX
 	struct nrf_wifi_fmac_priv_def *def_priv = NULL;
@@ -364,7 +363,11 @@ struct nrf_wifi_fmac_dev_ctx *nrf_wifi_fmac_dev_add(struct nrf_wifi_fmac_priv *f
 		return NULL;
 	}
 
+#ifdef NRF70_OFFLOADED_RAW_TX
+	fmac_dev_ctx = nrf_wifi_osal_mem_zalloc(sizeof(*fmac_dev_ctx));
+#else
 	fmac_dev_ctx = nrf_wifi_osal_mem_zalloc(sizeof(*fmac_dev_ctx) + sizeof(*fmac_dev_priv));
+#endif /* NRF70_OFFLOADED_RAW_TX */
 
 	if (!fmac_dev_ctx) {
 		nrf_wifi_osal_log_err("%s: Unable to allocate fmac_dev_ctx",
@@ -395,7 +398,6 @@ out:
 	return fmac_dev_ctx;
 }
 
-#ifndef NRF70_OFFLOADED_RAW_TX
 enum nrf_wifi_status nrf_wifi_fmac_stats_get(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 					     enum rpu_op_mode op_mode,
 					     struct rpu_op_stats *stats)
@@ -403,12 +405,14 @@ enum nrf_wifi_status nrf_wifi_fmac_stats_get(struct nrf_wifi_fmac_dev_ctx *fmac_
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
 	unsigned char count = 0;
 	int stats_type;
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 	struct nrf_wifi_fmac_dev_ctx_def *def_dev_ctx = NULL;
 #endif /* NRF70_RADIO_TEST */
 
 	#ifdef NRF70_RADIO_TEST
 		stats_type = RPU_STATS_TYPE_PHY;
+	#elif NRF70_OFFLOADED_RAW_TX
+		stats_type = RPU_STATS_TYPE_OFFLOADED_RAW_TX;
 	#else
 		stats_type = RPU_STATS_TYPE_ALL;
 	#endif /* NRF70_RADIO_TEST */
@@ -417,7 +421,8 @@ enum nrf_wifi_status nrf_wifi_fmac_stats_get(struct nrf_wifi_fmac_dev_ctx *fmac_
 	if ((stats_type == RPU_STATS_TYPE_ALL) ||
 	    (stats_type == RPU_STATS_TYPE_UMAC) ||
 	    (stats_type == RPU_STATS_TYPE_LMAC) ||
-	    (stats_type == RPU_STATS_TYPE_PHY)) {
+	    (stats_type == RPU_STATS_TYPE_PHY) ||
+	    (stats_type == RPU_STATS_TYPE_OFFLOADED_RAW_TX)) {
 		if (fmac_dev_ctx->stats_req == true) {
 			nrf_wifi_osal_log_err("%s: Stats request already pending",
 					      __func__);
@@ -451,7 +456,7 @@ enum nrf_wifi_status nrf_wifi_fmac_stats_get(struct nrf_wifi_fmac_dev_ctx *fmac_
 	}
 
 
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 	def_dev_ctx = wifi_dev_priv(fmac_dev_ctx);
 	if ((stats_type == RPU_STATS_TYPE_ALL) ||
 	    (stats_type == RPU_STATS_TYPE_HOST)) {
@@ -465,7 +470,6 @@ enum nrf_wifi_status nrf_wifi_fmac_stats_get(struct nrf_wifi_fmac_dev_ctx *fmac_
 out:
 	return status;
 }
-#endif /* !NRF70_OFFLOADED_RAW_TX */
 
 enum nrf_wifi_status nrf_wifi_fmac_ver_get(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 					  unsigned int *fw_ver)
@@ -509,7 +513,7 @@ enum nrf_wifi_status nrf_wifi_fmac_conf_srcoex(struct nrf_wifi_fmac_dev_ctx *fma
 
 	return status;
 }
-
+#endif /* NRF70_OFFLOADED_RAW_TX */
 
 enum nrf_wifi_status nrf_wifi_fmac_otp_mac_addr_get(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 						    unsigned char vif_idx,
@@ -575,7 +579,6 @@ enum nrf_wifi_status nrf_wifi_fmac_otp_mac_addr_get(struct nrf_wifi_fmac_dev_ctx
 out:
 	return status;
 }
-
 
 enum nrf_wifi_status nrf_wifi_fmac_rf_params_get(
 		struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
@@ -702,7 +705,7 @@ out:
 	return status;
 }
 
-
+#ifndef NRF70_OFFLOADED_RAW_TX
 enum nrf_wifi_status nrf_wifi_fmac_set_reg(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 					   struct nrf_wifi_fmac_reg_info *reg_info)
 {
@@ -894,6 +897,7 @@ enum nrf_wifi_status nrf_wifi_fmac_get_reg(struct nrf_wifi_fmac_dev_ctx *fmac_de
 err:
 	return NRF_WIFI_STATUS_FAIL;
 }
+#endif
 
 int nrf_wifi_phy_rf_params_init(struct nrf_wifi_phy_rf_params *prf,
 				unsigned int package_info,
@@ -937,7 +941,7 @@ int nrf_wifi_phy_rf_params_init(struct nrf_wifi_phy_rf_params *prf,
 		prf->max_pwr_ceil.max_hb_mid_chan_mcs0_pwr = CSP_MAX_TX_PWR_HB_MID_CHAN_MCS0;
 		prf->max_pwr_ceil.max_hb_high_chan_mcs0_pwr = CSP_MAX_TX_PWR_HB_HIGH_CHAN_MCS0;
 
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 		/* Max-Min chip temperature, VT backoffs configuration */
 		prf->temp_volt_backoff.max_chip_temp = CSP_MAX_CHIP_TEMP;
 		prf->temp_volt_backoff.min_chip_temp = CSP_MIN_CHIP_TEMP;
@@ -949,7 +953,7 @@ int nrf_wifi_phy_rf_params_init(struct nrf_wifi_phy_rf_params *prf,
 		prf->temp_volt_backoff.hb_vbt_lt_vlow =	CSP_HB_VBT_LT_VLOW;
 		prf->temp_volt_backoff.lb_vbt_lt_low = CSP_LB_VBT_LT_LOW;
 		prf->temp_volt_backoff.hb_vbt_lt_low = CSP_HB_VBT_LT_LOW;
-#endif /* NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX */
 	}
 	else {
 		/** If nothing is written to OTP field corresponding to package info byte
@@ -977,7 +981,7 @@ int nrf_wifi_phy_rf_params_init(struct nrf_wifi_phy_rf_params *prf,
 		prf->max_pwr_ceil.max_hb_mid_chan_mcs0_pwr = QFN_MAX_TX_PWR_HB_MID_CHAN_MCS0;
 		prf->max_pwr_ceil.max_hb_high_chan_mcs0_pwr = QFN_MAX_TX_PWR_HB_HIGH_CHAN_MCS0;
 
-#ifndef NRF70_RADIO_TEST
+#if !defined(NRF70_RADIO_TEST) && !defined(NRF70_OFFLOADED_RAW_TX)
 		/* Max-Min chip temperature, VT backoffs configuration */
 		prf->temp_volt_backoff.max_chip_temp = QFN_MAX_CHIP_TEMP;
 		prf->temp_volt_backoff.min_chip_temp = QFN_MIN_CHIP_TEMP;
@@ -989,7 +993,7 @@ int nrf_wifi_phy_rf_params_init(struct nrf_wifi_phy_rf_params *prf,
 		prf->temp_volt_backoff.hb_vbt_lt_vlow =	QFN_HB_VBT_LT_VLOW;
 		prf->temp_volt_backoff.lb_vbt_lt_low = QFN_LB_VBT_LT_LOW;
 		prf->temp_volt_backoff.hb_vbt_lt_low = QFN_HB_VBT_LT_LOW;
-#endif /* NRF70_RADIO_TEST */
+#endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX */
 	}
 
 	ret = nrf_wifi_utils_hex_str_to_val((unsigned char *)&prf->phy_params,
@@ -1034,6 +1038,7 @@ int nrf_wifi_phy_rf_params_init(struct nrf_wifi_phy_rf_params *prf,
 	return(ret);
 }
 
+#ifndef NRF70_OFFLOADED_RAW_TX
 #ifdef NRF70_UTIL
 enum nrf_wifi_status nrf_wifi_fmac_set_tx_rate(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 					       unsigned char rate_flag,
