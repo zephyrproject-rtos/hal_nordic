@@ -12,11 +12,13 @@
 #include "queue.h"
 #include "host_rpu_umac_if.h"
 #include "hal_mem.h"
+#ifndef NRF70_OFFLOADED_RAW_TX
 #include "fmac_rx.h"
 #include "fmac_tx.h"
 #include "fmac_peer.h"
-#include "fmac_cmd.h"
 #include "fmac_ap.h"
+#endif /* !NRF70_OFFLOADED_RAW_TX */
+#include "fmac_cmd.h"
 #include "fmac_util.h"
 
 #ifdef NRF70_DATA_TX

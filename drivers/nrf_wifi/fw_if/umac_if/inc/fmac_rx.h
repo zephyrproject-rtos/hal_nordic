@@ -14,7 +14,7 @@
 
 #include "host_rpu_data_if.h"
 #include "fmac_structs.h"
-
+#include "fmac_structs_common.h"
 #define RX_BUF_HEADROOM 4
 
 enum nrf_wifi_fmac_rx_cmd_type {
