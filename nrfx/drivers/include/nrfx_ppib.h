@@ -44,10 +44,10 @@
  * @brief   Programmable Peripheral Interconnect Bridge (PPIB) allocator.
  */
 
-/** @brief Data structure of the Distributed programmable peripheral interconnect (PPIB) driver instance. */
+/** @brief Data structure of the Programmable Peripheral Interconnect Bridge (PPIB) driver instance. */
 typedef struct
 {
-    NRF_PPIB_Type * p_reg;        ///< Pointer to a structure containing PPIBC registers.
+    NRF_PPIB_Type * p_reg; ///< Pointer to a structure containing PPIBC registers.
 } nrfx_ppib_t;
 
 /** @brief Data structure of the pair of PPIB driver instances. */
@@ -66,7 +66,7 @@ enum {
 };
 
 enum {
-    /* List all enabled interconnects. Smaller PPIB idx are always to the left. */
+    /* List all enabled interconnects. Smaller PPIB idx are always on the left. */
 #if defined(NRF54L15_ENGA_XXAA) || defined(NRF54L15_XXAA) || defined(NRF54L20_ENGA_XXAA)
 #if NRFX_CHECK(NRFX_PPIB00_ENABLED) && NRFX_CHECK(NRFX_PPIB10_ENABLED)
     NRFX_PPIB_INTERCONNECT_00_10_INST_IDX,
@@ -117,15 +117,15 @@ extern "C" {
 #endif
 
 /**
- * @brief Function for freeing all allocated channels and groups.
+ * @brief Function for freeing all allocated channels for a given PPIB interconnection.
  *
- * @param[in]  p_instance Pointer to the driver instance structure.
+ * @param[in] p_instance Pointer to the driver instance structure.
  */
 void nrfx_ppib_free(nrfx_ppib_interconnect_t const * p_instance);
 
 /**
  * @brief Function for allocating a PPIB channel.
- * @details This function allocates the first unused PPIB channel.
+ * @details This function allocates the highest available PPIB channel.
  *
  * @note Function is thread safe as it uses @ref nrfx_flag32_alloc.
  *
@@ -138,7 +138,7 @@ void nrfx_ppib_free(nrfx_ppib_interconnect_t const * p_instance);
 nrfx_err_t nrfx_ppib_channel_alloc(nrfx_ppib_interconnect_t const * p_instance, uint8_t * p_channel);
 
 /**
- * @brief Function for freeinpg a PPIB channel.
+ * @brief Function for freeing a PPIB channel.
  * @details This function also clears the PUBLISH/SUBSCRIBE configuration.
  *
  * @note Function is thread safe as it uses @ref nrfx_flag32_free.
@@ -162,7 +162,8 @@ nrfx_err_t nrfx_ppib_channel_free(nrfx_ppib_interconnect_t const * p_instance, u
  *
  * @return SEND task associated with the specified channel.
  */
-nrf_ppib_task_t nrfx_ppib_send_task_get(nrfx_ppib_t const * p_instance, uint8_t channel);
+NRFX_STATIC_INLINE nrf_ppib_task_t nrfx_ppib_send_task_get(nrfx_ppib_t const * p_instance,
+                                                           uint8_t             channel);
 
 /**
  * @brief Function for getting the address of the PPIB SEND task for the specified channel.
@@ -172,7 +173,8 @@ nrf_ppib_task_t nrfx_ppib_send_task_get(nrfx_ppib_t const * p_instance, uint8_t 
  *
  * @return Address of the specified SEND task.
  */
-uint32_t nrfx_ppib_send_task_address_get(nrfx_ppib_t const * p_instance, uint8_t channel);
+NRFX_STATIC_INLINE uint32_t nrfx_ppib_send_task_address_get(nrfx_ppib_t const * p_instance,
+                                                            uint8_t             channel);
 
 /**
  * @brief Function for getting the PPIB RECEIVE event for the specified channel.
@@ -185,7 +187,8 @@ uint32_t nrfx_ppib_send_task_address_get(nrfx_ppib_t const * p_instance, uint8_t
  *
  * @return RECEIVE event associated with the specified channel.
  */
-nrf_ppib_event_t nrfx_ppib_receive_event_get(nrfx_ppib_t const * p_instance, uint8_t channel);
+NRFX_STATIC_INLINE nrf_ppib_event_t nrfx_ppib_receive_event_get(nrfx_ppib_t const * p_instance,
+                                                                uint8_t             channel);
 
 /**
  * @brief Function for getting the address of a PPIB RECEIVE event.
@@ -195,7 +198,106 @@ nrf_ppib_event_t nrfx_ppib_receive_event_get(nrfx_ppib_t const * p_instance, uin
  *
  * @return Address of the specified RECEIVE event.
  */
-uint32_t nrfx_ppib_receive_event_address_get(nrfx_ppib_t const * p_instance, uint8_t channel);
+NRFX_STATIC_INLINE uint32_t nrfx_ppib_receive_event_address_get(nrfx_ppib_t const * p_instance,
+                                                                uint8_t             channel);
+
+/**
+ * @brief Function for setting the subscribe configuration for a given
+ *        PPIB task.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ * @param[in] task       Task for which to set the configuration.
+ * @param[in] channel    Channel through which to subscribe events.
+ */
+NRF_STATIC_INLINE void nrfx_ppib_subscribe_set(nrfx_ppib_t const * p_instance,
+                                               nrf_ppib_task_t     task,
+                                               uint8_t             channel);
+
+/**
+ * @brief Function for clearing the subscribe configuration for a given
+ *        PPIB task.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ * @param[in] task       Task for which to clear the configuration.
+ */
+NRF_STATIC_INLINE void nrfx_ppib_subscribe_clear(nrfx_ppib_t const * p_instance,
+                                                 nrf_ppib_task_t     task);
+
+/**
+ * @brief Function for setting the publish configuration for a given event.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ * @param[in] event      Event for which to set the configuration.
+ * @param[in] channel    PPIB channel through which to publish the event.
+ */
+NRF_STATIC_INLINE void nrfx_ppib_publish_set(nrfx_ppib_t const * p_instance,
+                                             nrf_ppib_event_t    event,
+                                             uint8_t             channel);
+/**
+ * @brief Function for clearing the publish configuration for a given event.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ * @param[in] event      Event for which to clear the configuration.
+ */
+NRF_STATIC_INLINE void nrfx_ppib_publish_clear(nrfx_ppib_t const * p_instance,
+                                               nrf_ppib_event_t    event);
+#ifndef NRFX_DECLARE_ONLY
+
+NRFX_STATIC_INLINE nrf_ppib_task_t nrfx_ppib_send_task_get(nrfx_ppib_t const * p_instance,
+                                                           uint8_t             channel)
+{
+    (void) p_instance;
+
+    return nrf_ppib_send_task_get(channel);
+}
+
+NRFX_STATIC_INLINE uint32_t nrfx_ppib_send_task_address_get(nrfx_ppib_t const * p_instance,
+                                                            uint8_t             channel)
+{
+    return nrf_ppib_task_address_get(p_instance->p_reg, nrf_ppib_send_task_get(channel));
+}
+
+NRFX_STATIC_INLINE nrf_ppib_event_t nrfx_ppib_receive_event_get(nrfx_ppib_t const * p_instance,
+                                                                uint8_t             channel)
+{
+    (void) p_instance;
+
+    return nrf_ppib_receive_event_get(channel);
+}
+
+NRFX_STATIC_INLINE uint32_t nrfx_ppib_receive_event_address_get(nrfx_ppib_t const * p_instance,
+                                                                uint8_t             channel)
+{
+    return nrf_ppib_event_address_get(p_instance->p_reg, nrf_ppib_receive_event_get(channel));
+}
+
+NRF_STATIC_INLINE void nrfx_ppib_subscribe_set(nrfx_ppib_t const * p_instance,
+                                               nrf_ppib_task_t     task,
+                                               uint8_t             channel)
+{
+    nrf_ppib_subscribe_set(p_instance->p_reg, task, channel);
+}
+
+NRF_STATIC_INLINE void nrfx_ppib_subscribe_clear(nrfx_ppib_t const * p_instance,
+                                                 nrf_ppib_task_t     task)
+{
+    nrf_ppib_subscribe_clear(p_instance->p_reg, task);
+}
+
+NRF_STATIC_INLINE void nrfx_ppib_publish_set(nrfx_ppib_t const * p_instance,
+                                             nrf_ppib_event_t    event,
+                                             uint8_t             channel)
+{
+    nrf_ppib_publish_set(p_instance->p_reg, event, channel);
+}
+
+NRF_STATIC_INLINE void nrfx_ppib_publish_clear(nrfx_ppib_t const * p_instance,
+                                               nrf_ppib_event_t    event)
+{
+    nrf_ppib_publish_clear(p_instance->p_reg, event);
+}
+
+#endif
 
 /** @} */
 

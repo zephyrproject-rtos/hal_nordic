@@ -83,7 +83,7 @@ static nrfx_err_t dppic_virtual_channel_set(nrfx_interconnect_dppic_t * p_dppic,
 
 static nrfx_err_t dppic_channel_alloc(nrfx_interconnect_dppic_t * p_dppic, uint8_t * p_channel)
 {
-#if NRFX_API_VER_AT_LEAST(3, 8, 0)
+#if NRFX_API_VER_AT_LEAST(3, 8, 0) && !defined(NRF54L15_ENGA_XXAA)
     return nrfx_dppi_channel_alloc(&p_dppic->dppic, p_channel);
 #else
     return nrfx_flag32_alloc(&p_dppic->channels_mask, p_channel);
@@ -92,7 +92,7 @@ static nrfx_err_t dppic_channel_alloc(nrfx_interconnect_dppic_t * p_dppic, uint8
 
 static nrfx_err_t dppic_channel_free(nrfx_interconnect_dppic_t * p_dppic, uint8_t channel)
 {
-#if NRFX_API_VER_AT_LEAST(3, 8, 0)
+#if NRFX_API_VER_AT_LEAST(3, 8, 0) && !defined(NRF54L15_ENGA_XXAA)
     return nrfx_dppi_channel_free(&p_dppic->dppic, channel);
 #else
     return nrfx_flag32_free(&p_dppic->channels_mask, channel);
@@ -146,7 +146,7 @@ static void virtual_channel_enable_set(uint8_t virtual_channel, bool enable)
         nrfx_err_t err = dppic_channel_get(dppic, virtual_channel, &dppi_channel);
         if (err == NRFX_SUCCESS)
         {
-#if NRFX_API_VER_AT_LEAST(3, 8, 0)
+#if NRFX_API_VER_AT_LEAST(3, 8, 0) && !defined(NRF54L15_ENGA_XXAA)
             if (enable)
             {
                 nrfx_dppi_channel_enable(&dppic->dppic, dppi_channel);
@@ -212,17 +212,17 @@ static nrfx_err_t create_ppib_connection(uint8_t                                
 #endif
 
     ppib_virtual_channel_set(p_ppib, ppib_channel, virtual_channel);
-    nrf_ppib_task_t  task  = nrf_ppib_send_task_get(ppib_channel);
-    nrf_ppib_event_t event = nrf_ppib_receive_event_get(ppib_channel);
+    nrf_ppib_task_t  task  = nrfx_ppib_send_task_get(&p_ppib->ppib.left, ppib_channel);
+    nrf_ppib_event_t event = nrfx_ppib_receive_event_get(&p_ppib->ppib.right, ppib_channel);
     if (p_path->ppib_inverted == false)
     {
-        nrf_ppib_subscribe_set(p_ppib->ppib.left.p_reg, task, src_dppi_channel);
-        nrf_ppib_publish_set(p_ppib->ppib.right.p_reg, event, dst_dppi_channel);
+        nrfx_ppib_subscribe_set(&p_ppib->ppib.left, task, src_dppi_channel);
+        nrfx_ppib_publish_set(&p_ppib->ppib.right, event, dst_dppi_channel);
     }
     else
     {
-        nrf_ppib_subscribe_set(p_ppib->ppib.right.p_reg, task, src_dppi_channel);
-        nrf_ppib_publish_set(p_ppib->ppib.left.p_reg, event, dst_dppi_channel);
+        nrfx_ppib_subscribe_set(&p_ppib->ppib.right, task, src_dppi_channel);
+        nrfx_ppib_publish_set(&p_ppib->ppib.left, event, dst_dppi_channel);
     }
     return NRFX_SUCCESS;
 }
@@ -237,7 +237,7 @@ static nrfx_err_t clear_virtual_channel_path(uint8_t virtual_channel)
         nrfx_err_t err = dppic_channel_get(dppic, virtual_channel, &dppi_channel);
         if (err == NRFX_SUCCESS)
         {
-#if NRFX_API_VER_AT_LEAST(3, 8, 0)
+#if NRFX_API_VER_AT_LEAST(3, 8, 0) && !defined(NRF54L15_ENGA_XXAA)
             nrfx_dppi_channel_disable(&dppic->dppic, dppi_channel);
 #else
             nrfy_dppi_channels_set(dppic->dppic, NRFX_BIT((uint32_t)dppi_channel), false);
@@ -267,14 +267,15 @@ static nrfx_err_t clear_virtual_channel_path(uint8_t virtual_channel)
         nrfx_err_t err = ppib_channel_get(p_ppib, virtual_channel, &ppib_channel);
         if (err == NRFX_SUCCESS)
         {
-            nrf_ppib_task_t task   = nrf_ppib_send_task_get((uint32_t)ppib_channel);
-            nrf_ppib_event_t event = nrf_ppib_receive_event_get((uint32_t)ppib_channel);
+            nrf_ppib_task_t task   = nrfx_ppib_send_task_get(&p_ppib->ppib.left, ppib_channel);
+            nrf_ppib_event_t event = nrfx_ppib_receive_event_get(&p_ppib->ppib.right,
+                                                                 ppib_channel);
 
-            nrf_ppib_subscribe_clear(p_ppib->ppib.left.p_reg, task);
-            nrf_ppib_subscribe_clear(p_ppib->ppib.right.p_reg, task);
+            nrfx_ppib_subscribe_clear(&p_ppib->ppib.left, task);
+            nrfx_ppib_subscribe_clear(&p_ppib->ppib.right, task);
 
-            nrf_ppib_publish_clear(p_ppib->ppib.left.p_reg, event);
-            nrf_ppib_publish_clear(p_ppib->ppib.right.p_reg, event);
+            nrfx_ppib_publish_clear(&p_ppib->ppib.left, event);
+            nrfx_ppib_publish_clear(&p_ppib->ppib.right, event);
 
             err = ppib_channel_free(p_ppib, ppib_channel);
             if (err != NRFX_SUCCESS)
@@ -293,11 +294,11 @@ static nrfx_err_t clear_virtual_channel_path(uint8_t virtual_channel)
     return NRFX_SUCCESS;
 }
 
-nrfx_err_t gppi_dppi_connection_setup(uint8_t         virtual_channel,
-                                      nrf_apb_index_t src_domain,
-                                      uint8_t       * p_src_dppi_channel,
-                                      nrf_apb_index_t dst_domain,
-                                      uint8_t       * p_dst_dppi_channel)
+static nrfx_err_t gppi_dppi_connection_setup(uint8_t         virtual_channel,
+                                             nrf_apb_index_t src_domain,
+                                             uint8_t       * p_src_dppi_channel,
+                                             nrf_apb_index_t dst_domain,
+                                             uint8_t       * p_dst_dppi_channel)
 {
     nrfx_err_t err = NRFX_SUCCESS;
     NRFX_ASSERT(src_domain);
@@ -319,7 +320,7 @@ nrfx_err_t gppi_dppi_connection_setup(uint8_t         virtual_channel,
 
     /* Both channels must be either valid or not. */
     if ((src_dppi_channel == INVALID_DPPI_CHANNEL && dst_dppi_channel != INVALID_DPPI_CHANNEL)
-     && (src_dppi_channel != INVALID_DPPI_CHANNEL && dst_dppi_channel == INVALID_DPPI_CHANNEL))
+     || (src_dppi_channel != INVALID_DPPI_CHANNEL && dst_dppi_channel == INVALID_DPPI_CHANNEL))
     {
         clear_virtual_channel_path(virtual_channel);
         NRFX_ASSERT(false);
@@ -382,9 +383,9 @@ nrfx_err_t gppi_dppi_connection_setup(uint8_t         virtual_channel,
         }
 
         err = create_ppib_connection(virtual_channel,
-                                        &path,
-                                        src_dppi_channel,
-                                        dst_dppi_channel);
+                                     &path,
+                                     src_dppi_channel,
+                                     dst_dppi_channel);
         if (err != NRFX_SUCCESS)
         {
             clear_virtual_channel_path(virtual_channel);
@@ -652,11 +653,14 @@ void nrfx_gppi_channel_endpoints_setup(uint8_t channel, uint32_t eep, uint32_t t
                                          &dst_dppi_channel);
     }
 
-    if (err == NRFX_SUCCESS)
+    if (err != NRFX_SUCCESS)
     {
-        NRF_DPPI_ENDPOINT_SETUP(eep, src_dppi_channel);
-        NRF_DPPI_ENDPOINT_SETUP(tep, dst_dppi_channel);
+        NRFX_ASSERT(false);
+        return;
     }
+
+    NRF_DPPI_ENDPOINT_SETUP(eep, src_dppi_channel);
+    NRF_DPPI_ENDPOINT_SETUP(tep, dst_dppi_channel);
 }
 
 void nrfx_gppi_channel_endpoints_clear(uint8_t channel, uint32_t eep, uint32_t tep)
@@ -691,7 +695,7 @@ bool nrfx_gppi_channel_check(uint8_t channel)
         if (err == NRFX_SUCCESS)
         {
             NRF_DPPIC_Type *p_reg;
-#if NRFX_API_VER_AT_LEAST(3, 8, 0)
+#if NRFX_API_VER_AT_LEAST(3, 8, 0) && !defined(NRF54L15_ENGA_XXAA)
             p_reg = dppic->dppic.p_reg;
 #else
             p_reg = dppic->dppic;

@@ -42,9 +42,6 @@
 #define NRFX_LOG_MODULE DPPI
 #include <nrfx_log.h>
 
-/** @brief Set bit at given position. */
-#define DPPI_BIT_SET(pos) (1uL << (pos))
-
 #if defined(NRFX_DPPI_CHANNELS_USED)
 #define NRFX_DPPI0_CHANNELS_USED NRFX_DPPI_CHANNELS_USED
 #endif
@@ -53,7 +50,6 @@
 #define NRFX_DPPI0_GROUPS_USED NRFX_DPPI_GROUPS_USED
 #endif
 
-#if !defined(__NRFX_DOXYGEN__)
 #if defined(NRF_DPPIC0)
 
 #if !defined(NRFX_DPPI0_CHANNELS_USED)
@@ -292,8 +288,6 @@
 
 #endif
 
-#endif // !defined(__NRFX_DOXYGEN__)
-
 #define DPPI_CHANNELS_NUM(idx)  NRFX_BIT_MASK(NRFX_CONCAT(DPPIC, idx, _CH_NUM)
 #define DPPI_CHANNELS_USED(idx) NRFX_CONCAT(NRFX_DPPI, idx, _CHANNELS_USED)
 #define DPPI_AVAILABLE_CHANNELS_MASK(idx) \
@@ -342,10 +336,10 @@ static void dppi_free(nrfx_dppi_t const * p_instance)
     while (mask)
     {
         nrf_dppi_channel_group_t group = (nrf_dppi_channel_group_t)group_idx;
-        if (mask & DPPI_BIT_SET(group))
+        if (mask & NRFX_BIT(group))
         {
             nrfy_dppi_group_clear(p_instance->p_reg, group);
-            mask &= ~DPPI_BIT_SET(group);
+            mask &= ~NRFX_BIT(group);
         }
         group_idx++;
     }
@@ -384,7 +378,7 @@ static nrfx_err_t dppi_channel_enable(nrfx_dppi_t const * p_instance, uint8_t ch
     }
     else
     {
-        nrfy_dppi_channels_enable(p_instance->p_reg, DPPI_BIT_SET(channel));
+        nrfy_dppi_channels_enable(p_instance->p_reg, NRFX_BIT(channel));
     }
     NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
     return err_code;
@@ -402,7 +396,7 @@ static nrfx_err_t dppi_channel_disable(nrfx_dppi_t const * p_instance, uint8_t c
     }
     else
     {
-        nrfy_dppi_channels_disable(p_instance->p_reg, DPPI_BIT_SET(channel));
+        nrfy_dppi_channels_disable(p_instance->p_reg, NRFX_BIT(channel));
         err_code = NRFX_SUCCESS;
     }
     NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -440,7 +434,7 @@ static nrfx_err_t dppi_channel_include_in_group(nrfx_dppi_t const *      p_insta
     else
     {
         NRFY_CRITICAL_SECTION_ENTER();
-        nrfy_dppi_channels_include_in_group(p_instance->p_reg, DPPI_BIT_SET(channel), group);
+        nrfy_dppi_channels_include_in_group(p_instance->p_reg, NRFX_BIT(channel), group);
         NRFY_CRITICAL_SECTION_EXIT();
     }
     NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -462,7 +456,7 @@ static nrfx_err_t dppi_channel_remove_from_group(nrfx_dppi_t const *      p_inst
     else
     {
         NRFY_CRITICAL_SECTION_ENTER();
-        nrfy_dppi_channels_remove_from_group(p_instance->p_reg, DPPI_BIT_SET(channel), group);
+        nrfy_dppi_channels_remove_from_group(p_instance->p_reg, NRFX_BIT(channel), group);
         NRFY_CRITICAL_SECTION_EXIT();
     }
     NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));

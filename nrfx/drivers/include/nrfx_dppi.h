@@ -37,16 +37,17 @@
 #include <nrfx.h>
 #include <haly/nrfy_dppi.h>
 
+/* On devices with single instance (with no ID) use instance 0. */
+#if defined(NRF_DPPIC) && defined(NRFX_DPPI_ENABLED) && !defined(NRFX_DPPI0_ENABLED)
+#define NRFX_DPPI0_ENABLED 1
+#endif
+
 /**
  * @defgroup nrfx_dppi DPPI allocator
  * @{
  * @ingroup nrf_dppi
  * @brief   Distributed Programmable Peripheral Interconnect (DPPI) allocator.
  */
-
-#if defined DPPIC_COUNT && DPPIC_COUNT == 1
-#define NRFX_DPPI0_ENABLED NRFX_DPPI_ENABLED
-#endif
 
 /** @brief Data structure of the Distributed programmable peripheral interconnect (DPPI) driver instance. */
 typedef struct

@@ -33,7 +33,6 @@
 
 #include <nrfx.h>
 
-// Driver for single instance PPIB
 #if NRFX_CHECK(NRFX_PPIB_ENABLED)
 
 #include <nrfx_ppib.h>
@@ -122,7 +121,7 @@
 #define PPIB_AVAILABLE_CHANNELS_MASK(left, right) \
     ((uint32_t)(PPIB_CHANNELS_MASK(left, right)) & ~(PPIB_CHANNELS_USED(left, right))))
 
-/* Structure holding state of the pins */
+/* Structure holding state of the PPIB instance. */
 typedef struct
 {
     /**< Bitmap representing channels availability. */
@@ -196,36 +195,17 @@ nrfx_err_t nrfx_ppib_channel_free(nrfx_ppib_interconnect_t const * p_instance, u
 {
     ppib_control_block_t * p_cb = &m_cb[p_instance->drv_inst_idx];
 
+    if ((p_cb->available_channels & NRFX_BIT(channel)) == 0)
+    {
+        return NRFX_ERROR_INVALID_PARAM;
+    }
+
     nrf_ppib_subscribe_clear(p_instance->left.p_reg, nrf_ppib_send_task_get(channel));
     nrf_ppib_subscribe_clear(p_instance->right.p_reg, nrf_ppib_send_task_get(channel));
     nrf_ppib_publish_clear(p_instance->left.p_reg, nrf_ppib_receive_event_get(channel));
     nrf_ppib_publish_clear(p_instance->right.p_reg, nrf_ppib_receive_event_get(channel));
 
     return nrfx_flag32_free(&p_cb->allocated_channels, channel);
-}
-
-nrf_ppib_task_t nrfx_ppib_send_task_get(nrfx_ppib_t const * p_instance, uint8_t channel)
-{
-    (void) p_instance;
-
-    return nrf_ppib_send_task_get(channel);
-}
-
-uint32_t nrfx_ppib_send_task_address_get(nrfx_ppib_t const * p_instance, uint8_t channel)
-{
-    return nrf_ppib_task_address_get(p_instance->p_reg, nrf_ppib_send_task_get(channel));
-}
-
-nrf_ppib_event_t nrfx_ppib_receive_event_get(nrfx_ppib_t const * p_instance, uint8_t channel)
-{
-    (void) p_instance;
-
-    return nrf_ppib_receive_event_get(channel);
-}
-
-uint32_t nrfx_ppib_receive_event_address_get(nrfx_ppib_t const * p_instance, uint8_t channel)
-{
-    return nrf_ppib_event_address_get(p_instance->p_reg, nrf_ppib_receive_event_get(channel));
 }
 
 #endif // defined(PPIB_PRESENT)

@@ -49,7 +49,7 @@ extern "C" {
     .ppib = NRFX_PPIB_INTERCONNECT_INSTANCE(FIRST_PPIB_INDEX, SECOND_PPIB_INDEX),                  \
 }
 
-#if NRFX_API_VER_AT_LEAST(3, 8, 0)
+#if NRFX_API_VER_AT_LEAST(3, 8, 0) && !defined(NRF54L15_ENGA_XXAA)
 #define DPPI_INSTANCE(idx) .dppic = NRFX_DPPI_INSTANCE(idx)
 #else
 #define DPPI_INSTANCE(idx)                                          \
