@@ -724,6 +724,10 @@ enum nrf_wifi_status nrf_wifi_fmac_set_reg(struct nrf_wifi_fmac_dev_ctx *fmac_de
 		goto out;
 	}
 
+	nrf_wifi_osal_log_dbg("%s: Setting regulatory information: %c%c", __func__,
+	                      reg_info->alpha2[0],
+	                      reg_info->alpha2[1]);
+
 	/* No change event from UMAC for same regd */
 	status = nrf_wifi_fmac_get_reg(fmac_dev_ctx, &cur_reg_info);
 	if (status != NRF_WIFI_STATUS_SUCCESS) {
@@ -782,6 +786,7 @@ enum nrf_wifi_status nrf_wifi_fmac_set_reg(struct nrf_wifi_fmac_dev_ctx *fmac_de
 	}
 
 	fmac_dev_ctx->reg_set_status = false;
+	nrf_wifi_osal_log_dbg("%s: Waiting for regulatory domain change event", __func__);
 	while (!fmac_dev_ctx->reg_set_status && count++ <= max_count) {
 		nrf_wifi_osal_sleep_ms(100);
 	}
@@ -853,6 +858,8 @@ enum nrf_wifi_status nrf_wifi_fmac_get_reg(struct nrf_wifi_fmac_dev_ctx *fmac_de
 				      __func__);
 		goto err;
 	}
+
+	nrf_wifi_osal_log_dbg("%s: Get regulatory information", __func__);
 
 	get_reg_cmd = nrf_wifi_osal_mem_zalloc(sizeof(*get_reg_cmd));
 
