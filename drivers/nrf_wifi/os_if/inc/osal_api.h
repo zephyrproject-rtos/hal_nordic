@@ -659,17 +659,15 @@ unsigned int nrf_wifi_osal_time_elapsed_us(unsigned long start_time_us);
 
 /**
  * nrf_wifi_osal_time_get_curr_ms() - Get current system uptime in milliseconds.
- * @opriv: Pointer to the OSAL context returned by the @nrf_wifi_osal_init API.
  *
  * Gets the current system uptime in milliseconds.
  *
  * Return: System uptime in milliseconds.
  */
-unsigned long nrf_wifi_osal_time_get_curr_ms(struct nrf_wifi_osal_priv *opriv);
+unsigned long nrf_wifi_osal_time_get_curr_ms();
 
 /**
  * nrf_wifi_osal_time_elapsed_ms() - Get elapsed time in milliseconds
- * @opriv: Pointer to the OSAL context returned by the @nrf_wifi_osal_init API.
  * @start_time_ms: The timestamp in milliseconds from which elapsed
  *			   time is to be measured.
  *
@@ -678,8 +676,7 @@ unsigned long nrf_wifi_osal_time_get_curr_ms(struct nrf_wifi_osal_priv *opriv);
  *
  * Return: Elapsed time in milliseconds.
  */
-unsigned int nrf_wifi_osal_time_elapsed_ms(struct nrf_wifi_osal_priv *opriv,
-					    unsigned long start_time_ms);
+unsigned int nrf_wifi_osal_time_elapsed_ms(unsigned long start_time_ms);
 
 /**
  * @brief Initialize a PCIe driver.
