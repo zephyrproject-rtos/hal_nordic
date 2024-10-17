@@ -412,6 +412,11 @@ void nrfx_twim_disable(nrfx_twim_t const * p_instance)
 
     p_cb->int_mask = 0;
     nrfy_twim_stop(p_instance->p_twim);
+#if NRFX_CHECK(NRFX_TWIM_NRF52_ANOMALY_89_WORKAROUND_ENABLED)
+    p_instance->p_twim->POWER = 0;
+    p_instance->p_twim->POWER;
+    p_instance->p_twim->POWER = 1;
+#endif
     p_cb->state = NRFX_DRV_STATE_INITIALIZED;
     p_cb->busy = false;
     NRFX_LOG_INFO("Instance disabled: %d.", p_instance->drv_inst_idx);
