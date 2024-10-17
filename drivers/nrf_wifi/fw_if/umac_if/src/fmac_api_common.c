@@ -930,7 +930,7 @@ int nrf_wifi_phy_rf_params_init(struct nrf_wifi_phy_rf_params *prf,
 	prf->pd_adjust_val.pd_adjt_hb_high_chan = PD_ADJUST_VAL;
 
 	/* RX Gain offsets */
-	prf->rx_gain_offset.rx_gain_lb_chan = RX_GAIN_OFFSET_LB_CHAN;
+	prf->rx_gain_offset.rx_gain_lb_chan = CTRL_PWR_OPTIMIZATIONS;
 	prf->rx_gain_offset.rx_gain_hb_low_chan = RX_GAIN_OFFSET_HB_LOW_CHAN;
 	prf->rx_gain_offset.rx_gain_hb_mid_chan = RX_GAIN_OFFSET_HB_MID_CHAN;
 	prf->rx_gain_offset.rx_gain_hb_high_chan = RX_GAIN_OFFSET_HB_HIGH_CHAN;
