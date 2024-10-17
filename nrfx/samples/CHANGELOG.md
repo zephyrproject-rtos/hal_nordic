@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project are documented in this file.
 
+## [3.8.0] - 2024-10-17
+### Changed
+- Aligned Kconfig definitions to DPPIC multi-instance support in the GPPI and SAADC driver samples.
+
+## [3.7.0] - 2024-09-27
+### Fixed
+- Fixed missing pinctrl definitions in existing samples for the following drivers: SPIM, TWIM, TWIS.
+
 ## [3.4.0] - 2023-03-08
 ### Changed
 - Aligned all samples to Zephyr hardware model v2.
