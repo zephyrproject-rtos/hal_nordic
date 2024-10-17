@@ -26,7 +26,12 @@
 
 
 #define NRF_WIFI_PHY_CALIB_FLAG_RXDC 1
-#define NRF_WIFI_PHY_CALIB_FLAG_TXDC 2
+#ifdef NRF70_PASSIVE_SCAN_ONLY
+	/* Disable TX DC Calibration for passive scan alone mode */
+	#define NRF_WIFI_PHY_CALIB_FLAG_TXDC 0
+#else
+	#define NRF_WIFI_PHY_CALIB_FLAG_TXDC 2
+#endif
 #define NRF_WIFI_PHY_CALIB_FLAG_TXPOW 0
 #define NRF_WIFI_PHY_CALIB_FLAG_TXIQ 8
 #define NRF_WIFI_PHY_CALIB_FLAG_RXIQ 16
@@ -34,7 +39,12 @@
 #define NRF_WIFI_PHY_CALIB_FLAG_ENHANCED_TXDC 64
 
 #define NRF_WIFI_PHY_SCAN_CALIB_FLAG_RXDC (1<<16)
-#define NRF_WIFI_PHY_SCAN_CALIB_FLAG_TXDC (2<<16)
+#ifdef NRF70_PASSIVE_SCAN_ONLY
+	/* Disable TX DC Calibration for passive scan alone mode */
+	#define NRF_WIFI_PHY_SCAN_CALIB_FLAG_TXDC (0<<16)
+#else
+	#define NRF_WIFI_PHY_SCAN_CALIB_FLAG_TXDC (2<<16)
+#endif
 #define NRF_WIFI_PHY_SCAN_CALIB_FLAG_TXPOW (0<<16)
 #define NRF_WIFI_PHY_SCAN_CALIB_FLAG_TXIQ (0<<16)
 #define NRF_WIFI_PHY_SCAN_CALIB_FLAG_RXIQ (0<<16)
@@ -83,8 +93,13 @@
 /** Power detector adjustment value. */
 #define PD_ADJUST_VAL 0
 
+#ifdef NRF70_PASSIVE_SCAN_ONLY
+	/** The byte is repurposed and bit-0 is used to enable TX power optimizations */
+	#define CTRL_PWR_OPTIMIZATIONS 1
+#else
+	#define CTRL_PWR_OPTIMIZATIONS 0
+#endif
 /** RX gain adjustment value for both 2.4GHz and 5 GHz bands */
-#define RX_GAIN_OFFSET_LB_CHAN 0
 #define RX_GAIN_OFFSET_HB_LOW_CHAN 0
 #define RX_GAIN_OFFSET_HB_MID_CHAN 0
 #define RX_GAIN_OFFSET_HB_HIGH_CHAN 0
