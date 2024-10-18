@@ -95,7 +95,8 @@ enum nrf_wifi_status umac_cmd_init(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 				   enum op_band op_band,
 				   bool beamforming,
 				   struct nrf_wifi_tx_pwr_ctrl_params *tx_pwr_ctrl_params,
-				   struct nrf_wifi_board_params *board_params)
+				   struct nrf_wifi_board_params *board_params,
+				   unsigned char *country_code)
 {
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
 	struct host_rpu_msg *umac_cmd = NULL;
@@ -201,7 +202,7 @@ enum nrf_wifi_status umac_cmd_init(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 			      NUM_EDGE_BACKOFF);
 
 	nrf_wifi_osal_mem_cpy(umac_cmd_data->country_code,
-			      STRINGIFY(NRF70_REG_DOMAIN),
+			      country_code,
 			      NRF_WIFI_COUNTRY_CODE_LEN);
 
 #ifdef NRF70_RPU_EXTEND_TWT_SP

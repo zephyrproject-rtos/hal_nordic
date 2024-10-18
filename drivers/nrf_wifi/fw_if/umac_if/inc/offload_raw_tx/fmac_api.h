@@ -72,6 +72,7 @@ void nrf_wifi_fmac_off_raw_tx_dev_rem(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx
  * @param tx_pwr_ctrl TX power control parameters to be passed to the RPU.
  * @param tx_pwr_ceil_params TX power ceiling parameters to be passed to the RPU.
  * @param board_params Board parameters to be passed to the RPU.
+ * @param country_code Country code to be set for regularity domain.
  *
  * This function initializes the firmware of an RPU instance.
  *
@@ -88,7 +89,8 @@ enum nrf_wifi_status nrf_wifi_fmac_off_raw_tx_dev_init(
 		bool beamforming,
 		struct nrf_wifi_tx_pwr_ctrl_params *tx_pwr_ctrl,
 		struct nrf_wifi_tx_pwr_ceil_params *tx_pwr_ceil_params,
-		struct nrf_wifi_board_params *board_params);
+		struct nrf_wifi_board_params *board_params,
+		unsigned char *country_code);
 
 /**
  * @brief Configure the offloaded raw TX parameters.
