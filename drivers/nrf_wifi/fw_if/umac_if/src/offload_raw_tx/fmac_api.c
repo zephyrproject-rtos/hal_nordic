@@ -192,11 +192,6 @@ void nrf_wifi_fmac_off_raw_tx_dev_rem(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx
 	nrf_wifi_osal_mem_free(fmac_dev_ctx);
 }
 
-void nrf_wifi_fmac_off_raw_tx_dev_deinit(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx)
-{
-	nrf_wifi_osal_mem_free(fmac_dev_ctx->tx_pwr_ceil_params);
-}
-
 void nrf_wifi_fmac_off_raw_tx_deinit(struct nrf_wifi_fmac_priv *fpriv)
 {
 	nrf_wifi_hal_deinit(fpriv->hpriv);
