@@ -185,7 +185,6 @@ out:
 
 }
 
-#ifdef NRF_WIFI_LOW_POWER
 static enum nrf_wifi_status hal_rpu_irq_wdog_rearm(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 {
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
@@ -202,7 +201,6 @@ static enum nrf_wifi_status hal_rpu_irq_wdog_rearm(struct nrf_wifi_hal_dev_ctx *
 out:
 	return status;
 }
-#endif /* NRF_WIFI_LOW_POWER */
 
 
 static enum nrf_wifi_status hal_rpu_event_free(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx,
