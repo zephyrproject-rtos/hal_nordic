@@ -91,16 +91,6 @@ enum nrf_wifi_status nrf_wifi_fmac_off_raw_tx_dev_init(
 		struct nrf_wifi_board_params *board_params);
 
 /**
- * @brief De-initialize a RPU instance.
- * @param fmac_dev_ctx Pointer to the context of the RPU instance to be removed.
- *
- * This function de-initializes the firmware of an RPU instance.
- *
- * @return None.
- */
-void nrf_wifi_fmac_off_raw_tx_dev_deinit(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
-
-/**
  * @brief Configure the offloaded raw TX parameters.
  * @param fmac_dev_ctx Pointer to the context of the RPU instance to be removed.
  * @param off_ctrl_params Offloaded raw tx control information.
