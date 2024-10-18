@@ -4,6 +4,7 @@
     status = "okay";
     compatible = "nordic,nrf-twim";
     pinctrl-0 = <&i2c_master_dummy>;
+    pinctrl-names = "default";
 };
 
 &uart1 {
@@ -14,4 +15,5 @@
     status = "okay";
     compatible = "nordic,nrf-twis";
     pinctrl-0 = <&i2c_slave_dummy>;
+    pinctrl-names = "default", "sleep";
 };
