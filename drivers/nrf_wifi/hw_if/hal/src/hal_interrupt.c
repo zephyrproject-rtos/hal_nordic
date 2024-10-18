@@ -185,7 +185,6 @@ out:
 
 }
 
-#ifdef NRF_WIFI_LOW_POWER
 static enum nrf_wifi_status hal_rpu_irq_wdog_rearm(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 {
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
@@ -202,7 +201,6 @@ static enum nrf_wifi_status hal_rpu_irq_wdog_rearm(struct nrf_wifi_hal_dev_ctx *
 out:
 	return status;
 }
-#endif /* NRF_WIFI_LOW_POWER */
 
 
 static enum nrf_wifi_status hal_rpu_event_free(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx,
@@ -540,13 +538,13 @@ static enum nrf_wifi_status hal_rpu_process_wdog(struct nrf_wifi_hal_dev_ctx *ha
 	}
 
 
-#ifdef CONFIG_NRF_WIFI_RPU_RECOVERY
+#ifdef NRF_WIFI_RPU_RECOVERY
 #ifdef NRF_WIFI_RPU_RECOVERY_DEBUG
 	nrf_wifi_osal_log_info("RPU recovery needed");
 #else
 	nrf_wifi_osal_log_dbg("RPU recovery needed");
 #endif /* NRF_WIFI_RPU_RECOVERY_DEBUG */
-#endif /* CONFIG_NRF_WIFI_RPU_RECOVERY */
+#endif /* NRF_WIFI_RPU_RECOVERY */
 out:
 	/* TODO: Ideally this should be done after successful recovery */
 	hal_rpu_irq_wdog_rearm(hal_dev_ctx);
