@@ -172,14 +172,18 @@
 #define CSP_XO_VAL 0x2A
 
 
-/** Systematic error between set power and measured power in dBm */
-#define CSP_SYSTEM_OFFSET_LB 5
+/** Systematic error between set power and measured power in dBm in 2.4G band */
+#define CSP_DSSS_BKF 4
+#define CSP_OFDM_BKF 5
+#define CSP_SYSTEM_OFFSET_LB ( ( CSP_DSSS_BKF << 4 ) | CSP_OFDM_BKF )
+
+/** Systematic error between set power and measured power in dBm in 5G band */
 #define CSP_SYSTEM_OFFSET_HB_CHAN_LOW 5
 #define CSP_SYSTEM_OFFSET_HB_CHAN_MID 5
 #define CSP_SYSTEM_OFFSET_HB_CHAN_HIGH 5
 
 /** Max TX power allowed for DSSS and OFDM in 2.4GHz band */
-#define CSP_MAX_TX_PWR_DSSS 0x40
+#define CSP_MAX_TX_PWR_DSSS 0x44
 #define CSP_MAX_TX_PWR_LB_MCS7 0x3C
 #define CSP_MAX_TX_PWR_LB_MCS0 0x3C
 
