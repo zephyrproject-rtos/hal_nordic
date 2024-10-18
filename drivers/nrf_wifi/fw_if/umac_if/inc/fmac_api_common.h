@@ -22,13 +22,13 @@
 #ifndef NRF70_OFFLOADED_RAW_TX
 #include "host_rpu_umac_if.h"
 #include "host_rpu_data_if.h"
-#include "fmac_structs.h"
 #include "fmac_vif.h"
 #include "fmac_bb.h"
 #endif /* !NRF70_OFFLOADED_RAW_TX */
 
 #include "fmac_cmd.h"
 #include "fmac_event.h"
+#include "fmac_structs.h"
 
 #include <patch_info.h>
 

@@ -37,7 +37,8 @@ static enum nrf_wifi_status nrf_wifi_fmac_fw_init_rt(struct nrf_wifi_fmac_dev_ct
 						     enum op_band op_band,
 						     bool beamforming,
 						     struct nrf_wifi_tx_pwr_ctrl_params *tx_pwr_ctrl,
-						     struct nrf_wifi_board_params *board_params)
+						     struct nrf_wifi_board_params *board_params,
+						     unsigned char *country_code)
 {
 	unsigned long start_time_us = 0;
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
@@ -58,7 +59,8 @@ static enum nrf_wifi_status nrf_wifi_fmac_fw_init_rt(struct nrf_wifi_fmac_dev_ct
 			       op_band,
 			       beamforming,
 			       tx_pwr_ctrl,
-			       board_params);
+			       board_params,
+			       country_code);
 
 	if (status != NRF_WIFI_STATUS_SUCCESS) {
 		nrf_wifi_osal_log_err("%s: UMAC init failed",
@@ -108,7 +110,8 @@ enum nrf_wifi_status nrf_wifi_fmac_dev_init_rt(struct nrf_wifi_fmac_dev_ctx *fma
 					    bool beamforming,
 					    struct nrf_wifi_tx_pwr_ctrl_params *tx_pwr_ctrl_params,
 					    struct nrf_wifi_tx_pwr_ceil_params *tx_pwr_ceil_params,
-					    struct nrf_wifi_board_params *board_params)
+					    struct nrf_wifi_board_params *board_params,
+					    unsigned char *country_code)
 {
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
 	struct nrf_wifi_fmac_otp_info otp_info;
@@ -166,7 +169,8 @@ enum nrf_wifi_status nrf_wifi_fmac_dev_init_rt(struct nrf_wifi_fmac_dev_ctx *fma
 					  op_band,
 					  beamforming,
 					  tx_pwr_ctrl_params,
-					  board_params);
+					  board_params,
+					  country_code);
 
 	if (status == NRF_WIFI_STATUS_FAIL) {
 		nrf_wifi_osal_log_err("%s: nrf_wifi_fmac_fw_init failed",
@@ -232,7 +236,7 @@ enum nrf_wifi_status wait_for_radio_cmd_status(struct nrf_wifi_fmac_dev_ctx *fma
 					       unsigned int timeout)
 {
 	unsigned int count = 0;
-	enum nrf_wifi_radio_test_err_status radio_cmd_status;
+	enum nrf_wifi_cmd_status radio_cmd_status;
 	struct nrf_wifi_fmac_dev_ctx_rt *rt_dev_ctx = NULL;
 
 	rt_dev_ctx = wifi_dev_priv(fmac_dev_ctx);

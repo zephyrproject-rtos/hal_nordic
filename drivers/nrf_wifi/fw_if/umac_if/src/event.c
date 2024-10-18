@@ -966,6 +966,9 @@ static enum nrf_wifi_status umac_process_sys_events(struct nrf_wifi_fmac_dev_ctx
 #ifdef NRF70_RADIO_TEST
 	struct nrf_wifi_fmac_dev_ctx_rt *def_dev_ctx_rt;
 	struct nrf_wifi_umac_event_err_status *umac_status;
+#elif NRF70_OFFLOADED_RAW_TX
+	struct nrf_wifi_off_raw_tx_fmac_dev_ctx *def_dev_ctx_off_raw_tx;
+	struct nrf_wifi_umac_event_err_status *umac_status;
 #else
 	struct nrf_wifi_fmac_dev_ctx_def *def_dev_ctx;
 #endif /* NRF70_RADIO_TEST */
@@ -976,6 +979,8 @@ static enum nrf_wifi_status umac_process_sys_events(struct nrf_wifi_fmac_dev_ctx
 
 #ifdef NRF70_RADIO_TEST
 	def_dev_ctx_rt = wifi_dev_priv(fmac_dev_ctx);
+#elif NRF70_OFFLOADED_RAW_TX
+	def_dev_ctx_off_raw_tx = wifi_dev_priv(fmac_dev_ctx);
 #else
 	def_dev_ctx = wifi_dev_priv(fmac_dev_ctx);
 #endif
@@ -1006,6 +1011,14 @@ static enum nrf_wifi_status umac_process_sys_events(struct nrf_wifi_fmac_dev_ctx
 		status = NRF_WIFI_STATUS_SUCCESS;
 		break;
 #endif /* NRF70_RADIO_TEST */
+#ifdef NRF70_OFFLOADED_RAW_TX
+	case NRF_WIFI_EVENT_OFFLOADED_RAWTX_STATUS:
+		umac_status = ((struct nrf_wifi_umac_event_err_status *)sys_head);
+		def_dev_ctx_off_raw_tx->off_raw_tx_cmd_status = umac_status->status;
+		def_dev_ctx_off_raw_tx->off_raw_tx_cmd_done = false;
+		status = NRF_WIFI_STATUS_SUCCESS;
+		break;
+#endif
 #ifdef NRF70_RAW_DATA_TX
 	case NRF_WIFI_EVENT_RAW_TX_DONE:
 		status = nrf_wifi_fmac_rawtx_done_event_process(fmac_dev_ctx,
