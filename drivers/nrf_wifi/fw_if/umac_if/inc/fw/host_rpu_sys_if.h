@@ -202,6 +202,8 @@ enum nrf_wifi_sys_events {
 	NRF_WIFI_EVENT_FILTER_SET_DONE,
 	/** Tx done event for the Raw Tx */
 	NRF_WIFI_EVENT_RAW_TX_DONE,
+	/** Command status events for offloaded raw tx commands */
+	NRF_WIFI_EVENT_OFFLOADED_RAWTX_STATUS,
 };
 
 /**
@@ -1434,7 +1436,7 @@ struct nrf_wifi_event_raw_config_filter {
 	/** mode filter configured. */
 	unsigned char filter;
 	/** capture len configured. */
-	unsigned char capture_len;
+	unsigned short capture_len;
 	/** status of the set raw filter command, success(0)/Fail(-1). */
 	int status;
 } __NRF_WIFI_PKD;
@@ -1644,14 +1646,16 @@ struct nrf_wifi_umac_event_stats {
 } __NRF_WIFI_PKD;
 
 /**
- * @brief This enum defines various error status values that may occur during a radio test.
- *
+ * @brief This enum defines various command status values that can occur
+ * during radio tests and offloaded raw transmissions.
  */
-enum nrf_wifi_radio_test_err_status {
+enum nrf_wifi_cmd_status {
 	/** Command success  */
 	NRF_WIFI_UMAC_CMD_SUCCESS = 1,
 	/** Invalid channel error */
-	NRF_WIFI_UMAC_INVALID_CHNL
+	NRF_WIFI_UMAC_INVALID_CHNL,
+	/** Invalid power error wrt configured regulatory domain */
+	NRF_WIFI_UMAC_INVALID_TXPWR
 };
 
 /**
