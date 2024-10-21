@@ -336,7 +336,7 @@ enum nrf_wifi_status hal_rpu_ps_wake(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 
 	nrf_wifi_bal_rpu_ps_wake(hal_dev_ctx->bal_dev_ctx);
 #ifdef NRF_WIFI_RPU_RECOVERY
-	hal_dev_ctx->is_wakup_now_asserted = true;
+	hal_dev_ctx->is_wakeup_now_asserted = true;
 	hal_dev_ctx->last_wakeup_now_asserted_time_ms =
 		nrf_wifi_osal_time_get_curr_ms();
 #endif /* NRF_WIFI_RPU_RECOVERY */
@@ -409,7 +409,7 @@ static void hal_rpu_ps_sleep(unsigned long data)
 
 	nrf_wifi_bal_rpu_ps_sleep(hal_dev_ctx->bal_dev_ctx);
 #ifdef NRF_WIFI_RPU_RECOVERY
-	hal_dev_ctx->is_wakup_now_asserted = false;
+	hal_dev_ctx->is_wakeup_now_asserted = false;
 	hal_dev_ctx->last_wakeup_now_deasserted_time_ms =
 		nrf_wifi_osal_time_get_curr_ms();
 #endif /* NRF_WIFI_RPU_RECOVERY */
