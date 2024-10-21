@@ -46,7 +46,7 @@ def render_template(template_path: str, output_path: str, latest_sha: str) -> No
     firmwares: Dict[str, Dict[str, Any]] = {}
     # Compute SHA-256 for each firmware based on the URL
     for firmware in firmware_variants:
-        url = f"https://github.com/nrfconnect/sdk-nrfxlib/raw/{latest_sha}/nrf_wifi/fw_bins/{firmware}/{FW_BIN_NAME}"
+        url = f"https://github.com/nrfconnect/sdk-nrfxlib/raw/{latest_sha}/nrf_wifi/bin/zephyr/{firmware}/{FW_BIN_NAME}"
         firmware_info: Dict[str, Any] = {}
         firmware_info['path'] = f"wifi_fw_bins/{firmware}/{FW_BIN_NAME}"
         firmware_info['rpath'] = f"{firmware}/{FW_BIN_NAME}"
