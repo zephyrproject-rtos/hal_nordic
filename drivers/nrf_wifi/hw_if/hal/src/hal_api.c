@@ -376,8 +376,7 @@ enum nrf_wifi_status hal_rpu_ps_wake(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 				      reg_val,
 				      rpu_ps_state_mask);
 #ifdef NRF_WIFI_RPU_RECOVERY
-		nrf_wifi_osal_tasklet_schedule(,
-					       hal_dev_ctx->recovery_tasklet);
+		nrf_wifi_osal_tasklet_schedule(hal_dev_ctx->recovery_tasklet);
 #endif /* NRF_WIFI_RPU_RECOVERY */
 		goto out;
 	}
@@ -386,8 +385,7 @@ enum nrf_wifi_status hal_rpu_ps_wake(struct nrf_wifi_hal_dev_ctx *hal_dev_ctx)
 	did_rpu_had_sleep_opp(hal_dev_ctx);
 #endif /* NRF_WIFI_RPU_RECOVERY */
 #ifdef NRF_WIFI_RPU_RECOVERY_PS_STATE_DEBUG
-	nrf_wifi_osal_log_info(,
-			       "%s: RPU PS state is AWAKE\n",
+	nrf_wifi_osal_log_info("%s: RPU PS state is AWAKE\n",
 			       __func__);
 #endif /* NRF_WIFI_RPU_RECOVERY_PS_STATE_DEBUG */
 
@@ -418,8 +416,7 @@ static void hal_rpu_ps_sleep(unsigned long data)
 	hal_dev_ctx->rpu_ps_state = RPU_PS_STATE_ASLEEP;
 
 #ifdef NRF_WIFI_RPU_RECOVERY_PS_STATE_DEBUG
-	nrf_wifi_osal_log_info(,
-			       "%s: RPU PS state is ASLEEP\n",
+	nrf_wifi_osal_log_info("%s: RPU PS state is ASLEEP\n",
 			       __func__);
 #endif /* NRF_WIFI_RPU_RECOVERY_PS_STATE_DEBUG */
 	nrf_wifi_osal_spinlock_irq_rel(hal_dev_ctx->rpu_ps_lock,
