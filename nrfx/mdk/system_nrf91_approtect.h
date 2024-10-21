@@ -49,6 +49,15 @@ static inline void nrf91_handle_approtect(void)
         return;
     }
     #if defined (NRF91_ERRATA_36_PRESENT) && NRF91_ERRATA_36_PRESENT
+        #if defined (ENABLE_CONSTANT_LATENCY_WORKAROUND)
+            /* Note: NRF_APPROTECT does not retain its values in SYSTEM ON IDLE mode.
+             * This will prevent the debugging due to NRF_APPROTECT_S->APPROTECT.DISABLE not being
+             * written the SwUnprotected value. Enable constant latency mode to prevent WFI and WFE
+             * instructions from entering SYSTEM ON IDLE mode.
+             */
+            NRF_POWER_S->TASKS_CONSTLAT = 1;
+        #endif
+
         #if defined (ENABLE_APPROTECT)
             /* Prevent processor from unlocking APPROTECT soft branch after this point. */
             NRF_APPROTECT_S->APPROTECT.FORCEPROTECT = (APPROTECT_APPROTECT_FORCEPROTECT_FORCEPROTECT_Force << APPROTECT_APPROTECT_FORCEPROTECT_FORCEPROTECT_Pos);
