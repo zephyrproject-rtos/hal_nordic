@@ -11,7 +11,7 @@ blobs:
       version: '1.0.0'
       license-path: ./LICENSE.txt
       url: https://github.com/nrfconnect/sdk-nrfxlib/raw/e9dfe1f7b0304665ddd6a987f1e4bc8f729f8fe7/nrf_wifi/bin/zephyr/default/nrf70.bin
-      description: "nRF70 series firmware patch binary for default"
+      description: nRF70 Wi-Fi firmware for default mode
       doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/e9dfe1f7b0304665ddd6a987f1e4bc8f729f8fe7/nrf_wifi/doc
 
     - path: wifi_fw_bins/scan_only/nrf70.bin
@@ -20,7 +20,7 @@ blobs:
       version: '1.0.0'
       license-path: ./LICENSE.txt
       url: https://github.com/nrfconnect/sdk-nrfxlib/raw/e9dfe1f7b0304665ddd6a987f1e4bc8f729f8fe7/nrf_wifi/bin/zephyr/scan_only/nrf70.bin
-      description: "nRF70 series firmware patch binary for scan_only"
+      description: nRF70 Wi-Fi firmware for scan_only mode
       doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/e9dfe1f7b0304665ddd6a987f1e4bc8f729f8fe7/nrf_wifi/doc
 
     - path: wifi_fw_bins/radio_test/nrf70.bin
@@ -29,7 +29,7 @@ blobs:
       version: '1.0.0'
       license-path: ./LICENSE.txt
       url: https://github.com/nrfconnect/sdk-nrfxlib/raw/e9dfe1f7b0304665ddd6a987f1e4bc8f729f8fe7/nrf_wifi/bin/zephyr/radio_test/nrf70.bin
-      description: "nRF70 series firmware patch binary for radio_test"
+      description: nRF70 Wi-Fi firmware for radio_test mode
       doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/e9dfe1f7b0304665ddd6a987f1e4bc8f729f8fe7/nrf_wifi/doc
 
     - path: wifi_fw_bins/system_with_raw/nrf70.bin
@@ -38,14 +38,14 @@ blobs:
       version: '1.0.0'
       license-path: ./LICENSE.txt
       url: https://github.com/nrfconnect/sdk-nrfxlib/raw/e9dfe1f7b0304665ddd6a987f1e4bc8f729f8fe7/nrf_wifi/bin/zephyr/system_with_raw/nrf70.bin
-      description: "nRF70 series firmware patch binary for system_with_raw"
+      description: nRF70 Wi-Fi firmware for system_with_raw mode
       doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/e9dfe1f7b0304665ddd6a987f1e4bc8f729f8fe7/nrf_wifi/doc
 
-    - path: wifi_fw_bins/offloaded_raw_tx/nrf70.bin
-      sha256: b69a1177a0ae10390aaf227fa8d35fbf92b6a3ef6185940a93758e9d65dba734
+    - path: suit/bin/suit_manifest_starter.hex
+      sha256: b0291b69fd841d5ea1f5f8d0391813b83a667f17b70ffbfd59f96f8e38d860a1
       type: img
       version: '1.0.0'
       license-path: ./LICENSE.txt
-      url: https://github.com/nrfconnect/sdk-nrfxlib/raw/e9dfe1f7b0304665ddd6a987f1e4bc8f729f8fe7/nrf_wifi/bin/zephyr/offloaded_raw_tx/nrf70.bin
-      description: "nRF70 series firmware patch binary for offloaded_raw_tx"
-      doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/e9dfe1f7b0304665ddd6a987f1e4bc8f729f8fe7/nrf_wifi/doc
+      url: https://github.com/nrfconnect/sdk-nrfxlib/raw/e9dfe1f7b0304665ddd6a987f1e4bc8f729f8fe7/suit/bin/suit_manifest_starter.hex
+      description: nRF54H20 series SUIT manifest starter
+      doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/e9dfe1f7b0304665ddd6a987f1e4bc8f729f8fe7/suit/doc
