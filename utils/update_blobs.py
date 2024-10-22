@@ -42,6 +42,14 @@ nordic_blobs: List[BlobInfo] = [
     get_wifi_blob_info("scan_only"),
     get_wifi_blob_info("radio_test"),
     get_wifi_blob_info("system_with_raw"),
+    BlobInfo(
+        "suit_manifest_starter",
+        "nRF54H20 series SUIT manifest starter",
+        "1.0.0",
+        "suit/bin/suit_manifest_starter.hex",
+        "suit/bin/suit_manifest_starter.hex",
+        "suit/doc"
+        )
 ]
 
 logger: logging.Logger = logging.getLogger(__name__)
