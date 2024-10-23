@@ -210,6 +210,7 @@ enum nrf_wifi_status nrf_wifi_fmac_off_raw_tx_conf(struct nrf_wifi_fmac_dev_ctx 
 {
 	enum nrf_wifi_status status = NRF_WIFI_STATUS_FAIL;
 	struct nrf_wifi_off_raw_tx_fmac_dev_ctx *def_dev_ctx_off_raw_tx;
+	struct nrf_wifi_fmac_reg_info reg_domain_info = {0};
 	unsigned char count = 0;
 
 	if (!fmac_dev_ctx) {
@@ -240,14 +241,30 @@ enum nrf_wifi_status nrf_wifi_fmac_off_raw_tx_conf(struct nrf_wifi_fmac_dev_ctx 
 		nrf_wifi_osal_sleep_ms(1);
 		count++;
 	} while ((def_dev_ctx_off_raw_tx->off_raw_tx_cmd_done == true) &&
-		 (count < NRF_WIFI_FMAC_STATS_RECV_TIMEOUT));
+		 (count < NRF_WIFI_FMAC_PARAMS_RECV_TIMEOUT));
 
-	if (count == NRF_WIFI_FMAC_STATS_RECV_TIMEOUT) {
+	if (count == NRF_WIFI_FMAC_PARAMS_RECV_TIMEOUT) {
 		nrf_wifi_osal_log_err("%s: Timed out",
 				      __func__);
 		goto out;
 	}
 
+	if (def_dev_ctx_off_raw_tx->off_raw_tx_cmd_status != NRF_WIFI_UMAC_CMD_SUCCESS) {
+		status = nrf_wifi_fmac_get_reg(fmac_dev_ctx, &reg_domain_info);
+		if (status != NRF_WIFI_STATUS_SUCCESS) {
+			nrf_wifi_osal_log_err("%s: Failed to get regulatory domain",
+					      __func__);
+			goto out;
+		}
+
+		nrf_wifi_osal_log_err("%s: Failed to set configuration, check config against %.2s regulatory domain rules",
+				      __func__,
+				      def_dev_ctx_off_raw_tx->country_code);
+		status = NRF_WIFI_STATUS_FAIL;
+		goto out;
+	}
+
+	status = NRF_WIFI_STATUS_SUCCESS;
 out:
 	return status;
 }
