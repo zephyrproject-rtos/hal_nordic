@@ -150,6 +150,9 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 #elif NRF70_RADIO_TEST
 	struct nrf_wifi_reg *get_reg_event = NULL;
 	struct nrf_wifi_event_regulatory_change *reg_change_event = NULL;
+#elif NRF70_OFFLOADED_RAW_TX
+	struct nrf_wifi_off_raw_tx_fmac_dev_ctx *def_dev_ctx_off_raw_tx = NULL;
+	struct nrf_wifi_reg *get_reg_event = NULL;
 #endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX */
 	unsigned char if_id = 0;
 	unsigned int event_num = 0;
@@ -169,6 +172,10 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 	}
 
 #endif /* !NRF70_RADIO_TEST && !NRF70_OFFLOADED_RAW_TX */
+
+#ifdef NRF70_OFFLOADED_RAW_TX
+	def_dev_ctx_off_raw_tx = wifi_dev_priv(fmac_dev_ctx);
+#endif /* NRF70_OFFLOADED_RAW_TX */
 
 	umac_hdr = event_data;
 	if_id = umac_hdr->ids.wdev_id;
@@ -219,6 +226,14 @@ static enum nrf_wifi_status umac_event_ctrl_process(struct nrf_wifi_fmac_dev_ctx
 				      sizeof(get_reg_event->nrf_wifi_alpha2));
 		fmac_dev_ctx->alpha2_valid = true;
 #endif /* NRF70_RADIO_TEST */
+#ifdef NRF70_OFFLOADED_RAW_TX
+		get_reg_event = (struct nrf_wifi_reg *)event_data;
+
+		nrf_wifi_osal_mem_cpy(&def_dev_ctx_off_raw_tx->country_code,
+				      &get_reg_event->nrf_wifi_alpha2,
+				      sizeof(get_reg_event->nrf_wifi_alpha2));
+		fmac_dev_ctx->alpha2_valid = true;
+#endif /* NRF70_OFFLOADED_RAW_TX */
 		break;
 	case NRF_WIFI_UMAC_EVENT_REG_CHANGE:
 #ifdef NRF70_STA_MODE

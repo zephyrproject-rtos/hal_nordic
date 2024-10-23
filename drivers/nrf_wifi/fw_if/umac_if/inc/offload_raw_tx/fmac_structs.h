@@ -20,6 +20,8 @@
 
 #include "host_rpu_sys_if.h"
 
+#define NRF_WIFI_FMAC_PARAMS_RECV_TIMEOUT 100 /* ms */
+
 /**
  * @brief  Structure to hold per device context information for the UMAC IF layer.
  *
@@ -29,6 +31,7 @@
 struct nrf_wifi_off_raw_tx_fmac_dev_ctx {
     enum nrf_wifi_cmd_status off_raw_tx_cmd_status;
     bool off_raw_tx_cmd_done;
+    unsigned char country_code[NRF_WIFI_COUNTRY_CODE_LEN];
 };
 
 // extern struct nrf_wifi_off_raw_tx_fmac_dev_ctx *def_dev_ctx_off_raw_tx;
