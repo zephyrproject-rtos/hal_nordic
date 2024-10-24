@@ -849,6 +849,7 @@ out:
 
 	return status;
 }
+#endif /* !NRF70_OFFLOADED_RAW_TX */
 
 enum nrf_wifi_status nrf_wifi_fmac_get_reg(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx,
 					   struct nrf_wifi_fmac_reg_info *reg_info)
@@ -911,7 +912,6 @@ err:
 	}
 	return status;
 }
-#endif
 
 int nrf_wifi_phy_rf_params_init(struct nrf_wifi_phy_rf_params *prf,
 				unsigned int package_info,
