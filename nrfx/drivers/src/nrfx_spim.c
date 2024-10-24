@@ -687,6 +687,12 @@ void nrfx_spim_uninit(nrfx_spim_t const * p_instance)
     }
 #endif
 
+#if NRFX_CHECK(NRFX_SPIM_NRF52_ANOMALY_89_WORKAROUND_ENABLED)
+    p_instance->p_reg->POWER = 0;
+    p_instance->p_reg->POWER;
+    p_instance->p_reg->POWER = 1;
+#endif
+
 #if NRFX_CHECK(NRFX_PRS_ENABLED)
     nrfx_prs_release(p_instance->p_reg);
 #endif

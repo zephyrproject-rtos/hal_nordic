@@ -1182,6 +1182,8 @@ typedef struct {                                /*!< (@ 0x40003000) SPIM0 Struct
   __IM  uint32_t  RESERVED13[26];
   __IOM uint32_t  ORC;                          /*!< (@ 0x000005C0) Over-read character. Character clocked out in
                                                                     case and over-read of the TXD buffer.                      */
+  __IM uint32_t RESERVED15[654];
+  __IOM uint32_t POWER;                         /*!< (@ 0x00000FFC) Peripheral power control                                   */
 } NRF_SPIM_Type;                                /*!< Size = 1476 (0x5c4)                                                       */
 
 
@@ -1339,7 +1341,9 @@ typedef struct {                                /*!< (@ 0x40003000) TWIM0 Struct
   __IOM TWIM_TXD_Type TXD;                      /*!< (@ 0x00000544) TXD EasyDMA channel                                        */
   __IM  uint32_t  RESERVED14[13];
   __IOM uint32_t  ADDRESS;                      /*!< (@ 0x00000588) Address used in the TWI transfer                           */
-} NRF_TWIM_Type;                                /*!< Size = 1420 (0x58c)                                                       */
+  __IM  uint32_t  RESERVED15[668];
+  __IOM uint32_t  POWER;                        /*!< (@ 0x00000FFC) Peripheral power control                                   */
+} NRF_TWIM_Type;                                /*!< Size = 4096 (0x1000)                                                      */
 
 
 
@@ -2121,7 +2125,7 @@ typedef struct {                                /*!< (@ 0x4001E000) NVMC Structu
   __IM  uint32_t  READY;                        /*!< (@ 0x00000400) Ready flag                                                 */
   __IM  uint32_t  RESERVED1[64];
   __IOM uint32_t  CONFIG;                       /*!< (@ 0x00000504) Configuration register                                     */
-  
+
   union {
     __IOM uint32_t ERASEPAGE;                   /*!< (@ 0x00000508) Register for erasing a page in Code area                   */
     __IOM uint32_t ERASEPCR1;                   /*!< (@ 0x00000508) Deprecated register - Register for erasing a
