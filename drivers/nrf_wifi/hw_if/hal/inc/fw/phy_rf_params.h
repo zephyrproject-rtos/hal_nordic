@@ -114,7 +114,9 @@
 
 
 /** Systematic error between set power and measured power in dBm */
-#define QFN_SYSTEM_OFFSET_LB 3
+#define QFN_DSSS_BKF 3
+#define QFN_OFDM_BKF 3
+#define QFN_SYSTEM_OFFSET_LB  ( ( QFN_DSSS_BKF << 4 ) | QFN_OFDM_BKF )
 #define QFN_SYSTEM_OFFSET_HB_CHAN_LOW 3
 #define QFN_SYSTEM_OFFSET_HB_CHAN_MID 3
 #define QFN_SYSTEM_OFFSET_HB_CHAN_HIGH 3
