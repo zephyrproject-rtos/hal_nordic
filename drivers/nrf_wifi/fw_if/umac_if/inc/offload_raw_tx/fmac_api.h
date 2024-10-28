@@ -46,8 +46,6 @@ struct nrf_wifi_fmac_priv *nrf_wifi_fmac_off_raw_tx_init(void);
  *
  *	- De-initializes the HAL layer.
  *	- Frees the context for the UMAC IF layer.
- *
- * @return None
  */
 void nrf_wifi_fmac_off_raw_tx_deinit(struct nrf_wifi_fmac_priv *fpriv);
 
@@ -56,8 +54,6 @@ void nrf_wifi_fmac_off_raw_tx_deinit(struct nrf_wifi_fmac_priv *fpriv);
  * @param fmac_dev_ctx Pointer to the context of the RPU instance to be removed.
  *
  * This function handles the removal of an RPU instance at the UMAC IF layer.
- *
- * @return None.
  */
 void nrf_wifi_fmac_off_raw_tx_dev_rem(struct nrf_wifi_fmac_dev_ctx *fmac_dev_ctx);
 
