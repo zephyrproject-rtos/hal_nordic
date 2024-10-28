@@ -668,11 +668,11 @@ unsigned long nrf_wifi_osal_time_get_curr_ms();
 
 /**
  * nrf_wifi_osal_time_elapsed_ms() - Get elapsed time in milliseconds
- * @start_time_ms: The timestamp in milliseconds from which elapsed
+ * @param start_time_ms: The timestamp in milliseconds from which elapsed
  *			   time is to be measured.
  *
  * Returns the time elapsed in milliseconds since some
- * time instant (@start_time_ms).
+ * time instant (@p start_time_ms).
  *
  * Return: Elapsed time in milliseconds.
  */
