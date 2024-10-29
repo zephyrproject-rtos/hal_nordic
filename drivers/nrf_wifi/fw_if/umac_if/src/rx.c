@@ -353,13 +353,13 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 									 nwb);
 #endif /* NRF70_STA_MODE */
 		} else if (config->rx_pkt_type == NRF_WIFI_RX_PKT_BCN_PRB_RSP) {
-#ifdef CONFIG_WIFI_MGMT_RAW_SCAN_RESULTS
+#ifdef WIFI_MGMT_RAW_SCAN_RESULTS
 			def_priv->callbk_fns.rx_bcn_prb_resp_callbk_fn(
 							vif_ctx->os_vif_ctx,
 							nwb,
 							config->frequency,
 							config->signal);
-#endif /* CONFIG_WIFI_MGMT_RAW_SCAN_RESULTS */
+#endif /* WIFI_MGMT_RAW_SCAN_RESULTS */
 			nrf_wifi_osal_nbuf_free(nwb);
 #ifdef NRF_WIFI_MGMT_BUFF_OFFLOAD
 			continue;

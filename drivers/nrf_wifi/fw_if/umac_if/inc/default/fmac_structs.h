@@ -131,13 +131,13 @@ struct nrf_wifi_fmac_callbk_fns {
 				  unsigned int event_len,
 				  bool more_res);
 
-#if defined(CONFIG_WIFI_MGMT_RAW_SCAN_RESULTS) || defined(__DOXYGEN__)
+#if defined(WIFI_MGMT_RAW_SCAN_RESULTS) || defined(__DOXYGEN__)
 	/** Callback function to be called when a beacon/probe response is received. */
 	void (*rx_bcn_prb_resp_callbk_fn)(void *os_vif_ctx,
 					  void *frm,
 					  unsigned short frequency,
 					  signed short signal);
-#endif /* CONFIG_WIFI_MGMT_RAW_SCAN_RESULTS */
+#endif /* WIFI_MGMT_RAW_SCAN_RESULTS */
 
 #if defined(NRF70_STA_MODE) || defined(__DOXYGEN__)
 	/** Callback function to be called when an interface association state changes. */
