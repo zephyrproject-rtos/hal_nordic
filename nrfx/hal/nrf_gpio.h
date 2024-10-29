@@ -756,6 +756,16 @@ NRF_STATIC_INLINE void nrf_gpio_port_retain_set(NRF_GPIO_Type * p_reg, uint32_t 
  * @return Mask of retention domains set, created using @ref nrf_gpio_retain_mask_t.
  */
 NRF_STATIC_INLINE uint32_t nrf_gpio_port_retain_get(NRF_GPIO_Type const * p_reg);
+
+/**
+ * @brief Function for checking the retention setting of a pin.
+ *
+ * @param pin_number Pin number.
+ *
+ * @retval true  If pin is retained.
+ * @retval false If pin is not retained.
+ */
+NRF_STATIC_INLINE bool nrf_gpio_pin_retain_check(uint32_t pin_number);
 #endif
 
 #if NRF_GPIO_HAS_RETENTION_SETCLEAR
@@ -774,6 +784,20 @@ NRF_STATIC_INLINE void nrf_gpio_port_retain_enable(NRF_GPIO_Type * p_reg, uint32
  * @param mask  Mask of pins to have retention be disabled, created using @ref nrf_gpio_retain_mask_t.
  */
 NRF_STATIC_INLINE void nrf_gpio_port_retain_disable(NRF_GPIO_Type * p_reg, uint32_t mask);
+
+/**
+ * @brief Function for enabling the retention of a pin.
+ *
+ * @param pin_number Pin number.
+ */
+NRF_STATIC_INLINE void nrf_gpio_pin_retain_enable(uint32_t pin_number);
+
+/**
+ * @brief Function for disabling the retention of a pin.
+ *
+ * @param pin_number Pin number.
+ */
+NRF_STATIC_INLINE void nrf_gpio_pin_retain_disable(uint32_t pin_number);
 #endif
 
 
@@ -1344,6 +1368,13 @@ NRF_STATIC_INLINE uint32_t nrf_gpio_port_retain_get(NRF_GPIO_Type const * p_reg)
 {
     return p_reg->RETAIN;
 }
+
+NRF_STATIC_INLINE bool nrf_gpio_pin_retain_check(uint32_t pin_number)
+{
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+
+    return (nrf_gpio_port_retain_get(reg) & (1UL << pin_number)) != 0U;
+}
 #endif
 
 #if NRF_GPIO_HAS_RETENTION_SETCLEAR
@@ -1355,6 +1386,20 @@ NRF_STATIC_INLINE void nrf_gpio_port_retain_enable(NRF_GPIO_Type * p_reg, uint32
 NRF_STATIC_INLINE void nrf_gpio_port_retain_disable(NRF_GPIO_Type * p_reg, uint32_t mask)
 {
     p_reg->RETAINCLR = mask;
+}
+
+NRF_STATIC_INLINE void nrf_gpio_pin_retain_enable(uint32_t pin_number)
+{
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+
+    nrf_gpio_port_retain_enable(reg, 1UL << pin_number);
+}
+
+NRF_STATIC_INLINE void nrf_gpio_pin_retain_disable(uint32_t pin_number)
+{
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+
+    nrf_gpio_port_retain_disable(reg, 1UL << pin_number);
 }
 #endif
 
