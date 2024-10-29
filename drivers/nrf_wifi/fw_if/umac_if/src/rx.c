@@ -249,7 +249,7 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 					      __func__,
 					      desc_id);
 			status = NRF_WIFI_STATUS_FAIL;
-			goto out;
+			continue;
 		}
 
 		status = nrf_wifi_fmac_map_desc_to_pool(fmac_dev_ctx,
@@ -259,7 +259,8 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 		if (status != NRF_WIFI_STATUS_SUCCESS) {
 			nrf_wifi_osal_log_err("%s: nrf_wifi_fmac_map_desc_to_pool failed",
 					      __func__);
-			goto out;
+			status = NRF_WIFI_STATUS_FAIL;
+			continue;
 		}
 
 		nwb_data = (void *)nrf_wifi_hal_buf_unmap_rx(fmac_dev_ctx->hal_dev_ctx,
@@ -270,7 +271,8 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 		if (!nwb_data) {
 			nrf_wifi_osal_log_err("%s: nrf_wifi_hal_buf_unmap_rx failed",
 					      __func__);
-			goto out;
+			status = NRF_WIFI_STATUS_FAIL;
+			continue;
 		}
 
 		rx_buf_info = &def_dev_ctx->rx_buf_info[desc_id];
@@ -345,7 +347,7 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 						      __func__,
 						      (config->rx_buff_info[i].pkt_type));
 				status = NRF_WIFI_STATUS_FAIL;
-				goto out;
+				continue;
 			}
 			def_priv->callbk_fns.rx_frm_callbk_fn(vif_ctx->os_vif_ctx,
 									 nwb);
@@ -360,7 +362,7 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 #endif /* CONFIG_WIFI_MGMT_RAW_SCAN_RESULTS */
 			nrf_wifi_osal_nbuf_free(nwb);
 #ifdef NRF_WIFI_MGMT_BUFF_OFFLOAD
-			goto out;
+			continue;
 #endif /* NRF_WIFI_MGMT_BUFF_OFFLOAD */
 		}
 #if defined(NRF70_RAW_DATA_RX) || defined(NRF70_PROMISC_DATA_RX)
@@ -396,7 +398,7 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 					      __func__,
 					      config->rx_pkt_type);
 			status = NRF_WIFI_STATUS_FAIL;
-			goto out;
+			continue;
 		}
 
 		status = nrf_wifi_fmac_rx_cmd_send(fmac_dev_ctx,
@@ -406,9 +408,10 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 		if (status != NRF_WIFI_STATUS_SUCCESS) {
 			nrf_wifi_osal_log_err("%s: nrf_wifi_fmac_rx_cmd_send failed",
 					      __func__);
-			goto out;
+			continue;
 		}
 	}
-out:
+
+	/* A single failure returns failure for the entire event */
 	return status;
 }
