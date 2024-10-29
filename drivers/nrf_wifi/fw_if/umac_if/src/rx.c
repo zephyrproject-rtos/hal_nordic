@@ -398,6 +398,7 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 					      __func__,
 					      config->rx_pkt_type);
 			status = NRF_WIFI_STATUS_FAIL;
+			nrf_wifi_osal_nbuf_free(nwb);
 			continue;
 		}
 
