@@ -1,0 +1,29 @@
+name: WiFi Documentation Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - master
+    paths:
+      - 'drivers/nrf_wifi/**'
+
+env:
+  DOXYGEN_VERSION: 1.12.0
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Install Doxygen
+        run: |
+          wget --no-verbose "https://github.com/doxygen/doxygen/releases/download/Release_${DOXYGEN_VERSION//./_}/doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz"
+          sudo tar xf doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz -C /opt
+          echo "/opt/doxygen-${DOXYGEN_VERSION}/bin" >> $GITHUB_PATH
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build documentation
+        working-directory: drivers/nrf_wifi
+        run: doxygen
