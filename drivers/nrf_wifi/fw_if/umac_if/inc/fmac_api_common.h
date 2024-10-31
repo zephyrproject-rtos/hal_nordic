@@ -37,7 +37,6 @@
 /**
  * @brief Adds a RPU instance.
  * @param fpriv Pointer to the context of the UMAC IF layer.
- * @param os_dev_ctx Pointer to the OS specific context of the RPU instance.
  *
  * This function adds an RPU instance. This function will return the
  *	    pointer to the context of the RPU instance. This pointer will need to be
