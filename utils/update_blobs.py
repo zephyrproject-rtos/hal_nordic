@@ -25,23 +25,7 @@ BlobInfo = namedtuple(
     "BlobInfo", ["name", "description", "version", "rpath", "lpath", "docpath"]
 )
 
-
-def get_wifi_blob_info(name: str) -> BlobInfo:
-    return BlobInfo(
-        name,
-        f"nRF70 Wi-Fi firmware for {name} mode",
-        "1.0.0",
-        f"nrf_wifi/bin/zephyr/{name}/{WIFI_FW_BIN_NAME}",
-        f"wifi_fw_bins/{name}/{WIFI_FW_BIN_NAME}",
-        f"nrf_wifi/doc",
-    )
-
-
 nordic_blobs: List[BlobInfo] = [
-    get_wifi_blob_info("default"),
-    get_wifi_blob_info("scan_only"),
-    get_wifi_blob_info("radio_test"),
-    get_wifi_blob_info("system_with_raw"),
     BlobInfo(
         "suit_manifest_starter",
         "nRF54H20 series SUIT manifest starter",
