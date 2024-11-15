@@ -17,6 +17,7 @@
 #include <internal/requests/nrfs_dvfs_reqs.h>
 #include <internal/requests/nrfs_diag_reqs.h>
 #include <internal/requests/nrfs_clock_reqs.h>
+#include <internal/requests/nrfs_gdfs_reqs.h>
 
 #ifdef __cplusplus
 extern "C" {
