@@ -449,6 +449,8 @@ enum nrf_wifi_security_type {
 	NRF_WIFI_WAPI,
 	/** Enterprise mode */
 	NRF_WIFI_EAP,
+	/** Enterprise tls sha 256 */
+	NRF_WIFI_EAP_TLS_SHA256,
 	/** WPA2 sha 256 */
 	NRF_WIFI_WPA2_256
 };
