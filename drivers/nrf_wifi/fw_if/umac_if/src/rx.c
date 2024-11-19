@@ -235,8 +235,10 @@ enum nrf_wifi_status nrf_wifi_fmac_rx_event_process(struct nrf_wifi_fmac_dev_ctx
 	vif_ctx = def_dev_ctx->vif_ctx[config->wdev_id];
 
 #ifdef NRF70_STA_MODE
-	def_priv->callbk_fns.process_rssi_from_rx(vif_ctx->os_vif_ctx,
-							     config->signal);
+	if (config->rx_pkt_type != NRF_WIFI_RAW_RX_PKT) {
+		def_priv->callbk_fns.process_rssi_from_rx(vif_ctx->os_vif_ctx,
+							  config->signal);
+	}
 #endif /* NRF70_STA_MODE */
 	num_pkts = config->rx_pkt_cnt;
 
