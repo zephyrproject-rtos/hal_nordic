@@ -66,7 +66,11 @@
 #define MIN_RX_CACHE_SIZE 8
 // There is a HW bug which results in RX amount value not being updated when FIFO was empty.
 // It is then hard to determine if FIFO contained anything or not.
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+#define USE_WORKAROUND_FOR_FLUSHRX_ANOMALY 0
+#else
 #define USE_WORKAROUND_FOR_FLUSHRX_ANOMALY 1
+#endif
 
 // Size of the RX HW FIFO
 #define UARTE_HW_RX_FIFO_SIZE 5
