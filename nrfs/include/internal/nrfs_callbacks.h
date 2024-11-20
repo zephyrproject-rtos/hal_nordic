@@ -106,6 +106,16 @@ void nrfs_clock_service_notify(void *p_notification, size_t size);
  */
 void nrfs_gdpwr_service_notify(void *p_notification, size_t size);
 
+/**
+ * @brief Function for notifying the GDFS service about incoming message.
+ *
+ * This function is called internally by the dispatcher when the corresponding message arrives.
+ *
+ * @param[in] p_notification Pointer to the notification payload.
+ * @param[in] size           Notification payload size.
+ */
+void nrfs_gdfs_service_notify(void *p_notification, size_t size);
+
 #ifdef __cplusplus
 }
 #endif

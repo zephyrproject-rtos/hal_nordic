@@ -12,13 +12,13 @@
 #include <internal/requests/nrfs_clock_reqs.h>
 #include <internal/requests/nrfs_diag_reqs.h>
 #include <internal/requests/nrfs_dvfs_reqs.h>
+#include <internal/requests/nrfs_gdfs_reqs.h>
 #include <internal/requests/nrfs_gdpwr_reqs.h>
 #include <internal/requests/nrfs_mram_reqs.h>
 #include <internal/requests/nrfs_pmic_reqs.h>
 #include <internal/requests/nrfs_reset_reqs.h>
 #include <internal/requests/nrfs_temp_reqs.h>
 #include <internal/requests/nrfs_usb_reqs.h>
-
 
 #ifdef __cplusplus
 extern "C" {
