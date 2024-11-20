@@ -15,9 +15,11 @@ extern "C" {
 
 /** @brief Power domain selection */
 typedef enum __NRFS_PACKED {
-	GDPWR_POWER_DOMAIN_ACTIVE_FAST,
-	GDPWR_POWER_DOMAIN_ACTIVE_SLOW,
-	GDPWR_POWER_DOMAIN_MAIN_SLOW
+	GDPWR_GD_FAST_ACTIVE_0,
+	GDPWR_GD_FAST_ACTIVE_1,
+	GDPWR_GD_FAST_MAIN,
+	GDPWR_GD_SLOW_ACTIVE,
+	GDPWR_GD_SLOW_MAIN
 } gdpwr_power_domain_t;
 
 typedef enum __NRFS_PACKED {
