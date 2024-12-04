@@ -18,8 +18,6 @@ from jinja2 import Environment, FileSystemLoader
 from typing import Dict, Any, List
 from collections import namedtuple
 
-WIFI_FW_BIN_NAME: str = "nrf70.bin"
-
 # Paths are relative to the sdk-nrfxlib repository
 BlobInfo = namedtuple(
     "BlobInfo", ["name", "description", "version", "rpath", "lpath", "docpath"]
