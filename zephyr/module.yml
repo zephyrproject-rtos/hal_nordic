@@ -4,11 +4,12 @@ build:
   cmake-ext: True
   kconfig-ext: True
 blobs:
+
     - path: suit/bin/suit_manifest_starter.hex
-      sha256: b0291b69fd841d5ea1f5f8d0391813b83a667f17b70ffbfd59f96f8e38d860a1
+      sha256: 7671d284ae8a7b3d7222f6869d5efd8b1efb1633ad752104ee9317476bf3566a
       type: img
-      version: '1.0.0'
+      version: '5.0.0'
       license-path: ./LICENSE.txt
-      url: https://github.com/nrfconnect/sdk-nrfxlib/raw/ba6c7b5e90f927e25bf1038635c2f047a506123f/suit/bin/suit_manifest_starter.hex
+      url: https://github.com/nrfconnect/sdk-nrfxlib/raw/938b057dcefe9ebeb1554f4c448cee5ecdf965ae/suit/bin/suit_manifest_starter.hex
       description: nRF54H20 series SUIT manifest starter
-      doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/ba6c7b5e90f927e25bf1038635c2f047a506123f/suit/doc
+      doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/938b057dcefe9ebeb1554f4c448cee5ecdf965ae/suit/doc

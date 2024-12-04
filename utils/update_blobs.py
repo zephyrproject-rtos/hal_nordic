@@ -27,7 +27,7 @@ nordic_blobs: List[BlobInfo] = [
     BlobInfo(
         "suit_manifest_starter",
         "nRF54H20 series SUIT manifest starter",
-        "1.0.0",
+        "5.0.0",
         "suit/bin/suit_manifest_starter.hex",
         "suit/bin/suit_manifest_starter.hex",
         "suit/doc"
