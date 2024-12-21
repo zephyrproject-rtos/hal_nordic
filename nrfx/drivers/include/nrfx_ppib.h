@@ -210,9 +210,9 @@ NRFX_STATIC_INLINE uint32_t nrfx_ppib_receive_event_address_get(nrfx_ppib_t cons
  * @param[in] task       Task for which to set the configuration.
  * @param[in] channel    Channel through which to subscribe events.
  */
-NRF_STATIC_INLINE void nrfx_ppib_subscribe_set(nrfx_ppib_t const * p_instance,
-                                               nrf_ppib_task_t     task,
-                                               uint8_t             channel);
+NRFX_STATIC_INLINE void nrfx_ppib_subscribe_set(nrfx_ppib_t const * p_instance,
+                                                nrf_ppib_task_t     task,
+                                                uint8_t             channel);
 
 /**
  * @brief Function for clearing the subscribe configuration for a given
@@ -221,8 +221,8 @@ NRF_STATIC_INLINE void nrfx_ppib_subscribe_set(nrfx_ppib_t const * p_instance,
  * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] task       Task for which to clear the configuration.
  */
-NRF_STATIC_INLINE void nrfx_ppib_subscribe_clear(nrfx_ppib_t const * p_instance,
-                                                 nrf_ppib_task_t     task);
+NRFX_STATIC_INLINE void nrfx_ppib_subscribe_clear(nrfx_ppib_t const * p_instance,
+                                                  nrf_ppib_task_t     task);
 
 /**
  * @brief Function for setting the publish configuration for a given event.
@@ -231,17 +231,17 @@ NRF_STATIC_INLINE void nrfx_ppib_subscribe_clear(nrfx_ppib_t const * p_instance,
  * @param[in] event      Event for which to set the configuration.
  * @param[in] channel    PPIB channel through which to publish the event.
  */
-NRF_STATIC_INLINE void nrfx_ppib_publish_set(nrfx_ppib_t const * p_instance,
-                                             nrf_ppib_event_t    event,
-                                             uint8_t             channel);
+NRFX_STATIC_INLINE void nrfx_ppib_publish_set(nrfx_ppib_t const * p_instance,
+                                              nrf_ppib_event_t    event,
+                                              uint8_t             channel);
 /**
  * @brief Function for clearing the publish configuration for a given event.
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] event      Event for which to clear the configuration.
  */
-NRF_STATIC_INLINE void nrfx_ppib_publish_clear(nrfx_ppib_t const * p_instance,
-                                               nrf_ppib_event_t    event);
+NRFX_STATIC_INLINE void nrfx_ppib_publish_clear(nrfx_ppib_t const * p_instance,
+                                                nrf_ppib_event_t    event);
 #ifndef NRFX_DECLARE_ONLY
 
 NRFX_STATIC_INLINE nrf_ppib_task_t nrfx_ppib_send_task_get(nrfx_ppib_t const * p_instance,
@@ -272,28 +272,28 @@ NRFX_STATIC_INLINE uint32_t nrfx_ppib_receive_event_address_get(nrfx_ppib_t cons
     return nrf_ppib_event_address_get(p_instance->p_reg, nrf_ppib_receive_event_get(channel));
 }
 
-NRF_STATIC_INLINE void nrfx_ppib_subscribe_set(nrfx_ppib_t const * p_instance,
-                                               nrf_ppib_task_t     task,
-                                               uint8_t             channel)
+NRFX_STATIC_INLINE void nrfx_ppib_subscribe_set(nrfx_ppib_t const * p_instance,
+                                                nrf_ppib_task_t     task,
+                                                uint8_t             channel)
 {
     nrf_ppib_subscribe_set(p_instance->p_reg, task, channel);
 }
 
-NRF_STATIC_INLINE void nrfx_ppib_subscribe_clear(nrfx_ppib_t const * p_instance,
-                                                 nrf_ppib_task_t     task)
+NRFX_STATIC_INLINE void nrfx_ppib_subscribe_clear(nrfx_ppib_t const * p_instance,
+                                                  nrf_ppib_task_t     task)
 {
     nrf_ppib_subscribe_clear(p_instance->p_reg, task);
 }
 
-NRF_STATIC_INLINE void nrfx_ppib_publish_set(nrfx_ppib_t const * p_instance,
-                                             nrf_ppib_event_t    event,
-                                             uint8_t             channel)
+NRFX_STATIC_INLINE void nrfx_ppib_publish_set(nrfx_ppib_t const * p_instance,
+                                              nrf_ppib_event_t    event,
+                                              uint8_t             channel)
 {
     nrf_ppib_publish_set(p_instance->p_reg, event, channel);
 }
 
-NRF_STATIC_INLINE void nrfx_ppib_publish_clear(nrfx_ppib_t const * p_instance,
-                                               nrf_ppib_event_t    event)
+NRFX_STATIC_INLINE void nrfx_ppib_publish_clear(nrfx_ppib_t const * p_instance,
+                                                nrf_ppib_event_t    event)
 {
     nrf_ppib_publish_clear(p_instance->p_reg, event);
 }
