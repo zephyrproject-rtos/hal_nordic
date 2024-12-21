@@ -181,6 +181,30 @@ NRF_STATIC_INLINE bool nrf_event_check(void const * p_reg, uint32_t event);
 
 NRF_STATIC_INLINE uint32_t nrf_task_event_address_get(void const * p_reg, uint32_t task_event);
 
+#if defined(ADDRESS_DOMAIN_Msk)
+NRF_STATIC_INLINE uint8_t nrf_address_domain_get(uint32_t addr);
+#endif
+
+#if defined(ADDRESS_REGION_Msk)
+NRF_STATIC_INLINE nrf_region_t nrf_address_region_get(uint32_t addr);
+#endif
+
+#if defined(ADDRESS_SECURITY_Msk)
+NRF_STATIC_INLINE bool nrf_address_security_get(uint32_t addr);
+#endif
+
+#if defined(ADDRESS_BUS_Msk)
+NRF_STATIC_INLINE uint8_t nrf_address_bus_get(uint32_t addr, size_t size);
+#endif
+
+#if defined(ADDRESS_SLAVE_Msk)
+NRF_STATIC_INLINE uint8_t nrf_address_slave_get(uint32_t addr);
+#endif
+
+#if defined(ADDRESS_PERIPHID_Msk)
+NRF_STATIC_INLINE uint16_t nrf_address_periphid_get(uint32_t addr);
+#endif
+
 #ifndef NRF_DECLARE_ONLY
 
 NRF_STATIC_INLINE void nrf_event_readback(void * p_event_reg)
