@@ -42,7 +42,7 @@
 #include "nrf_802154_config.h"
 #include "nrf_802154_types.h"
 
-#if NRF_802154_DELAYED_TRX_ENABLED
+#if NRF_802154_DELAYED_TRX_ENABLED || defined(__DOXYGEN__)
 
 /**
  * @defgroup nrf_802154_delayed_trx Delayed transmission and reception window features
@@ -96,14 +96,10 @@ bool nrf_802154_delayed_trx_transmit(uint8_t                                 * p
 bool nrf_802154_delayed_trx_transmit_cancel(void);
 
 /**
- *@}
- **/
-
-/**
  * @brief Requests the reception of a frame at a given time.
  *
  * If the request is accepted and a frame is received during the defined time slot,
- * the @ref nrf_802154_received function is called. If the request is rejected due
+ * the @ref nrf_802154_received_raw function is called. If the request is rejected due
  * to a denied timeslot request or the reception timeout expires,
  * the @ref nrf_802154_receive_failed function is called.
  *
