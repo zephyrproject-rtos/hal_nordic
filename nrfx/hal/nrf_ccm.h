@@ -334,7 +334,7 @@ typedef enum
     NRF_CCM_EVENT_ENDKSGEN = offsetof(NRF_CCM_Type, EVENTS_ENDKSGEN),  ///< Keystream generation complete.
 #endif
 #if NRF_CCM_HAS_EVENT_ENDCRYPT
-    NRF_CCM_EVENT_END      = offsetof(NRF_CCM_Type, EVENTS_ENDCRYPT),  ///< Encrypt/decrypt complete.
+    NRF_CCM_EVENT_ENDCRYPT = offsetof(NRF_CCM_Type, EVENTS_ENDCRYPT),  ///< Encrypt/decrypt complete.
 #else
     NRF_CCM_EVENT_END      = offsetof(NRF_CCM_Type, EVENTS_END),       ///< Encrypt/decrypt complete.
 #endif
