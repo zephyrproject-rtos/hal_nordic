@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2024 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -43,7 +43,7 @@ extern "C" {
 /**
  * @defgroup nrf_cracen_rng_hal CRACEN RNG HAL
  * @{
- * @ingroup nrf_cracen_rng
+ * @ingroup nrf_cracen
  * @brief   Hardware access layer for managing the Crypto Accelerator Engine (CRACEN)
  *          Random Generator (RNG) peripheral.
  */
