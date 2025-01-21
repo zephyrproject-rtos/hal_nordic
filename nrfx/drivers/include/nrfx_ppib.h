@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2024 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -67,8 +67,7 @@ enum {
 
 enum {
     /* List all enabled interconnects. Smaller PPIB idx are always on the left. */
-#if defined(NRF54L15_ENGA_XXAA) || defined(NRF54L05_XXAA) || defined(NRF54L09_ENGA_XXAA) || \
-    defined(NRF54L10_XXAA) || defined(NRF54L15_XXAA) || defined(NRF54L20_ENGA_XXAA)
+#if defined(NRF54L_SERIES) || defined(NRF7120_ENGA_XXAA)
 #if NRFX_CHECK(NRFX_PPIB00_ENABLED) && NRFX_CHECK(NRFX_PPIB10_ENABLED)
     NRFX_PPIB_INTERCONNECT_00_10_INST_IDX,
 #endif

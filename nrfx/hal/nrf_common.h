@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2020 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -47,7 +47,7 @@ extern "C" {
 #endif
 
 #ifndef NRFX_CONFIG_API_VER_MINOR
-#define NRFX_CONFIG_API_VER_MINOR 7
+#define NRFX_CONFIG_API_VER_MINOR 8
 #endif
 
 #ifndef NRFX_CONFIG_API_VER_MICRO
@@ -115,6 +115,8 @@ extern "C" {
 #define NRF_CPU_FREQ_IS_64MHZ 1
 #elif defined(NRF_CONFIG_CPU_FREQ_MHZ) && (NRF_CONFIG_CPU_FREQ_MHZ == 128)
 #define NRF_CPU_FREQ_IS_128MHZ 1
+#elif defined(NRF_CONFIG_CPU_FREQ_MHZ) && (NRF_CONFIG_CPU_FREQ_MHZ == 256)
+#define NRF_CPU_FREQ_IS_256MHZ 1
 #elif !defined(NRF_CONFIG_CPU_FREQ_MHZ)
 #error "MCU frequency not specified"
 #else
@@ -132,6 +134,8 @@ extern "C" {
 /* If clock configuration is not skipped and frequency not specified,
  * SystemInit() applies 128 MHz setting. */
 #define NRF_CPU_FREQ_IS_128MHZ 1
+#elif defined(NRF_CONFIG_CPU_FREQ_MHZ) && (NRF_CONFIG_CPU_FREQ_MHZ == 256)
+#define NRF_CPU_FREQ_IS_256MHZ 1
 #else
 #error "Invalid MCU frequency"
 #endif
