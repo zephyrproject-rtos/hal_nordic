@@ -60,6 +60,11 @@ static const nrfs_service_cb_t services_callbacks[] = {
 #else
 	[NRFS_SERVICE_ID_GDFS]	= NULL,
 #endif
+#ifdef NRFS_SWEXT_SERVICE_ENABLED
+	[NRFS_SERVICE_ID_SWEXT] = nrfs_swext_service_notify,
+#else
+	[NRFS_SERVICE_ID_SWEXT]	= NULL,
+#endif
 };
 
 /* Warning! All "UNSOLICITED" features are not supported. This is intended for possible future use. */
