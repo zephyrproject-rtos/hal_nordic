@@ -15,8 +15,8 @@ extern "C" {
 
 /** @brief Reset service event types. */
 typedef enum __NRFS_PACKED {
-	NRFS_RESET_EVT_DONE,   /** Reset done. */
-	NRFS_RESET_EVT_REJECT, /** Request rejected. */
+	NRFS_RESET_EVT_DONE	= 0, /** Reset done. */
+	NRFS_RESET_EVT_REJECT	= 1, /** Request rejected. */
 } nrfs_reset_evt_type_t;
 
 /** @brief Reset service event. */

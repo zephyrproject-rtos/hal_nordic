@@ -15,8 +15,8 @@ extern "C" {
 
 /** @brief SWEXT pdclamp options. */
 typedef enum __NRFS_PACKED {
-	SWEXT_PD_CLAMP_DISABLED,
-	SWEXT_PD_CLAMP_ENABLED
+	SWEXT_PD_CLAMP_DISABLED = 0,
+	SWEXT_PD_CLAMP_ENABLED  = 1,
 } swext_pd_clamp_t;
 
 /** @brief SWEXT data structure. */
@@ -34,8 +34,8 @@ typedef struct __NRFS_PACKED {
 
 /** @brief SWEXT response status. */
 typedef enum __NRFS_PACKED {
-	SWEXT_OUTPUT_ENABLED,
-	SWEXT_OVERCURRENT
+	SWEXT_OUTPUT_ENABLED = 0,
+	SWEXT_OVERCURRENT    = 1,
 } nrfs_swext_status_t;
 
 /** @brief SWEXT notification structure. */

@@ -15,8 +15,8 @@ extern "C" {
 
 /** @brief Global Domain Frequency Scaling service event types. */
 typedef enum __NRFS_PACKED {
-	NRFS_GDFS_EVT_REJECT, /** General purpose event for rejected requests. */
-	NRFS_GDFS_EVT_FREQ_CONFIRMED, /** Frequency has been achieved. */
+	NRFS_GDFS_EVT_REJECT		= 0, /** General purpose event for rejected requests. */
+	NRFS_GDFS_EVT_FREQ_CONFIRMED	= 1, /** Frequency has been achieved. */
 } nrfs_gdfs_evt_type_t;
 
 /** @brief Global Domain Frequency Scaling service event. */

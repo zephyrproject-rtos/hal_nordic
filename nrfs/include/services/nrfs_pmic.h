@@ -15,10 +15,10 @@ extern "C" {
 
 /** @brief PMIC Service response notification types. */
 typedef enum __NRFS_PACKED {
-	NRFS_PMIC_EVT_APPLIED,	   /** Request applied succesfully */
-	NRFS_PMIC_EVT_REJECT,	   /** Request rejected. */
-	NRFS_PMIC_EVT_TEST_IF_RSP, /** Response for TEST_IF request */
-	NRFS_PMIC_EVT_INFO_RSP, /** Response for INFO IF request */
+	NRFS_PMIC_EVT_APPLIED		= 0, /** Request applied succesfully */
+	NRFS_PMIC_EVT_REJECT		= 1, /** Request rejected. */
+	NRFS_PMIC_EVT_TEST_IF_RSP	= 2, /** Response for TEST_IF request */
+	NRFS_PMIC_EVT_INFO_RSP		= 3, /** Response for INFO IF request */
 } nrfs_pmic_evt_type_t;
 
 /** @brief PMIC Service response data structure. */
