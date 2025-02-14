@@ -15,9 +15,9 @@ extern "C" {
 
 /** @brief System Diagnostics Service response notification types. */
 typedef enum __NRFS_PACKED {
-	NRFS_DIAG_EVT_APPLIED = 0, /** Request applied succesfully */
-	NRFS_DIAG_EVT_REJECT,	   /** Request rejected. */
-	NRFS_DIAG_EVT_REG_RSP,	   /** Response for register request */
+	NRFS_DIAG_EVT_APPLIED	= 0, /** Request applied succesfully */
+	NRFS_DIAG_EVT_REJECT	= 1, /** Request rejected. */
+	NRFS_DIAG_EVT_REG_RSP	= 2, /** Response for register request */
 } nrfs_diag_evt_type_t;
 
 /** @brief System Diagnostics Service response data structure. */

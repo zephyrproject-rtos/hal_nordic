@@ -15,12 +15,12 @@ extern "C" {
 
 /** @brief Audio PLL service event types. */
 typedef enum __NRFS_PACKED {
-	NRFS_AUDIOPLL_EVT_ENABLED,		/** Audio PLL enabled. */
-	NRFS_AUDIOPLL_EVT_DISABLED,		/** Audio PLL disabled. */
-	NRFS_AUDIOPLL_EVT_FREQ_CONFIRMED,	/** Audio PLL new frequency setting confirmed. */
-	NRFS_AUDIOPLL_EVT_PRESCALER_CONFIRMED,	/** Audio PLL new prescaler setting confirmed. */
-	NRFS_AUDIOPLL_EVT_FREQ_INC_CONFIRMED,	/** Audio PLL new frequency inc setting. */
-	NRFS_AUDIOPLL_EVT_REJECT,		/** Request rejected. */
+	NRFS_AUDIOPLL_EVT_ENABLED		= 0, /** Audio PLL enabled. */
+	NRFS_AUDIOPLL_EVT_DISABLED		= 1, /** Audio PLL disabled. */
+	NRFS_AUDIOPLL_EVT_FREQ_CONFIRMED	= 2, /** Audio PLL new frequency setting confirmed. */
+	NRFS_AUDIOPLL_EVT_PRESCALER_CONFIRMED	= 3, /** Audio PLL new prescaler setting confirmed. */
+	NRFS_AUDIOPLL_EVT_FREQ_INC_CONFIRMED	= 4, /** Audio PLL new frequency inc setting. */
+	NRFS_AUDIOPLL_EVT_REJECT		= 5, /** Request rejected. */
 } nrfs_audiopll_evt_type_t;
 
 /** @brief Audio PLL service response data structure. */

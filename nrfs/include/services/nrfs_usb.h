@@ -15,8 +15,8 @@ extern "C" {
 
 /** @brief USB VBUS detector service event types. */
 typedef enum __NRFS_PACKED {
-	NRFS_USB_EVT_VBUS_STATUS_CHANGE, /** VBUS voltage detection status has changed. */
-	NRFS_USB_EVT_REJECT,		 /** Request rejected. */
+	NRFS_USB_EVT_VBUS_STATUS_CHANGE = 0, /** VBUS voltage detection status has changed. */
+	NRFS_USB_EVT_REJECT		= 1, /** Request rejected. */
 } nrfs_usb_evt_type_t;
 
 /** @brief USB VBUS detector service event. */
