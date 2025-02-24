@@ -1,7 +1,0 @@
-EGU
-===
-
-.. toctree::
-    :glob:
-
-    **/index

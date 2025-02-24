@@ -1,7 +1,0 @@
-TIMER
-=====
-
-.. toctree::
-    :glob:
-
-    **/index

@@ -1,7 +1,0 @@
-UARTE
-=====
-
-.. toctree::
-    :glob:
-
-    **/index
