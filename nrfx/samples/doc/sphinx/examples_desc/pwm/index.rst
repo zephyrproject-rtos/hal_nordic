@@ -1,7 +1,0 @@
-PWM
-===
-
-.. toctree::
-    :glob:
-
-    **/index

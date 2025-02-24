@@ -1,7 +1,0 @@
-RNG
-===
-
-.. toctree::
-    :glob:
-
-    **/index
