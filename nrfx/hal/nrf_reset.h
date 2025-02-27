@@ -246,6 +246,7 @@ NRF_STATIC_INLINE void nrf_reset_network_force_off(NRF_RESET_Type * p_reg, bool 
         p_reg->NETWORK.FORCEOFF = RESET_NETWORK_FORCEOFF_FORCEOFF_Hold <<
                                   RESET_NETWORK_FORCEOFF_FORCEOFF_Pos;
     }
+#if NRFX_CHECK(NRF53_ERRATA_161_ENABLE_WORKAROUND)
     else if (nrf53_errata_161())
     {
         *(volatile uint32_t *)0x50005618UL = 1UL;
@@ -259,6 +260,7 @@ NRF_STATIC_INLINE void nrf_reset_network_force_off(NRF_RESET_Type * p_reg, bool 
                                   RESET_NETWORK_FORCEOFF_FORCEOFF_Pos;
         *(volatile uint32_t *)0x50005618UL = 0UL;
     }
+#endif
     else
     {
         p_reg->NETWORK.FORCEOFF = RESET_NETWORK_FORCEOFF_FORCEOFF_Release <<
