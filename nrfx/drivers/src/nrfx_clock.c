@@ -722,7 +722,7 @@ nrfx_err_t nrfx_clock_divider_set(nrf_clock_domain_t domain,
             switch (div)
             {
                 case NRF_CLOCK_HFCLK_DIV_2:
-#if !defined(NRF_TRUSTZONE_NONSECURE)
+#if !defined(NRF_TRUSTZONE_NONSECURE) && NRFX_CHECK(NRF53_ERRATA_4_ENABLE_WORKAROUND)
                     if (nrf53_errata_4())
                     {
                         NRFX_CRITICAL_SECTION_ENTER();
@@ -743,7 +743,7 @@ nrfx_err_t nrfx_clock_divider_set(nrf_clock_domain_t domain,
                     }
                     break;
                 case NRF_CLOCK_HFCLK_DIV_1:
-#if !defined(NRF_TRUSTZONE_NONSECURE)
+#if !defined(NRF_TRUSTZONE_NONSECURE) && NRFX_CHECK(NRF53_ERRATA_4_ENABLE_WORKAROUND)
                     if (nrf53_errata_4())
                     {
                         NRFX_CRITICAL_SECTION_ENTER();
