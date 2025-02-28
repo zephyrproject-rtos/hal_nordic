@@ -1,7 +1,0 @@
-GPPI
-====
-
-.. toctree::
-    :glob:
-
-    **/index
