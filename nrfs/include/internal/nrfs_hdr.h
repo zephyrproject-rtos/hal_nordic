@@ -20,6 +20,7 @@
 #include <internal/requests/nrfs_reset_reqs.h>
 #include <internal/requests/nrfs_temp_reqs.h>
 #include <internal/requests/nrfs_usb_reqs.h>
+#include <internal/requests/nrfs_audiopll_reqs.h>
 
 #ifdef __cplusplus
 extern "C" {
