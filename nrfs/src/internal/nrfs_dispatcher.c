@@ -65,6 +65,11 @@ static const nrfs_service_cb_t services_callbacks[] = {
 #else
 	[NRFS_SERVICE_ID_SWEXT]	= NULL,
 #endif
+#ifdef NRFS_AUDIOPLL_SERVICE_ENABLED
+	[NRFS_SERVICE_ID_AUDIOPLL] = nrfs_audiopll_service_notify,
+#else
+	[NRFS_SERVICE_ID_AUDIOPLL] = NULL,
+#endif
 };
 
 /* Warning! All "UNSOLICITED" features are not supported. This is intended for possible future use. */
