@@ -619,6 +619,15 @@ NRF_STATIC_INLINE nrf_gpio_pin_input_t nrf_gpio_pin_input_get(uint32_t pin_numbe
 NRF_STATIC_INLINE nrf_gpio_pin_pull_t nrf_gpio_pin_pull_get(uint32_t pin_number);
 
 /**
+ * @brief Function for reading the drive configuration of a GPIO pin.
+ *
+ * @param pin_number Specifies the pin number to read.
+ *
+ * @retval Drive configuration.
+ */
+NRF_STATIC_INLINE nrf_gpio_pin_drive_t nrf_gpio_pin_drive_get(uint32_t pin_number);
+
+/**
  * @brief Function for setting output direction on the selected pins on the given port.
  *
  * @param p_reg    Pointer to the structure of registers of the peripheral.
@@ -1274,6 +1283,19 @@ NRF_STATIC_INLINE nrf_gpio_pin_pull_t nrf_gpio_pin_pull_get(uint32_t pin_number)
                                   GPIO_PIN_CNF_PULL_Msk) >> GPIO_PIN_CNF_PULL_Pos);
 }
 
+NRF_STATIC_INLINE nrf_gpio_pin_drive_t nrf_gpio_pin_drive_get(uint32_t pin_number)
+{
+    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
+
+#if defined(GPIO_PIN_CNF_DRIVE_Pos)
+    return (nrf_gpio_pin_drive_t)((reg->PIN_CNF[pin_number] &
+                                  GPIO_PIN_CNF_DRIVE_Msk) >> GPIO_PIN_CNF_DRIVE_Pos);
+#else
+    return (nrf_gpio_pin_drive_t)((reg->PIN_CNF[pin_number] &
+                                  (GPIO_PIN_CNF_DRIVE0_Msk | GPIO_PIN_CNF_DRIVE1_Msk))
+                                  >> GPIO_PIN_CNF_DRIVE0_Pos);
+#endif
+}
 
 NRF_STATIC_INLINE void nrf_gpio_port_dir_output_set(NRF_GPIO_Type * p_reg, uint32_t out_mask)
 {
