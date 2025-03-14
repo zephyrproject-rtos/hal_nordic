@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2025 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#ifndef NRFS_AUDIOPLL_REQS_H
+#define NRFS_AUDIOPLL_REQS_H
+
+#include "nrfs_reqs_common.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+enum {
+	NRFS_AUDIOPLL_REQ_ENABLE     = NRFS_REQUEST_ID_DEF(NRFS_SERVICE_ID_AUDIOPLL, 0x01),
+	NRFS_AUDIOPLL_REQ_DISABLE    = NRFS_REQUEST_ID_DEF(NRFS_SERVICE_ID_AUDIOPLL, 0x02),
+	NRFS_AUDIOPLL_REQ_FREQ       = NRFS_REQUEST_ID_DEF(NRFS_SERVICE_ID_AUDIOPLL, 0x03),
+	NRFS_AUDIOPLL_REQ_PRESCALER  = NRFS_REQUEST_ID_DEF(NRFS_SERVICE_ID_AUDIOPLL, 0x04),
+	NRFS_AUDIOPLL_REQ_FREQ_INC   = NRFS_REQUEST_ID_DEF(NRFS_SERVICE_ID_AUDIOPLL, 0x05),
+};
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* NRFS_AUDIOPLL_REQS_H */
