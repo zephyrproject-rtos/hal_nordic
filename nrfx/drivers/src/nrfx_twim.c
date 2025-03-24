@@ -375,6 +375,42 @@ nrfx_err_t nrfx_twim_reconfigure(nrfx_twim_t const *        p_instance,
     return err_code;
 }
 
+void nrfx_twim_callback_get(nrfx_twim_t const *       p_instance,
+                            nrfx_twim_evt_handler_t * p_event_handler,
+                            void **                   pp_context)
+{
+    twim_control_block_t * p_cb  = &m_cb[p_instance->drv_inst_idx];
+
+    *p_event_handler = p_cb->handler;
+    *pp_context      = p_cb->p_context;
+}
+
+nrfx_err_t nrfx_twim_callback_set(nrfx_twim_t const *     p_instance,
+                                  nrfx_twim_evt_handler_t event_handler,
+                                  void *                  p_context)
+{
+    twim_control_block_t * p_cb  = &m_cb[p_instance->drv_inst_idx];
+
+    NRFX_ASSERT(event_handler);
+
+    if (p_cb->busy)
+    {
+        return NRFX_ERROR_BUSY;
+    }
+
+    if (p_cb->handler == NULL)
+    {
+        return NRFX_ERROR_INVALID_STATE;
+    }
+
+    nrfy_twim_int_disable(p_instance->p_twim, NRF_TWIM_ALL_INTS_MASK);
+
+    p_cb->handler   = event_handler;
+    p_cb->p_context = p_context;
+
+    return NRFX_SUCCESS;
+}
+
 void nrfx_twim_uninit(nrfx_twim_t const * p_instance)
 {
     twim_control_block_t * p_cb = &m_cb[p_instance->drv_inst_idx];
