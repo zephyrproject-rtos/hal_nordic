@@ -32,6 +32,19 @@ typedef struct __NRFS_PACKED {
 	nrfs_ctx_t ctx; /**< Context of the message. */
 } nrfs_usb_disable_req_t;
 
+/** @brief USB D+ pull-up enable request structure. */
+typedef struct __NRFS_PACKED {
+	nrfs_hdr_t hdr; /**< Header of the message. */
+	nrfs_ctx_t ctx; /**< Context of the message. */
+} nrfs_usb_ld_dplus_pullup_enable_req_t;
+
+/** @brief USB D+ pull-up disable request structure. */
+typedef struct __NRFS_PACKED {
+	nrfs_hdr_t hdr; /**< Header of the message. */
+	nrfs_ctx_t ctx; /**< Context of the message. */
+} nrfs_usb_ld_dplus_pullup_disable_req_t;
+
+
 /** @brief USB VBUS detector service notification structure for enable request. */
 typedef struct __NRFS_PACKED {
 	nrfs_hdr_t hdr;		  /**< Header of the message. */
