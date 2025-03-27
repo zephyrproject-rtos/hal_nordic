@@ -86,3 +86,32 @@ nrfs_err_t nrfs_usb_disable_request(void *p_context)
 
 	return nrfs_backend_send(&req, sizeof(req));
 }
+
+nrfs_err_t nrfs_usb_ld_boolean_enable_request(void *p_context)
+{
+	if (!m_cb.is_initialized) {
+		return NRFS_ERR_INVALID_STATE;
+	}
+
+	nrfs_usb_ld_boolean_enable_req_t req;
+
+	NRFS_SERVICE_HDR_FILL(&req, NRFS_USB_REQ_LD_BOOLEAN_ENABLE);
+	req.ctx.ctx = (uint32_t)p_context;
+
+	return nrfs_backend_send(&req, sizeof(req));
+}
+
+nrfs_err_t nrfs_usb_ld_boolean_disable_request(void *p_context)
+{
+	if (!m_cb.is_initialized) {
+		return NRFS_ERR_INVALID_STATE;
+	}
+
+	nrfs_usb_ld_boolean_disable_req_t req;
+
+	NRFS_SERVICE_HDR_FILL(&req, NRFS_USB_REQ_LD_BOOLEAN_DISABLE);
+	req.ctx.ctx = (uint32_t)p_context;
+
+	return nrfs_backend_send(&req, sizeof(req));
+}
+
