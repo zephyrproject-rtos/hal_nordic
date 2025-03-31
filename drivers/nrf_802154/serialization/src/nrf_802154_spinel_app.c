@@ -572,6 +572,36 @@ bail:
     return cancel_result;
 }
 
+bool nrf_802154_receive_at_scheduled_cancel(uint32_t id)
+{
+    nrf_802154_ser_err_t res;
+    bool                 cancel_result = false;
+
+    SERIALIZATION_ERROR_INIT(error);
+
+    NRF_802154_SPINEL_LOG_BANNER_CALLING();
+
+    nrf_802154_spinel_response_notifier_lock_before_request(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_RECEIVE_AT_SCHEDULED_CANCEL);
+
+    res = nrf_802154_spinel_send_cmd_prop_value_set(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_RECEIVE_AT_SCHEDULED_CANCEL,
+        SPINEL_DATATYPE_NRF_802154_RECEIVE_AT_SCHEDULED_CANCEL,
+        id);
+
+    SERIALIZATION_ERROR_CHECK(res, error, bail);
+
+    res = net_generic_bool_response_await(CONFIG_NRF_802154_SER_DEFAULT_RESPONSE_TIMEOUT,
+                                          &cancel_result);
+
+    SERIALIZATION_ERROR_CHECK(res, error, bail);
+
+bail:
+    SERIALIZATION_ERROR_RAISE_IF_FAILED(error);
+
+    return cancel_result;
+}
+
 void nrf_802154_pan_id_set(const uint8_t * p_pan_id)
 {
     nrf_802154_ser_err_t res;
@@ -1076,7 +1106,8 @@ bool nrf_802154_cca(void)
 
     NRF_802154_SPINEL_LOG_BANNER_CALLING();
 
-    nrf_802154_spinel_response_notifier_lock_before_request(SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CCA);
+    nrf_802154_spinel_response_notifier_lock_before_request(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CCA);
 
     res = nrf_802154_spinel_send_cmd_prop_value_set(
         SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CCA,
@@ -2049,8 +2080,9 @@ bail:
     return;
 }
 
-static nrf_802154_ser_err_t stat_timestamps_get_ret_await(uint32_t                       timeout,
-                                                          nrf_802154_stat_timestamps_t * p_stat_timestamps)
+static nrf_802154_ser_err_t stat_timestamps_get_ret_await(
+    uint32_t                       timeout,
+    nrf_802154_stat_timestamps_t * p_stat_timestamps)
 {
     nrf_802154_ser_err_t              res;
     nrf_802154_spinel_notify_buff_t * p_notify_data = NULL;
