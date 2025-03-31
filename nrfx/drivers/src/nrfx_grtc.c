@@ -102,6 +102,7 @@ typedef struct
     nrfx_atomic_t                       available_channels;                                    /**< Bitmask of available channels. */
     uint32_t                            used_channels;                                         /**< Bitmask of channels used by the driver. */
     nrfx_grtc_channel_t                 channel_data[NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS + 1]; /**< Channel specific data. */
+    nrfx_atomic_t                       read_cc_mask;                                          /**< Indicating if CC value must be passed to the handler. */
 #if NRF_GRTC_HAS_RTCOUNTER
     nrfx_grtc_rtcomparesync_handler_t   rtcomparesync_handler;                                 /**< User handler corresponding to rtcomparesync event.*/
     void *                              rtcomparesync_context;                                 /**< User context for rtcomparesync event handler. */
@@ -304,6 +305,16 @@ nrfx_err_t nrfx_grtc_syscounter_get(uint64_t * p_counter)
     NRFX_CRITICAL_SECTION_EXIT();
 
     return err_code;
+}
+
+void nrfx_grtc_channel_cb_set(uint8_t channel, nrfx_grtc_cc_handler_t handler, void * p_context)
+{
+    uint8_t ch_data_idx = get_ch_data_index_for_channel(channel);
+
+    m_cb.channel_data[ch_data_idx].handler = handler;
+    m_cb.channel_data[ch_data_idx].p_context = p_context;
+    m_cb.channel_data[ch_data_idx].channel = channel;
+    nrfy_grtc_int_enable(NRF_GRTC, GRTC_CHANNEL_TO_BITMASK(channel));
 }
 
 nrfx_err_t nrfx_grtc_channel_alloc(uint8_t * p_channel)
@@ -732,6 +743,28 @@ nrfx_err_t nrfx_grtc_syscounter_cc_disable(uint8_t channel)
     return err_code;
 }
 
+void nrfx_grtc_syscounter_cc_abs_set(uint8_t channel, uint64_t val, bool safe_setting)
+{
+    if (safe_setting)
+    {
+        nrfy_grtc_sys_counter_cc_set(NRF_GRTC, channel, val);
+        if (nrfy_grtc_sys_counter_compare_event_check(NRF_GRTC, channel))
+        {
+            uint64_t now;
+
+            nrfx_grtc_syscounter_get(&now);
+            if (val > now)
+            {
+                nrfy_grtc_sys_counter_compare_event_clear(NRF_GRTC, channel);
+            }
+        }
+    }
+    else
+    {
+        nrfy_grtc_sys_counter_cc_set(NRF_GRTC, channel, val);
+    }
+}
+
 nrfx_err_t nrfx_grtc_syscounter_cc_absolute_set(nrfx_grtc_channel_t * p_chan_data,
                                                 uint64_t              val,
                                                 bool                  enable_irq)
@@ -755,6 +788,7 @@ nrfx_err_t nrfx_grtc_syscounter_cc_absolute_set(nrfx_grtc_channel_t * p_chan_dat
 
     if (enable_irq)
     {
+        NRFX_ATOMIC_FETCH_OR(&m_cb.read_cc_mask, NRFX_BIT(p_chan_data->channel));
         nrfy_grtc_int_enable(NRF_GRTC, GRTC_CHANNEL_TO_BITMASK(p_chan_data->channel));
     }
 
@@ -762,6 +796,16 @@ nrfx_err_t nrfx_grtc_syscounter_cc_absolute_set(nrfx_grtc_channel_t * p_chan_dat
                   (uint32_t)p_chan_data->channel,
                   (uint32_t)nrfy_grtc_sys_counter_cc_get(NRF_GRTC, p_chan_data->channel));
     return err_code;
+}
+
+void nrfx_grtc_syscounter_cc_rel_set(uint8_t channel,
+                                     uint32_t val,
+                                     nrfx_grtc_cc_relative_reference_t reference)
+{
+    nrfy_grtc_sys_counter_cc_add_set(NRF_GRTC,
+                                     channel,
+                                     val,
+                                     (nrf_grtc_cc_add_reference_t)reference);
 }
 
 nrfx_err_t nrfx_grtc_syscounter_cc_relative_set(nrfx_grtc_channel_t *             p_chan_data,
@@ -793,6 +837,7 @@ nrfx_err_t nrfx_grtc_syscounter_cc_relative_set(nrfx_grtc_channel_t *           
 
     if (enable_irq)
     {
+        NRFX_ATOMIC_FETCH_OR(&m_cb.read_cc_mask, NRFX_BIT(p_chan_data->channel));
         nrfy_grtc_int_enable(NRF_GRTC, GRTC_CHANNEL_TO_BITMASK(p_chan_data->channel));
     }
 
@@ -905,23 +950,34 @@ static void grtc_irq_handler(void)
     uint32_t intpend = nrf_grtc_int_pending_get(NRF_GRTC);
 
     while (intpend) {
-        uint32_t idx = 31 - NRFX_CLZ(intpend);
+        uint8_t idx = (uint8_t)(31 - NRFX_CLZ(intpend));
 
         intpend &= ~NRFX_BIT(idx);
         nrf_grtc_event_clear(NRF_GRTC, NRFY_INT_BITPOS_TO_EVENT(idx));
 
-        if (!NRFX_IS_ENABLED(GRTC_EXT) || idx < 16)
+        if (!NRFX_IS_ENABLED(GRTC_EXT) || idx < GRTC_NCC_SIZE)
         {
             for (uint32_t i = 0; i < NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS; i++)
             {
                 if ((m_cb.channel_data[i].channel == idx) && m_cb.channel_data[i].handler)
                 {
-                     m_cb.channel_data[i].handler(idx, m_cb.channel_data[i].p_context);
-                     break;
+                    uint64_t cc_value = 0;
+
+                    /* Read CC value only if channel was set using legacy functions. It is done
+                     * for API backward compatibility. Reading 64 bit value from GRTC is costly
+                     * and it is avoided if possible.
+                     */
+                    if (NRFX_ATOMIC_FETCH_AND(&m_cb.read_cc_mask, ~NRFX_BIT(idx)) & NRFX_BIT(idx))
+                    {
+                        cc_value = nrfy_grtc_sys_counter_cc_get(NRF_GRTC, idx);
+                    }
+
+                    m_cb.channel_data[i].handler(idx, cc_value, m_cb.channel_data[i].p_context);
+                    break;
                 }
             }
             /* Return early as this is the most likely scenario (single CC expiring). */
-            if (intpend == 0)
+            if (NRFX_IS_ENABLED(GRTC_EXT) && (intpend == 0))
             {
                 break;
             }
