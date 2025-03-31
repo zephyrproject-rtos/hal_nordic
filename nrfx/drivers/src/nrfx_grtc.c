@@ -896,69 +896,63 @@ nrfx_err_t nrfx_grtc_syscounter_cc_value_read(uint8_t channel, uint64_t * p_val)
     return err_code;
 }
 
+#if NRF_GRTC_HAS_RTCOUNTER || (NRFY_GRTC_HAS_EXTENDED && NRFY_GRTC_HAS_SYSCOUNTERVALID)
+#define GRTC_EXT 1
+#endif
+
 static void grtc_irq_handler(void)
 {
-    uint32_t evt_to_process = GRTC_CHANNEL_MASK_TO_INT_MASK(allocated_channels_mask_get() &
-                                                            used_channels_mask_get());
-#if NRF_GRTC_HAS_RTCOUNTER
-    evt_to_process |= (GRTC_NON_SYSCOMPARE_INT_MASK & ~NRF_GRTC_INT_SYSCOUNTERVALID_MASK);
-#endif
-    uint32_t         event_mask      = nrfy_grtc_events_process(NRF_GRTC, evt_to_process);
-    uint32_t         active_int_mask = nrfy_grtc_int_enable_check(NRF_GRTC, event_mask);
-    nrf_grtc_event_t event;
+    uint32_t intpend = nrf_grtc_int_pending_get(NRF_GRTC);
 
-    for (uint32_t i = 0; i < NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS; i++)
-    {
-        uint8_t channel = m_cb.channel_data[i].channel;
+    while (intpend) {
+        uint32_t idx = 31 - NRFX_CLZ(intpend);
 
-        event = nrfy_grtc_sys_counter_compare_event_get(channel);
-        if (active_int_mask & NRFY_EVENT_TO_INT_BITMASK(event))
+        intpend &= ~NRFX_BIT(idx);
+        nrf_grtc_event_clear(NRF_GRTC, NRFY_INT_BITPOS_TO_EVENT(idx));
+
+        if (!NRFX_IS_ENABLED(GRTC_EXT) || idx < 16)
         {
-            NRFX_LOG_INFO("Event: NRF_GRTC_EVENT_COMPARE_%d.", channel);
-            if (m_cb.channel_data[i].handler)
+            for (uint32_t i = 0; i < NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS; i++)
             {
-                m_cb.channel_data[i].handler((int32_t)channel,
-                                             nrfy_grtc_sys_counter_cc_get(NRF_GRTC, channel),
-                                             m_cb.channel_data[i].p_context);
+                if ((m_cb.channel_data[i].channel == idx) && m_cb.channel_data[i].handler)
+                {
+                     m_cb.channel_data[i].handler(idx, m_cb.channel_data[i].p_context);
+                     break;
+                }
+            }
+            /* Return early as this is the most likely scenario (single CC expiring). */
+            if (intpend == 0)
+            {
+                break;
             }
         }
-    }
 #if NRF_GRTC_HAS_RTCOUNTER
-    if (active_int_mask & NRF_GRTC_INT_RTCOMPARE_MASK)
-    {
-        NRFX_LOG_INFO("Event: NRF_GRTC_EVENT_RTCOMPARE.");
-        nrfx_grtc_channel_t const * p_channel = &m_cb.channel_data[GRTC_RTCOUNTER_CC_HANDLER_IDX];
-        if (p_channel->handler)
+        if (idx == NRFY_EVENT_TO_INT_BITPOS(NRF_GRTC_EVENT_RTCOMPARE))
         {
-            p_channel->handler((int32_t)GRTC_RTCOUNTER_COMPARE_CHANNEL,
-                               nrfy_grtc_rt_counter_cc_get(NRF_GRTC),
-                               p_channel->p_context);
-        }
-    }
-
-    if (active_int_mask & NRF_GRTC_INT_RTCOMPARESYNC_MASK)
-    {
-        NRFX_LOG_INFO("Event: NRF_GRTC_EVENT_RTCOMPARESYNC.");
-        if (m_cb.rtcomparesync_handler)
-        {
-            m_cb.rtcomparesync_handler(m_cb.rtcomparesync_context);
-        }
-    }
+            nrfx_grtc_channel_t const * p_channel =
+                                &m_cb.channel_data[GRTC_RTCOUNTER_CC_HANDLER_IDX];
+            if (p_channel->handler)
+            {
+                p_channel->handler((int32_t)GRTC_RTCOUNTER_COMPARE_CHANNEL,
+                                   nrfy_grtc_rt_counter_cc_get(NRF_GRTC),
+                                   p_channel->p_context);
+            }
+         }
 #endif // NRF_GRTC_HAS_RTCOUNTER
 #if NRFY_GRTC_HAS_EXTENDED && NRFY_GRTC_HAS_SYSCOUNTERVALID
-    /* The SYSCOUNTERVALID bit is automatically cleared when GRTC goes into sleep state and set
-     * when returning from this state. It can't be cleared inside the ISR procedure because we rely
-     * on it during SYSCOUNTER value reading procedure. */
-    if (nrfy_grtc_event_check(NRF_GRTC, NRF_GRTC_EVENT_SYSCOUNTERVALID) &&
-        nrfy_grtc_int_enable_check(NRF_GRTC, NRF_GRTC_INT_SYSCOUNTERVALID_MASK))
-    {
-        NRFX_LOG_INFO("Event: NRF_GRTC_EVENT_SYSCOUNTERVALID.");
-        if (m_cb.syscountervalid_handler)
+        if (idx == NRFY_EVENT_TO_INT_BITPOS(NRF_GRTC_EVENT_SYSCOUNTERVALID))
         {
-            m_cb.syscountervalid_handler(m_cb.syscountervalid_context);
+            /* The SYSCOUNTERVALID bit is automatically cleared when GRTC goes into sleep state
+             * and set when returning from this state. It can't be cleared inside the ISR
+             * procedure because we rely on it during SYSCOUNTER value reading procedure. */
+            NRFX_LOG_INFO("Event: NRF_GRTC_EVENT_SYSCOUNTERVALID.");
+            if (m_cb.syscountervalid_handler)
+            {
+                m_cb.syscountervalid_handler(m_cb.syscountervalid_context);
+            }
         }
-    }
 #endif // NRFY_GRTC_HAS_EXTENDED && NRFY_GRTC_HAS_SYSCOUNTERVALID
+    }
 }
 
 void nrfx_grtc_irq_handler(void)
