@@ -123,7 +123,11 @@ typedef enum {
 
 /** @} */ /* End of group Configuration_of_CMSIS */
 
+#ifdef CONFIG_ARCH_POSIX
+#include "cmsis.h"
+#else
 #include "core_cm0.h"                           /*!< ARM Cortex-M0 processor and core peripherals                              */
+#endif
 #include "system_nrf51.h"                       /*!< nrf51 System                                                              */
 
 #ifndef __IM                                    /*!< Fallback for older CMSIS versions                                         */

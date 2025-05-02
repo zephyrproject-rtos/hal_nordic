@@ -273,7 +273,11 @@ typedef enum {
 #define __SAUREGION_PRESENT            1             /*!< SAU present                                                          */
 #define __NUM_SAUREGIONS               8             /*!< Number of regions                                                    */
 
+#ifdef CONFIG_ARCH_POSIX
+#include "cmsis.h"
+#else
 #include "core_cm33.h"                               /*!< ARM Cortex-M33 processor and core peripherals                        */
+#endif
 #include "system_nrf.h"                              /*!< nrf54h20_radiocore System Library                                    */
 
 #endif                                               /*!< NRF_RADIOCORE                                                        */
