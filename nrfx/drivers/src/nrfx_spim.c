@@ -146,8 +146,20 @@ static const uint8_t easydma_support_bits[] __UNUSED =
 #define USE_WORKAROUND_FOR_ANOMALY_195 1
 #endif
 
+#if defined(NRF54LM20A_ENGA_XXAA)
+#define USE_WORKAROUND_FOR_ANOMALY_NRF54L_8_NRF54H_212 1
+#define ANOMALY_NRF54L_8_NRF54H_212_REG_OFF 0xc80
+#define ANOMALY_NRF54L_8_NRF54H_212_ALWAYS 1
+static inline bool apply_errata_nrf54l_8_nrf54h_212(void)
+{
+    return true;
+}
+#endif
+
 #if NRFX_CHECK(NRF54L_ERRATA_8_PRESENT) || NRFX_CHECK(NRF54H_ERRATA_212_PRESENT)
 #define USE_WORKAROUND_FOR_ANOMALY_NRF54L_8_NRF54H_212 1
+#define ANOMALY_NRF54L_8_NRF54H_212_REG_OFF 0xc84
+#define ANOMALY_NRF54L_8_NRF54H_212_ALWAYS 0
 static inline bool apply_errata_nrf54l_8_nrf54h_212(void)
 {
     return (NRFX_COND_CODE_1(NRF54L_ERRATA_8_PRESENT, (nrf54l_errata_8()), (false)) ||
@@ -486,8 +498,8 @@ static void spim_configure(nrfx_spim_t const *        p_instance,
     if (apply_errata_nrf54l_8_nrf54h_212())
     {
         /* Workaround must be applied only if PRESCALER is larger than 2 and CPHA=0 */
-        if ((prescaler > 2) &&
-            ((p_config->mode == NRF_SPIM_MODE_0) || (p_config->mode == NRF_SPIM_MODE_2)))
+        if (ANOMALY_NRF54L_8_NRF54H_212_ALWAYS || ((prescaler > 2) &&
+            ((p_config->mode == NRF_SPIM_MODE_0) || (p_config->mode == NRF_SPIM_MODE_2))))
         {
             uint8_t min_dur = (uint8_t)((prescaler / 2) + 1);
             csn_duration = NRFX_MAX(csn_duration, min_dur);
@@ -853,7 +865,7 @@ static nrfx_err_t spim_xfer(NRF_SPIM_Type               * p_spim,
 #ifdef USE_WORKAROUND_FOR_ANOMALY_NRF54L_8_NRF54H_212
     if (apply_errata_nrf54l_8_nrf54h_212() && p_cb->apply_errata_8_212)
     {
-        *(volatile uint32_t *)((uintptr_t)p_spim + 0xc84) = 0x82;
+        *(volatile uint32_t *)((uintptr_t)p_spim + ANOMALY_NRF54L_8_NRF54H_212_REG_OFF) = 0x82;
         if (p_cb->handler)
         {
             nrfy_spim_event_clear(p_spim, NRF_SPIM_EVENT_STARTED);
@@ -872,7 +884,7 @@ static nrfx_err_t spim_xfer(NRF_SPIM_Type               * p_spim,
 #ifdef USE_WORKAROUND_FOR_ANOMALY_NRF54L_8_NRF54H_212
         if (apply_errata_nrf54l_8_nrf54h_212() && p_cb->apply_errata_8_212)
         {
-            *(volatile uint32_t *)((uintptr_t)p_spim + 0xc84) = 0;
+            *(volatile uint32_t *)((uintptr_t)p_spim + ANOMALY_NRF54L_8_NRF54H_212_REG_OFF) = 0;
         }
 #endif
 
