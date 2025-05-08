@@ -32,6 +32,19 @@ typedef struct __NRFS_PACKED {
 	nrfs_ctx_t ctx; /**< Context of the message. */
 } nrfs_usb_disable_req_t;
 
+/** @brief USB LD Boolean On. */
+typedef struct __NRFS_PACKED {
+	nrfs_hdr_t hdr; /**< Header of the message. */
+	nrfs_ctx_t ctx; /**< Context of the message. */
+} nrfs_usb_ld_boolean_enable_req_t;
+
+/** @brief USB LD Boolean Off. */
+typedef struct __NRFS_PACKED {
+	nrfs_hdr_t hdr; /**< Header of the message. */
+	nrfs_ctx_t ctx; /**< Context of the message. */
+} nrfs_usb_ld_boolean_disable_req_t;
+
+
 /** @brief USB VBUS detector service notification structure for enable request. */
 typedef struct __NRFS_PACKED {
 	nrfs_hdr_t hdr;		  /**< Header of the message. */
