@@ -1559,7 +1559,6 @@ NRF_STATIC_INLINE void nrf_grtc_event_clear(NRF_GRTC_Type * p_reg, nrf_grtc_even
 #endif
 
     *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)event)) = 0x0UL;
-    nrf_event_readback((uint8_t *)p_reg + (uint32_t)event);
 }
 
 #if NRF_GRTC_HAS_RTCOUNTER
