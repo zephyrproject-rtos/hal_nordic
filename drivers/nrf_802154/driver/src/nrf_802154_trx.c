@@ -102,26 +102,33 @@
 #define SHORTS_TX_ACK         (NRF_RADIO_SHORT_TXREADY_START_MASK | \
                                NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
 
-#define SHORTS_MULTI_CCA_TX   (NRF_RADIO_SHORT_RXREADY_CCASTART_MASK | \
-                               NRF_RADIO_SHORT_CCAIDLE_TXEN_MASK |     \
-                               NRF_RADIO_SHORT_TXREADY_START_MASK |    \
-                               NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
+#if (NRF_802154_CCAIDLE_TO_TXEN_EXTRA_TIME_US != 0)
+/* The short CCAIDLE_TXEN is not used */
+#define SHORTS_CCAIDLE_TXEN 0U
+#else
+#define SHORTS_CCAIDLE_TXEN NRF_RADIO_SHORT_CCAIDLE_TXEN_MASK
+#endif
 
-#define SHORTS_CCA_TX         (NRF_RADIO_SHORT_RXREADY_CCASTART_MASK | \
-                               NRF_RADIO_SHORT_CCABUSY_DISABLE_MASK |  \
-                               NRF_RADIO_SHORT_CCAIDLE_TXEN_MASK |     \
-                               NRF_RADIO_SHORT_TXREADY_START_MASK |    \
-                               NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
+#define SHORTS_MULTI_CCA_TX (NRF_RADIO_SHORT_RXREADY_CCASTART_MASK | \
+                             SHORTS_CCAIDLE_TXEN |                   \
+                             NRF_RADIO_SHORT_TXREADY_START_MASK |    \
+                             NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
 
-#define SHORTS_TX             (NRF_RADIO_SHORT_TXREADY_START_MASK | \
-                               NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
+#define SHORTS_CCA_TX       (NRF_RADIO_SHORT_RXREADY_CCASTART_MASK | \
+                             NRF_RADIO_SHORT_CCABUSY_DISABLE_MASK |  \
+                             SHORTS_CCAIDLE_TXEN |                   \
+                             NRF_RADIO_SHORT_TXREADY_START_MASK |    \
+                             NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
+
+#define SHORTS_TX           (NRF_RADIO_SHORT_TXREADY_START_MASK | \
+                             NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
 
 #if !defined(NRF52_SERIES)
-#define SHORTS_RX_ACK         (NRF_RADIO_SHORT_ADDRESS_RSSISTART_MASK | \
-                               NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
+#define SHORTS_RX_ACK       (NRF_RADIO_SHORT_ADDRESS_RSSISTART_MASK | \
+                             NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
 #else
-#define SHORTS_RX_ACK         (NRF_RADIO_SHORT_ADDRESS_RSSISTART_MASK | \
-                               NRF_RADIO_SHORT_END_DISABLE_MASK)
+#define SHORTS_RX_ACK       (NRF_RADIO_SHORT_ADDRESS_RSSISTART_MASK | \
+                             NRF_RADIO_SHORT_END_DISABLE_MASK)
 
 #endif
 
@@ -136,15 +143,11 @@
 #define CRC_LENGTH          2                                    ///< Length of CRC in 802.15.4 frames [bytes]
 #define CRC_POLYNOMIAL      0x011021                             ///< Polynomial used for CRC calculation in 802.15.4 frames
 
-#define TXRU_TIME           40                                   ///< Transmitter ramp up time [us]
-#define EVENT_LAT           23                                   ///< END event latency [us]
-
 #if !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
 #define MAX_RAMPDOWN_CYCLES (50 * (SystemCoreClock / 1000000UL)) ///< Maximum number of busy wait loop cycles that radio ramp-down is allowed to take
 #else
 #define MAX_RAMPDOWN_CYCLES 20
 #endif
-#define RSSI_SETTLE_TIME_US 15           ///< Time required for RSSI measurements to become valid after signal level change.
 
 #if NRF_802154_INTERNAL_RADIO_IRQ_HANDLING
 void nrf_802154_radio_irq_handler(void); ///< Prototype required by internal RADIO IRQ handler
@@ -726,6 +729,12 @@ static void fem_for_tx_set(bool cca, mpsl_fem_pa_power_control_t pa_power_contro
     {
         nrf_timer_shorts_enable(NRF_802154_TIMER_INSTANCE, NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
         nrf_802154_trx_ppi_for_fem_set();
+    }
+    else
+    {
+        nrf_timer_shorts_enable(NRF_802154_TIMER_INSTANCE,
+                                NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+        nrf_timer_cc_set(NRF_802154_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL0, 2);
     }
 }
 
@@ -1637,9 +1646,7 @@ void nrf_802154_trx_transmit_frame(const void                            * p_tra
 
     fem_for_tx_set(cca, p_tx_power->fem_pa_power_control);
     nrf_802154_trx_antenna_update();
-    nrf_802154_trx_ppi_for_ramp_up_set(cca ? NRF_RADIO_TASK_RXEN : NRF_RADIO_TASK_TXEN,
-                                       rampup_trigg_mode,
-                                       false);
+    nrf_802154_trx_ppi_for_txframe_ramp_up_set(cca, rampup_trigg_mode);
 
     if (rampup_trigg_mode == TRX_RAMP_UP_SW_TRIGGER)
     {
@@ -1653,7 +1660,8 @@ bool nrf_802154_trx_transmit_ack(const void * p_transmit_buffer, uint32_t delay_
 {
     /* Assumptions on peripherals
      * TIMER is running, is counting from value saved in m_timer_value_on_radio_end_event,
-     * which trigered on END event, which happened EVENT_LAT us after frame on air receive was finished.
+     * which trigered on END event, which happened RX_PHYEND_EVENT_LATENCY_US us after frame
+     * on air receive was finished.
      * RADIO is DISABLED
      * PPIs are DISABLED
      */
@@ -1668,15 +1676,16 @@ bool nrf_802154_trx_transmit_ack(const void * p_transmit_buffer, uint32_t delay_
     m_trx_state = TRX_STATE_TXACK;
 
     // Set TIMER's CC to the moment when ramp-up should occur.
-    if (delay_us <= TXRU_TIME + EVENT_LAT)
+    if (delay_us <= TX_RAMP_UP_TIME + RX_PHYEND_EVENT_LATENCY_US)
     {
         timer_stop_and_clear();
         nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
         return result;
     }
 
-    uint32_t timer_cc_ramp_up_start = m_timer_value_on_radio_end_event + delay_us - TXRU_TIME -
-                                      EVENT_LAT;
+    uint32_t timer_cc_ramp_up_start = m_timer_value_on_radio_end_event + delay_us -
+                                      TX_RAMP_UP_TIME -
+                                      RX_PHYEND_EVENT_LATENCY_US;
 
     nrf_timer_cc_set(NRF_802154_TIMER_INSTANCE,
                      NRF_TIMER_CC_CHANNEL1,
@@ -1692,12 +1701,12 @@ bool nrf_802154_trx_transmit_ack(const void * p_transmit_buffer, uint32_t delay_
 
     // Set FEM
     // Note: the TIMER is running, ramp up will start in timer_cc_ramp_up_start tick
-    // Assumption here is that FEM activation takes no more than TXRU_TIME.
+    // Assumption here is that FEM activation takes no more than TX_RAMP_UP_TIME.
     m_activate_tx_cc0_timeshifted = m_activate_tx_cc0;
 
     // Set the moment for FEM at which real transmission starts.
     m_activate_tx_cc0_timeshifted.event.timer.counter_period.end = timer_cc_ramp_up_start +
-                                                                   TXRU_TIME;
+                                                                   TX_RAMP_UP_TIME;
 
     if (mpsl_fem_pa_configuration_set(&m_activate_tx_cc0_timeshifted, NULL) == 0)
     {
@@ -2537,7 +2546,7 @@ static void txframe_finish_disable_ppis(bool cca)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_HIGH);
 
-    nrf_802154_trx_ppi_for_ramp_up_clear(cca ? NRF_RADIO_TASK_RXEN : NRF_RADIO_TASK_TXEN, false);
+    nrf_802154_trx_ppi_for_txframe_ramp_up_clear(cca);
     nrf_802154_trx_ppi_for_extra_cca_attempts_clear(); // fine to call unconditionally
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_HIGH);
