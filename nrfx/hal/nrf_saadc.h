@@ -126,12 +126,8 @@ extern "C" {
 #define NRF_SAADC_LIN_CAL_MAX SAADC_TRIM_LINCALCOEFF_VAL_Max
 #endif
 
-#if defined(NRF54H_SERIES) || defined(NRF54L_SERIES) || defined(__NRFX_DOXYGEN__)
-/** @brief Symbol specifying width of the 8-bit sample in bits. */
-#define NRF_SAADC_8BIT_SAMPLE_WIDTH 8
-#else
+/** @brief @deprecated Symbol specifying width of the 8-bit sample in bits. */
 #define NRF_SAADC_8BIT_SAMPLE_WIDTH 16
-#endif
 
 /** @brief Resolution of the analog-to-digital converter. */
 typedef enum
@@ -692,7 +688,7 @@ NRF_STATIC_INLINE bool nrf_saadc_enable_check(NRF_SAADC_Type const * p_reg);
  *
  * @param[in] p_reg    Pointer to the structure of registers of the peripheral.
  * @param[in] p_buffer Pointer to the result buffer.
- * @param[in] size     Size of the buffer (in 8-bit or 16-bit samples).
+ * @param[in] size     Size of the buffer (in samples).
  */
 NRF_STATIC_INLINE void nrf_saadc_buffer_init(NRF_SAADC_Type *    p_reg,
                                              nrf_saadc_value_t * p_buffer,
@@ -722,7 +718,7 @@ NRF_STATIC_INLINE nrf_saadc_value_t * nrf_saadc_buffer_pointer_get(NRF_SAADC_Typ
  *
  * @param[in] p_reg Pointer to the structure of registers of the peripheral.
  *
- * @return Number of 8-bit or 16-bit samples written to the buffer.
+ * @return Number of samples written to the buffer.
  */
 NRF_STATIC_INLINE uint16_t nrf_saadc_amount_get(NRF_SAADC_Type const * p_reg);
 
@@ -1076,15 +1072,12 @@ NRF_STATIC_INLINE void nrf_saadc_buffer_init(NRF_SAADC_Type *    p_reg,
                                              nrf_saadc_value_t * p_buffer,
                                              uint32_t            size)
 {
-#if (NRF_SAADC_8BIT_SAMPLE_WIDTH == 8)
-    if (nrf_saadc_resolution_get(p_reg) != NRF_SAADC_RESOLUTION_8BIT)
-    {
-        size = size * 2;
-    }
-#endif
-
     p_reg->RESULT.PTR = (uint32_t)p_buffer;
+#if defined(DMA_BUFFER_UNIFIED_BYTE_ACCESS)
+    p_reg->RESULT.MAXCNT = size * 2;
+#else
     p_reg->RESULT.MAXCNT = size;
+#endif
 }
 
 NRF_STATIC_INLINE void nrf_saadc_buffer_pointer_set(NRF_SAADC_Type *    p_reg,
@@ -1100,16 +1093,11 @@ NRF_STATIC_INLINE nrf_saadc_value_t * nrf_saadc_buffer_pointer_get(NRF_SAADC_Typ
 
 NRF_STATIC_INLINE uint16_t nrf_saadc_amount_get(NRF_SAADC_Type const * p_reg)
 {
-    uint16_t result = (uint16_t)p_reg->RESULT.AMOUNT;
-
-#if (NRF_SAADC_8BIT_SAMPLE_WIDTH == 8)
-    if (nrf_saadc_resolution_get(p_reg) != NRF_SAADC_RESOLUTION_8BIT)
-    {
-        result = result / 2;
-    }
+#if defined(DMA_BUFFER_UNIFIED_BYTE_ACCESS)
+    return ((uint16_t)p_reg->RESULT.AMOUNT / 2);
+#else
+    return (uint16_t)p_reg->RESULT.AMOUNT;
 #endif
-
-    return result;
 }
 
 NRF_STATIC_INLINE void nrf_saadc_resolution_set(NRF_SAADC_Type *       p_reg,
