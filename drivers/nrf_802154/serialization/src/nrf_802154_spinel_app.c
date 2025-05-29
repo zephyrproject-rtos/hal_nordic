@@ -399,7 +399,7 @@ static nrf_802154_ser_err_t cca_cfg_await(uint32_t               timeout,
 
     NRF_802154_SPINEL_LOG_BANNER_RESPONSE();
     NRF_802154_SPINEL_LOG_VAR_NAMED("%u", p_cfg->mode, "Mode");
-    NRF_802154_SPINEL_LOG_VAR_NAMED("%u", p_cfg->ed_threshold, "ED threshold");
+    NRF_802154_SPINEL_LOG_VAR_NAMED("%d", p_cfg->ed_threshold, "ED threshold");
     NRF_802154_SPINEL_LOG_VAR_NAMED("%u", p_cfg->corr_threshold, "Corr threshold");
     NRF_802154_SPINEL_LOG_VAR_NAMED("%u", p_cfg->corr_limit, "Corr limit");
 
@@ -572,6 +572,36 @@ bail:
     return cancel_result;
 }
 
+bool nrf_802154_receive_at_scheduled_cancel(uint32_t id)
+{
+    nrf_802154_ser_err_t res;
+    bool                 cancel_result = false;
+
+    SERIALIZATION_ERROR_INIT(error);
+
+    NRF_802154_SPINEL_LOG_BANNER_CALLING();
+
+    nrf_802154_spinel_response_notifier_lock_before_request(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_RECEIVE_AT_SCHEDULED_CANCEL);
+
+    res = nrf_802154_spinel_send_cmd_prop_value_set(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_RECEIVE_AT_SCHEDULED_CANCEL,
+        SPINEL_DATATYPE_NRF_802154_RECEIVE_AT_SCHEDULED_CANCEL,
+        id);
+
+    SERIALIZATION_ERROR_CHECK(res, error, bail);
+
+    res = net_generic_bool_response_await(CONFIG_NRF_802154_SER_DEFAULT_RESPONSE_TIMEOUT,
+                                          &cancel_result);
+
+    SERIALIZATION_ERROR_CHECK(res, error, bail);
+
+bail:
+    SERIALIZATION_ERROR_RAISE_IF_FAILED(error);
+
+    return cancel_result;
+}
+
 void nrf_802154_pan_id_set(const uint8_t * p_pan_id)
 {
     nrf_802154_ser_err_t res;
@@ -613,6 +643,43 @@ void nrf_802154_short_address_set(const uint8_t * p_short_address)
     res = nrf_802154_spinel_send_cmd_prop_value_set(
         SPINEL_PROP_VENDOR_NORDIC_NRF_802154_SHORT_ADDRESS_SET,
         SPINEL_DATATYPE_NRF_802154_SHORT_ADDRESS_SET,
+        p_short_address,
+        SHORT_ADDRESS_SIZE);
+
+    SERIALIZATION_ERROR_CHECK(res, error, bail);
+
+    res = status_ok_await(CONFIG_NRF_802154_SER_DEFAULT_RESPONSE_TIMEOUT);
+    SERIALIZATION_ERROR_CHECK(res, error, bail);
+
+bail:
+    SERIALIZATION_ERROR_RAISE_IF_FAILED(error);
+
+    return;
+}
+
+void nrf_802154_alternate_short_address_set(const uint8_t * p_short_address)
+{
+    nrf_802154_ser_err_t res;
+
+    bool    data_valid      = p_short_address != NULL;
+    uint8_t invalid_addr[2] = {0xff, 0xff};
+
+    if (!data_valid)
+    {
+        p_short_address = invalid_addr;
+    }
+
+    SERIALIZATION_ERROR_INIT(error);
+
+    NRF_802154_SPINEL_LOG_BANNER_CALLING();
+    NRF_802154_SPINEL_LOG_BUFF(p_short_address, SHORT_ADDRESS_SIZE);
+
+    nrf_802154_spinel_response_notifier_lock_before_request(SPINEL_PROP_LAST_STATUS);
+
+    res = nrf_802154_spinel_send_cmd_prop_value_set(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_ALTERNATE_SHORT_ADDRESS_SET,
+        SPINEL_DATATYPE_NRF_802154_ALTERNATE_SHORT_ADDRESS_SET,
+        data_valid,
         p_short_address,
         SHORT_ADDRESS_SIZE);
 
@@ -1076,7 +1143,8 @@ bool nrf_802154_cca(void)
 
     NRF_802154_SPINEL_LOG_BANNER_CALLING();
 
-    nrf_802154_spinel_response_notifier_lock_before_request(SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CCA);
+    nrf_802154_spinel_response_notifier_lock_before_request(
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CCA);
 
     res = nrf_802154_spinel_send_cmd_prop_value_set(
         SPINEL_PROP_VENDOR_NORDIC_NRF_802154_CCA,
@@ -1816,7 +1884,7 @@ void nrf_802154_cca_cfg_set(const nrf_802154_cca_cfg_t * p_cfg)
 
     NRF_802154_SPINEL_LOG_BANNER_CALLING();
     NRF_802154_SPINEL_LOG_VAR_NAMED("%u", p_cfg->mode, "Mode");
-    NRF_802154_SPINEL_LOG_VAR_NAMED("%u", p_cfg->ed_threshold, "ED threshold");
+    NRF_802154_SPINEL_LOG_VAR_NAMED("%d", p_cfg->ed_threshold, "ED threshold");
     NRF_802154_SPINEL_LOG_VAR_NAMED("%u", p_cfg->corr_threshold, "Corr threshold");
     NRF_802154_SPINEL_LOG_VAR_NAMED("%u", p_cfg->corr_limit, "Corr limit");
 
@@ -2049,8 +2117,9 @@ bail:
     return;
 }
 
-static nrf_802154_ser_err_t stat_timestamps_get_ret_await(uint32_t                       timeout,
-                                                          nrf_802154_stat_timestamps_t * p_stat_timestamps)
+static nrf_802154_ser_err_t stat_timestamps_get_ret_await(
+    uint32_t                       timeout,
+    nrf_802154_stat_timestamps_t * p_stat_timestamps)
 {
     nrf_802154_ser_err_t              res;
     nrf_802154_spinel_notify_buff_t * p_notify_data = NULL;
