@@ -477,6 +477,17 @@ typedef enum
     SPINEL_PROP_VENDOR_NORDIC_NRF_802154_ACK_DATA_REMOVE_ALL =
         SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 68,
 
+    /**
+     * Vendor property for nrf_802154_receive_at_scheduled_cancel serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_RECEIVE_AT_SCHEDULED_CANCEL =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 69,
+
+    /**
+     * Vendor property for nrf_802154_alternate_short_address_set serialization.
+     */
+    SPINEL_PROP_VENDOR_NORDIC_NRF_802154_ALTERNATE_SHORT_ADDRESS_SET =
+        SPINEL_PROP_VENDOR_NORDIC_NRF_802154__BEGIN + 70,
 } spinel_prop_vendor_key_t;
 
 /**
@@ -742,7 +753,7 @@ typedef enum
  */
 #define SPINEL_DATATYPE_NRF_802154_CCA_CFG_S     \
     SPINEL_DATATYPE_UINT8_S /* mode */           \
-    SPINEL_DATATYPE_UINT8_S /* ed_threshold */   \
+    SPINEL_DATATYPE_INT8_S  /* ed_threshold */   \
     SPINEL_DATATYPE_UINT8_S /* corr_threshold */ \
     SPINEL_DATATYPE_UINT8_S /* corr_limit */
 
@@ -841,27 +852,44 @@ typedef enum
 /**
  * @brief Spinel data type description for nrf_802154_receive_at result.
  */
-#define SPINEL_DATATYPE_NRF_802154_RECEIVE_AT_RET          SPINEL_DATATYPE_BOOL_S
+#define SPINEL_DATATYPE_NRF_802154_RECEIVE_AT_RET                  SPINEL_DATATYPE_BOOL_S
 
 /**
  * @brief Spinel data type description for nrf_802154_receive_at_cancel.
  */
-#define SPINEL_DATATYPE_NRF_802154_RECEIVE_AT_CANCEL       SPINEL_DATATYPE_UINT32_S
+#define SPINEL_DATATYPE_NRF_802154_RECEIVE_AT_CANCEL               SPINEL_DATATYPE_UINT32_S
 
 /**
  * @brief Spinel data type description for nrf_802154_receive_at_cancel result.
  */
-#define SPINEL_DATATYPE_NRF_802154_RECEIVE_AT_CANCEL_RET   SPINEL_DATATYPE_BOOL_S
+#define SPINEL_DATATYPE_NRF_802154_RECEIVE_AT_CANCEL_RET           SPINEL_DATATYPE_BOOL_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_receive_at_scheduled_cancel.
+ */
+#define SPINEL_DATATYPE_NRF_802154_RECEIVE_AT_SCHEDULED_CANCEL     SPINEL_DATATYPE_UINT32_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_receive_at_scheduled_cancel result.
+ */
+#define SPINEL_DATATYPE_NRF_802154_RECEIVE_AT_SCHEDULED_CANCEL_RET SPINEL_DATATYPE_BOOL_S
 
 /**
  * @brief Spinel data type description for nrf_802154_pan_id_set.
  */
-#define SPINEL_DATATYPE_NRF_802154_PAN_ID_SET              SPINEL_DATATYPE_DATA_S
+#define SPINEL_DATATYPE_NRF_802154_PAN_ID_SET                      SPINEL_DATATYPE_DATA_S
 
 /**
  * @brief Spinel data type description for nrf_802154_short_address_set.
  */
-#define SPINEL_DATATYPE_NRF_802154_SHORT_ADDRESS_SET       SPINEL_DATATYPE_DATA_S
+#define SPINEL_DATATYPE_NRF_802154_SHORT_ADDRESS_SET               SPINEL_DATATYPE_DATA_S
+
+/**
+ * @brief Spinel data type description for nrf_802154_short_address_set.
+ */
+#define SPINEL_DATATYPE_NRF_802154_ALTERNATE_SHORT_ADDRESS_SET\
+    SPINEL_DATATYPE_BOOL_S /* Data valid flag */              \
+    SPINEL_DATATYPE_DATA_S /* Alternative short address */    \
 
 /**
  * @brief Spinel data type description for nrf_802154_extended_address_set.

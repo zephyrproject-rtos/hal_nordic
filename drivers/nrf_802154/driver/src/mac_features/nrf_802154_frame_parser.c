@@ -305,6 +305,7 @@ static bool sec_ctrl_parse(nrf_802154_frame_parser_data_t * p_parser_data)
     if (nrf_802154_frame_parser_security_enabled_bit_is_set(p_parser_data) == false)
     {
         p_parser_data->helper.aux_sec_hdr_end_offset = offset;
+        p_parser_data->helper.mic_size               = 0;
         return true;
     }
 
@@ -515,9 +516,10 @@ bool nrf_802154_frame_parser_data_init(const uint8_t                  * p_frame,
     return parse_state_advance(p_parser_data, requested_parse_level);
 }
 
-bool nrf_802154_frame_parser_valid_data_extend(nrf_802154_frame_parser_data_t * p_parser_data,
-                                               uint8_t                          valid_data_len,
-                                               nrf_802154_frame_parser_level_t  requested_parse_level)
+bool nrf_802154_frame_parser_valid_data_extend(
+    nrf_802154_frame_parser_data_t * p_parser_data,
+    uint8_t                          valid_data_len,
+    nrf_802154_frame_parser_level_t  requested_parse_level)
 {
     if (valid_data_len > p_parser_data->valid_data_len)
     {

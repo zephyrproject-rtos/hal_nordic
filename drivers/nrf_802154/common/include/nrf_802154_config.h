@@ -40,6 +40,7 @@
 #endif
 
 #include <nrfx.h>
+#include "nrf_802154_nrfx_addons.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,13 +69,20 @@ extern "C" {
 #endif
 
 /**
- * @def NRF_802154_CCA_ED_THRESHOLD_DEFAULT
+ * @def NRF_802154_CCA_ED_THRESHOLD_DBM_DEFAULT
  *
- * Energy detection threshold used in the CCA procedure.
+ * Energy detection threshold in dBm used in the CCA procedure.
+ *
+ * Note: NRF_802154_CCA_ED_THRESHOLD_DEFAULT is deprecated.
  *
  */
-#ifndef NRF_802154_CCA_ED_THRESHOLD_DEFAULT
-#define NRF_802154_CCA_ED_THRESHOLD_DEFAULT 0x14
+#ifdef NRF_802154_CCA_ED_THRESHOLD_DEFAULT
+#undef NRF_802154_CCA_ED_THRESHOLD_DBM_DEFAULT
+#define NRF_802154_CCA_ED_THRESHOLD_DBM_DEFAULT (ED_RSSIOFFS + NRF_802154_CCA_ED_THRESHOLD_DEFAULT)
+#else
+#ifndef NRF_802154_CCA_ED_THRESHOLD_DBM_DEFAULT
+#define NRF_802154_CCA_ED_THRESHOLD_DBM_DEFAULT (-75)
+#endif
 #endif
 
 /**
@@ -95,6 +103,23 @@ extern "C" {
  */
 #ifndef NRF_802154_CCA_CORR_LIMIT_DEFAULT
 #define NRF_802154_CCA_CORR_LIMIT_DEFAULT 0x02
+#endif
+
+/**
+ * @def NRF_802154_CCAIDLE_TO_TXEN_EXTRA_TIME_US
+ *
+ * Additional time in microseconds that delays triggering of @c TXEN after the
+ * @c CCAIDLE event occurred. Default value for most use-cases is @c 0,
+ * In this scenario, the short between the @c CCAIDLE event and the
+ * @c TXEN task is used. If this value is non-zero, the short is not used.
+ * The triggering of @c TXEN occurs through (D)PPI and TIMER.
+ * A non-zero value may be necessary to ensure enough switching time for
+ * use with some Front-End Modules.
+ *
+ * This option is supported for the nRF53 Series and the nRF54L Series only.
+ */
+#ifndef NRF_802154_CCAIDLE_TO_TXEN_EXTRA_TIME_US
+#define NRF_802154_CCAIDLE_TO_TXEN_EXTRA_TIME_US 0U
 #endif
 
 /**

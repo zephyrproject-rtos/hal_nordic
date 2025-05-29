@@ -216,18 +216,6 @@ int32_t mpsl_fem_pa_power_control_set(mpsl_fem_pa_power_control_t pa_power_contr
     return 0;
 }
 
-bool mpsl_fem_prepare_powerdown(NRF_TIMER_Type * p_instance,
-                                uint32_t         compare_channel,
-                                uint32_t         ppi_id,
-                                uint32_t         event_addr)
-{
-    (void)p_instance;
-    (void)compare_channel;
-    (void)ppi_id;
-
-    return false;
-}
-
 bool mpsl_fem_device_config_254_apply_get(void)
 {
     return false;
@@ -248,6 +236,11 @@ int8_t nrf_802154_fal_tx_power_split(const uint8_t                           cha
 uint32_t mpsl_tx_power_dbm_to_radio_register_convert(mpsl_tx_power_t req_radio_power)
 {
     return to_radio_tx_power_convert(req_radio_power).reg;
+}
+
+void mpsl_fem_lna_is_configured(int8_t * const p_gain)
+{
+    *p_gain = 0;
 }
 
 #ifdef __cplusplus
