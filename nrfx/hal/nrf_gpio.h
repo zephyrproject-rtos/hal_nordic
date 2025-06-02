@@ -164,6 +164,20 @@ extern "C" {
 #define NRF_GPIO_HAS_DETECT_MODE 0
 #endif
 
+#if defined(GPIO_PIN_CNF_DRIVE_E0E1) || defined(GPIO_PIN_CNF_DRIVE0_E0) || defined(__NRFX_DOXYGEN__)
+/** @brief Presence of extra high pin drive mode. */
+#define NRF_GPIO_HAS_DRIVE_EXTRA 1
+#else
+#define NRF_GPIO_HAS_DRIVE_EXTRA 0
+#endif
+
+#if defined(GPIO_PIN_CNF_CTRLSEL_GRTC) || defined(__NRFX_DOXYGEN__)
+/** @brief Presence of control selection for GRTC. */
+#define NRF_GPIO_HAS_CTRLSEL_GRTC 1
+#else
+#define NRF_GPIO_HAS_CTRLSEL_GRTC 0
+#endif
+
 /** @brief Macro for mapping port and pin numbers to values understandable for nrf_gpio functions. */
 #define NRF_GPIO_PIN_MAP(port, pin) NRF_PIN_PORT_TO_PIN_NUMBER(pin, port)
 
