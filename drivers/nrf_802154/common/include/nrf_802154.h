@@ -348,6 +348,29 @@ void nrf_802154_extended_address_set(const uint8_t * p_extended_address);
  */
 void nrf_802154_short_address_set(const uint8_t * p_short_address);
 
+/**
+ * @brief Sets the alternate short address of the device.
+ *
+ * The alternate short address should be used when you need to change the
+ * device short address without loss of connectivity.
+ * The API addresses a race condition, where a remote peer sends a frame destined
+ * to the old device address, but this device has already changed the short address
+ * to a new one. The alternate address should be cleared after a while, after the new
+ * short address becomes known to the peers.
+ *
+ * The API is meant to be used as follows:
+ * 1. Set the alternate short address to the current old address.
+ * 2. Set the primary short address (@ref nrf_802154_short_address_set) to the new address.
+ * 3. Wait until the new short address becomes known among the peers.
+ * 4. Clear the alternate short address.
+ *
+ * @param[in]  p_short_address  Pointer to the short address (2 bytes, little-endian).
+ *                              Setting this value to NULL clears the alternate address.
+ *
+ * This function makes a copy of the address.
+ */
+void nrf_802154_alternate_short_address_set(const uint8_t * p_short_address);
+
 #if !NRF_802154_SERIALIZATION_HOST || defined(DOXYGEN)
 /**
  * @}
@@ -415,7 +438,12 @@ bool nrf_802154_receive(void);
  * If the requested reception time is in the past, the function returns false and does not
  * schedule reception.
  *
- * A scheduled reception can be cancelled by a call to @ref nrf_802154_receive_at_cancel.
+ * The reception ends after the configured timeout has elapsed. This event is notified to the
+ * higher layer through the @ref nrf_802154_receive_failed notification with
+ * @ref NRF_802154_RX_ERROR_DELAYED_TIMEOUT status code.
+ *
+ * A scheduled reception can be cancelled by a call to @ref nrf_802154_receive_at_cancel or
+ * @ref nrf_802154_receive_at_scheduled_cancel.
  *
  * @note The identifier @p id must be unique. It must not have the same value as identifiers
  * of other delayed timeslots active at the moment, so that it can be mapped unambiguously
@@ -427,7 +455,8 @@ bool nrf_802154_receive(void);
  * @param[in]   channel  Radio channel on which the frame is to be received.
  * @param[in]   id       Identifier of the scheduled reception window. If the reception has been
  *                       scheduled successfully, the value of this parameter can be used in
- *                       @ref nrf_802154_receive_at_cancel to cancel it.
+ *                       @ref nrf_802154_receive_at_cancel or
+ *                       @ref nrf_802154_receive_at_scheduled_cancel to cancel it.
  *
  * @retval  true   The reception procedure was scheduled.
  * @retval  false  The driver could not schedule the reception procedure.
@@ -452,6 +481,35 @@ bool nrf_802154_receive_at(uint64_t rx_time,
  * @retval  false   No delayed reception was scheduled.
  */
 bool nrf_802154_receive_at_cancel(uint32_t id);
+
+/**
+ * @brief Cancels a delayed reception scheduled by a call to @ref nrf_802154_receive_at.
+ *
+ * If the receive window has been scheduled but has not started yet, this function prevents
+ * entering the receive window. If the receive window has been scheduled and has already started,
+ * the receive window is not affected and will continue until its scheduled timeout.
+ *
+ * The function also returns success when no window with given ID is scheduled and is not currently
+ * ongoing.
+ *
+ * @note This function differs from @ref nrf_802154_receive_at_cancel in two aspects:
+ *       1. This function can only cancel receive windows that are scheduled, but haven't started yet.
+ *          If the receive window has already started, the cancel will end with failure and the
+ *          receive window will last for the planned duration, ending with
+ *          @ref nrf_802154_receive_failed notification with @ref NRF_802154_RX_ERROR_DELAYED_TIMEOUT
+ *          status.
+ *       2. If there are no scheduled and ongoing receive windows matching the given ID,
+ *          the function ends with a success.
+ *
+ * @param[in]  id  Identifier of the delayed reception window to be cancelled. If the provided
+ *                 value does not refer to any scheduled or active receive window, the function
+ *                 returns true.
+ *
+ * @retval  true    The delayed reception was scheduled and successfully cancelled or the
+ *                  receive window was not scheduled at all.
+ * @retval  false   The scheduled window is currently ongoing.
+ */
+bool nrf_802154_receive_at_scheduled_cancel(uint32_t id);
 
 /**
  * @brief Changes the radio state to @ref RADIO_STATE_TX.

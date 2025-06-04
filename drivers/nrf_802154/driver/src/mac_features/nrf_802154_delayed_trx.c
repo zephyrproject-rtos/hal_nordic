@@ -46,6 +46,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include <nrfx.h>
 #include "../nrf_802154_debug.h"
 #include "nrf_802154_config.h"
 #include "nrf_802154_const.h"
@@ -75,8 +76,10 @@
 #define TX_SETUP_TIME_MAX 360u ///< Maximum time needed to prepare TX procedure [us]. It does not include TX ramp-up time.
 #define RX_SETUP_TIME_MAX 290u ///< Maximum time needed to prepare RX procedure [us]. It does not include RX ramp-up time.
 #elif defined(NRF54L_SERIES)
-#define TX_SETUP_TIME_MAX 600u ///< Maximum time needed to prepare TX procedure [us]. It does not include TX ramp-up time.
-#define RX_SETUP_TIME_MAX 600u ///< Maximum time needed to prepare RX procedure [us]. It does not include RX ramp-up time.
+NRF_STATIC_ASSERT(NRF_CONFIG_CPU_FREQ_MHZ == 128,
+                  "Currently nrf-802154 only works when frequency is 128MHz");
+#define TX_SETUP_TIME_MAX 185u ///< Maximum time needed to prepare TX procedure [us]. It does not include TX ramp-up time.
+#define RX_SETUP_TIME_MAX 150u ///< Maximum time needed to prepare RX procedure [us]. It does not include RX ramp-up time.
 #elif defined(NRF54H_SERIES)
 #ifndef TX_SETUP_TIME_MAX
 #define TX_SETUP_TIME_MAX 400u ///< Maximum time needed to prepare TX procedure [us]. It does not include TX ramp-up time.
@@ -184,7 +187,7 @@ static dly_op_data_t * dly_rx_data_by_id_search(rsch_dly_ts_id_t id)
         if (m_dly_rx_data[i].id == id)
         {
             // Slot with a matching identifier found
-            if ((p_dly_op_data == NULL))
+            if (p_dly_op_data == NULL)
             {
                 // It's the first matching slot found
                 p_dly_op_data = &m_dly_rx_data[i];
@@ -795,9 +798,10 @@ bool nrf_802154_delayed_trx_transmit(uint8_t                                 * p
 
         p_dly_tx_data->tx.p_data             = p_data;
         p_dly_tx_data->tx.params.frame_props = p_metadata->frame_props;
-        (void)nrf_802154_tx_power_convert_metadata_to_tx_power_split(p_metadata->channel,
-                                                                     p_metadata->tx_power,
-                                                                     &p_dly_tx_data->tx.params.tx_power);
+        (void)nrf_802154_tx_power_convert_metadata_to_tx_power_split(
+            p_metadata->channel,
+            p_metadata->tx_power,
+            &p_dly_tx_data->tx.params.tx_power);
         p_dly_tx_data->tx.params.cca                = p_metadata->cca;
         p_dly_tx_data->tx.params.immediate          = true;
         p_dly_tx_data->tx.params.extra_cca_attempts = p_metadata->extra_cca_attempts;
@@ -916,6 +920,36 @@ bool nrf_802154_delayed_trx_receive_cancel(uint32_t id)
     }
 
     return stopped;
+}
+
+bool nrf_802154_delayed_trx_receive_scheduled_cancel(uint32_t id)
+{
+    dly_op_data_t * p_dly_op_data = dly_rx_data_by_id_search(id);
+
+    if (p_dly_op_data == NULL)
+    {
+        // Delayed receive window with provided ID could not be found.
+        return true;
+    }
+
+    bool result = nrf_802154_rsch_delayed_timeslot_cancel(id, false);
+
+    if (!result)
+    {
+        result =
+            nrf_802154_sl_atomic_load_u8((uint8_t *)&p_dly_op_data->state) ==
+            DELAYED_TRX_OP_STATE_STOPPED;
+    }
+
+    if (result)
+    {
+        p_dly_op_data->id = NRF_802154_RESERVED_INVALID_ID;
+
+        nrf_802154_sl_atomic_store_u8((uint8_t *)&p_dly_op_data->state,
+                                      DELAYED_TRX_OP_STATE_STOPPED);
+    }
+
+    return result;
 }
 
 bool nrf_802154_delayed_trx_abort(nrf_802154_term_t term_lvl, req_originator_t req_orig)
