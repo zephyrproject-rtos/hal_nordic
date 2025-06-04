@@ -8,6 +8,7 @@
 #define NRFS_TEMP_H
 
 #include <internal/services/nrfs_temp.h>
+#include <nrfs_config.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,7 +17,9 @@ extern "C" {
 /** @brief Temperature service event types. */
 typedef enum __NRFS_PACKED {
 	NRFS_TEMP_EVT_MEASURE_DONE, /** Temperature measurement done. */
+#ifdef NRFS_TEMP_SERVICE_SUBSCRIPTION_ENABLED
 	NRFS_TEMP_EVT_CHANGE,	    /** Temperature threshold crossed. */
+#endif
 	NRFS_TEMP_EVT_REJECT,	    /** Request rejected. */
 } nrfs_temp_evt_type_t;
 
@@ -58,6 +61,7 @@ void nrfs_temp_uninit(void);
  */
 nrfs_err_t nrfs_temp_measure_request(void * p_context);
 
+#ifdef NRFS_TEMP_SERVICE_SUBSCRIPTION_ENABLED
 /**
  * @brief Function for subscribing to the temperature monitoring in Temperature service.
  *
@@ -86,6 +90,7 @@ nrfs_err_t nrfs_temp_subscribe(uint16_t measure_rate_ms,
  * @retval NRFS_ERR_IPC           Backend returned error during request sending.
  */
 nrfs_err_t nrfs_temp_unsubscribe(void);
+#endif /* NRFS_TEMP_SERVICE_SUBSCRIPTION_ENABLED */
 
 /**
  * @brief Function for converting the temperature value from raw data to Celsius scale.
