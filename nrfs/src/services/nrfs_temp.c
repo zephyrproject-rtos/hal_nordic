@@ -35,12 +35,12 @@ void nrfs_temp_service_notify(void *p_notification, size_t size)
 		evt.type = NRFS_TEMP_EVT_MEASURE_DONE;
 		m_cb.handler(&evt, (void *)p_rsp->ctx.ctx);
 		break;
-
+#ifdef NRFS_TEMP_SERVICE_SUBSCRIPTION_ENABLED
 	case NRFS_TEMP_REQ_SUBSCRIBE:
 		evt.type = NRFS_TEMP_EVT_CHANGE;
 		m_cb.handler(&evt, (void *)p_rsp->ctx.ctx);
 		break;
-
+#endif
 	default:
 		break;
 	}
@@ -75,7 +75,7 @@ nrfs_err_t nrfs_temp_measure_request(void *p_context)
 
 	return nrfs_backend_send(&req, sizeof(req));
 }
-
+#ifdef NRFS_TEMP_SERVICE_SUBSCRIPTION_ENABLED
 nrfs_err_t nrfs_temp_subscribe(uint16_t measure_rate_ms,
 			       int32_t lower_threshold,
 			       int32_t upper_threshold,
@@ -108,3 +108,4 @@ nrfs_err_t nrfs_temp_unsubscribe(void)
 
 	return nrfs_backend_send(&req, sizeof(req));
 }
+#endif  /* NRFS_TEMP_SERVICE_SUBSCRIPTION_ENABLED */
