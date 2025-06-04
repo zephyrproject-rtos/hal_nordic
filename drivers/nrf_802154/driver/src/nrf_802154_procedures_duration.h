@@ -50,7 +50,17 @@
 #define RX_RAMP_UP_TIME                   40 // us
 #define RX_RAMP_DOWN_TIME                 0  // us
 #define MAX_RAMP_DOWN_TIME                6  // us
-#define RX_TX_TURNAROUND_TIME             20 // us
+#if defined(NRF54L_SERIES)
+#define RX_TX_TURNAROUND_TIME_HW          15 // us
+#else
+#define RX_TX_TURNAROUND_TIME_HW          20 // us
+#endif
+
+#define RX_TX_TURNAROUND_TIME             (RX_TX_TURNAROUND_TIME_HW + \
+                                           NRF_802154_CCAIDLE_TO_TXEN_EXTRA_TIME_US)
+
+#define RX_PHYEND_EVENT_LATENCY_US        23 ///< Latency in us between the last bit on air and the PHYEND event.
+#define RSSI_SETTLE_TIME_US               15 ///< Time required for RSSI measurements to become valid after signal level change.
 
 #define A_CCA_DURATION_SYMBOLS            8  // sym
 #define A_TURNAROUND_TIME_SYMBOLS         12 // sym
