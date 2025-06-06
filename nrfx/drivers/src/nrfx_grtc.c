@@ -985,6 +985,10 @@ static void grtc_irq_handler(void)
                 break;
             }
 
+            if (nrf_grtc_event_check(NRF_GRTC, NRFY_INT_BITPOS_TO_EVENT(idx)))
+            {
+                nrf_grtc_event_clear(NRF_GRTC, NRFY_INT_BITPOS_TO_EVENT(idx));
+            }
             /* Return early as this is the most likely scenario (single CC expiring). */
             if (NRFX_IS_ENABLED(GRTC_EXT) && (intpend == 0))
             {
