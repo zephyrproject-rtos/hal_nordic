@@ -493,10 +493,10 @@ static void spim_configure(nrfx_spim_t const *        p_instance,
                        NRF_SPIM_BASE_FREQUENCY_16MHZ) ? 2 : 1);
 
         // First condition (CPHA=0) applies to prescaler 4 (slow instances) and 8.
-        // Second condition (CPHA=1) applies to prescaler 2 (slow instances) and 4.
+        // Second condition (CPHA=1) applies to prescaler 8 (slow instances) and 16.
         if (((p == 8) &&
              ((p_config->mode == NRF_SPIM_MODE_0) || (p_config->mode == NRF_SPIM_MODE_2))) ||
-            ((p == 4) &&
+            ((p == 16) &&
              ((p_config->mode == NRF_SPIM_MODE_1) || (p_config->mode == NRF_SPIM_MODE_3))))
         {
             p_cb->apply_errata_nrf54l_55 = 1;
