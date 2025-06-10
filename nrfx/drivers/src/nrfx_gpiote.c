@@ -190,14 +190,27 @@ typedef struct
     /* Mask for tracking event handler entries allocation. */
     nrfx_atomic_t                available_evt_handlers;
 
-    /* Mask of available ports for GPIOTE instance. */
-    uint32_t                     available_gpio_ports;
-
+    uint8_t                      ch_pin[GPIOTE_CH_NUM];
 #if !defined(NRF_GPIO_LATCH_PRESENT)
     uint32_t                     port_pins[GPIO_COUNT];
 #endif
     nrfx_drv_state_t             state;
 } gpiote_control_block_t;
+
+typedef struct
+{
+    /* Number of GPIOTE channels. */
+    uint32_t channels_number;
+
+    /* Mask of available ports for GPIOTE instance. */
+    uint32_t available_gpio_ports;
+
+#if NRFX_GPIOTE_VAR_FEATURE_SUPPORT
+    uint32_t group_idx;
+    bool     port_supported;
+    bool     dynamic_chan_supported;
+#endif
+} gpiote_config_t;
 
 #if !defined(__NRFX_DOXYGEN__)
 #if (defined(NRF_GPIOTE) || defined(NRF_GPIOTE0)) && !defined(NRFX_GPIOTE0_CHANNELS_USED)
@@ -231,16 +244,34 @@ typedef struct
 #endif
 #endif // !defined(__NRFX_DOXYGEN__)
 
-#define _NRFX_GPIOTE_CB_INITIALIZER(periph_name, prefix, idx, _)                        \
+#ifdef NRFX_GPIOTE_VAR_FEATURE_SUPPORT
+#define GPIOTE_VAR_INIT(prefix, idx)                                                    \
+    .group_idx = idx == 0 ? 0 : NRF_GPIOTE_IRQ_GROUP,                                   \
+    .port_supported = idx != 0,                                                         \
+    .dynamic_chan_supported = idx != 0,
+#else
+#define GPIOTE_VAR_INIT(prefix, idx)
+#endif
+
+#define _NRFX_GPIOTE_CONFIG_INITIALIZER(periph_name, prefix, idx, _)                    \
     [NRFX_CONCAT(NRFX_, periph_name, idx, _INST_IDX)] = {                               \
         .channels_number = NRFX_CONCAT_3(periph_name, idx, _CH_NUM),                    \
-        .available_channels_mask = (nrfx_atomic_t)NRFX_GPIOTE_APP_CHANNELS_MASK(idx),   \
         .available_gpio_ports = NRFX_CONCAT_3(periph_name, idx, _AVAILABLE_GPIO_PORTS), \
+        GPIOTE_VAR_INIT(prefix, idx)                                                    \
     },
 
-static gpiote_control_block_t m_cb[NRFX_GPIOTE_ENABLED_COUNT] = {
-    NRFX_FOREACH_ENABLED(GPIOTE, _NRFX_GPIOTE_CB_INITIALIZER, (), ())
+#define _NRFX_GPIOTE_CHANNEL_INITIALIZER(periph_name, prefix, idx, _)                   \
+    [NRFX_CONCAT(NRFX_, periph_name, idx, _INST_IDX)] =                                 \
+        (nrfx_atomic_t)NRFX_GPIOTE_APP_CHANNELS_MASK(idx),
+
+/* Mask for tracking GPIOTE channel allocation. */
+static nrfx_atomic_t available_channels_mask[NRFX_GPIOTE_ENABLED_COUNT] = {
+    NRFX_FOREACH_ENABLED(GPIOTE, _NRFX_GPIOTE_CHANNEL_INITIALIZER, (), ())
 };
+static const gpiote_config_t m_config[NRFX_GPIOTE_ENABLED_COUNT] = {
+    NRFX_FOREACH_ENABLED(GPIOTE, _NRFX_GPIOTE_CONFIG_INITIALIZER, (), ())
+};
+static gpiote_control_block_t m_cb[NRFX_GPIOTE_ENABLED_COUNT];
 
 #if defined(NRF_GPIO_LATCH_PRESENT) || (!FULL_PORTS_PRESENT)
 static const uint8_t ports[GPIO_COUNT] = GPIO_PORT_NUM_LIST;
@@ -298,6 +329,26 @@ static gpiote_control_block_t * get_cb(uint32_t idx)
     else
     {
         return &m_cb[idx];
+    }
+}
+
+/** @brief Function for getting instance configuration structure.
+ *
+ * Function is optimized for case when there is only one GPIOTE instance.
+ *
+ * @param[in] idx Instance index.
+ *
+ * @return Configure structure.
+ */
+static const gpiote_config_t * get_config(uint32_t idx)
+{
+    if (NRFX_GPIOTE_ENABLED_COUNT == 1)
+    {
+        return &m_config[0];
+    }
+    else
+    {
+        return &m_config[idx];
     }
 }
 
@@ -471,7 +522,13 @@ static void pin_trigger_disable(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pi
     {
         uint8_t ch = pin_te_get(p_instance, pin);
 
-        nrfy_gpiote_int_disable(p_instance->p_reg, NRFX_BIT(ch));
+#ifdef NRFX_GPIOTE_VAR_FEATURE_SUPPORT
+            nrf_gpiote_int_group_disable(p_instance->p_reg,
+                                         get_config(p_instance->drv_inst_idx)->group_idx,
+                                         NRFX_BIT(ch));
+#else
+            nrfy_gpiote_int_disable(p_instance->p_reg, NRFX_BIT(ch));
+#endif
         nrfy_gpiote_event_disable(p_instance->p_reg, ch);
     }
     else
@@ -677,7 +734,7 @@ static nrfx_err_t gpiote_input_configure(nrfx_gpiote_t const *                  
 
                     nrfy_gpiote_event_disable(p_instance->p_reg, ch);
                     nrfy_gpiote_event_configure(p_instance->p_reg, ch, pin, polarity);
-
+                    get_cb(p_instance->drv_inst_idx)->ch_pin[ch] = pin;
                     get_cb(p_instance->drv_inst_idx)->pin_flags[idx] |= (uint16_t)PIN_FLAG_TE_ID(ch);
                 }
             }
@@ -689,6 +746,12 @@ static nrfx_err_t gpiote_input_configure(nrfx_gpiote_t const *                  
         }
         else
         {
+#if NRFX_GPIOTE_VAR_FEATURE_SUPPORT
+            if (!get_config(p_instance->drv_inst_idx)->port_supported)
+            {
+                return NRFX_ERROR_INVALID_PARAM;
+            }
+#endif
             nrf_bitmask_bit_set(pin, (uint8_t *)get_cb(p_instance->drv_inst_idx)->port_pins);
         }
 #endif
@@ -805,7 +868,8 @@ static nrfx_err_t gpiote_init(nrfx_gpiote_t const * p_instance, uint8_t interrup
     nrfx_err_t err_code = NRFX_SUCCESS;
 
     NRFX_LOG_INFO("channels_number: %d, available_channels_mask: 0x%x",
-                  (int)p_cb->channels_number, (int)p_cb->available_channels_mask);
+                  (int)get_config(p_instance->drv_inst_idx)->channels_number,
+                  (int)available_channels_mask[p_instance->drv_inst_idx]);
 
     if (p_cb->state != NRFX_DRV_STATE_UNINITIALIZED)
     {
@@ -822,11 +886,18 @@ static nrfx_err_t gpiote_init(nrfx_gpiote_t const * p_instance, uint8_t interrup
 
     memset(p_cb->pin_flags, 0, sizeof(p_cb->pin_flags));
 
+#if NRFX_GPIOTE_VAR_FEATURE_SUPPORT
+    uint32_t int_mask = get_config(p_instance->drv_inst_idx)->port_supported ?
+                        NRF_GPIOTE_INT_PORT_MASK : 0;
+#else
+    uint32_t int_mask = NRF_GPIOTE_INT_PORT_MASK;
+#endif
+
     nrfy_gpiote_int_init(p_instance->p_reg,
-                         (uint32_t)NRF_GPIOTE_INT_PORT_MASK,
+                         int_mask,
                          interrupt_priority,
                          false,
-                         p_cb->channels_number);
+                         get_config(p_instance->drv_inst_idx)->channels_number);
 
     p_cb->state = NRFX_DRV_STATE_INITIALIZED;
     p_cb->available_evt_handlers = NRFX_BIT_MASK(NRFX_GPIOTE_CONFIG_NUM_OF_EVT_HANDLERS);
@@ -875,14 +946,31 @@ static void gpiote_uninit(nrfx_gpiote_t const * p_instance)
 
 static nrfx_err_t pin_channel_free(nrfx_gpiote_t const * p_instance, uint8_t channel)
 {
-    return nrfx_flag32_free(&get_cb(p_instance->drv_inst_idx)->available_channels_mask, channel);
+#if NRFX_GPIOTE_VAR_FEATURE_SUPPORT
+    const gpiote_config_t * p_config = get_config(p_instance->drv_inst_idx);
+
+    if (!p_config->dynamic_chan_supported)
+    {
+        return NRFX_ERROR_NOT_SUPPORTED;
+    }
+#endif
+    return nrfx_flag32_free(&available_channels_mask[p_instance->drv_inst_idx], channel);
 }
 
 static nrfx_err_t pin_channel_alloc(nrfx_gpiote_t const * p_instance, uint8_t * p_channel)
 {
     NRFX_LOG_INFO("available_channels_mask = %d",
-                  (int)get_cb(p_instance->drv_inst_idx)->available_channels_mask);
-    return nrfx_flag32_alloc(&get_cb(p_instance->drv_inst_idx)->available_channels_mask, p_channel);
+                  (int)&available_channels_mask[p_instance->drv_inst_idx]);
+#if NRFX_GPIOTE_VAR_FEATURE_SUPPORT
+    const gpiote_config_t * p_config = get_config(p_instance->drv_inst_idx);
+
+    if (!p_config->dynamic_chan_supported)
+    {
+        return NRFX_ERROR_NOT_SUPPORTED;
+    }
+#endif
+
+    return nrfx_flag32_alloc(&available_channels_mask[p_instance->drv_inst_idx], p_channel);
 }
 
 static void pin_out_set(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pin_t pin)
@@ -1017,11 +1105,6 @@ static void pin_trigger_enable(nrfx_gpiote_t const * p_instance,
 {
     NRFX_ASSERT(pin_has_trigger(p_instance, pin));
 
-    if (!nrfy_gpiote_int_enable_check(p_instance->p_reg, (uint32_t)NRF_GPIOTE_INT_PORT_MASK))
-    {
-        nrfy_gpiote_int_enable(p_instance->p_reg, (uint32_t)NRF_GPIOTE_INT_PORT_MASK);
-    }
-
     if (pin_in_use_by_te(p_instance, pin) && pin_is_input(p_instance, pin))
     {
         uint8_t ch = pin_te_get(p_instance, pin);
@@ -1030,11 +1113,22 @@ static void pin_trigger_enable(nrfx_gpiote_t const * p_instance,
         nrfy_gpiote_event_enable(p_instance->p_reg, ch);
         if (int_enable)
         {
+#if NRFX_GPIOTE_VAR_FEATURE_SUPPORT
+            nrf_gpiote_int_group_enable(p_instance->p_reg,
+                                        get_config(p_instance->drv_inst_idx)->group_idx,
+                                        NRFX_BIT(ch));
+#else
             nrfy_gpiote_int_enable(p_instance->p_reg, NRFX_BIT(ch));
+#endif
         }
     }
     else
     {
+        if (!nrfy_gpiote_int_enable_check(p_instance->p_reg, (uint32_t)NRF_GPIOTE_INT_PORT_MASK))
+        {
+            nrfy_gpiote_int_enable(p_instance->p_reg, (uint32_t)NRF_GPIOTE_INT_PORT_MASK);
+        }
+
         NRFX_ASSERT(int_enable);
         nrfy_gpio_cfg_sense_set(pin, get_initial_sense(p_instance, pin));
     }
@@ -1079,9 +1173,7 @@ nrfx_err_t nrfx_gpiote_channel_get(nrfx_gpiote_t const * p_instance,
 
 uint32_t nrfx_gpiote_channels_number_get(nrfx_gpiote_t const * p_instance)
 {
-    gpiote_control_block_t * p_cb = get_cb(p_instance->drv_inst_idx);
-
-    return p_cb->channels_number;
+    return get_config(p_instance->drv_inst_idx)->channels_number;
 }
 
 nrfx_err_t nrfx_gpiote_init(nrfx_gpiote_t const * p_instance, uint8_t interrupt_priority)
@@ -1479,16 +1571,17 @@ static bool latch_pending_read_and_check(uint32_t * latch, uint32_t available_gp
     return false;
 }
 
-static void port_event_handle(NRF_GPIOTE_Type * p_gpiote, gpiote_control_block_t * p_cb)
+static void port_event_handle(NRF_GPIOTE_Type * p_gpiote, gpiote_control_block_t * p_cb,
+        const gpiote_config_t * p_config)
 {
     uint32_t latch[GPIO_COUNT] = {0};
 
-    latch_pending_read_and_check(latch, p_cb->available_gpio_ports);
+    latch_pending_read_and_check(latch, p_config->available_gpio_ports);
 
     do {
         for (uint32_t i = 0; i < GPIO_COUNT; i++)
         {
-            if (nrf_bitmask_bit_is_set(port_index[i], &p_cb->available_gpio_ports))
+            if (nrf_bitmask_bit_is_set(port_index[i], &p_config->available_gpio_ports))
             {
                 while (latch[i])
                 {
@@ -1516,7 +1609,7 @@ static void port_event_handle(NRF_GPIOTE_Type * p_gpiote, gpiote_control_block_t
         /* All pins have been handled, clear PORT, check latch again in case
          * something came between deciding to exit and clearing PORT event. */
         (void)nrfy_gpiote_events_process(p_gpiote, (uint32_t)NRF_GPIOTE_INT_PORT_MASK, 0);
-    } while (latch_pending_read_and_check(latch, p_cb->available_gpio_ports));
+    } while (latch_pending_read_and_check(latch, p_config->available_gpio_ports));
 }
 
 #else
@@ -1554,7 +1647,8 @@ static bool input_read_and_check(uint32_t * input,
     return process_inputs_again;
 }
 
-static void port_event_handle(NRF_GPIOTE_Type * p_gpiote, gpiote_control_block_t * p_cb)
+static void port_event_handle(NRF_GPIOTE_Type * p_gpiote, gpiote_control_block_t * p_cb,
+        const gpiote_config_t * p_config)
 {
     uint32_t pins_to_check[GPIO_COUNT] = {0};
     uint32_t input[GPIO_COUNT] = {0};
@@ -1564,7 +1658,7 @@ static void port_event_handle(NRF_GPIOTE_Type * p_gpiote, gpiote_control_block_t
 
     for (uint32_t port_idx = 0; port_idx < GPIO_COUNT; port_idx++)
     {
-        if (nrf_bitmask_bit_is_set(port_index[port_idx], &p_cb->available_gpio_ports))
+        if (nrf_bitmask_bit_is_set(port_index[port_idx], &p_config->available_gpio_ports))
         {
             nrfy_gpio_ports_read(port_idx, 1, &input[port_idx]);
             pins_to_check[port_idx] = p_cb->port_pins[port_idx];
@@ -1599,7 +1693,7 @@ static void port_event_handle(NRF_GPIOTE_Type * p_gpiote, gpiote_control_block_t
 
         for (uint32_t port_idx = 0; port_idx < GPIO_COUNT; port_idx++)
         {
-            if (nrf_bitmask_bit_is_set(port_index[port_idx], &p_cb->available_gpio_ports))
+            if (nrf_bitmask_bit_is_set(port_index[port_idx], &p_config->available_gpio_ports))
             {
                 /* All pins used with PORT must be rechecked because it's content and
                  * number of port pins may have changed during handler execution. */
@@ -1633,7 +1727,7 @@ static void port_event_handle(NRF_GPIOTE_Type * p_gpiote, gpiote_control_block_t
         }
 
         (void)nrfy_gpiote_events_process(p_gpiote, (uint32_t)NRF_GPIOTE_INT_PORT_MASK, 0);
-    } while (input_read_and_check(input, pins_to_check, p_cb->available_gpio_ports));
+    } while (input_read_and_check(input, pins_to_check, p_config->available_gpio_ports));
 }
 #endif // defined(NRF_GPIO_LATCH_PRESENT)
 
@@ -1645,7 +1739,7 @@ static void gpiote_evt_handle(NRF_GPIOTE_Type *        p_gpiote,
     {
         uint32_t ch = NRF_CTZ(mask);
         mask &= ~NRFX_BIT(ch);
-        nrfx_gpiote_pin_t pin = nrfy_gpiote_event_pin_get(p_gpiote, ch);
+        nrfx_gpiote_pin_t pin = p_cb->ch_pin[ch];
         nrf_gpiote_polarity_t polarity = nrfy_gpiote_event_polarity_get(p_gpiote, ch);
 
         call_handler(p_cb, pin, gpiote_polarity_to_trigger(polarity));
@@ -1654,17 +1748,27 @@ static void gpiote_evt_handle(NRF_GPIOTE_Type *        p_gpiote,
 
 static void irq_handler(NRF_GPIOTE_Type * p_gpiote, gpiote_control_block_t * p_cb)
 {
+    uint32_t instance_idx = ((uintptr_t)p_cb - (uintptr_t)m_cb) / sizeof(gpiote_control_block_t);
+    const gpiote_config_t * p_config = get_config(instance_idx);
     /* Collect status of all GPIOTE pin events. Processing is done once all are collected and cleared.*/
-    uint32_t enabled_in_events = nrf_gpiote_int_enable_check(p_gpiote, NRF_GPIOTE_INT_IN_MASK);
+#if NRFX_GPIOTE_VAR_FEATURE_SUPPORT
+    uint32_t enabled_in_events = nrf_gpiote_int_group_enable_check(p_gpiote,
+                                                                p_config->group_idx,
+                                                                NRF_GPIOTE_INT_IN_MASK);
+    uint32_t enabled_events = enabled_in_events |
+                              (p_config->port_supported ? NRF_GPIOTE_INT_PORT_MASK : 0);
+#else
+    uint32_t enabled_events = nrf_gpiote_int_enable_check(p_gpiote, NRF_GPIOTE_INT_IN_MASK) |
+                                 NRF_GPIOTE_INT_PORT_MASK;
+#endif
     uint32_t evt_mask = nrfy_gpiote_events_process(p_gpiote,
-                                                   enabled_in_events |
-                                                   (uint32_t)NRF_GPIOTE_INT_PORT_MASK,
-                                                   p_cb->channels_number);
+                                                   enabled_events,
+                                                   p_config->channels_number);
 
     /* Handle PORT event. */
     if (evt_mask & (uint32_t)NRF_GPIOTE_INT_PORT_MASK)
     {
-        port_event_handle(p_gpiote, p_cb);
+        port_event_handle(p_gpiote, p_cb, p_config);
         evt_mask &= ~(uint32_t)NRF_GPIOTE_INT_PORT_MASK;
     }
 
