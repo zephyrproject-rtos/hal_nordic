@@ -795,9 +795,10 @@ bool nrf_802154_delayed_trx_transmit(uint8_t                                 * p
 
         p_dly_tx_data->tx.p_data             = p_data;
         p_dly_tx_data->tx.params.frame_props = p_metadata->frame_props;
-        (void)nrf_802154_tx_power_convert_metadata_to_tx_power_split(p_metadata->channel,
-                                                                     p_metadata->tx_power,
-                                                                     &p_dly_tx_data->tx.params.tx_power);
+        (void)nrf_802154_tx_power_convert_metadata_to_tx_power_split(
+            p_metadata->channel,
+            p_metadata->tx_power,
+            &p_dly_tx_data->tx.params.tx_power);
         p_dly_tx_data->tx.params.cca                = p_metadata->cca;
         p_dly_tx_data->tx.params.immediate          = true;
         p_dly_tx_data->tx.params.extra_cca_attempts = p_metadata->extra_cca_attempts;
@@ -916,6 +917,36 @@ bool nrf_802154_delayed_trx_receive_cancel(uint32_t id)
     }
 
     return stopped;
+}
+
+bool nrf_802154_delayed_trx_receive_scheduled_cancel(uint32_t id)
+{
+    dly_op_data_t * p_dly_op_data = dly_rx_data_by_id_search(id);
+
+    if (p_dly_op_data == NULL)
+    {
+        // Delayed receive window with provided ID could not be found.
+        return true;
+    }
+
+    bool result = nrf_802154_rsch_delayed_timeslot_cancel(id, false);
+
+    if (!result)
+    {
+        result =
+            nrf_802154_sl_atomic_load_u8((uint8_t *)&p_dly_op_data->state) ==
+            DELAYED_TRX_OP_STATE_STOPPED;
+    }
+
+    if (result)
+    {
+        p_dly_op_data->id = NRF_802154_RESERVED_INVALID_ID;
+
+        nrf_802154_sl_atomic_store_u8((uint8_t *)&p_dly_op_data->state,
+                                      DELAYED_TRX_OP_STATE_STOPPED);
+    }
+
+    return result;
 }
 
 bool nrf_802154_delayed_trx_abort(nrf_802154_term_t term_lvl, req_originator_t req_orig)
