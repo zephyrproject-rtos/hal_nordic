@@ -187,6 +187,11 @@ void nrf_802154_short_address_set(const uint8_t * p_short_address)
     nrf_802154_pib_short_address_set(p_short_address);
 }
 
+void nrf_802154_alternate_short_address_set(const uint8_t * p_short_address)
+{
+    nrf_802154_pib_alternate_short_address_set(p_short_address);
+}
+
 void nrf_802154_init(void)
 {
     static const nrf_802154_sl_crit_sect_interface_t crit_sect_int =
@@ -556,6 +561,18 @@ bool nrf_802154_receive_at_cancel(uint32_t id)
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
     result = nrf_802154_request_receive_at_cancel(id);
+
+    nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
+    return result;
+}
+
+bool nrf_802154_receive_at_scheduled_cancel(uint32_t id)
+{
+    bool result;
+
+    nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
+
+    result = nrf_802154_request_receive_at_scheduled_cancel(id);
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
     return result;

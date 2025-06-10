@@ -102,26 +102,33 @@
 #define SHORTS_TX_ACK         (NRF_RADIO_SHORT_TXREADY_START_MASK | \
                                NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
 
-#define SHORTS_MULTI_CCA_TX   (NRF_RADIO_SHORT_RXREADY_CCASTART_MASK | \
-                               NRF_RADIO_SHORT_CCAIDLE_TXEN_MASK |     \
-                               NRF_RADIO_SHORT_TXREADY_START_MASK |    \
-                               NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
+#if (NRF_802154_CCAIDLE_TO_TXEN_EXTRA_TIME_US != 0)
+/* The short CCAIDLE_TXEN is not used */
+#define SHORTS_CCAIDLE_TXEN 0U
+#else
+#define SHORTS_CCAIDLE_TXEN NRF_RADIO_SHORT_CCAIDLE_TXEN_MASK
+#endif
 
-#define SHORTS_CCA_TX         (NRF_RADIO_SHORT_RXREADY_CCASTART_MASK | \
-                               NRF_RADIO_SHORT_CCABUSY_DISABLE_MASK |  \
-                               NRF_RADIO_SHORT_CCAIDLE_TXEN_MASK |     \
-                               NRF_RADIO_SHORT_TXREADY_START_MASK |    \
-                               NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
+#define SHORTS_MULTI_CCA_TX (NRF_RADIO_SHORT_RXREADY_CCASTART_MASK | \
+                             SHORTS_CCAIDLE_TXEN |                   \
+                             NRF_RADIO_SHORT_TXREADY_START_MASK |    \
+                             NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
 
-#define SHORTS_TX             (NRF_RADIO_SHORT_TXREADY_START_MASK | \
-                               NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
+#define SHORTS_CCA_TX       (NRF_RADIO_SHORT_RXREADY_CCASTART_MASK | \
+                             NRF_RADIO_SHORT_CCABUSY_DISABLE_MASK |  \
+                             SHORTS_CCAIDLE_TXEN |                   \
+                             NRF_RADIO_SHORT_TXREADY_START_MASK |    \
+                             NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
+
+#define SHORTS_TX           (NRF_RADIO_SHORT_TXREADY_START_MASK | \
+                             NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
 
 #if !defined(NRF52_SERIES)
-#define SHORTS_RX_ACK         (NRF_RADIO_SHORT_ADDRESS_RSSISTART_MASK | \
-                               NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
+#define SHORTS_RX_ACK       (NRF_RADIO_SHORT_ADDRESS_RSSISTART_MASK | \
+                             NRF_RADIO_SHORT_PHYEND_DISABLE_MASK)
 #else
-#define SHORTS_RX_ACK         (NRF_RADIO_SHORT_ADDRESS_RSSISTART_MASK | \
-                               NRF_RADIO_SHORT_END_DISABLE_MASK)
+#define SHORTS_RX_ACK       (NRF_RADIO_SHORT_ADDRESS_RSSISTART_MASK | \
+                             NRF_RADIO_SHORT_END_DISABLE_MASK)
 
 #endif
 
@@ -136,15 +143,11 @@
 #define CRC_LENGTH          2                                    ///< Length of CRC in 802.15.4 frames [bytes]
 #define CRC_POLYNOMIAL      0x011021                             ///< Polynomial used for CRC calculation in 802.15.4 frames
 
-#define TXRU_TIME           40                                   ///< Transmitter ramp up time [us]
-#define EVENT_LAT           23                                   ///< END event latency [us]
-
 #if !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
 #define MAX_RAMPDOWN_CYCLES (50 * (SystemCoreClock / 1000000UL)) ///< Maximum number of busy wait loop cycles that radio ramp-down is allowed to take
 #else
-#define MAX_RAMPDOWN_CYCLES 20
+#define MAX_RAMPDOWN_CYCLES 10
 #endif
-#define RSSI_SETTLE_TIME_US 15           ///< Time required for RSSI measurements to become valid after signal level change.
 
 #if NRF_802154_INTERNAL_RADIO_IRQ_HANDLING
 void nrf_802154_radio_irq_handler(void); ///< Prototype required by internal RADIO IRQ handler
@@ -173,14 +176,6 @@ void nrf_802154_radio_irq_handler(void); ///< Prototype required by internal RAD
 #if !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
 /// System Clock Frequency (Core Clock) provided by nrfx.
 extern uint32_t SystemCoreClock;
-
-#endif
-
-#if defined(NRF54L_SERIES)
-/// Flag that informs if the disable operation had to be repeated forcefully since the last trx enable.
-static volatile bool g_nrf_802154_trx_disable_repeat_was_needed;
-/// Increments whenever repeating disable operation forcefully happens.
-static uint16_t g_nrf_802154_trx_disable_repeat_counter;
 
 #endif
 
@@ -353,87 +348,37 @@ static void timer_frequency_set_1mhz(void)
     nrf_timer_prescaler_set(NRF_802154_TIMER_INSTANCE, prescaler);
 }
 
-/** Disables the radio no matter its state. */
-static void radio_force_disable(void)
-{
-    /* Radio cannot be disabled if EVENT_DISABLED is set. Clear it first. */
-    nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
-    nrf_radio_task_trigger(NRF_RADIO, NRF_RADIO_TASK_DISABLE);
-}
-
-/** Robustly disable the radio peripheral based on the radio state. */
-static void radio_robust_disable(void)
-{
-    nrf_radio_state_t radio_state = nrf_radio_state_get(NRF_RADIO);
-
-    if ((radio_state == NRF_RADIO_STATE_RXDISABLE) || (radio_state == NRF_RADIO_STATE_TXDISABLE))
-    {
-        /* RADIO is in an unstable state that should resolve to DISABLED. Do nothing. */
-    }
-    else
-    {
-        /* RADIO is in a stable state and needs to be transitioned to DISABLED manually. */
-        radio_force_disable();
-    }
-}
-
 static inline void wait_until_radio_is_disabled(void)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_HIGH);
 
     bool radio_is_disabled = false;
-    bool repeat            = false;
 
-#if defined(NRF54L_SERIES)
-    g_nrf_802154_trx_disable_repeat_was_needed = false;
-#endif
-
-    do
+    /* RADIO should enter DISABLED state after no longer than RX ramp-down time or TX ramp-down
+     * time, depending on its initial state before TASK_DISABLE was triggered. The loop below busy
+     * waits for the state transition to complete. To prevent the CPU from spinning in an endless
+     * loop, the maximum allowed number of loop cycles is limited. The limit's intention is not to
+     * approximate the expected maximum time the transition might actually take, which is generally
+     * very short, but to act as a safeguard against obviously incorrect and unexpected behaviors.
+     * In practice, in most cases the radio will have already changed state to DISABLED before this
+     * function starts. In the remaining cases several cycles of the loop should be sufficient for
+     * the transition to complete.
+     */
+    for (uint32_t i = 0; i < MAX_RAMPDOWN_CYCLES; i++)
     {
-        /* RADIO should enter DISABLED state after no longer than RX ramp-down time or TX ramp-down
-         * time, depending on its initial state before TASK_DISABLE was triggered. The loop below busy
-         * waits for the state transition to complete. To prevent the CPU from spinning in an endless
-         * loop, the maximum allowed number of loop cycles is limited. The limit's intention is not to
-         * approximate the expected maximum time the transition might actually take, which is generally
-         * very short, but to act as a safeguard against obviously incorrect and unexpected behaviors.
-         * In practice, in most cases the radio will have already changed state to DISABLED before this
-         * function starts. In the remaining cases several cycles of the loop should be sufficient for
-         * the transition to complete.
-         */
-        for (uint32_t i = 0; i < MAX_RAMPDOWN_CYCLES; i++)
+        if (nrf_radio_state_get(NRF_RADIO) == NRF_RADIO_STATE_DISABLED)
         {
-            if (nrf_radio_state_get(NRF_RADIO) == NRF_RADIO_STATE_DISABLED)
-            {
-                radio_is_disabled = true;
-                break;
-            }
-    #if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
-            nrf_802154_delay_us(1);
-            /* In this simulated board, and in general in the POSIX ARCH,
-             * code takes 0 simulated time to execute.
-             * Let's hold for 1 microsecond to allow the RADIO HW to clear the state
-             */
-    #endif
-        }
-
-#ifdef NRF54L_SERIES
-        if (!radio_is_disabled && !repeat)
-        {
-            /* Radio still not in disabled state.
-             * Manually disable the radio and repeat the loop once as a last resort.
-             */
-            radio_force_disable();
-            repeat = true;
-            g_nrf_802154_trx_disable_repeat_was_needed = true;
-            g_nrf_802154_trx_disable_repeat_counter++;
-        }
-        else
-        {
+            radio_is_disabled = true;
             break;
         }
+#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+        nrf_802154_delay_us(1);
+        /* In this simulated board, and in general in the POSIX ARCH,
+         * code takes 0 simulated time to execute.
+         * Let's hold for 1 microsecond to allow the RADIO HW to clear the state
+         */
 #endif
     }
-    while (repeat);
 
     NRF_802154_ASSERT(radio_is_disabled);
     (void)radio_is_disabled;
@@ -595,6 +540,28 @@ static void nrf_radio_reset(void)
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
 }
 
+/** Robustly disable the radio peripheral. */
+static void radio_robust_disable(void)
+{
+    nrf_radio_state_t radio_state = nrf_radio_state_get(NRF_RADIO);
+
+    if ((radio_state == NRF_RADIO_STATE_RXDISABLE) || (radio_state == NRF_RADIO_STATE_TXDISABLE))
+    {
+        /* RADIO is in an unstable state that should resolve to DISABLED. Do nothing. */
+    }
+    else
+    {
+#if !defined(RADIO_POWER_POWER_Msk)
+        /* Disable shorts to ensure no event will be triggered after disabling. */
+        nrf_radio_shorts_set(NRF_RADIO, SHORTS_IDLE);
+#endif
+        /* RADIO is in a stable state and needs to be transitioned to DISABLED manually.
+         * It cannot be disabled if EVENT_DISABLED is set. Clear it first. */
+        nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
+        nrf_radio_task_trigger(NRF_RADIO, NRF_RADIO_TASK_DISABLE);
+    }
+}
+
 static void channel_set(uint8_t channel)
 {
     NRF_802154_ASSERT(channel >= 11U && channel <= 26U);
@@ -605,11 +572,17 @@ static void channel_set(uint8_t channel)
 static void cca_configuration_update(void)
 {
     nrf_802154_cca_cfg_t cca_cfg;
+    uint8_t              threshold_hw;
+    int8_t               lna_gain_db = 0;
 
     nrf_802154_pib_cca_cfg_get(&cca_cfg);
+    mpsl_fem_lna_is_configured(&lna_gain_db);
+
+    threshold_hw = nrf_802154_rssi_dbm_to_hw(cca_cfg.ed_threshold + lna_gain_db);
+
     nrf_radio_cca_configure(NRF_RADIO,
                             cca_cfg.mode,
-                            nrf_802154_rssi_cca_ed_threshold_corrected_get(cca_cfg.ed_threshold),
+                            nrf_802154_rssi_cca_ed_threshold_corrected_get(threshold_hw),
                             cca_cfg.corr_threshold,
                             cca_cfg.corr_limit);
 }
@@ -726,6 +699,12 @@ static void fem_for_tx_set(bool cca, mpsl_fem_pa_power_control_t pa_power_contro
     {
         nrf_timer_shorts_enable(NRF_802154_TIMER_INSTANCE, NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
         nrf_802154_trx_ppi_for_fem_set();
+    }
+    else
+    {
+        nrf_timer_shorts_enable(NRF_802154_TIMER_INSTANCE,
+                                NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+        nrf_timer_cc_set(NRF_802154_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL0, 2);
     }
 }
 
@@ -886,10 +865,6 @@ void nrf_802154_trx_enable(void)
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
     NRF_802154_ASSERT(m_trx_state == TRX_STATE_DISABLED);
-
-#if defined(NRF54L_SERIES)
-    g_nrf_802154_trx_disable_repeat_was_needed = false;
-#endif
 
     nrf_timer_init();
     nrf_radio_reset();
@@ -1545,7 +1520,15 @@ bool nrf_802154_trx_rssi_measure_is_started(void)
 
 uint8_t nrf_802154_trx_rssi_last_sample_get(void)
 {
-    return nrf_radio_rssi_sample_get(NRF_RADIO);
+    int8_t  lna_gain_db                     = 0;
+    uint8_t rssi_sample_minus_dbm           = nrf_radio_rssi_sample_get(NRF_RADIO);
+    uint8_t rssi_sample_corrected_minus_dbm =
+        nrf_802154_rssi_sample_corrected_get(rssi_sample_minus_dbm);
+    int8_t rssi_sample_corrected_dbm = -((int8_t)rssi_sample_corrected_minus_dbm);
+
+    mpsl_fem_lna_is_configured(&lna_gain_db);
+
+    return rssi_sample_corrected_dbm - lna_gain_db;
 }
 
 bool nrf_802154_trx_rssi_sample_is_available(void)
@@ -1637,9 +1620,7 @@ void nrf_802154_trx_transmit_frame(const void                            * p_tra
 
     fem_for_tx_set(cca, p_tx_power->fem_pa_power_control);
     nrf_802154_trx_antenna_update();
-    nrf_802154_trx_ppi_for_ramp_up_set(cca ? NRF_RADIO_TASK_RXEN : NRF_RADIO_TASK_TXEN,
-                                       rampup_trigg_mode,
-                                       false);
+    nrf_802154_trx_ppi_for_txframe_ramp_up_set(cca, rampup_trigg_mode);
 
     if (rampup_trigg_mode == TRX_RAMP_UP_SW_TRIGGER)
     {
@@ -1653,7 +1634,8 @@ bool nrf_802154_trx_transmit_ack(const void * p_transmit_buffer, uint32_t delay_
 {
     /* Assumptions on peripherals
      * TIMER is running, is counting from value saved in m_timer_value_on_radio_end_event,
-     * which trigered on END event, which happened EVENT_LAT us after frame on air receive was finished.
+     * which trigered on END event, which happened RX_PHYEND_EVENT_LATENCY_US us after frame
+     * on air receive was finished.
      * RADIO is DISABLED
      * PPIs are DISABLED
      */
@@ -1668,15 +1650,16 @@ bool nrf_802154_trx_transmit_ack(const void * p_transmit_buffer, uint32_t delay_
     m_trx_state = TRX_STATE_TXACK;
 
     // Set TIMER's CC to the moment when ramp-up should occur.
-    if (delay_us <= TXRU_TIME + EVENT_LAT)
+    if (delay_us <= TX_RAMP_UP_TIME + RX_PHYEND_EVENT_LATENCY_US)
     {
         timer_stop_and_clear();
         nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
         return result;
     }
 
-    uint32_t timer_cc_ramp_up_start = m_timer_value_on_radio_end_event + delay_us - TXRU_TIME -
-                                      EVENT_LAT;
+    uint32_t timer_cc_ramp_up_start = m_timer_value_on_radio_end_event + delay_us -
+                                      TX_RAMP_UP_TIME -
+                                      RX_PHYEND_EVENT_LATENCY_US;
 
     nrf_timer_cc_set(NRF_802154_TIMER_INSTANCE,
                      NRF_TIMER_CC_CHANNEL1,
@@ -1692,12 +1675,12 @@ bool nrf_802154_trx_transmit_ack(const void * p_transmit_buffer, uint32_t delay_
 
     // Set FEM
     // Note: the TIMER is running, ramp up will start in timer_cc_ramp_up_start tick
-    // Assumption here is that FEM activation takes no more than TXRU_TIME.
+    // Assumption here is that FEM activation takes no more than TX_RAMP_UP_TIME.
     m_activate_tx_cc0_timeshifted = m_activate_tx_cc0;
 
     // Set the moment for FEM at which real transmission starts.
     m_activate_tx_cc0_timeshifted.event.timer.counter_period.end = timer_cc_ramp_up_start +
-                                                                   TXRU_TIME;
+                                                                   TX_RAMP_UP_TIME;
 
     if (mpsl_fem_pa_configuration_set(&m_activate_tx_cc0_timeshifted, NULL) == 0)
     {
@@ -2537,7 +2520,7 @@ static void txframe_finish_disable_ppis(bool cca)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_HIGH);
 
-    nrf_802154_trx_ppi_for_ramp_up_clear(cca ? NRF_RADIO_TASK_RXEN : NRF_RADIO_TASK_TXEN, false);
+    nrf_802154_trx_ppi_for_txframe_ramp_up_clear(cca);
     nrf_802154_trx_ppi_for_extra_cca_attempts_clear(); // fine to call unconditionally
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_HIGH);
@@ -2879,12 +2862,16 @@ static void irq_handler_edend(void)
 
     NRF_802154_ASSERT(m_trx_state == TRX_STATE_ENERGY_DETECTION);
 
-    uint8_t ed_sample = nrf_radio_ed_sample_get(NRF_RADIO);
+    int8_t  lna_gain_db   = 0;
+    uint8_t ed_sample_hw  = nrf_radio_ed_sample_get(NRF_RADIO);
+    int8_t  ed_sample_dbm = nrf_802154_rssi_ed_sample_to_dbm_convert(ed_sample_hw);
 
     energy_detection_finish();
     m_trx_state = TRX_STATE_FINISHED;
 
-    nrf_802154_trx_energy_detection_finished(ed_sample);
+    mpsl_fem_lna_is_configured(&lna_gain_db);
+
+    nrf_802154_trx_energy_detection_finished(ed_sample_dbm - lna_gain_db);
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
 }

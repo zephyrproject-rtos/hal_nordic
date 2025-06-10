@@ -778,7 +778,7 @@ extern void nrf_802154_trx_standalone_cca_finished(bool channel_was_idle);
  *
  * @param ed_sample     Sample of detected energy.
  */
-extern void nrf_802154_trx_energy_detection_finished(uint8_t ed_sample);
+extern void nrf_802154_trx_energy_detection_finished(int8_t ed_sample_dbm);
 
 /**@brief Returns RADIO->EVENTS_END handle that hardware can subscribe to.
  *
