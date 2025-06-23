@@ -195,7 +195,7 @@ int main(void)
 
                     NRFX_LOG_INFO("[CHANNEL %u] Sampled value == %d",
                                   m_multiple_channels[0].channel_index,
-                                  NRFX_SAADC_SAMPLE_GET(RESOLUTION, samples_buffer, 0));
+                                  NRFX_SAADC_SAMPLE_GET(samples_buffer, 0));
                 }
                 else
                 {
@@ -245,7 +245,7 @@ int main(void)
                     {
                         NRFX_LOG_INFO("[CHANNEL %u] Sampled value == %d",
                                       m_multiple_channels[i].channel_index,
-                                      NRFX_SAADC_SAMPLE_GET(RESOLUTION, samples_buffer, i));
+                                      NRFX_SAADC_SAMPLE_GET(samples_buffer, i));
                     }
                 }
                 break;

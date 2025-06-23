@@ -155,7 +155,7 @@ int main(void)
             {
                 NRFX_LOG_INFO("[Sample %u] value == %d",
                               buffer_index,
-                              NRFX_SAADC_SAMPLE_GET(RESOLUTION, m_samples_buffer, buffer_index));
+                              NRFX_SAADC_SAMPLE_GET(m_samples_buffer, buffer_index));
             }
 
             status = nrfx_saadc_buffer_set(m_samples_buffer, BUFFER_SIZE);

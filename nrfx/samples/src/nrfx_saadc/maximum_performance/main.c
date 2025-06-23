@@ -190,7 +190,7 @@ static void saadc_handler(nrfx_saadc_evt_t const * p_event)
             for (uint16_t i = 0; i < samples_number; i++)
             {
                 NRFX_LOG_INFO("[Sample %u] value == %d",
-                              i, NRFX_SAADC_SAMPLE_GET(RESOLUTION, p_event->data.done.p_buffer, i));
+                              i, NRFX_SAADC_SAMPLE_GET(p_event->data.done.p_buffer, i));
             }
             break;
 
