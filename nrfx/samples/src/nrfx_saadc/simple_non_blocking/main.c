@@ -110,11 +110,7 @@ static const nrfx_saadc_channel_t m_multiple_channels[] =
 static uint8_t m_out_pins[CHANNEL_COUNT] = {LOOPBACK_PIN_1B, LOOPBACK_PIN_2B, LOOPBACK_PIN_3B};
 
 /** @brief Samples buffer defined with the size of @ref CHANNEL_COUNT symbol to store values from each channel ( @ref m_multiple_channels). */
-#if (NRF_SAADC_8BIT_SAMPLE_WIDTH == 8) && (RESOLUTION == NRF_SAADC_RESOLUTION_8BIT)
-static uint8_t m_samples_buffer[CHANNEL_COUNT];
-#else
 static uint16_t m_samples_buffer[CHANNEL_COUNT];
-#endif
 
 /** @brief Enum with the current state of the simple state machine. */
 static state_t m_current_state = STATE_SINGLE_CONFIG;
@@ -143,7 +139,7 @@ static void saadc_handler(nrfx_saadc_evt_t const * p_event)
             for (uint16_t i = 0; i < samples_number; i++)
             {
                 NRFX_LOG_INFO("[Sample %d] value == %d",
-                              i, NRFX_SAADC_SAMPLE_GET(RESOLUTION, p_event->data.done.p_buffer, i));
+                              i, NRFX_SAADC_SAMPLE_GET(p_event->data.done.p_buffer, i));
             }
 
             m_saadc_ready = true;
