@@ -115,11 +115,7 @@
 static const nrfx_saadc_channel_t m_single_channel = SAADC_CHANNEL_SE_ACQ_3US(CH0_AIN, 0);
 
 /** @brief Samples buffer to store values from a SAADC channel. */
-#if (NRF_SAADC_8BIT_SAMPLE_WIDTH == 8) && (RESOLUTION == NRF_SAADC_RESOLUTION_8BIT)
-static uint8_t m_sample_buffers[BUFFER_COUNT][BUFFER_SIZE];
-#else
 static uint16_t m_sample_buffers[BUFFER_COUNT][BUFFER_SIZE];
-#endif
 
 /** @brief Array of the GPPI channels. */
 static uint8_t m_gppi_channels[2];
@@ -190,7 +186,7 @@ static void saadc_handler(nrfx_saadc_evt_t const * p_event)
             for (uint16_t i = 0; i < samples_number; i++)
             {
                 NRFX_LOG_INFO("[Sample %u] value == %d",
-                              i, NRFX_SAADC_SAMPLE_GET(RESOLUTION, p_event->data.done.p_buffer, i));
+                              i, NRFX_SAADC_SAMPLE_GET(p_event->data.done.p_buffer, i));
             }
             break;
 

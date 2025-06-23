@@ -80,11 +80,7 @@
 static const nrfx_saadc_channel_t m_single_channel = SAADC_CHANNEL_SE_ACQ_3US(CH0_AIN, 0);
 
 /** @brief Samples buffer to store values from a SAADC channel. */
-#if (NRF_SAADC_8BIT_SAMPLE_WIDTH == 8) && (RESOLUTION == NRF_SAADC_RESOLUTION_8BIT)
-static uint8_t m_samples_buffer[BUFFER_SIZE];
-#else
 static uint16_t m_samples_buffer[BUFFER_SIZE];
-#endif
 
 /**
  * @brief Function for application main entry.
@@ -155,7 +151,7 @@ int main(void)
             {
                 NRFX_LOG_INFO("[Sample %u] value == %d",
                               buffer_index,
-                              NRFX_SAADC_SAMPLE_GET(RESOLUTION, m_samples_buffer, buffer_index));
+                              NRFX_SAADC_SAMPLE_GET(m_samples_buffer, buffer_index));
             }
 
             status = nrfx_saadc_buffer_set(m_samples_buffer, BUFFER_SIZE);
