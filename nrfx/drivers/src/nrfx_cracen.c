@@ -50,9 +50,6 @@
 #define TRNG_OFF_TIMER_VAL          0
 #define TRNG_INIT_WAIT_VAL        512
 #define TRNG_NUMBER_128BIT_BLOCKS   4
-#if NRF_CRACEN_RNG_HAS_BLENDING
-#define TRNG_BLENDING_METHOD      NRF_CRACEN_RNG_BLENDINGMETHOD_CONCATENATION
-#endif
 
 #define TRNG_CONDITIONING_KEY_SIZE 4 /* Size of the conditioning key: 4 words, 16 bytes */
 
@@ -96,7 +93,7 @@ static void trng_init(void)
     nrf_cracen_rng_control_set(NRF_CRACENCORE, &control_reset);
 
     /* Change from configuration defaults to what we prefer: */
-#if NRF_CRACEN_RNG_HAS_IDLETIMER
+#if NRF_CRACEN_RNG_HAS_IDLE_TIMER
     nrf_cracen_rng_off_timer_set(NRF_CRACENCORE, TRNG_OFF_TIMER_VAL);
 #endif
     nrf_cracen_rng_clk_div_set(NRF_CRACENCORE, TRNG_CLK_DIV);
@@ -107,7 +104,7 @@ static void trng_init(void)
             .enable = true,
             .number_128_blocks = TRNG_NUMBER_128BIT_BLOCKS,
 #if NRF_CRACEN_RNG_HAS_BLENDING
-            .blending_method = TRNG_BLENDING_METHOD,
+            .blending_method = NRF_CRACEN_RNG_BLENDING_CONCATENATION,
 #endif
     };
 
@@ -401,9 +398,9 @@ static inline void be_incr(unsigned char * v, size_t size)
  */
 static inline void xor_array(uint32_t * a, const uint32_t * b, size_t size)
 {
-    uintptr_t end = (uintptr_t)a + size;
+    uint8_t * end = (uint8_t *)a + size;
 
-    for (; (uintptr_t)a < end; a++, b++)
+    for (; (uint8_t *)a < end; a++, b++)
     {
         *a = *a ^ *b;
     }

@@ -50,9 +50,9 @@ extern "C" {
 
 #if defined(CRACENCORE_RNGCONTROL_SWOFFTMRVAL_ResetValue) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether the TRNG FSM has an idle timer */
-#define NRF_CRACEN_RNG_HAS_IDLETIMER 1
+#define NRF_CRACEN_RNG_HAS_IDLE_TIMER 1
 #else
-#define NRF_CRACEN_RNG_HAS_IDLETIMER 0
+#define NRF_CRACEN_RNG_HAS_IDLE_TIMER 0
 #endif
 
 #if defined(CRACENCORE_RNGCONTROL_CONTROL_BLENDINGMETHOD_Pos) || defined(__NRFX_DOXYGEN__)
@@ -66,22 +66,22 @@ extern "C" {
 /** @brief CRACEN entropy blending methods */
 typedef enum
 {
-  NRF_CRACEN_RNG_BLENDINGMETHOD_CONCATENATION = CRACENCORE_RNGCONTROL_CONTROL_BLENDINGMETHOD_CONCATENATION, /**< Collate all rings oscillators outputs */
-  NRF_CRACEN_RNG_BLENDINGMETHOD_XORLEVEL1     = CRACENCORE_RNGCONTROL_CONTROL_BLENDINGMETHOD_XORLEVEL1,     /**< XOR bits inside each ring oscillator set */
-  NRF_CRACEN_RNG_BLENDINGMETHOD_XORLEVEL2     = CRACENCORE_RNGCONTROL_CONTROL_BLENDINGMETHOD_XORLEVEL2,     /**< Also XOR bits in-between ring oscillator sets */
-  NRF_CRACEN_RNG_BLENDINGMETHOD_VONNEUMANN    = CRACENCORE_RNGCONTROL_CONTROL_BLENDINGMETHOD_VONNEUMANN,    /**< VON-NEUMANN debiasing */
-} nrf_cracen_rng_blending_methods_t;
+  NRF_CRACEN_RNG_BLENDING_CONCATENATION = CRACENCORE_RNGCONTROL_CONTROL_BLENDINGMETHOD_CONCATENATION, /**< Collate all rings oscillators outputs */
+  NRF_CRACEN_RNG_BLENDING_XOR_LEVEL_1   = CRACENCORE_RNGCONTROL_CONTROL_BLENDINGMETHOD_XORLEVEL1,     /**< XOR bits inside each ring oscillator set */
+  NRF_CRACEN_RNG_BLENDING_XOR_LEVEL_2   = CRACENCORE_RNGCONTROL_CONTROL_BLENDINGMETHOD_XORLEVEL2,     /**< Also XOR bits in-between ring oscillator sets */
+  NRF_CRACEN_RNG_BLENDING_VONNEUMANN    = CRACENCORE_RNGCONTROL_CONTROL_BLENDINGMETHOD_VONNEUMANN,    /**< On top of XOR_LEVEL_2 apply VON-NEUMANN debiasing */
+} nrf_cracen_rng_blending_t;
 #endif
 
 /** @brief CRACEN random generator configuration */
 typedef struct
 {
-    bool                              enable;            /**< Enable the RNG peripheral */
-    bool                              fifo_full_int_en;  /**< Enable FIFO full interrupt */
-    bool                              soft_reset;        /**< Soft reset the RNG peripheral */
-    uint8_t                           number_128_blocks; /**< Number of 128bit blocks used for AES conditioning. Must be at least 1 */
+    bool                      enable;            /**< Enable the RNG peripheral */
+    bool                      fifo_full_int_en;  /**< Enable FIFO full interrupt */
+    bool                      soft_reset;        /**< Soft reset the RNG peripheral */
+    uint8_t                   number_128_blocks; /**< Number of 128bit blocks used for AES conditioning. Must be at least 1 */
 #if NRF_CRACEN_RNG_HAS_BLENDING
-    nrf_cracen_rng_blending_methods_t blending_method;   /**< Which blending method to use */
+    nrf_cracen_rng_blending_t blending_method;   /**< Which blending method to use */
 #endif
 } nrf_cracen_rng_control_t;
 
@@ -91,7 +91,7 @@ typedef enum
     NRF_CRACEN_RNG_FSM_STATE_RESET        = CRACENCORE_RNGCONTROL_STATUS_STATE_RESET,    /**< RNG is not started */
     NRF_CRACEN_RNG_FSM_STATE_STARTUP      = CRACENCORE_RNGCONTROL_STATUS_STATE_STARTUP,  /**< RNG is starting */
     NRF_CRACEN_RNG_FSM_STATE_IDLE_READY   = CRACENCORE_RNGCONTROL_STATUS_STATE_IDLERON,  /**< RNG is idle, and ready to produce more data */
-#if NRF_CRACEN_RNG_HAS_IDLETIMER
+#if NRF_CRACEN_RNG_HAS_IDLE_TIMER
     NRF_CRACEN_RNG_FSM_STATE_IDLE_STANDBY = CRACENCORE_RNGCONTROL_STATUS_STATE_IDLEROFF, /**< RNG is idle, with the ring oscillators off */
 #endif
     NRF_CRACEN_RNG_FSM_STATE_FILL_FIFO    = CRACENCORE_RNGCONTROL_STATUS_STATE_FILLFIFO, /**< RNG is filling the FIFO with entropy */
@@ -149,7 +149,7 @@ nrf_cracen_rng_fsm_state_t nrf_cracen_rng_fsm_state_get(NRF_CRACENCORE_Type cons
 NRF_STATIC_INLINE void nrf_cracen_rng_init_wait_val_set(NRF_CRACENCORE_Type * p_reg,
                                                         uint16_t              value);
 
-#if NRF_CRACEN_RNG_HAS_IDLETIMER
+#if NRF_CRACEN_RNG_HAS_IDLE_TIMER
 /**
  * @brief Function for setting the switch off timer value
  *
@@ -232,7 +232,7 @@ NRF_STATIC_INLINE void nrf_cracen_rng_init_wait_val_set(NRF_CRACENCORE_Type * p_
 #endif
 }
 
-#if NRF_CRACEN_RNG_HAS_IDLETIMER
+#if NRF_CRACEN_RNG_HAS_IDLE_TIMER
 NRF_STATIC_INLINE void nrf_cracen_rng_off_timer_set(NRF_CRACENCORE_Type * p_reg,
                                                     uint16_t value)
 {
