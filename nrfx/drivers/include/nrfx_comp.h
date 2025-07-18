@@ -36,6 +36,7 @@
 
 #include <nrfx.h>
 #include <haly/nrfy_comp.h>
+#include <helpers/nrfx_analog_comp_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -139,6 +140,18 @@ typedef struct
     .input              = (nrf_comp_input_t)_input,                                \
     .interrupt_priority = NRFX_COMP_DEFAULT_CONFIG_IRQ_PRIORITY                    \
 }
+
+/**
+ * @brief Convert the analog input to the COMP pin.
+ *
+ * @param[in]  analog_input Analog input number.
+ * @param[out] p_comp_input The pointer to the COMP pin input.
+ *
+ * @retval NRFX_SUCCESS             The operation was successful.
+ * @retval NRFX_ERROR_INVALID_PARAM The input number is invalid.
+ */
+nrfx_err_t nrfx_comp_input_convert(nrfx_analog_input_t analog_input,
+                                   nrf_comp_input_t *  p_comp_input);
 
 /**
  * @brief Function for initializing the COMP driver.
