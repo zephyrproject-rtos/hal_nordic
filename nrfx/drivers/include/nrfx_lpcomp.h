@@ -36,6 +36,7 @@
 
 #include <nrfx.h>
 #include <haly/nrfy_lpcomp.h>
+#include <helpers/nrfx_analog_lpcomp_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -102,6 +103,20 @@ typedef struct
     .input = (nrf_lpcomp_input_t)_input,                                                     \
     .interrupt_priority = NRFX_LPCOMP_DEFAULT_CONFIG_IRQ_PRIORITY                            \
 }
+#endif
+
+#if (NRF_LPCOMP_HAS_AIN_AS_PIN)
+/**
+ * @brief Convert the analog input to the LPCOMP pin.
+ *
+ * @param[in]  analog_input   Analog input number.
+ * @param[out] p_lpcomp_input The pointer to the LPCOMP pin input.
+ *
+ * @retval NRFX_SUCCESS             The operation was successful.
+ * @retval NRFX_ERROR_INVALID_PARAM The input number is invalid.
+ */
+nrfx_err_t nrfx_lpcomp_input_convert(nrfx_analog_input_t  analog_input,
+                                     nrf_lpcomp_input_t * p_lpcomp_input);
 #endif
 
 /**
