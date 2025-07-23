@@ -15,8 +15,10 @@ extern "C" {
 
 /** @brief MRAM latency service response notification types. */
 typedef enum __NRFS_PACKED {
-	NRFS_MRAM_LATENCY_REQ_APPLIED  = 0, /** sent only as a response to the request MRAM_LATENCY_NOT_ALLOWED */
-	NRFS_MRAM_LATENCY_REQ_REJECTED = 1, /** Request rejected. */
+	NRFS_MRAM_LATENCY_REQ_APPLIED = 0,	/** sent only as a response to
+                                            the request MRAM_LATENCY_NOT_ALLOWED */
+	NRFS_MRAM_LATENCY_REQ_REJECTED = 1,	/** Request rejected. */
+	NRFS_MRAM_INTERNAL_REQ_APPLIED = 2,	/** internal response */
 } nrfs_mram_latency_evt_type_t;
 
 /** @brief MRAM latency service response data structure. */
@@ -57,6 +59,14 @@ void nrfs_mram_uninit(void);
  * @retval NRFS_ERR_IPC           Backend returned error during request sending.
  */
 nrfs_err_t nrfs_mram_set_latency(mram_latency_request_t mram_latency_request, void * p_context);
+
+/**
+ * @brief Function for internal usage.
+ *
+ * @param[in] enable on/off setting
+ * @param[in] p_context Opaque user data that will be passed to registered callback.
+ */
+nrfs_err_t nrfs_mram_internal_switch(bool enable, void * p_context);
 
 #ifdef __cplusplus
 }
