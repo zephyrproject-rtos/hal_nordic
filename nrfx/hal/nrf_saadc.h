@@ -226,6 +226,21 @@ typedef uint32_t nrf_saadc_input_t;
                                     << SAADC_CH_PSELP_INTERNAL_Pos)
 #endif
 
+#if defined(SAADC_CH_PSELP_INTERNAL_VddL) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying AVDD_AO_1V5 as input. */
+#define NRF_SAADC_INPUT_VDDL ((SAADC_CH_PSELP_INTERNAL_VddL + 1) << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Decb) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying DECB as input. */
+#define NRF_SAADC_INPUT_DECB ((SAADC_CH_PSELP_INTERNAL_Decb + 1) << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Vss) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying VSS as input. */
+#define NRF_SAADC_INPUT_VSS ((SAADC_CH_PSELP_INTERNAL_Vss + 1) << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
 #if defined(SAADC_CH_PSELP_INTERNAL_VDDAO0V8) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol specifying VDD_AO_0V8 as input. */
 #define NRF_SAADC_INPUT_VDDAO0V8 ((SAADC_CH_PSELP_INTERNAL_VDDAO0V8 + 1) \
