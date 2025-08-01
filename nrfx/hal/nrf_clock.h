@@ -116,6 +116,13 @@ extern "C" {
 #define NRF_CLOCK_HAS_HFCLK_ALWAYSRUN 0
 #endif
 
+#if defined(CLOCK_HFCLKRUN_STATUS_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the HFCLK clock is present. */
+#define NRF_CLOCK_HAS_HFCLK 1
+#else
+#define NRF_CLOCK_HAS_HFCLK 0
+#endif
+
 #if defined(CLOCK_HFCLKSRC_SRC_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether the HFCLKSRC register is present. */
 #define NRF_CLOCK_HAS_HFCLKSRC 1
