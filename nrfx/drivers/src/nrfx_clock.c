@@ -336,12 +336,21 @@ static bool clock_lfclksrc_tweak(nrf_clock_lfclk_t * p_lfclksrc)
     return is_correct_clk;
 }
 
+#if NRF_CLOCK_HAS_HFCLK
+static void hfclk_event_handler(void)
+{
+    m_clock_cb.event_handler(NRFX_CLOCK_EVT_HFCLK_STARTED);
+}
+#endif // NRF_CLOCK_HAS_HFCLK
+
 nrfx_err_t nrfx_clock_init(nrfx_clock_event_handler_t event_handler)
 {
     nrfx_err_t err_code = NRFX_SUCCESS;
     if (m_clock_cb.module_initialized)
     {
         err_code = NRFX_ERROR_ALREADY;
+        NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
+        return err_code;
     }
     else
     {
@@ -354,8 +363,27 @@ nrfx_err_t nrfx_clock_init(nrfx_clock_event_handler_t event_handler)
         m_clock_cb.hfclk_started = false;
 #endif
     }
+//Temp code, until nordic_nrf_clock compat is present
+#if CONFIG_CLOCK_CONTROL_NRF_COMMON
+    return err_code;
+#endif
 
-    NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
+#if NRF_CLOCK_HAS_HFCLK
+    if (m_clock_cb.event_handler)
+    {
+        err_code = nrfx_clock_hfclk_init(&hfclk_event_handler);
+    } else {
+        err_code = nrfx_clock_hfclk_init(NULL);
+    }
+
+    if(err_code != NRFX_SUCCESS)
+    {
+        NRFX_LOG_INFO("Function: %s, error code: %s.", __func__,
+                        NRFX_LOG_ERROR_STRING_GET(err_code));
+        return err_code;
+    }
+#endif // NRF_CLOCK_HAS_HFCLK
+
     return err_code;
 }
 
@@ -367,9 +395,6 @@ void nrfx_clock_enable(void)
         nrfx_power_clock_irq_init();
     }
     nrf_clock_lf_src_set(NRF_CLOCK, clock_initial_lfclksrc_get());
-#if NRF_CLOCK_HAS_HFCLKSRC
-    nrf_clock_hf_src_set(NRF_CLOCK, NRF_CLOCK_HFCLK_HIGH_ACCURACY);
-#endif
 #if NRF_CLOCK_HAS_HFCLK192M
     nrf_clock_hfclk192m_src_set(NRF_CLOCK, (nrf_clock_hfclk_t)NRFX_CLOCK_CONFIG_HFCLK192M_SRC);
 #endif
@@ -421,7 +446,6 @@ void nrfx_clock_uninit(void)
 {
     NRFX_ASSERT(m_clock_cb.module_initialized);
     clock_stop(NRF_CLOCK_DOMAIN_LFCLK);
-    clock_stop(NRF_CLOCK_DOMAIN_HFCLK);
 #if NRF_CLOCK_HAS_HFCLK192M
     clock_stop(NRF_CLOCK_DOMAIN_HFCLK192M);
 #endif
@@ -430,6 +454,12 @@ void nrfx_clock_uninit(void)
 #endif
 #if NRF_CLOCK_HAS_HFCLK24M
     clock_stop(NRF_CLOCK_DOMAIN_HFCLK24M);
+#endif
+#if NRF_CLOCK_HAS_HFCLK
+    nrfx_clock_hfclk_uninit();
+#endif
+#if NRF_CLOCK_HAS_XO
+    clock_stop(NRF_CLOCK_DOMAIN_HFCLK);
 #endif
     m_clock_cb.module_initialized = false;
     NRFX_LOG_INFO("Uninitialized.");
@@ -495,19 +525,16 @@ void nrfx_clock_start(nrf_clock_domain_t domain)
             task     = NRF_CLOCK_TASK_LFCLKSTART;
             break;
         case NRF_CLOCK_DOMAIN_HFCLK:
+#if NRF_CLOCK_HAS_XO
             event    = NRF_CLOCK_EVENT_HFCLKSTARTED;
             int_mask = NRF_CLOCK_INT_HF_STARTED_MASK |
-#if NRF_CLOCK_HAS_XO_TUNE
                        NRF_CLOCK_INT_XOTUNED_MASK |
                        NRF_CLOCK_INT_XOTUNEERROR_MASK |
                        NRF_CLOCK_INT_XOTUNEFAILED_MASK |
-#endif
                        0;
-#if NRF_CLOCK_HAS_XO_TUNE
             nrf_clock_event_clear(NRF_CLOCK, NRF_CLOCK_EVENT_XOTUNED);
             nrf_clock_event_clear(NRF_CLOCK, NRF_CLOCK_EVENT_XOTUNEFAILED);
             nrf_clock_event_clear(NRF_CLOCK, NRF_CLOCK_EVENT_XOTUNEERROR);
-#endif
             task     = NRF_CLOCK_TASK_HFCLKSTART;
 #if NRFX_CHECK(NRF54L_ERRATA_39_ENABLE_WORKAROUND)
             if (nrf54l_errata_39())
@@ -516,6 +543,12 @@ void nrfx_clock_start(nrf_clock_domain_t domain)
             }
 #endif
             break;
+#else
+#if NRF_CLOCK_HAS_HFCLK
+            nrfx_clock_hfclk_start();
+#endif // NRF_CLOCK_HAS_HFCLK
+            return;
+#endif
 #if NRF_CLOCK_HAS_HFCLK192M
         case NRF_CLOCK_DOMAIN_HFCLK192M:
             event    = NRF_CLOCK_EVENT_HFCLK192MSTARTED;
@@ -565,7 +598,21 @@ void nrfx_clock_start(nrf_clock_domain_t domain)
 void nrfx_clock_stop(nrf_clock_domain_t domain)
 {
     NRFX_ASSERT(m_clock_cb.module_initialized);
-    clock_stop(domain);
+    switch(domain)
+    {
+    case NRF_CLOCK_DOMAIN_HFCLK:
+#if NRF_CLOCK_HAS_XO
+        clock_stop(domain);
+#else
+#if NRF_CLOCK_HAS_HFCLK
+        nrfx_clock_hfclk_stop();
+#endif // NRF_CLOCK_HAS_HFCLK
+#endif // NRF_CLOCK_HAS_XO
+        break;
+    default:
+        clock_stop(domain);
+        break;
+    }
 }
 
 #if ((NRF_CLOCK_HAS_CALIBRATION || NRFX_CHECK(NRF_LFRC_HAS_CALIBRATION)) && \
@@ -774,57 +821,11 @@ nrfx_err_t nrfx_clock_divider_set(nrf_clock_domain_t domain,
     switch(domain)
     {
 #if defined(CLOCK_FEATURE_HFCLK_DIVIDE_PRESENT)
+#if NRF_CLOCK_HAS_HFCLK
         case NRF_CLOCK_DOMAIN_HFCLK:
-            switch (div)
-            {
-                case NRF_CLOCK_HFCLK_DIV_2:
-#if !defined(NRF_TRUSTZONE_NONSECURE) && NRFX_CHECK(NRF53_ERRATA_4_ENABLE_WORKAROUND)
-                    if (nrf53_errata_4())
-                    {
-                        NRFX_CRITICAL_SECTION_ENTER();
-                        __DSB();
-
-                        nrf_clock_hfclk_div_set(NRF_CLOCK, div);
-
-                        *(volatile uint32_t *)0x5084450C = 0x0;
-                        *(volatile uint32_t *)0x50026548 = 0x0;
-                        *(volatile uint32_t *)0x50081EE4 = 0x0D;
-
-                        NRFX_CRITICAL_SECTION_EXIT();
-                    }
-                    else
-#endif
-                    {
-                        nrf_clock_hfclk_div_set(NRF_CLOCK, div);
-                    }
-                    break;
-                case NRF_CLOCK_HFCLK_DIV_1:
-#if !defined(NRF_TRUSTZONE_NONSECURE) && NRFX_CHECK(NRF53_ERRATA_4_ENABLE_WORKAROUND)
-                    if (nrf53_errata_4())
-                    {
-                        NRFX_CRITICAL_SECTION_ENTER();
-                        __DSB();
-
-                        *(volatile uint32_t *)0x5084450C = 0x4040;
-                        *(volatile uint32_t *)0x50026548 = 0x40;
-                        *(volatile uint32_t *)0x50081EE4 = 0x4D;
-
-                        nrf_clock_hfclk_div_set(NRF_CLOCK, div);
-
-                        NRFX_CRITICAL_SECTION_EXIT();
-                    }
-                    else
-#endif
-                    {
-                        nrf_clock_hfclk_div_set(NRF_CLOCK, div);
-                    }
-                    break;
-                default:
-                    return NRFX_ERROR_INVALID_PARAM;
-            }
-            SystemCoreClockUpdate();
-            return NRFX_SUCCESS;
-#endif
+            return nrfx_clock_hfclk_divider_set(div);
+#endif // NRF_CLOCK_HAS_HFCLK
+#endif // CLOCK_FEATURE_HFCLK_DIVIDE_PRESENT
 #if NRF_CLOCK_HAS_HFCLK192M
         case NRF_CLOCK_DOMAIN_HFCLK192M:
             if (div > NRF_CLOCK_HFCLK_DIV_4)
@@ -884,16 +885,6 @@ void nrfx_clock_irq_handler(void)
         switch (int_mask)
         {
             case NRF_CLOCK_INT_HF_STARTED_MASK:
-#if NRFX_CHECK(USE_WORKAROUND_FOR_ANOMALY_201)
-                if (!m_clock_cb.hfclk_started)
-                {
-                    m_clock_cb.hfclk_started = true;
-                }
-                else
-                {
-                    call_handler = false;
-                }
-#endif
                 break;
             case NRF_CLOCK_INT_LF_STARTED_MASK:
             {
