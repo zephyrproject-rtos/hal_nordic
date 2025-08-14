@@ -206,20 +206,6 @@ NRFX_STATIC_INLINE void nrfx_clock_lfclk_stop(void);
 NRFX_STATIC_INLINE bool nrfx_clock_lfclk_is_running(void);
 
 /**
- * @brief Function for starting the high-accuracy source HFCLK.
- *
- * @note This function is deprecated. Use @ref nrfx_clock_start instead.
- */
-NRFX_STATIC_INLINE void nrfx_clock_hfclk_start(void);
-
-/**
- * @brief Function for stopping the external high-accuracy source HFCLK.
- *
- * @note This function is deprecated. Use @ref nrfx_clock_stop instead.
- */
-NRFX_STATIC_INLINE void nrfx_clock_hfclk_stop(void);
-
-/**
  * @brief Function for checking the HFCLK state.
  *
  * @note This function is deprecated. Use @ref nrfx_clock_is_running instead.
@@ -387,16 +373,6 @@ NRFX_STATIC_INLINE void nrfx_clock_lfclk_start(void)
 NRFX_STATIC_INLINE void nrfx_clock_lfclk_stop(void)
 {
     nrfx_clock_stop(NRF_CLOCK_DOMAIN_LFCLK);
-}
-
-NRFX_STATIC_INLINE void nrfx_clock_hfclk_start(void)
-{
-    nrfx_clock_start(NRF_CLOCK_DOMAIN_HFCLK);
-}
-
-NRFX_STATIC_INLINE void nrfx_clock_hfclk_stop(void)
-{
-    nrfx_clock_stop(NRF_CLOCK_DOMAIN_HFCLK);
 }
 
 NRFX_STATIC_INLINE uint32_t nrfx_clock_task_address_get(nrf_clock_task_t task)
