@@ -44,6 +44,21 @@ nrfs_err_t nrfs_mram_set_latency(mram_latency_request_t mram_latency_request, vo
 	return nrfs_backend_send(&req, sizeof(req));
 }
 
+nrfs_err_t nrfs_mram_internal_switch(bool enable, void * p_context)
+{
+	nrfs_mram_set_latency_t req;
+
+	NRFS_SERVICE_HDR_FILL(&req, NRFS_MRAM_REQ_INTERNAL);
+	req.ctx.ctx		      = (uint32_t)p_context;
+
+	if (enable) {
+		req.data.mram_latency_request = MRAM_LATENCY_ALLOWED;
+	} else {
+		req.data.mram_latency_request = MRAM_LATENCY_NOT_ALLOWED;
+	}
+	return nrfs_backend_send(&req, sizeof(req));
+}
+
 void nrfs_mram_service_notify(void *p_notification, size_t size)
 {
 	if (!m_cb.handler || !m_cb.is_initialized) {
@@ -62,6 +77,11 @@ void nrfs_mram_service_notify(void *p_notification, size_t size)
 	case NRFS_MRAM_REQ_SET_LATENCY: /*  sent only as a response to
 					the request MRAM_LATENCY_NOT_ALLOWED */
 		evt.type = NRFS_MRAM_LATENCY_REQ_APPLIED;
+		m_cb.handler(&evt, (void *)p_data->ctx.ctx);
+		break;
+
+	case NRFS_MRAM_REQ_INTERNAL: /* internal response */
+		evt.type = NRFS_MRAM_INTERNAL_REQ_APPLIED;
 		m_cb.handler(&evt, (void *)p_data->ctx.ctx);
 		break;
 
