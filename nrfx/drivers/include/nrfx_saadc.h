@@ -36,6 +36,7 @@
 
 #include <nrfx.h>
 #include <haly/nrfy_saadc.h>
+#include <helpers/nrfx_analog_saadc_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -269,6 +270,24 @@ typedef struct
  *                    the stack, so it is valid only within the context of the event handler.
  */
 typedef void (* nrfx_saadc_event_handler_t)(nrfx_saadc_evt_t const * p_event);
+
+/**
+ * @brief Convert the analog input to the SAADC pin.
+ *
+ * @param[in]  input_p         The positive analog input number.
+ * @param[in]  input_n         The negative analog input number (valid only for differential mode).
+ * @param[in]  differential    The differential mode indicator. True if differential mode is used, false otherwise.
+ * @param[out] p_saadc_input_p The pointer to the positive SAADC pin input.
+ * @param[out] p_saadc_input_n The pointer to the negative SAADC pin input (valid only for differential mode).
+ *
+ * @retval NRFX_SUCCESS             The operation was successful.
+ * @retval NRFX_ERROR_INVALID_PARAM The input number is invalid.
+ */
+nrfx_err_t nrfx_saadc_input_convert(nrfx_analog_input_t input_p,
+                                    nrfx_analog_input_t input_n,
+                                    bool                differential,
+                                    nrf_saadc_input_t * p_saadc_input_p,
+                                    nrf_saadc_input_t * p_saadc_input_n);
 
 /**
  * @brief Function for initializing the SAADC driver.

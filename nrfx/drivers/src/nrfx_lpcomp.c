@@ -123,6 +123,24 @@ void nrfx_lpcomp_irq_handler(void)
     lpcomp_execute_handler(NRF_LPCOMP_EVENT_CROSS, evt_mask);
 }
 
+#if (NRF_LPCOMP_HAS_AIN_AS_PIN)
+nrfx_err_t nrfx_lpcomp_input_convert(nrfx_analog_input_t  analog_input,
+                                     nrf_lpcomp_input_t * p_lpcomp_input)
+{
+    NRFX_ASSERT(p_lpcomp_input);
+
+    nrf_lpcomp_input_t lpcomp_input = nrfx_analog_lpcomp_ain_config_get(analog_input);
+
+    if (lpcomp_input == 0)
+    {
+        return NRFX_ERROR_INVALID_PARAM;
+    }
+
+    *p_lpcomp_input = lpcomp_input;
+    return NRFX_SUCCESS;
+}
+#endif
+
 nrfx_err_t nrfx_lpcomp_init(nrfx_lpcomp_config_t const * p_config,
                             nrfx_lpcomp_event_handler_t  event_handler)
 {

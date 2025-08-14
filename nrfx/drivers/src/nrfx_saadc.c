@@ -260,6 +260,43 @@ static void saadc_generic_mode_set(uint32_t                   ch_to_activate_mas
     }
 }
 
+nrfx_err_t nrfx_saadc_input_convert(nrfx_analog_input_t input_p,
+                                    nrfx_analog_input_t input_n,
+                                    bool                differential,
+                                    nrf_saadc_input_t * p_saadc_input_p,
+                                    nrf_saadc_input_t * p_saadc_input_n)
+{
+    NRFX_ASSERT(p_saadc_input_p);
+
+    nrf_saadc_input_t saadc_input_pos = nrfx_analog_saadc_ain_config_get(input_p);
+
+    if (saadc_input_pos == NRF_SAADC_INPUT_DISABLED) {
+        NRFX_LOG_ERROR("Invalid analog positive input number: %d", input_p);
+        return NRFX_ERROR_INVALID_PARAM;
+    }
+
+    *p_saadc_input_p = saadc_input_pos;
+
+    if (differential) {
+        NRFX_ASSERT(p_saadc_input_n);
+        nrf_saadc_input_t saadc_input_neg = nrfx_analog_saadc_ain_config_get(input_n);
+
+        if (saadc_input_neg == NRF_SAADC_INPUT_DISABLED) {
+            NRFX_LOG_ERROR("Invalid analog negative input number: %d", input_n);
+            return NRFX_ERROR_INVALID_PARAM;
+        } else if (NRFX_IS_ENABLED(HALTIUM_XXAA) &&
+                 ((input_p > NRFX_ANALOG_EXTERNAL_AIN7) !=
+                  (input_n > NRFX_ANALOG_EXTERNAL_AIN7))) {
+            NRFX_LOG_ERROR("1v8 inputs cannot be mixed with 3v3 inputs");
+            return NRFX_ERROR_INVALID_PARAM;
+        }
+
+        *p_saadc_input_n = saadc_input_neg;
+    }
+
+    return NRFX_SUCCESS;
+}
+
 nrfx_err_t nrfx_saadc_init(uint8_t interrupt_priority)
 {
     nrfx_err_t err_code;
