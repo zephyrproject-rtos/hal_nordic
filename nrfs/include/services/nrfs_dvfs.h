@@ -15,12 +15,12 @@ extern "C" {
 
 /** @brief Dynamic Voltage and Frequency Scaling service event types. */
 typedef enum __NRFS_PACKED {
-	NRFS_DVFS_EVT_REJECT, /** General purpose event for rejected requests. */
-	NRFS_DVFS_EVT_INIT_PREPARATION, /** ABB Oppoint has been set correctly. Ready for second step of initialization sequence. */
-	NRFS_DVFS_EVT_INIT_DONE, /** ABB Oppoint has been set correctly. Initialization sequence completed. */
-	NRFS_DVFS_EVT_OPPOINT_REQ_CONFIRMED, /** Request for operating frequency change has been registered. Please standby. */
-	NRFS_DVFS_EVT_OPPOINT_SCALING_PREPARE, /** Prepare for voltage scaling. Awaiting the @p nrfs_dvfs_ready_to_scale response. */
-	NRFS_DVFS_EVT_OPPOINT_SCALING_DONE, /** Voltage scaling done, new oppoint can be applied. */
+	NRFS_DVFS_EVT_REJECT			= 0, /** General purpose event for rejected requests. */
+	NRFS_DVFS_EVT_INIT_PREPARATION		= 1, /** ABB Oppoint has been set correctly. Ready for second step of initialization sequence. */
+	NRFS_DVFS_EVT_INIT_DONE			= 2, /** ABB Oppoint has been set correctly. Initialization sequence completed. */
+	NRFS_DVFS_EVT_OPPOINT_REQ_CONFIRMED	= 3, /** Request for operating frequency change has been registered. Please standby. */
+	NRFS_DVFS_EVT_OPPOINT_SCALING_PREPARE	= 4, /** Prepare for voltage scaling. Awaiting the @p nrfs_dvfs_ready_to_scale response. */
+	NRFS_DVFS_EVT_OPPOINT_SCALING_DONE	= 5, /** Voltage scaling done, new oppoint can be applied. */
 } nrfs_dvfs_evt_type_t;
 
 /** @brief Dynamic Voltage and Frequency Scaling service event. */

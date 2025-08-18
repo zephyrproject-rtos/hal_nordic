@@ -15,9 +15,9 @@ extern "C" {
 
 /** @brief System Diagnostics register access type. */
 typedef enum __NRFS_PACKED {
-	DIAG_REG_READ = 0, /** Register read */
-	DIAG_REG_WRITE,	   /** Register write */
-	DIAG_REG_INVALID,  /** Register access invalid */
+	DIAG_REG_READ	  = 0, /** Register read */
+	DIAG_REG_WRITE	  = 1, /** Register write */
+	DIAG_REG_INVALID  = 2, /** Register access invalid */
 } diag_reg_access_type_t;
 
 /** @brief System Diagnostics register access. */

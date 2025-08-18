@@ -15,16 +15,16 @@ extern "C" {
 
 /** @brief Power domain selection */
 typedef enum __NRFS_PACKED {
-	GDPWR_GD_FAST_ACTIVE_0,
-	GDPWR_GD_FAST_ACTIVE_1,
-	GDPWR_GD_FAST_MAIN,
-	GDPWR_GD_SLOW_ACTIVE,
-	GDPWR_GD_SLOW_MAIN
+	GDPWR_GD_FAST_ACTIVE_0	= 0,
+	GDPWR_GD_FAST_ACTIVE_1	= 1,
+	GDPWR_GD_FAST_MAIN	= 2,
+	GDPWR_GD_SLOW_ACTIVE	= 3,
+	GDPWR_GD_SLOW_MAIN	= 4,
 } gdpwr_power_domain_t;
 
 typedef enum __NRFS_PACKED {
-	GDPWR_POWER_REQUEST_CLEAR,
-	GDPWR_POWER_REQUEST_SET
+	GDPWR_POWER_REQUEST_CLEAR = 0,
+	GDPWR_POWER_REQUEST_SET	  = 1,
 } gdpwr_request_type_t;
 
 /** @brief Power domain data structure. */

@@ -15,9 +15,9 @@ extern "C" {
 
 /** @brief MRAM set latency requests. */
 typedef enum __NRFS_PACKED {
-	MRAM_LATENCY_ALLOWED,
-	MRAM_LATENCY_NOT_ALLOWED,
-	MRAM_LATENCY_INTERNAL_REQ
+	MRAM_LATENCY_ALLOWED	  = 0,
+	MRAM_LATENCY_NOT_ALLOWED  = 1,
+	MRAM_LATENCY_INTERNAL_REQ = 2,
 } mram_latency_request_t;
 
 /** @brief MRAM set latency data structure. */

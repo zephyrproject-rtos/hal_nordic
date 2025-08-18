@@ -15,9 +15,9 @@ extern "C" {
 
 /** @brief SWEXT control service response notification types. */
 typedef enum __NRFS_PACKED {
-	NRFS_SWEXT_EVT_ENABLED		= 0,	/** Output enabled. */
-	NRFS_SWEXT_EVT_OVERCURRENT	= 1,	/** Overcurrent detected. SWEXT is powered down. */
-	NRFS_SWEXT_EVT_REJECTED		= 2,	/** Request rejected. */
+	NRFS_SWEXT_EVT_ENABLED		= 0, /** Output enabled. */
+	NRFS_SWEXT_EVT_OVERCURRENT	= 1, /** Overcurrent detected. SWEXT is powered down. */
+	NRFS_SWEXT_EVT_REJECTED		= 2, /** Request rejected. */
 } nrfs_swext_evt_type_t;
 
 /** @brief SWEXT control service response data structure. */

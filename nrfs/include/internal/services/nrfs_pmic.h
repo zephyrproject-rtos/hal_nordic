@@ -21,34 +21,34 @@ typedef enum __NRFS_PACKED {
 
 /** @brief PMIC BLE RADIO TX power. */
 typedef enum __NRFS_PACKED {
-	PMIC_BLE_RADIO_TXPOWER_POS10DBM, /** +10 dBm */
-	PMIC_BLE_RADIO_TXPOWER_POS9DBM,	 /** +9 dBm */
-	PMIC_BLE_RADIO_TXPOWER_POS8DBM,	 /** +8 dBm */
-	PMIC_BLE_RADIO_TXPOWER_POS7DBM,	 /** +7 dBm */
-	PMIC_BLE_RADIO_TXPOWER_POS6DBM,	 /** +6 dBm */
-	PMIC_BLE_RADIO_TXPOWER_POS5DBM,	 /** +5 dBm */
-	PMIC_BLE_RADIO_TXPOWER_POS4DBM,	 /** +4 dBm */
-	PMIC_BLE_RADIO_TXPOWER_POS3DBM,	 /** +3 dBm */
-	PMIC_BLE_RADIO_TXPOWER_POS2DBM,	 /** +2 dBm */
-	PMIC_BLE_RADIO_TXPOWER_POS1DBM,	 /** +1 dBm */
-	PMIC_BLE_RADIO_TXPOWER_0DBM,	 /** 0 dBm */
-	PMIC_BLE_RADIO_TXPOWER_NEG1DBM,	 /** -1 dBm */
-	PMIC_BLE_RADIO_TXPOWER_NEG2DBM,	 /** -2 dBm */
-	PMIC_BLE_RADIO_TXPOWER_NEG4DBM,	 /** -4 dBm */
-	PMIC_BLE_RADIO_TXPOWER_NEG8DBM,	 /** -8 dBm */
-	PMIC_BLE_RADIO_TXPOWER_NEG12DBM, /** -12 dBm */
-	PMIC_BLE_RADIO_TXPOWER_NEG16DBM, /** -16 dBm */
-	PMIC_BLE_RADIO_TXPOWER_NEG20DBM, /** -20 dBm */
-	PMIC_BLE_RADIO_TXPOWER_NEG30DBM, /** -30 dBm */
-	PMIC_BLE_RADIO_TXPOWER_NEG40DBM, /** -40 dBm */
-	PMIC_BLE_RADIO_TXPOWER_NEG70DBM	 /** -70 dBm */
+	PMIC_BLE_RADIO_TXPOWER_POS10DBM = 0, /** +10 dBm */
+	PMIC_BLE_RADIO_TXPOWER_POS9DBM = 1, /** +9 dBm */
+	PMIC_BLE_RADIO_TXPOWER_POS8DBM = 2, /** +8 dBm */
+	PMIC_BLE_RADIO_TXPOWER_POS7DBM = 3, /** +7 dBm */
+	PMIC_BLE_RADIO_TXPOWER_POS6DBM = 4, /** +6 dBm */
+	PMIC_BLE_RADIO_TXPOWER_POS5DBM = 5, /** +5 dBm */
+	PMIC_BLE_RADIO_TXPOWER_POS4DBM = 6, /** +4 dBm */
+	PMIC_BLE_RADIO_TXPOWER_POS3DBM = 7, /** +3 dBm */
+	PMIC_BLE_RADIO_TXPOWER_POS2DBM = 8, /** +2 dBm */
+	PMIC_BLE_RADIO_TXPOWER_POS1DBM = 9, /** +1 dBm */
+	PMIC_BLE_RADIO_TXPOWER_0DBM    = 10, /** 0 dBm */
+	PMIC_BLE_RADIO_TXPOWER_NEG1DBM = 11, /** -1 dBm */
+	PMIC_BLE_RADIO_TXPOWER_NEG2DBM = 12, /** -2 dBm */
+	PMIC_BLE_RADIO_TXPOWER_NEG4DBM = 13, /** -4 dBm */
+	PMIC_BLE_RADIO_TXPOWER_NEG8DBM = 14, /** -8 dBm */
+	PMIC_BLE_RADIO_TXPOWER_NEG12DBM = 15, /** -12 dBm */
+	PMIC_BLE_RADIO_TXPOWER_NEG16DBM = 16, /** -16 dBm */
+	PMIC_BLE_RADIO_TXPOWER_NEG20DBM = 17, /** -20 dBm */
+	PMIC_BLE_RADIO_TXPOWER_NEG30DBM = 18, /** -30 dBm */
+	PMIC_BLE_RADIO_TXPOWER_NEG40DBM = 19, /** -40 dBm */
+	PMIC_BLE_RADIO_TXPOWER_NEG70DBM = 20, /** -70 dBm */
 } pmic_ble_radio_txpower_t;
 
 /** @brief PMIC TEST IF register access type. */
 typedef enum __NRFS_PACKED {
-	PMIC_REG_READ,	  /** Register read */
-	PMIC_REG_WRITE,	  /** Register write */
-	PMIC_REG_INVALID, /** Register access invalid */
+	PMIC_REG_READ    = 0, /** Register read */
+	PMIC_REG_WRITE   = 1, /** Register write */
+	PMIC_REG_INVALID = 2, /** Register access invalid */
 } pmic_reg_access_type_t;
 
 /** @brief PMIC TEST IF register access. */
@@ -130,8 +130,8 @@ typedef struct __NRFS_PACKED {
 
 /** @brief PMIC available info. */
 typedef enum __NRFS_PACKED {
-	PMIC_NOT_AVAILABLE,
-	PMIC_AVAILABLE
+	PMIC_NOT_AVAILABLE = 0,
+	PMIC_AVAILABLE     = 1,
 } pmic_available_t;
 
 /** @brief PMIC info data structure. */

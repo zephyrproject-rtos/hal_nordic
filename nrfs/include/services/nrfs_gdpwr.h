@@ -15,8 +15,8 @@ extern "C" {
 
 /** @brief Global domain power request service response notification types. */
 typedef enum __NRFS_PACKED {
-	NRFS_GDPWR_REQ_APPLIED, /** Request accepted. */
-	NRFS_GDPWR_REQ_REJECTED /** Request rejected. */
+	NRFS_GDPWR_REQ_APPLIED  = 0, /** Request accepted. */
+	NRFS_GDPWR_REQ_REJECTED = 1, /** Request rejected. */
 } nrfs_gdpwr_evt_type_t;
 
 /** @brief Global domain power request service response data structure. */

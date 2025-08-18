@@ -15,9 +15,8 @@ extern "C" {
 
 /** @brief MRAM latency service response notification types. */
 typedef enum __NRFS_PACKED {
-	NRFS_MRAM_LATENCY_REQ_APPLIED,	/** sent only as a response to
-                                            the request MRAM_LATENCY_NOT_ALLOWED */
-	NRFS_MRAM_LATENCY_REQ_REJECTED, /** Request rejected. */
+	NRFS_MRAM_LATENCY_REQ_APPLIED  = 0, /** sent only as a response to the request MRAM_LATENCY_NOT_ALLOWED */
+	NRFS_MRAM_LATENCY_REQ_REJECTED = 1, /** Request rejected. */
 } nrfs_mram_latency_evt_type_t;
 
 /** @brief MRAM latency service response data structure. */

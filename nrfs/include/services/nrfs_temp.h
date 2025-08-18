@@ -16,11 +16,11 @@ extern "C" {
 
 /** @brief Temperature service event types. */
 typedef enum __NRFS_PACKED {
-	NRFS_TEMP_EVT_MEASURE_DONE, /** Temperature measurement done. */
+	NRFS_TEMP_EVT_MEASURE_DONE	= 0, /** Temperature measurement done. */
 #ifdef NRFS_TEMP_SERVICE_SUBSCRIPTION_ENABLED
-	NRFS_TEMP_EVT_CHANGE,	    /** Temperature threshold crossed. */
+	NRFS_TEMP_EVT_CHANGE		= 1, /** Temperature threshold crossed. */
 #endif
-	NRFS_TEMP_EVT_REJECT,	    /** Request rejected. */
+	NRFS_TEMP_EVT_REJECT		= 2, /** Request rejected. */
 } nrfs_temp_evt_type_t;
 
 /** @brief Temperature service event. */

@@ -24,9 +24,9 @@
 
 /** @brief Return codes. */
 typedef enum __NRFS_PACKED {
-	NRFS_SUCCESS,		/**< Success. */
-	NRFS_ERR_INVALID_STATE, /**< Invalid state. */
-	NRFS_ERR_IPC,		/**< IPC error. */
+	NRFS_SUCCESS		= 0, /** Success. */
+	NRFS_ERR_INVALID_STATE	= 1, /** Invalid state. */
+	NRFS_ERR_IPC		= 2, /** IPC error. */
 } nrfs_err_t;
 
 #endif /* NRFS_COMMON_H */

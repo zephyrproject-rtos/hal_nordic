@@ -15,9 +15,9 @@ extern "C" {
 
 /** @brief Clock service event types. */
 typedef enum __NRFS_PACKED {
-	NRFS_CLOCK_EVT_APPLIED, /** Request applied successfully. */
-	NRFS_CLOCK_EVT_REJECT,  /** Request rejected. */
-	NRFS_CLOCK_EVT_CHANGE,  /** Clock event changed. */
+	NRFS_CLOCK_EVT_APPLIED	= 0, /** Request applied successfully. */
+	NRFS_CLOCK_EVT_REJECT	= 1, /** Request rejected. */
+	NRFS_CLOCK_EVT_CHANGE	= 2, /** Clock event changed. */
 } nrfs_clock_evt_type_t;
 
 /** @brief Clock service event. */
