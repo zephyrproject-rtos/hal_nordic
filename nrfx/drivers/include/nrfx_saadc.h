@@ -61,6 +61,9 @@ extern "C" {
 #define NRFX_SAADC_DEFAULT_CONV_TIME 7
 #endif
 
+/** @brief Maximum value of the internal timer interval in microseconds. */
+#define NRFX_SAADC_INTERNAL_TIMER_INTERVAL_MAX_US 128U
+
 /** @brief Symbol specifying internal reference voltage. */
 #define NRFX_SAADC_REF_INTERNAL_VALUE NRFX_ANALOG_REF_INTERNAL_VAL
 
@@ -300,6 +303,23 @@ void nrfx_saadc_uninit(void);
  * @retval false Driver is not initialized.
  */
 bool nrfx_saadc_init_check(void);
+
+/**
+ * @brief Function for getting the internal timer CC value from the interval in microseconds.
+ *
+ * @note The internal timer runs at 16 MHz, so to convert the interval in microseconds
+ *       to the internal timer CC value, we can use the formula:
+ *       interval_cc = interval_us * 16 MHz
+ *       where 16 MHz is the frequency of the internal timer.
+ * @note The maximum value for interval_cc is 2047, which corresponds to
+ *       approximately 7816 Hz ~ 128us.
+ *       The minimum value for interval_cc depends on the SoC.
+ *
+ * @param[in] interval_us The interval in microseconds to be converted.
+ *
+ * @return The internal timer CC value.
+ */
+uint16_t nrfx_saadc_interval_to_cc(uint16_t interval_us);
 
 /**
  * @brief Function for configuring multiple SAADC channels.

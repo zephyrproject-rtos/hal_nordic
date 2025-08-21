@@ -388,6 +388,13 @@ bool nrfx_saadc_init_check(void)
     return (m_cb.saadc_state != NRF_SAADC_STATE_UNINITIALIZED);
 }
 
+uint16_t nrfx_saadc_interval_to_cc(uint16_t interval_us)
+{
+	NRFX_ASSERT((interval_us <= NRFX_SAADC_INTERNAL_TIMER_INTERVAL_MAX_US) && (interval_us > 0));
+
+	return (uint16_t)((interval_us * 16) - 1);
+}
+
 nrfx_err_t nrfx_saadc_channels_config(nrfx_saadc_channel_t const * p_channels,
                                       uint32_t                     channel_count)
 {
