@@ -36,6 +36,7 @@
 #if NRFX_CHECK(NRFX_LPCOMP_ENABLED)
 
 #include <nrfx_lpcomp.h>
+#include "nrfx_lpcomp_common.h"
 #include "prs/nrfx_prs.h"
 
 #define NRFX_LOG_MODULE LPCOMP
@@ -51,13 +52,49 @@
 static nrfx_lpcomp_event_handler_t  m_lpcomp_event_handler = NULL;
 static nrfx_drv_state_t             m_state = NRFX_DRV_STATE_UNINITIALIZED;
 
-static void lpcomp_configure(nrfx_lpcomp_config_t const * p_config)
+static nrfx_err_t lpcomp_input_convert(nrfx_analog_input_t analog_input,
+                                       nrf_lpcomp_input_t * p_lpcomp_input)
 {
+    NRFX_ASSERT(p_lpcomp_input);
+
+    nrf_lpcomp_input_t lpcomp_input = nrfx_lpcomp_ain_get(analog_input);
+
+    if (lpcomp_input == (nrf_lpcomp_input_t)NRFX_LPCOMP_INPUT_NOT_PRESENT)
+    {
+        return NRFX_ERROR_INVALID_PARAM;
+    }
+
+    *p_lpcomp_input = lpcomp_input;
+    return NRFX_SUCCESS;
+}
+
+#if NRFX_API_VER_AT_LEAST(3, 2, 0)
+static nrfx_err_t lpcomp_ext_ref_input_convert(nrfx_analog_input_t analog_input,
+                                               nrf_lpcomp_ext_ref_t * p_ext_ref_input)
+{
+    NRFX_ASSERT(p_ext_ref_input);
+
+    nrf_lpcomp_ext_ref_t ext_ref_input = nrfx_lpcomp_ext_ref_get(analog_input);
+
+    if (ext_ref_input == (nrf_lpcomp_ext_ref_t)NRFX_LPCOMP_INPUT_NOT_PRESENT)
+    {
+        return NRFX_ERROR_INVALID_PARAM;
+    }
+
+    *p_ext_ref_input = ext_ref_input;
+    return NRFX_SUCCESS;
+}
+#endif
+
+static nrfx_err_t lpcomp_configure(nrfx_lpcomp_config_t const * p_config)
+{
+    NRFX_ASSERT(p_config);
+
+    nrfx_err_t err_code;
     nrfy_lpcomp_config_t nrfy_config =
     {
 #if NRFX_API_VER_AT_LEAST(3, 2, 0)
         .reference = p_config->reference,
-        .ext_ref   = p_config->ext_ref,
         .detection = p_config->detection,
         NRFX_COND_CODE_1(LPCOMP_FEATURE_HYST_PRESENT, (.hyst = p_config->config.hyst), ())
 #else
@@ -70,6 +107,26 @@ static void lpcomp_configure(nrfx_lpcomp_config_t const * p_config)
 #endif
         .input = p_config->input
     };
+
+    err_code = lpcomp_input_convert(p_config->input, &nrfy_config.input);
+    if (err_code != NRFX_SUCCESS)
+    {
+        NRFX_LOG_WARNING("Function: %s, error code: %s.",
+                         __func__,
+                         NRFX_LOG_ERROR_STRING_GET(err_code));
+        return err_code;
+    }
+
+#if NRFX_API_VER_AT_LEAST(3, 2, 0)
+    err_code = lpcomp_ext_ref_input_convert(p_config->ext_ref, &nrfy_config.ext_ref);
+    if (err_code != NRFX_SUCCESS)
+    {
+        NRFX_LOG_WARNING("Function: %s, error code: %s.",
+                         __func__,
+                         NRFX_LOG_ERROR_STRING_GET(err_code));
+        return err_code;
+    }
+#endif
 
     nrfy_lpcomp_periph_configure(NRF_LPCOMP, &nrfy_config);
 
@@ -97,6 +154,8 @@ static void lpcomp_configure(nrfx_lpcomp_config_t const * p_config)
             break;
     }
     nrfy_lpcomp_int_init(NRF_LPCOMP, int_mask, p_config->interrupt_priority, true);
+
+    return NRFX_SUCCESS;
 }
 
 static void lpcomp_execute_handler(nrf_lpcomp_event_t event, uint32_t event_mask)
@@ -170,7 +229,12 @@ nrfx_err_t nrfx_lpcomp_init(nrfx_lpcomp_config_t const * p_config,
                             NRF_LPCOMP_INT_UP_MASK |
                             NRF_LPCOMP_INT_CROSS_MASK);
 
-    lpcomp_configure(p_config);
+
+    err_code = lpcomp_configure(p_config);
+    if (err_code != NRFX_SUCCESS)
+    {
+        return err_code;
+    }
 
     nrfy_lpcomp_enable(NRF_LPCOMP);
 
@@ -199,7 +263,11 @@ nrfx_err_t nrfx_lpcomp_reconfigure(nrfx_lpcomp_config_t const * p_config)
     else if (m_state == NRFX_DRV_STATE_INITIALIZED)
     {
         nrfy_lpcomp_disable(NRF_LPCOMP);
-        lpcomp_configure(p_config);
+        err_code = lpcomp_configure(p_config);
+        if (err_code != NRFX_SUCCESS)
+        {
+            return err_code;
+        }
         nrfy_lpcomp_enable(NRF_LPCOMP);
         return NRFX_SUCCESS;
     }

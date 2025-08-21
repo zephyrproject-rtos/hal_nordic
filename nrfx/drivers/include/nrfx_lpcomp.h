@@ -36,6 +36,7 @@
 
 #include <nrfx.h>
 #include <haly/nrfy_lpcomp.h>
+#include <helpers/nrfx_analog_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,17 +59,17 @@ typedef void (* nrfx_lpcomp_event_handler_t)(nrf_lpcomp_event_t event);
 typedef struct
 {
 #if NRFX_API_VER_AT_LEAST(3, 2, 0) || defined(__NRFX_DOXYGEN__)
-    nrf_lpcomp_ref_t     reference;          ///< Reference selection.
-    nrf_lpcomp_ext_ref_t ext_ref;            ///< External analog reference selection.
-    nrf_lpcomp_detect_t  detection;          ///< Detection type.
+    nrf_lpcomp_ref_t    reference;          ///< Reference selection.
+    nrfx_analog_input_t ext_ref;            ///< External analog reference selection.
+    nrf_lpcomp_detect_t detection;          ///< Detection type.
 #if NRF_LPCOMP_HAS_HYST
-    nrf_lpcomp_hyst_t    hyst;               ///< Comparator hysteresis.
+    nrf_lpcomp_hyst_t   hyst;               ///< Comparator hysteresis.
 #endif
 #else
-    nrf_lpcomp_config_t  config;             ///< Peripheral configuration.
+    nrf_lpcomp_config_t  config;            ///< Peripheral configuration.
 #endif
-    nrf_lpcomp_input_t   input;              ///< Input to be monitored.
-    uint8_t              interrupt_priority; ///< LPCOMP interrupt priority.
+    nrfx_analog_input_t input;              ///< Input to be monitored.
+    uint8_t             interrupt_priority; ///< LPCOMP interrupt priority.
 } nrfx_lpcomp_config_t;
 
 #if NRFX_API_VER_AT_LEAST(3, 2, 0) || defined(__NRFX_DOXYGEN__)
@@ -87,7 +88,7 @@ typedef struct
     .reference = NRF_LPCOMP_REF_SUPPLY_4_8,                                              \
     .detection = NRF_LPCOMP_DETECT_CROSS,                                                \
     NRFX_COND_CODE_1(LPCOMP_FEATURE_HYST_PRESENT, (.hyst = NRF_LPCOMP_HYST_NOHYST,), ()) \
-    .input = (nrf_lpcomp_input_t)_input,                                                 \
+    .input = (nrfx_analog_input_t)_input,                                                \
     .interrupt_priority = NRFX_LPCOMP_DEFAULT_CONFIG_IRQ_PRIORITY                        \
 }
 #else
@@ -121,6 +122,7 @@ typedef struct
  * @retval NRFX_ERROR_BUSY          The COMP peripheral is already in use.
  *                                  This is possible only if @ref nrfx_prs module
  *                                  is enabled.
+ * @retval NRFX_ERROR_INVALID_PARAM The analog input pin or external reference is invalid.
  */
 nrfx_err_t nrfx_lpcomp_init(nrfx_lpcomp_config_t const * p_config,
                             nrfx_lpcomp_event_handler_t  event_handler);
@@ -133,6 +135,7 @@ nrfx_err_t nrfx_lpcomp_init(nrfx_lpcomp_config_t const * p_config,
  * @retval NRFX_SUCCESS             Reconfiguration was successful.
  * @retval NRFX_ERROR_BUSY          The driver is running and cannot be reconfigured.
  * @retval NRFX_ERROR_INVALID_STATE The driver is uninitialized.
+ * @retval NRFX_ERROR_INVALID_PARAM The analog input pin or external reference is invalid.
  */
 nrfx_err_t nrfx_lpcomp_reconfigure(nrfx_lpcomp_config_t const * p_config);
 
