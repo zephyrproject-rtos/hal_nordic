@@ -36,6 +36,7 @@
 
 #include <nrfx.h>
 #include <haly/nrfy_comp.h>
+#include <helpers/nrfx_analog_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,7 +96,7 @@ typedef enum
 typedef struct
 {
     nrf_comp_ref_t       reference;          ///< Reference selection.
-    nrf_comp_ext_ref_t   ext_ref;            ///< External analog reference selection.
+    nrfx_analog_input_t  ext_ref;            ///< External analog reference selection.
     nrf_comp_main_mode_t main_mode;          ///< Main operation mode.
     nrf_comp_th_t        threshold;          ///< Structure holding THDOWN and THUP values needed by the COMP_TH register.
     nrf_comp_sp_mode_t   speed_mode;         ///< Speed and power mode.
@@ -103,7 +104,7 @@ typedef struct
 #if NRF_COMP_HAS_ISOURCE
     nrf_isource_t        isource;            ///< Current source selected on analog input.
 #endif
-    nrf_comp_input_t     input;              ///< Input to be monitored.
+    nrfx_analog_input_t  input;              ///< Input to be monitored.
     uint8_t              interrupt_priority; ///< Interrupt priority.
 } nrfx_comp_config_t;
 
@@ -136,7 +137,7 @@ typedef struct
     .speed_mode         = NRF_COMP_SP_MODE_HIGH,                                   \
     .hyst               = NRF_COMP_HYST_NO_HYST,                                   \
     NRFX_COND_CODE_1(NRF_COMP_HAS_ISOURCE, (.isource = NRF_COMP_ISOURCE_OFF,), ()) \
-    .input              = (nrf_comp_input_t)_input,                                \
+    .input              = (nrfx_analog_input_t)_input,                             \
     .interrupt_priority = NRFX_COMP_DEFAULT_CONFIG_IRQ_PRIORITY                    \
 }
 
@@ -157,6 +158,7 @@ typedef struct
  * @retval NRFX_ERROR_BUSY          The LPCOMP peripheral is already in use.
  *                                  This is possible only if @ref nrfx_prs module
  *                                  is enabled.
+ * @retval NRFX_ERROR_INVALID_PARAM The analog input pin or external reference is invalid.
  */
 nrfx_err_t nrfx_comp_init(nrfx_comp_config_t const * p_config,
                           nrfx_comp_event_handler_t  event_handler);
@@ -169,6 +171,7 @@ nrfx_err_t nrfx_comp_init(nrfx_comp_config_t const * p_config,
  * @retval NRFX_SUCCESS             Reconfiguration was successful.
  * @retval NRFX_ERROR_BUSY          The driver is running and cannot be reconfigured.
  * @retval NRFX_ERROR_INVALID_STATE The driver is uninitialized.
+ * @retval NRFX_ERROR_INVALID_PARAM The analog input pin or external reference is invalid.
  */
 nrfx_err_t nrfx_comp_reconfigure(nrfx_comp_config_t const * p_config);
 
@@ -194,9 +197,11 @@ bool nrfx_comp_init_check(void);
 /**
  * @brief Function for setting the analog input.
  *
- * @param[in] psel COMP analog pin selection.
+ * @param[in] psel Generic analog pin selection.
+ *
+ * @retval NRFX_ERROR_INVALID_PARAM The analog input pin is invalid.
  */
-void nrfx_comp_pin_select(nrf_comp_input_t psel);
+nrfx_err_t nrfx_comp_pin_select(nrfx_analog_input_t psel);
 
 /**
  * @brief Function for starting the COMP peripheral and interrupts.
