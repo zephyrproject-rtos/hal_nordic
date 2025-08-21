@@ -137,28 +137,36 @@ typedef enum
 /** @brief LPCOMP external reference selection. */
 #if NRF_LPCOMP_HAS_AIN_AS_PIN
 typedef uint32_t nrf_lpcomp_ext_ref_t;
+
+/** @brief Symbol specifying disconnected analog input. */
+#define NRF_LPCOMP_EXT_REF_DISABLED ((nrf_lpcomp_ext_ref_t)UINT32_MAX)
 #else
 typedef enum
 {
-    NRF_LPCOMP_EXT_REF_REF0 = LPCOMP_EXTREFSEL_EXTREFSEL_AnalogReference0, ///< External reference 0.
-    NRF_LPCOMP_EXT_REF_REF1 = LPCOMP_EXTREFSEL_EXTREFSEL_AnalogReference1, ///< External reference 1.
+    NRF_LPCOMP_EXT_REF_REF0     = LPCOMP_EXTREFSEL_EXTREFSEL_AnalogReference0, ///< External reference 0.
+    NRF_LPCOMP_EXT_REF_REF1     = LPCOMP_EXTREFSEL_EXTREFSEL_AnalogReference1, ///< External reference 1.
+    NRF_LPCOMP_EXT_REF_DISABLED = UINT8_MAX,                                   ///< Not connected.
 } nrf_lpcomp_ext_ref_t;
 #endif
 
 /** @brief LPCOMP input selection. */
 #if NRF_LPCOMP_HAS_AIN_AS_PIN
 typedef uint32_t nrf_lpcomp_input_t;
+
+/** @brief Symbol specifying disconnected analog input. */
+#define NRF_LPCOMP_INPUT_DISABLED ((nrf_lpcomp_input_t)UINT32_MAX)
 #else
 typedef enum
 {
-    NRF_LPCOMP_INPUT_0 = LPCOMP_PSEL_PSEL_AnalogInput0, ///< Input 0.
-    NRF_LPCOMP_INPUT_1 = LPCOMP_PSEL_PSEL_AnalogInput1, ///< Input 1.
-    NRF_LPCOMP_INPUT_2 = LPCOMP_PSEL_PSEL_AnalogInput2, ///< Input 2.
-    NRF_LPCOMP_INPUT_3 = LPCOMP_PSEL_PSEL_AnalogInput3, ///< Input 3.
-    NRF_LPCOMP_INPUT_4 = LPCOMP_PSEL_PSEL_AnalogInput4, ///< Input 4.
-    NRF_LPCOMP_INPUT_5 = LPCOMP_PSEL_PSEL_AnalogInput5, ///< Input 5.
-    NRF_LPCOMP_INPUT_6 = LPCOMP_PSEL_PSEL_AnalogInput6, ///< Input 6.
-    NRF_LPCOMP_INPUT_7 = LPCOMP_PSEL_PSEL_AnalogInput7  ///< Input 7.
+    NRF_LPCOMP_INPUT_0        = LPCOMP_PSEL_PSEL_AnalogInput0, ///< Input 0.
+    NRF_LPCOMP_INPUT_1        = LPCOMP_PSEL_PSEL_AnalogInput1, ///< Input 1.
+    NRF_LPCOMP_INPUT_2        = LPCOMP_PSEL_PSEL_AnalogInput2, ///< Input 2.
+    NRF_LPCOMP_INPUT_3        = LPCOMP_PSEL_PSEL_AnalogInput3, ///< Input 3.
+    NRF_LPCOMP_INPUT_4        = LPCOMP_PSEL_PSEL_AnalogInput4, ///< Input 4.
+    NRF_LPCOMP_INPUT_5        = LPCOMP_PSEL_PSEL_AnalogInput5, ///< Input 5.
+    NRF_LPCOMP_INPUT_6        = LPCOMP_PSEL_PSEL_AnalogInput6, ///< Input 6.
+    NRF_LPCOMP_INPUT_7        = LPCOMP_PSEL_PSEL_AnalogInput7, ///< Input 7.
+    NRF_LPCOMP_INPUT_DISABLED = UINT8_MAX,                     ///< Not connected.
 } nrf_lpcomp_input_t;
 #endif
 
