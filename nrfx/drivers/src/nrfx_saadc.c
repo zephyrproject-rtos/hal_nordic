@@ -34,6 +34,7 @@
 
 #if NRFX_CHECK(NRFX_SAADC_ENABLED)
 #include <nrfx_saadc.h>
+#include "nrfx_saadc_common.h"
 
 #define NRFX_LOG_MODULE SAADC
 #include <nrfx_log.h>
@@ -147,15 +148,76 @@ static nrfx_err_t saadc_channel_count_get(uint32_t  ch_to_activate_mask,
     return NRFX_SUCCESS;
 }
 
-static void saadc_channel_config(nrfx_saadc_channel_t const * p_channel)
+static nrfx_err_t saadc_input_convert(nrfx_analog_input_t input_p,
+                                      nrfx_analog_input_t input_n,
+                                      bool                differential,
+                                      nrf_saadc_input_t * p_saadc_input_p,
+                                      nrf_saadc_input_t * p_saadc_input_n)
 {
-    NRFX_ASSERT(p_channel->pin_p != NRF_SAADC_INPUT_DISABLED);
+    NRFX_ASSERT(p_saadc_input_p);
 
+    nrf_saadc_input_t saadc_input_pos = nrfx_saadc_ain_get(input_p);
+
+    if (saadc_input_pos == NRFX_SAADC_INPUT_NOT_PRESENT)
+    {
+        NRFX_LOG_ERROR("Invalid analog positive input number: %d", input_p);
+        return NRFX_ERROR_INVALID_PARAM;
+    }
+
+    *p_saadc_input_p = saadc_input_pos;
+
+    if (differential)
+    {
+        NRFX_ASSERT(p_saadc_input_n);
+        nrf_saadc_input_t saadc_input_neg = nrfx_saadc_ain_get(input_n);
+
+        if (saadc_input_neg == NRFX_SAADC_INPUT_NOT_PRESENT)
+        {
+            NRFX_LOG_ERROR("Invalid analog negative input number: %d", input_n);
+            return NRFX_ERROR_INVALID_PARAM;
+        }
+        else if (NRFX_IS_ENABLED(HALTIUM_XXAA) &&
+                 ((input_p > NRFX_ANALOG_EXTERNAL_AIN7) !=
+                  (input_n > NRFX_ANALOG_EXTERNAL_AIN7)))
+        {
+            NRFX_LOG_ERROR("1v8 inputs cannot be mixed with 3v3 inputs");
+            return NRFX_ERROR_INVALID_PARAM;
+        }
+
+        *p_saadc_input_n = saadc_input_neg;
+    }
+    else
+    {
+        *p_saadc_input_n = NRF_SAADC_INPUT_DISABLED;
+    }
+
+    return NRFX_SUCCESS;
+}
+
+static nrfx_err_t saadc_channel_config(nrfx_saadc_channel_t const * p_channel)
+{
+    NRFX_ASSERT(p_channel->pin_p != NRFX_ANALOG_INPUT_DISABLED);
+
+    nrfx_err_t err;
     uint8_t channel_index = p_channel->channel_index;
+
+    err = saadc_input_convert(p_channel->pin_p,
+                              p_channel->pin_n,
+                              p_channel->channel_config.mode == NRF_SAADC_MODE_DIFFERENTIAL,
+                              &m_cb.channels_input[channel_index].input_p,
+                              &m_cb.channels_input[channel_index].input_n);
+    if (err != NRFX_SUCCESS)
+    {
+        NRFX_LOG_WARNING("Function: %s, error code: %s.",
+                         __func__,
+                         NRFX_LOG_ERROR_STRING_GET(err));
+        return err;
+    }
+
     nrfy_saadc_channel_configure(NRF_SAADC, channel_index, &p_channel->channel_config, NULL);
-    m_cb.channels_input[channel_index].input_p = p_channel->pin_p;
-    m_cb.channels_input[channel_index].input_n = p_channel->pin_n;
     m_cb.channels_configured |= (uint8_t)(1U << channel_index);
+
+    return NRFX_SUCCESS;
 }
 
 static void saadc_channels_deconfig(uint32_t channel_mask)
@@ -347,7 +409,11 @@ nrfx_err_t nrfx_saadc_channels_config(nrfx_saadc_channel_t const * p_channels,
             return NRFX_ERROR_INVALID_PARAM;
         }
 
-        saadc_channel_config(&p_channels[i]);
+        nrfx_err_t err = saadc_channel_config(&p_channels[i]);
+        if (err != NRFX_SUCCESS)
+        {
+            return err;
+        }
     }
 
     return NRFX_SUCCESS;
@@ -363,9 +429,7 @@ nrfx_err_t nrfx_saadc_channel_config(nrfx_saadc_channel_t const * p_channel)
         return NRFX_ERROR_BUSY;
     }
 
-    saadc_channel_config(p_channel);
-
-    return NRFX_SUCCESS;
+    return saadc_channel_config(p_channel);
 }
 
 uint32_t nrfx_saadc_channels_configured_get(void)
