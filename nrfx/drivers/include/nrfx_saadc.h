@@ -36,6 +36,7 @@
 
 #include <nrfx.h>
 #include <haly/nrfy_saadc.h>
+#include <helpers/nrfx_analog_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,6 +60,9 @@ extern "C" {
 /** @brief Auxiliary symbol specifying default value for the SAADC conversion time. */
 #define NRFX_SAADC_DEFAULT_CONV_TIME 7
 #endif
+
+/** @brief Symbol specifying internal reference voltage. */
+#define NRFX_SAADC_REF_INTERNAL_VALUE NRFX_ANALOG_REF_INTERNAL_VAL
 
 /**
  * @brief SAADC channel default configuration for the single-ended mode.
@@ -102,8 +106,8 @@ extern "C" {
                          (.conv_time = NRFX_SAADC_DEFAULT_CONV_TIME,), \
                          ())                                           \
     },                                                                 \
-    .pin_p          = (nrf_saadc_input_t)_pin_p,                       \
-    .pin_n          = NRF_SAADC_INPUT_DISABLED,                        \
+    .pin_p          = (nrfx_analog_input_t)_pin_p,                     \
+    .pin_n          = NRFX_ANALOG_INPUT_DISABLED,                      \
     .channel_index  = _index,                                          \
 }
 
@@ -150,8 +154,8 @@ extern "C" {
                          (.conv_time = NRFX_SAADC_DEFAULT_CONV_TIME,),  \
                          ())                                            \
     },                                                                  \
-    .pin_p          = (nrf_saadc_input_t)_pin_p,                        \
-    .pin_n          = (nrf_saadc_input_t)_pin_n,                        \
+    .pin_p          = (nrfx_analog_input_t)_pin_p,                      \
+    .pin_n          = (nrfx_analog_input_t)_pin_n,                      \
     .channel_index  = _index,                                           \
 }
 
@@ -207,8 +211,8 @@ extern "C" {
 typedef struct
 {
     nrf_saadc_channel_config_t channel_config; ///< Channel hardware configuration.
-    nrf_saadc_input_t          pin_p;          ///< Input positive pin selection.
-    nrf_saadc_input_t          pin_n;          ///< Input negative pin selection.
+    nrfx_analog_input_t        pin_p;          ///< Input positive pin selection.
+    nrfx_analog_input_t        pin_n;          ///< Input negative pin selection.
     uint8_t                    channel_index;  ///< Channel index.
 } nrfx_saadc_channel_t;
 
@@ -313,7 +317,8 @@ bool nrfx_saadc_init_check(void);
  *
  * @retval NRFX_SUCCESS             Configuration was successful.
  * @retval NRFX_ERROR_BUSY          There is a conversion or calibration ongoing.
- * @retval NRFX_ERROR_INVALID_PARAM Attempt to configure the same channel more than once.
+ * @retval NRFX_ERROR_INVALID_PARAM Attempt to configure the same channel more than once or
+ *                                  attempt to configure an invalid analog pin.
  */
 nrfx_err_t nrfx_saadc_channels_config(nrfx_saadc_channel_t const * p_channels,
                                       uint32_t                     channel_count);
@@ -330,8 +335,9 @@ nrfx_err_t nrfx_saadc_channels_config(nrfx_saadc_channel_t const * p_channels,
  *
  * @param[in] p_channel Pointer to the channel configuration structure.
  *
- * @retval NRFX_SUCCESS    Configuration was successful.
- * @retval NRFX_ERROR_BUSY There is a conversion or calibration ongoing.
+ * @retval NRFX_SUCCESS             Configuration was successful.
+ * @retval NRFX_ERROR_BUSY          There is a conversion or calibration ongoing.
+ * @retval NRFX_ERROR_INVALID_PARAM Attempt to configure an invalid analog pin.
  */
 nrfx_err_t nrfx_saadc_channel_config(nrfx_saadc_channel_t const * p_channel);
 
