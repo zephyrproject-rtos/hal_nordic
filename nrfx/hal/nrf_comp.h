@@ -71,6 +71,9 @@ extern "C" {
 /** @brief COMP analog pin selection. */
 #if NRF_COMP_HAS_AIN_AS_PIN
 typedef uint32_t nrf_comp_input_t;
+
+/** @brief Symbol specifying disconnected analog input. */
+#define NRF_COMP_INPUT_DISABLED ((nrf_comp_input_t)UINT32_MAX)
 #else
 typedef enum
 {
@@ -96,6 +99,7 @@ typedef enum
 #if defined (COMP_PSEL_PSEL_VddhDiv5) || defined (__NRFX_DOXYGEN__)
     NRF_COMP_VDDH_DIV5 = COMP_PSEL_PSEL_VddhDiv5,     /*!< VDDH/5 selected as analog input. */
 #endif
+    NRF_COMP_INPUT_DISABLED = UINT8_MAX,              /*!< Not connected. */
 } nrf_comp_input_t;
 #endif // NRF_COMP_HAS_AIN_AS_PIN
 
@@ -121,6 +125,9 @@ typedef enum
 /** @brief COMP external analog reference selection. */
 #if NRF_COMP_HAS_AIN_AS_PIN
 typedef uint32_t nrf_comp_ext_ref_t;
+
+/** @brief Symbol specifying disconnected analog input. */
+#define NRF_COMP_EXT_REF_DISABLED ((nrf_comp_ext_ref_t)UINT32_MAX)
 #else
 typedef enum
 {
@@ -138,8 +145,9 @@ typedef enum
     NRF_COMP_EXT_REF_6 = COMP_EXTREFSEL_EXTREFSEL_AnalogReference6, /*!< Use AIN6 as external analog reference. */
 #endif
 #if defined (COMP_EXTREFSEL_EXTREFSEL_AnalogReference7) || defined (__NRFX_DOXYGEN__)
-    NRF_COMP_EXT_REF_7 = COMP_EXTREFSEL_EXTREFSEL_AnalogReference7  /*!< Use AIN7 as external analog reference. */
+    NRF_COMP_EXT_REF_7 = COMP_EXTREFSEL_EXTREFSEL_AnalogReference7, /*!< Use AIN7 as external analog reference. */
 #endif
+    NRF_COMP_EXT_REF_DISABLED = UINT8_MAX,                          /*!< Not connected. */
 } nrf_comp_ext_ref_t;
 #endif // NRF_COMP_HAS_AIN_AS_PIN
 
