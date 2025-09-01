@@ -43,6 +43,9 @@
 #if NRF_CLOCK_HAS_HFCLK
 #include <nrfx_clock_hfclk.h>
 #endif
+#if NRF_CLOCK_HAS_XO
+#include <nrfx_clock_xo.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,9 +66,11 @@ typedef enum
 {
 #if NRF_CLOCK_HAS_HFCLK
     NRFX_CLOCK_EVT_HFCLK_STARTED      = NRFX_CLOCK_HFCLK_EVT_HFCLK_STARTED,                         ///< HFCLK has been started.
+#else
+    NRFX_CLOCK_EVT_HFCLK_STARTED      = NRFX_CLOCK_XO_EVT_HFCLK_STARTED,                            ///< HFCLK has been started.
 #endif
 #if NRF_CLOCK_HAS_PLL
-    NRFX_CLOCK_EVT_PLL_STARTED        = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_PLL_STARTED_MASK),      ///< PLL has been started.
+    NRFX_CLOCK_EVT_PLL_STARTED        = NRFX_CLOCK_XO_EVT_PLL_STARTED,                              ///< PLL has been started.
 #endif
     NRFX_CLOCK_EVT_LFCLK_STARTED      = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_LF_STARTED_MASK),       ///< LFCLK has been started.
 #if NRF_CLOCK_HAS_CALIBRATION_TIMER
@@ -87,9 +92,9 @@ typedef enum
     NRFX_CLOCK_EVT_HFCLK192M_STARTED  = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_HF192M_STARTED_MASK),   ///< HFCLK192M has been started.
 #endif
 #if NRF_CLOCK_HAS_XO_TUNE
-    NRFX_CLOCK_EVT_XO_TUNED           = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_XOTUNED_MASK),          ///< XO tune has been done.
-    NRFX_CLOCK_EVT_XO_TUNE_ERROR      = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_XOTUNEERROR_MASK),      ///< XO is not tuned.
-    NRFX_CLOCK_EVT_XO_TUNE_FAILED     = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_XOTUNEFAILED_MASK),     ///< XO tune operation failed.
+    NRFX_CLOCK_EVT_XO_TUNED           = NRFX_CLOCK_XO_EVT_XO_TUNED,          ///< XO tune has been done.
+    NRFX_CLOCK_EVT_XO_TUNE_ERROR      = NRFX_CLOCK_XO_EVT_XO_TUNE_ERROR,      ///< XO is not tuned.
+    NRFX_CLOCK_EVT_XO_TUNE_FAILED     = NRFX_CLOCK_XO_EVT_XO_TUNE_FAILED,     ///< XO tune operation failed.
 #endif
 } nrfx_clock_evt_type_t;
 
@@ -386,8 +391,8 @@ NRFX_STATIC_INLINE bool nrfx_clock_is_running(nrf_clock_domain_t domain, void * 
     case NRF_CLOCK_DOMAIN_HFCLK:
 #if NRF_CLOCK_HAS_HFCLK
         return nrfx_clock_hfclk_running_check(p_clk_src);
-#else
-        return nrf_clock_is_running(NRF_CLOCK, domain, p_clk_src);
+#elif NRF_CLOCK_HAS_XO
+        return nrfx_clock_xo_running_check(p_clk_src);
 #endif
     default:
         return nrf_clock_is_running(NRF_CLOCK, domain, p_clk_src);
