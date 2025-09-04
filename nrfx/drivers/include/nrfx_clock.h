@@ -46,6 +46,7 @@
 #if NRF_CLOCK_HAS_XO
 #include <nrfx_clock_xo.h>
 #endif
+#include <nrfx_clock_lfclk.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,15 +73,12 @@ typedef enum
 #if NRF_CLOCK_HAS_PLL
     NRFX_CLOCK_EVT_PLL_STARTED        = NRFX_CLOCK_XO_EVT_PLL_STARTED,                              ///< PLL has been started.
 #endif
-    NRFX_CLOCK_EVT_LFCLK_STARTED      = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_LF_STARTED_MASK),       ///< LFCLK has been started.
+    NRFX_CLOCK_EVT_LFCLK_STARTED      = NRFX_CLOCK_LFCLK_EVT_LFCLK_STARTED,                         ///< LFCLK has been started.
 #if NRF_CLOCK_HAS_CALIBRATION_TIMER
-    NRFX_CLOCK_EVT_CTTO               = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_CTTO_MASK),             ///< Calibration timeout.
+    NRFX_CLOCK_EVT_CTTO               = NRFX_CLOCK_LFCLK_EVT_CTTO,                                  ///< Calibration timeout.
 #endif
-#if NRF_CLOCK_HAS_CALIBRATION
-    NRFX_CLOCK_EVT_CAL_DONE           = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_DONE_MASK),             ///< Calibration has been done.
-#elif NRFX_CHECK(NRF_LFRC_HAS_CALIBRATION)
-    NRFX_CLOCK_EVT_CAL_DONE           = (NRFX_BITMASK_TO_BITPOS(NRF_LFRC_INT_CALDONE_MASK) + \
-                                         NRFX_CLOCK_LFRC_EVT_OFFSET),                                ///< Calibration has been done.
+#if NRF_CLOCK_HAS_CALIBRATION || NRFX_CHECK(NRF_LFRC_HAS_CALIBRATION)
+    NRFX_CLOCK_EVT_CAL_DONE           = NRFX_CLOCK_LFCLK_EVT_CAL_DONE,                              ///< Calibration has been done.
 #endif
 #if NRF_CLOCK_HAS_HFCLKAUDIO
     NRFX_CLOCK_EVT_HFCLKAUDIO_STARTED = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_HFAUDIO_STARTED_MASK),  ///< HFCLKAUDIO has been started.
@@ -190,30 +188,6 @@ nrfx_err_t nrfx_clock_divider_set(nrf_clock_domain_t    domain,
 
 NRFX_STATIC_INLINE nrf_clock_hfclk_div_t nrfx_clock_divider_get(nrf_clock_domain_t domain);
 #endif
-
-/**
- * @brief Function for starting the LFCLK.
- *
- * @note This function is deprecated. Use @ref nrfx_clock_start instead.
- */
-NRFX_STATIC_INLINE void nrfx_clock_lfclk_start(void);
-
-/**
- * @brief Function for stopping the LFCLK.
- *
- * @note This function is deprecated. Use @ref nrfx_clock_stop instead.
- */
-NRFX_STATIC_INLINE void nrfx_clock_lfclk_stop(void);
-
-/**
- * @brief Function for checking the LFCLK state.
- *
- * @note This function is deprecated. Use @ref nrfx_clock_is_running instead.
- *
- * @retval true  The LFCLK is running.
- * @retval false The LFCLK is not running.
- */
-NRFX_STATIC_INLINE bool nrfx_clock_lfclk_is_running(void);
 
 #if NRF_CLOCK_HAS_HFCLKAUDIO || defined(__NRFX_DOXYGEN__)
 /**
@@ -364,16 +338,6 @@ NRFX_STATIC_INLINE nrf_clock_hfclk_div_t nrfx_clock_divider_get(nrf_clock_domain
 }
 #endif // defined(CLOCK_FEATURE_HFCLK_DIVIDE_PRESENT) || NRF_CLOCK_HAS_HFCLK192M
 
-NRFX_STATIC_INLINE void nrfx_clock_lfclk_start(void)
-{
-    nrfx_clock_start(NRF_CLOCK_DOMAIN_LFCLK);
-}
-
-NRFX_STATIC_INLINE void nrfx_clock_lfclk_stop(void)
-{
-    nrfx_clock_stop(NRF_CLOCK_DOMAIN_LFCLK);
-}
-
 NRFX_STATIC_INLINE uint32_t nrfx_clock_task_address_get(nrf_clock_task_t task)
 {
     return nrf_clock_task_address_get(NRF_CLOCK, task);
@@ -394,14 +358,11 @@ NRFX_STATIC_INLINE bool nrfx_clock_is_running(nrf_clock_domain_t domain, void * 
 #elif NRF_CLOCK_HAS_XO
         return nrfx_clock_xo_running_check(p_clk_src);
 #endif
+    case NRF_CLOCK_DOMAIN_LFCLK:
+        return nrfx_clock_lfclk_running_check(p_clk_src);
     default:
         return nrf_clock_is_running(NRF_CLOCK, domain, p_clk_src);
     }
-}
-
-NRFX_STATIC_INLINE bool nrfx_clock_lfclk_is_running(void)
-{
-    return nrfx_clock_is_running(NRF_CLOCK_DOMAIN_LFCLK, NULL);
 }
 
 #if NRF_CLOCK_HAS_HFCLKAUDIO

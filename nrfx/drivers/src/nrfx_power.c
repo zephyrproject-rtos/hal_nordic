@@ -435,6 +435,7 @@ void nrfx_power_clock_irq_handler(void)
 #if NRF_CLOCK_HAS_XO
     nrfx_clock_xo_irq_handler();
 #endif
+    nrfx_clock_lfclk_irq_handler();
 }
 #endif
 
