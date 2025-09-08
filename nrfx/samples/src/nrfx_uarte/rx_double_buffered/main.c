@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -56,15 +56,6 @@
  *          The @ref uarte_handler() is executed with relevant log messages.
  */
 
-/** @brief Symbol specifying UARTE instance to be used. */
-#define UARTE_INST_IDX 1
-
-/** @brief Symbol specifying TX pin number of UARTE. */
-#define UARTE_TX_PIN LOOPBACK_PIN_1A
-
-/** @brief Symbol specifying RX pin number of UARTE. */
-#define UARTE_RX_PIN LOOPBACK_PIN_1B
-
 /** @brief Symbol specifying the first message to be sent via UARTE data transfer as part of @ref m_tx_buffer. */
 #define MSG1 "Nordic"
 
@@ -104,9 +95,9 @@ static rx_buffers_t m_rx_buffers;
 static void rx_buffers_print(rx_buffers_t * p_rx_buff)
 {
     NRFX_LOG_INFO("................................");
-    NRFX_LOG_INFO("RX buffer1 - addr: %p | content: %s", p_rx_buff->buff_1, p_rx_buff->buff_1);
-    NRFX_LOG_INFO("RX buffer2 - addr: %p | content: %s", p_rx_buff->buff_2, p_rx_buff->buff_2);
-    NRFX_LOG_INFO("RX buffer3 - addr: %p | content: %s", p_rx_buff->buff_3, p_rx_buff->buff_3);
+    NRFX_LOG_INFO("RX buffer1 - addr: %p | content: %s", (void *)p_rx_buff->buff_1, p_rx_buff->buff_1);
+    NRFX_LOG_INFO("RX buffer2 - addr: %p | content: %s", (void *)p_rx_buff->buff_2, p_rx_buff->buff_2);
+    NRFX_LOG_INFO("RX buffer3 - addr: %p | content: %s", (void *)p_rx_buff->buff_3, p_rx_buff->buff_3);
     NRFX_LOG_INFO("................................");
     NRFX_EXAMPLE_LOG_PROCESS();
 }
@@ -148,7 +139,6 @@ static void uarte_handler(nrfx_uarte_event_t const * p_event, void * p_context)
     {
         NRFX_LOG_INFO("--> TX done");
         NRFX_LOG_INFO("--> Bytes transfered: %u", p_event->data.tx.length);
-        nrfx_uarte_uninit(p_inst);
     }
 }
 
@@ -196,6 +186,8 @@ int main(void)
 
     while (nrfx_uarte_tx_in_progress(&uarte_inst))
     {}
+
+    nrfx_uarte_uninit(&uarte_inst);
 
     rx_buffers_print(&m_rx_buffers);
 

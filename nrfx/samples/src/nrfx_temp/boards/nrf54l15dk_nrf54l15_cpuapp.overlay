@@ -1,0 +1,17 @@
+/ {
+    chosen {
+        zephyr,console = &uart30;
+    };
+};
+
+&uart20 {
+    status = "disabled";
+};
+
+&uart30 {
+    status = "okay";
+};
+
+&temp {
+    status = "okay";
+};

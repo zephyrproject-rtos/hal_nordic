@@ -12,6 +12,7 @@ The sample supports the following development kits:
 | nrf52833dk_nrf52833 |     Yes     |
 | nrf52840dk_nrf52840 |     Yes     |
 | nrf5340dk_nrf5340   |     Yes     |
+| nrf54l15dk_nrf54l15 |     Yes     |
 | nrf9160dk_nrf9160   |     Yes     |
 
 ## Overview
@@ -50,24 +51,24 @@ You should see the following output:
 - "Starting nrfx_saadc advanced blocking example."
 - "Calibration in the blocking manner finished successfully."
 - "Sampling 1 / 5"
-- ".Sample 0. value == ([0-9]{3})"
-- ".Sample 1. value == ([0-9]{3})"
+- ".Sample 0. value == ([0-9]{4})"
+- ".Sample 1. value == ([0-9]{4})"
 - "Calibration in the blocking manner finished successfully."
 - "Sampling 2 / 5"
 - ".Sample 0. value == -?[0-9]"
 - ".Sample 1. value == -?[0-9]"
 - "Calibration in the blocking manner finished successfully."
 - "Sampling 3 / 5"
-- ".Sample 0. value == ([0-9]{3})"
-- ".Sample 1. value == ([0-9]{3})"
+- ".Sample 0. value == ([0-9]{4})"
+- ".Sample 1. value == ([0-9]{4})"
 - "Calibration in the blocking manner finished successfully."
 - "Sampling 4 / 5"
 - ".Sample 0. value == -?[0-9]"
 - ".Sample 1. value == -?[0-9]"
 - "Calibration in the blocking manner finished successfully."
 - "Sampling 5 / 5"
-- ".Sample 0. value == ([0-9]{3})"
-- ".Sample 1. value == ([0-9]{3})"
+- ".Sample 0. value == ([0-9]{4})"
+- ".Sample 1. value == ([0-9]{4})"
 ```
 [//]: #
 [Building and running]: <../../../README.md#building-and-running>

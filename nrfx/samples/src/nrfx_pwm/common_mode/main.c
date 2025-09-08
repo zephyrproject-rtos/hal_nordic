@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -50,9 +50,6 @@
  *          effect) and replays this sequence @ref NUM_OF_LOOPS times. The @ref pwm_handler() is
  *          executed with relevant log message after every loop.
  */
-
-/** @brief Symbol specifying PWM instance to be used. */
-#define PWM_INST_IDX 0
 
 /**
  * @brief Symbol specifying number of times that each duty cycle is to be repeated (after being
@@ -120,7 +117,9 @@ int main(void)
     NRFX_EXAMPLE_LOG_PROCESS();
 
     nrfx_pwm_t pwm_instance = NRFX_PWM_INSTANCE(PWM_INST_IDX);
-    nrfx_pwm_config_t config = NRFX_PWM_DEFAULT_CONFIG(LED1_PIN, LED2_PIN, LED3_PIN, LED4_PIN);
+    nrfx_pwm_config_t config = NRFX_PWM_DEFAULT_CONFIG(PWM_LED1_PIN, PWM_LED2_PIN,
+                                                       PWM_LED3_PIN, PWM_LED4_PIN);
+
     status = nrfx_pwm_init(&pwm_instance, &config, pwm_handler, &pwm_instance);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 

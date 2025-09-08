@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to this project are documented in this file.
 
+## [3.14.0] - 2025-08-22
+### Added
+- Added support for the nRF54L15 DK to all existing samples except for the RNG sample.
+- Added sample for the CRACEN driver.
+
+### Changed
+- Divided existing loopback definitions in `common/nrfx_example.h` into individual header files for each board in `common/boards`.
+- Moved pin definitions from individual samples to board header files in `common/boards`.
+
 ## [3.8.0] - 2024-10-17
 ### Changed
 - Aligned Kconfig definitions to DPPIC multi-instance support in the GPPI and SAADC driver samples.

@@ -6,14 +6,14 @@ The sample demonstrates a basic functionality of the nrfx_pwm driver for a seque
 
 The sample supports the following development kits:
 
-
-| **Board**           | **Support** |
-|---------------------|:-----------:|
-| nrf52dk_nrf52832    |     Yes     |
-| nrf52833dk_nrf52833 |     Yes     |
-| nrf52840dk_nrf52840 |     Yes     |
-| nrf5340dk_nrf5340   |     Yes     |
-| nrf9160dk_nrf9160   |     Yes     |
+| **Board**           | **Support** |  **Number of LEDs expected to blink** |
+|---------------------|:-----------:|:-------------------------------------:|
+| nrf52dk_nrf52832    |     Yes     |                  4                    |
+| nrf52833dk_nrf52833 |     Yes     |                  4                    |
+| nrf52840dk_nrf52840 |     Yes     |                  4                    |
+| nrf5340dk_nrf5340   |     Yes     |                  4                    |
+| nrf54l15dk_nrf54l15 |     Yes     |                  2                    |
+| nrf9160dk_nrf9160   |     Yes     |                  4                    |
 
 ## Overview
 
@@ -43,7 +43,7 @@ You should see the following output:
 - "Loops: 3 / 3"
 - "PWM finished"
 ```
-4 LEDs on the development kit should blink in the following sequence:
+Two or four LEDs on the development kit should blink in the following sequence:
 
 @cond DOXYGEN_EXCLUDE
 ![pwm_common_gif](../../../doc/images/pwm_common_desc.gif "PWM common example")

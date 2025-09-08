@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -50,9 +50,6 @@
  *          Specified message ( @ref MSG_TO_SEND ) from @ref m_tx_buffer is transmitted and when
  *          the transfer is finished received message is read from @ref m_rx_buffer.
  */
-
-/** @brief Symbol specifying SPIM instance to be used. */
-#define SPIM_INST_IDX 1
 
 /** @brief Symbol specifying pin number for MOSI. */
 #define MOSI_PIN LOOPBACK_PIN_1A

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -53,20 +53,8 @@
  *          Fork mechanism in PPI/DPPI is also set up to toggle a second pin in GPIOTE at the same time.
  */
 
-/** @brief Symbol specifying timer instance to be used. */
-#define TIMER_INST_IDX 0
-
 /** @brief Symbol specifying time in milliseconds to wait for handler execution. */
 #define TIME_TO_WAIT_MS 1000UL
-
-/** @brief Symbol specifying GPIOTE instance to be used. */
-#define GPIOTE_INST_IDX 0
-
-/** @brief Symbol specifying output pin associated with primary task. */
-#define OUTPUT_PIN_PRIMARY LED1_PIN
-
-/** @brief Symbol specifying output pin associated with fork task. */
-#define OUTPUT_PIN_FORK LED2_PIN
 
 /**
  * @brief Function for handling TIMER driver events.
@@ -82,10 +70,10 @@ static void timer_handler(nrf_timer_event_t event_type, void * p_context)
     {
         char * p_msg = p_context;
         NRFX_LOG_INFO("Timer finished. Context passed to the handler: >%s<", p_msg);
-        NRFX_LOG_INFO("GPIOTE output pin (primary): %d is %s", OUTPUT_PIN_PRIMARY,
-                      nrfx_gpiote_in_is_set(OUTPUT_PIN_PRIMARY) ? "high" : "low");
-        NRFX_LOG_INFO("GPIOTE output pin (fork): %d is %s", OUTPUT_PIN_FORK,
-                      nrfx_gpiote_in_is_set(OUTPUT_PIN_FORK) ? "high" : "low");
+        NRFX_LOG_INFO("GPIOTE output pin (primary): %d is %s", GPPI_OUTPUT_PIN_PRIMARY,
+                      nrfx_gpiote_in_is_set(GPPI_OUTPUT_PIN_PRIMARY) ? "high" : "low");
+        NRFX_LOG_INFO("GPIOTE output pin (fork): %d is %s", GPPI_OUTPUT_PIN_FORK,
+                      nrfx_gpiote_in_is_set(GPPI_OUTPUT_PIN_FORK) ? "high" : "low");
     }
 }
 
@@ -103,10 +91,10 @@ int main(void)
     uint8_t gppi_channel;
 
 #if defined(__ZEPHYR__)
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0, 0);
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_GPIOTE_INST_HANDLER_GET(GPIOTE_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(GPPI_TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_TIMER_INST_HANDLER_GET(GPPI_TIMER_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPPI_GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_GPIOTE_INST_HANDLER_GET(GPPI_GPIOTE_INST_IDX), 0, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -114,7 +102,7 @@ int main(void)
     NRFX_LOG_INFO("Starting nrfx_gppi basic fork example.");
     NRFX_EXAMPLE_LOG_PROCESS();
 
-    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPIOTE_INST_IDX);
+    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPPI_GPIOTE_INST_IDX);
     status = nrfx_gpiote_init(&gpiote_inst, NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
     NRFX_LOG_INFO("GPIOTE status: %s",
@@ -145,12 +133,12 @@ int main(void)
     };
 
     status = nrfx_gpiote_output_configure(&gpiote_inst,
-                                          OUTPUT_PIN_PRIMARY,
+                                          GPPI_OUTPUT_PIN_PRIMARY,
                                           &output_config,
                                           &task_config);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    nrfx_gpiote_out_task_enable(&gpiote_inst, OUTPUT_PIN_PRIMARY);
+    nrfx_gpiote_out_task_enable(&gpiote_inst, GPPI_OUTPUT_PIN_PRIMARY);
 
     /*
      * Initialize the output pin associated with the fork task.
@@ -160,14 +148,14 @@ int main(void)
     task_config.init_val = NRF_GPIOTE_INITIAL_VALUE_LOW;
 
     status = nrfx_gpiote_output_configure(&gpiote_inst,
-                                          OUTPUT_PIN_FORK,
+                                          GPPI_OUTPUT_PIN_FORK,
                                           &output_config,
                                           &task_config);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    nrfx_gpiote_out_task_enable(&gpiote_inst, OUTPUT_PIN_FORK);
+    nrfx_gpiote_out_task_enable(&gpiote_inst, GPPI_OUTPUT_PIN_FORK);
 
-    nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
+    nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(GPPI_TIMER_INST_IDX);
     uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
     nrfx_timer_config_t timer_config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
     timer_config.bit_width = NRF_TIMER_BIT_WIDTH_32;
@@ -199,14 +187,14 @@ int main(void)
     */
     nrfx_gppi_channel_endpoints_setup(gppi_channel,
         nrfx_timer_compare_event_address_get(&timer_inst, NRF_TIMER_CC_CHANNEL0),
-        nrfx_gpiote_out_task_address_get(&gpiote_inst, OUTPUT_PIN_PRIMARY));
+        nrfx_gpiote_out_task_address_get(&gpiote_inst, GPPI_OUTPUT_PIN_PRIMARY));
 
     /*
      * Set up the task endpoint for a given PPI fork or for associating the DPPI channel
      * with an additional task register depending on which driver the GPPI helper is using.
     */
     nrfx_gppi_fork_endpoint_setup(gppi_channel,
-                                  nrfx_gpiote_out_task_address_get(&gpiote_inst, OUTPUT_PIN_FORK));
+                                  nrfx_gpiote_out_task_address_get(&gpiote_inst, GPPI_OUTPUT_PIN_FORK));
 
     nrfx_gppi_channels_enable(BIT(gppi_channel));
 

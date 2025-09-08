@@ -12,6 +12,7 @@ The sample supports the following development kits:
 | nrf52833dk_nrf52833 |     Yes     |
 | nrf52840dk_nrf52840 |     Yes     |
 | nrf5340dk_nrf5340   |     No      |
+| nrf54l15dk_nrf54l15 |     Yes     |
 | nrf9160dk_nrf9160   |     Yes     |
 
 ## Overview
@@ -54,16 +55,16 @@ You should see the following output:
 - "SAADC event: DONE"
 - "Sample buffer address == 0x([0-9a-z]{8})"
 - ".Sample 0. value == -?[0-9]"
-- ".Sample 1. value == ([0-9]{3})"
+- ".Sample 1. value == ([0-9]{4})"
 - "SAADC event: BUF_REQ"
 - "SAADC event: DONE"
 - "Sample buffer address == 0x([0-9a-z]{8})"
 - ".Sample 0. value == -?[0-9]"
-- ".Sample 1. value == ([0-9]{3})"
+- ".Sample 1. value == ([0-9]{4})"
 - "SAADC event: BUF_REQ"
 - "SAADC event: DONE"
 - ".Sample 0. value == -?[0-9]"
-- ".Sample 1. value == ([0-9]{3})"
+- ".Sample 1. value == ([0-9]{4})"
 ```
 [//]: #
 [Building and running]: <../../../README.md#building-and-running>

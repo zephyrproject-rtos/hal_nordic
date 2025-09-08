@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -34,6 +34,8 @@
 #ifndef NRFX_EXAMPLE_H__
 #define NRFX_EXAMPLE_H__
 
+#include <hal/nrf_gpio.h>
+
 #if defined(__ZEPHYR__)
 #include <zephyr/logging/log_ctrl.h>
 #define NRFX_EXAMPLE_LOG_INIT()    LOG_INIT()
@@ -43,67 +45,35 @@
 #define NRFX_EXAMPLE_LOG_PROCESS()
 #endif
 
-#if defined(NRF52_SERIES)
-#define LOOPBACK_PIN_1A 3
-#define LOOPBACK_PIN_1B 31
-#define LOOPBACK_PIN_2A 4
-#define LOOPBACK_PIN_2B 30
-#define LOOPBACK_PIN_3A 28
-#define LOOPBACK_PIN_3B 29
-#define LOOPBACK_PIN_4A 26
-#define LOOPBACK_PIN_4B 27
-#define ANALOG_INPUT_A0 1
-#define ANALOG_INPUT_A1 2
-#define ANALOG_INPUT_A2 4
-#if defined(NRF52832_XXAA) || defined (NRF52832_XXAB)
-#define LED1_PIN        17
-#define LED2_PIN        18
-#define LED3_PIN        19
-#define LED4_PIN        20
-#else
-#define LED1_PIN        13
-#define LED2_PIN        14
-#define LED3_PIN        15
-#define LED4_PIN        16
+#if defined(NRF52_SERIES) || defined(NRF53_SERIES)        \
+    || defined(NRF91_SERIES) || defined(__NRFX_DOXYGEN__)
+/**
+ * @brief Macro for converting analog input number into analog input enumerator
+ *        compatible with SAADC channel configuration.
+ *
+ * @param[in] input Analog input number.
+ *
+ * @return Analog input enumerator.
+ */
+#define ANALOG_INPUT_TO_SAADC_AIN(x) ((x) + 1)
 #endif
+
+#if defined(NRF52832_XXAA) || defined(NRF52832_XXAB)
+    #include "boards/nrf52dk_nrf52832_config.h"
+#elif defined(NRF52830_XXAA)
+    #include "boards/nrf52833dk_nrf52833_config.h"
+#elif defined(NRF52833_XXAA)
+    #include "boards/nrf52833dk_nrf52833_config.h"
+#elif defined(NRF52840_XXAA)
+    #include "boards/nrf52840dk_nrf52840_config.h"
 #elif defined(NRF53_SERIES)
-#define LOOPBACK_PIN_1A 4
-#define LOOPBACK_PIN_1B 26
-#define LOOPBACK_PIN_2A 5
-#define LOOPBACK_PIN_2B 25
-#define LOOPBACK_PIN_3A 6
-#define LOOPBACK_PIN_3B 7
-#define LOOPBACK_PIN_4A 34
-#define LOOPBACK_PIN_4B 35
-#define ANALOG_INPUT_A0 0
-#define ANALOG_INPUT_A1 1
-#define ANALOG_INPUT_A2 2
-#define LED1_PIN        28
-#define LED2_PIN        29
-#define LED3_PIN        30
-#define LED4_PIN        31
+    #include "boards/nrf5340dk_nrf5340_config.h"
 #elif defined(NRF91_SERIES)
-#define LOOPBACK_PIN_1A 14
-#define LOOPBACK_PIN_1B 19
-#define LOOPBACK_PIN_2A 15
-#define LOOPBACK_PIN_2B 18
-#define LOOPBACK_PIN_3A 16
-#define LOOPBACK_PIN_3B 17
-#define LOOPBACK_PIN_4A 30
-#define LOOPBACK_PIN_4B 31
-#define ANALOG_INPUT_A0 1
-#define ANALOG_INPUT_A1 2
-#define ANALOG_INPUT_A2 3
-#define LED1_PIN        2
-#define LED2_PIN        3
-#define LED3_PIN        4
-#define LED4_PIN        5
+    #include "boards/nrf9160dk_nrf9160_config.h"
+#elif defined(NRF54L15_XXAA)
+    #include "boards/nrf54l15dk_nrf54l15_config.h"
 #else
 #error "Unknown device."
 #endif
-
-#define ANALOG_INPUT_TO_SAADC_AIN(x) ((x) + 1)
-
-#define ANALOG_INPUT_TO_COMP_AIN(x) (x)
 
 #endif // NRFX_EXAMPLE_H__

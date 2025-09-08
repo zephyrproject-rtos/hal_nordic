@@ -10,5 +10,6 @@
     status = "okay";
     compatible = "nordic,nrf-spis";
     pinctrl-0 = <&spi_slave_dummy>;
+    pinctrl-names = "default";
     def-char = <0xFF>;
 };

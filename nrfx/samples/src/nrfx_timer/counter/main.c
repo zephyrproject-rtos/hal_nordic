@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -50,12 +50,6 @@
  *          regularly after specified time ( @ref TIME_TO_WAIT_MS ). Moreover, @ref timer_handler()
  *          is executed when the counter value is equal to @ref COUNTER_MAX_VAL.
  */
-
-/** @brief Symbol specifying timer instance to be used in timer mode (T). */
-#define TIMER_T_INST_IDX 0
-
-/** @brief Symbol specifying timer instance to be used in counter mode (C). */
-#define TIMER_C_INST_IDX 1
 
 /** @brief Symbol specifying time in milliseconds to wait for handler execution. */
 #define TIME_TO_WAIT_MS 1000UL
