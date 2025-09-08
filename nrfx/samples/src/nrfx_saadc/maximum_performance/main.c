@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -69,17 +69,8 @@
  *          that @p NRF_SAADC_EVENT_RESULTDONE event is connected with the GPIOTE task that toggles the @ref OUT_GPIO_PIN pin.
  */
 
-/** @brief Symbol specifying timer instance to be used. */
-#define TIMER_INST_IDX 0
-
-/** @brief Symbol specifying GPIOTE instance to be used. */
-#define GPIOTE_INST_IDX 0
-
-/** @brief Symbol specifying analog input to be observed by SAADC channel 0. */
-#define CH0_AIN ANALOG_INPUT_TO_SAADC_AIN(ANALOG_INPUT_A0)
-
 /** @brief Symbol specifying GPIO pin used to test the functionality of SAADC. */
-#define OUT_GPIO_PIN LOOPBACK_PIN_1B
+#define OUT_GPIO_PIN SAADC_CH0_LOOPBACK_PIN
 
 /** @brief Acquisition time [us] for source resistance <= 10 kOhm (see SAADC electrical specification). */
 #define ACQ_TIME_10K 3UL
@@ -112,7 +103,7 @@
 #define RESOLUTION NRF_SAADC_RESOLUTION_10BIT
 
 /** @brief SAADC channel configuration structure for single channel use. */
-static const nrfx_saadc_channel_t m_single_channel = SAADC_CHANNEL_SE_ACQ_3US(CH0_AIN, 0);
+static const nrfx_saadc_channel_t m_single_channel = SAADC_CHANNEL_SE_ACQ_3US(SAADC_CH0_AIN, 0);
 
 /** @brief Samples buffer to store values from a SAADC channel. */
 static uint16_t m_sample_buffers[BUFFER_COUNT][BUFFER_SIZE];
@@ -227,8 +218,8 @@ int main(void)
 
 #if defined(__ZEPHYR__)
     IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SAADC), IRQ_PRIO_LOWEST, nrfx_saadc_irq_handler, 0, 0);
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_GPIOTE_INST_HANDLER_GET(GPIOTE_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(SAADC_GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_GPIOTE_INST_HANDLER_GET(SAADC_GPIOTE_INST_IDX), 0, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -238,7 +229,7 @@ int main(void)
     status = nrfx_saadc_init(NRFX_SAADC_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
+    nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(SAADC_TIMER_INST_IDX);
     uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
     nrfx_timer_config_t timer_config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
     timer_config.bit_width = NRF_TIMER_BIT_WIDTH_32;
@@ -308,7 +299,7 @@ int main(void)
         nrf_saadc_event_address_get(NRF_SAADC, NRF_SAADC_EVENT_END),
         nrf_saadc_task_address_get(NRF_SAADC, NRF_SAADC_TASK_START));
 
-    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPIOTE_INST_IDX);
+    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(SAADC_GPIOTE_INST_IDX);
     status = nrfx_gpiote_init(&gpiote_inst, NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
     NRFX_LOG_INFO("GPIOTE status: %s",

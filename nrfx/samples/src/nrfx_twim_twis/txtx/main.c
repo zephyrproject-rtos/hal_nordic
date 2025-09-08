@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -58,29 +58,6 @@
  *          @ref twim_handler() is executed with relevant log messages. @ref twis_handler() is used
  *          to prepare data for sending and update particular registers of @ref m_drone_reg.
  */
-
-/** @brief Symbol specifying pin number of master SCL. */
-#define MASTER_SCL_PIN LOOPBACK_PIN_1A
-
-/** @brief Symbol specifying pin number of master SDA. */
-#define MASTER_SDA_PIN LOOPBACK_PIN_2A
-
-/** @brief Symbol specifying pin number of slave SCL. */
-#define SLAVE_SCL_PIN LOOPBACK_PIN_1B
-
-/** @brief Symbol specifying pin number of slave SDA. */
-#define SLAVE_SDA_PIN LOOPBACK_PIN_2B
-
-#if defined(NRF52_SERIES) || defined(__NRFX_DOXYGEN__)
-/** @brief Symbol specifying TWIM instance to be used. */
-#define TWIM_INST_IDX 0
-
-/** @brief Symbol specifying TWIS instance to be used. */
-#define TWIS_INST_IDX 1
-#else
-#define TWIM_INST_IDX 1
-#define TWIS_INST_IDX 2
-#endif
 
 /** @brief Symbol specifying drone (slave) address on TWI bus. */
 #define DRONE_IDX 0x01U
@@ -287,12 +264,12 @@ int main(void)
                                                                     sizeof(register_num),
                                                                     (uint8_t *)&drone_ctrl_buffer,
                                                                     sizeof(drone_ctrl_buffer));
-    nrfx_twim_config_t twim_config = NRFX_TWIM_DEFAULT_CONFIG(MASTER_SCL_PIN, MASTER_SDA_PIN);
+    nrfx_twim_config_t twim_config = NRFX_TWIM_DEFAULT_CONFIG(TWIM_TWIS_MASTER_SCL_PIN, TWIM_TWIS_MASTER_SDA_PIN);
     status = nrfx_twim_init(&m_twim_inst, &twim_config, twim_handler, p_context);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    nrfx_twis_config_t twis_config = NRFX_TWIS_DEFAULT_CONFIG(SLAVE_SCL_PIN,
-                                                              SLAVE_SDA_PIN,
+    nrfx_twis_config_t twis_config = NRFX_TWIS_DEFAULT_CONFIG(TWIM_TWIS_SLAVE_SCL_PIN,
+                                                              TWIM_TWIS_SLAVE_SDA_PIN,
                                                               DRONE_IDX);
     status = nrfx_twis_init(&m_twis_inst, &twis_config, twis_handler);
     NRFX_ASSERT(status == NRFX_SUCCESS);
