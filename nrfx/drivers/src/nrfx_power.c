@@ -224,7 +224,11 @@ void nrfx_power_pof_disable(void)
 #elif NRF_REGULATORS_HAS_POF
     nrf_regulators_pof_config_t pof_config = {
         .enable = false,
+#if defined(REGULATORS_POFCON_THRESHOLD_V27)
         .thr    = NRF_REGULATORS_POF_THR_2V7,
+#else
+        .thr    = NRF_REGULATORS_POF_THR_1V4,
+#endif
     };
     nrf_regulators_pof_config_set(NRF_REGULATORS, &pof_config);
 #endif

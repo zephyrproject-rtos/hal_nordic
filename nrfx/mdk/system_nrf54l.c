@@ -37,11 +37,21 @@ NOTICE: This file has been modified by Nordic Semiconductor ASA.
 #define __SYSTEM_CLOCK_DEFAULT      (64000000ul)
 
 /* Trace configuration */
+#if defined (NRF54LV10A_ENGA_XXAA)
+#define TRACE_PORT                  NRF_P1_S
+#define TRACE_TRACECLK_PIN          (10ul)
+#define TRACE_TRACEDATA0_PIN        (11ul)
+#define TRACE_TRACEDATA1_PIN        (12ul)
+#define TRACE_TRACEDATA2_PIN        (13ul)
+#define TRACE_TRACEDATA3_PIN        (14ul)
+#else
+#define TRACE_PORT                  NRF_P2_S
 #define TRACE_TRACECLK_PIN          (6ul)
 #define TRACE_TRACEDATA0_PIN        (7ul)
 #define TRACE_TRACEDATA1_PIN        (8ul)
 #define TRACE_TRACEDATA2_PIN        (9ul)
 #define TRACE_TRACEDATA3_PIN        (10ul)
+#endif
 
 #define TRACE_PIN_CLEAR             (~(GPIO_PIN_CNF_CTRLSEL_Msk | GPIO_PIN_CNF_DRIVE0_Msk | GPIO_PIN_CNF_DRIVE1_Msk))
 
@@ -234,11 +244,11 @@ void SystemInit(void)
                 NRF_TAD_S->ENABLE = TAD_ENABLE_ENABLE_Msk;
 
                 // Configure trace port pads
-                NRF_P2_S->PIN_CNF[TRACE_TRACECLK_PIN] &= TRACE_PIN_CLEAR;
-                NRF_P2_S->PIN_CNF[TRACE_TRACEDATA0_PIN] &= TRACE_PIN_CLEAR;
+                TRACE_PORT->PIN_CNF[TRACE_TRACECLK_PIN] &= TRACE_PIN_CLEAR;
+                TRACE_PORT->PIN_CNF[TRACE_TRACEDATA0_PIN] &= TRACE_PIN_CLEAR;
 
-                NRF_P2_S->PIN_CNF[TRACE_TRACECLK_PIN] |= TRACE_PIN_CONFIG;
-                NRF_P2_S->PIN_CNF[TRACE_TRACEDATA0_PIN] |= TRACE_PIN_CONFIG;
+                TRACE_PORT->PIN_CNF[TRACE_TRACECLK_PIN] |= TRACE_PIN_CONFIG;
+                TRACE_PORT->PIN_CNF[TRACE_TRACEDATA0_PIN] |= TRACE_PIN_CONFIG;
 
                 // Configure trace port speed
                 NRF_TAD_S->TRACEPORTSPEED = TAD_TRACEPORTSPEED_TRACEPORTSPEED_DIV2;
@@ -251,17 +261,17 @@ void SystemInit(void)
                 NRF_TAD_S->ENABLE = TAD_ENABLE_ENABLE_Msk;
 
                 // Configure trace port pads
-                NRF_P2_S->PIN_CNF[TRACE_TRACECLK_PIN] &= TRACE_PIN_CLEAR;
-                NRF_P2_S->PIN_CNF[TRACE_TRACEDATA0_PIN] &= TRACE_PIN_CLEAR;
-                NRF_P2_S->PIN_CNF[TRACE_TRACEDATA1_PIN] &= TRACE_PIN_CLEAR;
-                NRF_P2_S->PIN_CNF[TRACE_TRACEDATA2_PIN] &= TRACE_PIN_CLEAR;
-                NRF_P2_S->PIN_CNF[TRACE_TRACEDATA3_PIN] &= TRACE_PIN_CLEAR;
+                TRACE_PORT->PIN_CNF[TRACE_TRACECLK_PIN] &= TRACE_PIN_CLEAR;
+                TRACE_PORT->PIN_CNF[TRACE_TRACEDATA0_PIN] &= TRACE_PIN_CLEAR;
+                TRACE_PORT->PIN_CNF[TRACE_TRACEDATA1_PIN] &= TRACE_PIN_CLEAR;
+                TRACE_PORT->PIN_CNF[TRACE_TRACEDATA2_PIN] &= TRACE_PIN_CLEAR;
+                TRACE_PORT->PIN_CNF[TRACE_TRACEDATA3_PIN] &= TRACE_PIN_CLEAR;
 
-                NRF_P2_S->PIN_CNF[TRACE_TRACECLK_PIN] |= TRACE_PIN_CONFIG;
-                NRF_P2_S->PIN_CNF[TRACE_TRACEDATA0_PIN] |= TRACE_PIN_CONFIG;
-                NRF_P2_S->PIN_CNF[TRACE_TRACEDATA1_PIN] |= TRACE_PIN_CONFIG;
-                NRF_P2_S->PIN_CNF[TRACE_TRACEDATA2_PIN] |= TRACE_PIN_CONFIG;
-                NRF_P2_S->PIN_CNF[TRACE_TRACEDATA3_PIN] |= TRACE_PIN_CONFIG;
+                TRACE_PORT->PIN_CNF[TRACE_TRACECLK_PIN] |= TRACE_PIN_CONFIG;
+                TRACE_PORT->PIN_CNF[TRACE_TRACEDATA0_PIN] |= TRACE_PIN_CONFIG;
+                TRACE_PORT->PIN_CNF[TRACE_TRACEDATA1_PIN] |= TRACE_PIN_CONFIG;
+                TRACE_PORT->PIN_CNF[TRACE_TRACEDATA2_PIN] |= TRACE_PIN_CONFIG;
+                TRACE_PORT->PIN_CNF[TRACE_TRACEDATA3_PIN] |= TRACE_PIN_CONFIG;
 
                 // Configure trace port speed
                 NRF_TAD_S->TRACEPORTSPEED = TAD_TRACEPORTSPEED_TRACEPORTSPEED_DIV2;

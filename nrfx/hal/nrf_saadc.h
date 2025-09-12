@@ -448,6 +448,7 @@ typedef enum
     NRF_SAADC_EVENT_CH2_LIMITL    = offsetof(NRF_SAADC_Type, EVENTS_CH[2].LIMITL),  ///< Last result is equal or below CH[2].LIMIT.LOW.
     NRF_SAADC_EVENT_CH3_LIMITH    = offsetof(NRF_SAADC_Type, EVENTS_CH[3].LIMITH),  ///< Last result is equal or above CH[3].LIMIT.HIGH.
     NRF_SAADC_EVENT_CH3_LIMITL    = offsetof(NRF_SAADC_Type, EVENTS_CH[3].LIMITL),  ///< Last result is equal or below CH[3].LIMIT.LOW.
+#if (SAADC_CH_NUM > 4) || defined(__NRFX_DOXYGEN__)
     NRF_SAADC_EVENT_CH4_LIMITH    = offsetof(NRF_SAADC_Type, EVENTS_CH[4].LIMITH),  ///< Last result is equal or above CH[4].LIMIT.HIGH.
     NRF_SAADC_EVENT_CH4_LIMITL    = offsetof(NRF_SAADC_Type, EVENTS_CH[4].LIMITL),  ///< Last result is equal or below CH[4].LIMIT.LOW.
     NRF_SAADC_EVENT_CH5_LIMITH    = offsetof(NRF_SAADC_Type, EVENTS_CH[5].LIMITH),  ///< Last result is equal or above CH[5].LIMIT.HIGH.
@@ -456,6 +457,7 @@ typedef enum
     NRF_SAADC_EVENT_CH6_LIMITL    = offsetof(NRF_SAADC_Type, EVENTS_CH[6].LIMITL),  ///< Last result is equal or below CH[6].LIMIT.LOW.
     NRF_SAADC_EVENT_CH7_LIMITH    = offsetof(NRF_SAADC_Type, EVENTS_CH[7].LIMITH),  ///< Last result is equal or above CH[7].LIMIT.HIGH.
     NRF_SAADC_EVENT_CH7_LIMITL    = offsetof(NRF_SAADC_Type, EVENTS_CH[7].LIMITL)   ///< Last result is equal or below CH[7].LIMIT.LOW.
+#endif
 } nrf_saadc_event_t;
 
 /** @brief Analog-to-digital converter interrupt masks. */
@@ -475,6 +477,7 @@ typedef enum
     NRF_SAADC_INT_CH2LIMITL     = SAADC_INTENSET_CH2LIMITL_Msk,     ///< Interrupt on EVENTS_CH[2].LIMITL event.
     NRF_SAADC_INT_CH3LIMITH     = SAADC_INTENSET_CH3LIMITH_Msk,     ///< Interrupt on EVENTS_CH[3].LIMITH event.
     NRF_SAADC_INT_CH3LIMITL     = SAADC_INTENSET_CH3LIMITL_Msk,     ///< Interrupt on EVENTS_CH[3].LIMITL event.
+#if (SAADC_CH_NUM > 4) || defined(__NRFX_DOXYGEN__)
     NRF_SAADC_INT_CH4LIMITH     = SAADC_INTENSET_CH4LIMITH_Msk,     ///< Interrupt on EVENTS_CH[4].LIMITH event.
     NRF_SAADC_INT_CH4LIMITL     = SAADC_INTENSET_CH4LIMITL_Msk,     ///< Interrupt on EVENTS_CH[4].LIMITL event.
     NRF_SAADC_INT_CH5LIMITH     = SAADC_INTENSET_CH5LIMITH_Msk,     ///< Interrupt on EVENTS_CH[5].LIMITH event.
@@ -483,6 +486,7 @@ typedef enum
     NRF_SAADC_INT_CH6LIMITL     = SAADC_INTENSET_CH6LIMITL_Msk,     ///< Interrupt on EVENTS_CH[6].LIMITL event.
     NRF_SAADC_INT_CH7LIMITH     = SAADC_INTENSET_CH7LIMITH_Msk,     ///< Interrupt on EVENTS_CH[7].LIMITH event.
     NRF_SAADC_INT_CH7LIMITL     = SAADC_INTENSET_CH7LIMITL_Msk,     ///< Interrupt on EVENTS_CH[7].LIMITL event.
+#endif
     NRF_SAADC_INT_ALL           = 0x7FFFFFFFUL                      ///< Mask of all interrupts.
 } nrf_saadc_int_mask_t;
 
