@@ -133,6 +133,13 @@ extern "C" {
 #define NRF_REGULATORS_HAS_INDUCTOR_DET 0
 #endif
 
+#if defined(REGULATORS_HIBERNATOR_SYSTEMHIBERNATE_ResetValue) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether HIBERNATOR register is present. */
+#define NRF_REGULATORS_HAS_HIBERNATOR 1
+#else
+#define NRF_REGULATORS_HAS_HIBERNATOR 0
+#endif
+
 #if NRF_REGULATORS_HAS_VREG_ANY
 /** @brief Voltage regulators. */
 typedef enum
@@ -156,22 +163,90 @@ typedef enum
 /** @brief POF Comparator thresholds. */
 typedef enum
 {
+#if defined(REGULATORS_POFCON_THRESHOLD_V090) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_0V9  = REGULATORS_POFCON_THRESHOLD_V090, ///< Set threshold to 0.9 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V095) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_0V95 = REGULATORS_POFCON_THRESHOLD_V095, ///< Set threshold to 0.95 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V100) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V0  = REGULATORS_POFCON_THRESHOLD_V100, ///< Set threshold to 1.0 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V105) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V05 = REGULATORS_POFCON_THRESHOLD_V105, ///< Set threshold to 1.05 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V110) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V1  = REGULATORS_POFCON_THRESHOLD_V110, ///< Set threshold to 1.1 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V115) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V15 = REGULATORS_POFCON_THRESHOLD_V115, ///< Set threshold to 1.15 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V120) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V2  = REGULATORS_POFCON_THRESHOLD_V120, ///< Set threshold to 1.2 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V125) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V25 = REGULATORS_POFCON_THRESHOLD_V125, ///< Set threshold to 1.25 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V130) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V3  = REGULATORS_POFCON_THRESHOLD_V130, ///< Set threshold to 1.3 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V135) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V35 = REGULATORS_POFCON_THRESHOLD_V135, ///< Set threshold to 1.35 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V140) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V4  = REGULATORS_POFCON_THRESHOLD_V140, ///< Set threshold to 1.4 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V145) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V45 = REGULATORS_POFCON_THRESHOLD_V145, ///< Set threshold to 1.45 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V150) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V5  = REGULATORS_POFCON_THRESHOLD_V150, ///< Set threshold to 1.5 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V155) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V55 = REGULATORS_POFCON_THRESHOLD_V155, ///< Set threshold to 1.55 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V160) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V6  = REGULATORS_POFCON_THRESHOLD_V160, ///< Set threshold to 1.6 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V165) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V65 = REGULATORS_POFCON_THRESHOLD_V165, ///< Set threshold to 1.65 V.
+#endif
 #if defined(REGULATORS_POFCON_THRESHOLD_V17) || defined(__NRFX_DOXYGEN__)
-    NRF_REGULATORS_POF_THR_1V7 = REGULATORS_POFCON_THRESHOLD_V17, ///< Set threshold to 1.7 V.
+    NRF_REGULATORS_POF_THR_1V7  = REGULATORS_POFCON_THRESHOLD_V17,  ///< Set threshold to 1.7 V.
 #endif
 #if defined(REGULATORS_POFCON_THRESHOLD_V18) || defined(__NRFX_DOXYGEN__)
-    NRF_REGULATORS_POF_THR_1V8 = REGULATORS_POFCON_THRESHOLD_V18, ///< Set threshold to 1.8 V.
+    NRF_REGULATORS_POF_THR_1V8  = REGULATORS_POFCON_THRESHOLD_V18,  ///< Set threshold to 1.8 V.
 #endif
-    NRF_REGULATORS_POF_THR_1V9 = REGULATORS_POFCON_THRESHOLD_V19, ///< Set threshold to 1.9 V.
-    NRF_REGULATORS_POF_THR_2V0 = REGULATORS_POFCON_THRESHOLD_V20, ///< Set threshold to 2.0 V.
-    NRF_REGULATORS_POF_THR_2V1 = REGULATORS_POFCON_THRESHOLD_V21, ///< Set threshold to 2.1 V.
-    NRF_REGULATORS_POF_THR_2V2 = REGULATORS_POFCON_THRESHOLD_V22, ///< Set threshold to 2.2 V.
-    NRF_REGULATORS_POF_THR_2V3 = REGULATORS_POFCON_THRESHOLD_V23, ///< Set threshold to 2.3 V.
-    NRF_REGULATORS_POF_THR_2V4 = REGULATORS_POFCON_THRESHOLD_V24, ///< Set threshold to 2.4 V.
-    NRF_REGULATORS_POF_THR_2V5 = REGULATORS_POFCON_THRESHOLD_V25, ///< Set threshold to 2.5 V.
-    NRF_REGULATORS_POF_THR_2V6 = REGULATORS_POFCON_THRESHOLD_V26, ///< Set threshold to 2.6 V.
-    NRF_REGULATORS_POF_THR_2V7 = REGULATORS_POFCON_THRESHOLD_V27, ///< Set threshold to 2.7 V.
-    NRF_REGULATORS_POF_THR_2V8 = REGULATORS_POFCON_THRESHOLD_V28, ///< Set threshold to 2.8 V.
+#if defined(REGULATORS_POFCON_THRESHOLD_V19) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_1V9  = REGULATORS_POFCON_THRESHOLD_V19,  ///< Set threshold to 1.9 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V20) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_2V0  = REGULATORS_POFCON_THRESHOLD_V20,  ///< Set threshold to 2.0 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V21) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_2V1  = REGULATORS_POFCON_THRESHOLD_V21,  ///< Set threshold to 2.1 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V22) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_2V2  = REGULATORS_POFCON_THRESHOLD_V22,  ///< Set threshold to 2.2 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V23) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_2V3  = REGULATORS_POFCON_THRESHOLD_V23,  ///< Set threshold to 2.3 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V24) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_2V4  = REGULATORS_POFCON_THRESHOLD_V24,  ///< Set threshold to 2.4 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V25) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_2V5  = REGULATORS_POFCON_THRESHOLD_V25,  ///< Set threshold to 2.5 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V26) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_2V6  = REGULATORS_POFCON_THRESHOLD_V26,  ///< Set threshold to 2.6 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V27) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_2V7  = REGULATORS_POFCON_THRESHOLD_V27,  ///< Set threshold to 2.7 V.
+#endif
+#if defined(REGULATORS_POFCON_THRESHOLD_V28) || defined(__NRFX_DOXYGEN__)
+    NRF_REGULATORS_POF_THR_2V8  = REGULATORS_POFCON_THRESHOLD_V28,  ///< Set threshold to 2.8 V.
+#endif
 } nrf_regulators_pof_thr_t;
 #endif
 
@@ -344,6 +419,34 @@ NRF_STATIC_INLINE uint32_t nrf_regulators_elv_mode_allow_get(NRF_REGULATORS_Type
  * @retval false Inductor not detected.
  */
 NRF_STATIC_INLINE bool nrf_regulators_inductor_check(NRF_REGULATORS_Type const * p_reg);
+#endif
+
+#if NRF_REGULATORS_HAS_HIBERNATOR
+/**
+ * @brief Function for putting the CPU in hibernation mode.
+ *
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ */
+NRF_STATIC_INLINE void nrf_regulators_system_hibernate(NRF_REGULATORS_Type * p_reg);
+
+/**
+ * @brief Function for enabling or disabling the GPIO retention release on wake up
+ *        from hibernation mode.
+ *
+ * @param[in] p_reg  Pointer to the structure of registers of the peripheral.
+ * @param[in] enable True if GPIO retention release is to be enabled, false otherwise.
+ */
+NRF_STATIC_INLINE void nrf_regulators_gpio_retention_release_set(NRF_REGULATORS_Type * p_reg,
+                                                                 bool                  enable);
+/**
+ * @brief Function for checking the GPIO retention status.
+ *
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ *
+ * @retval true  GPIO retention is active.
+ * @retval false GPIO retention is not active.
+ */
+NRF_STATIC_INLINE bool nrf_regulators_gpio_retention_check(NRF_REGULATORS_Type const * p_reg);
 #endif
 
 #ifndef NRF_DECLARE_ONLY
@@ -536,6 +639,31 @@ NRF_STATIC_INLINE bool nrf_regulators_inductor_check(NRF_REGULATORS_Type const *
     return (p_reg->VREGMAIN.INDUCTORDET & REGULATORS_VREGMAIN_INDUCTORDET_DETECTED_Msk)
            >> REGULATORS_VREGMAIN_INDUCTORDET_DETECTED_Pos
            == REGULATORS_VREGMAIN_INDUCTORDET_DETECTED_InductorDetected;
+}
+#endif
+
+#if NRF_REGULATORS_HAS_HIBERNATOR
+NRF_STATIC_INLINE void nrf_regulators_system_hibernate(NRF_REGULATORS_Type * p_reg)
+{
+    p_reg->HIBERNATOR.SYSTEMHIBERNATE =
+        REGULATORS_HIBERNATOR_SYSTEMHIBERNATE_SYSTEMHIBERNATE_Enter;
+}
+
+NRF_STATIC_INLINE void nrf_regulators_gpio_retention_release_set(NRF_REGULATORS_Type * p_reg,
+                                                                 bool                  enable)
+{
+    p_reg->HIBERNATOR.GPIORETENTIONRELEASE = (enable
+            ? REGULATORS_HIBERNATOR_GPIORETENTIONRELEASE_GPIORETENTIONRELEASE_Release
+            : REGULATORS_HIBERNATOR_GPIORETENTIONRELEASE_GPIORETENTIONRELEASE_NoRelease)
+            << REGULATORS_HIBERNATOR_GPIORETENTIONRELEASE_GPIORETENTIONRELEASE_Pos;
+}
+
+NRF_STATIC_INLINE bool nrf_regulators_gpio_retention_check(NRF_REGULATORS_Type const * p_reg)
+{
+    return (p_reg->HIBERNATOR.GPIORETENTIONSTATUS
+            & REGULATORS_HIBERNATOR_GPIORETENTIONSTATUS_GPIORETENTIONSTATUS_Msk)
+            >> REGULATORS_HIBERNATOR_GPIORETENTIONSTATUS_GPIORETENTIONSTATUS_Pos
+            == REGULATORS_HIBERNATOR_GPIORETENTIONSTATUS_GPIORETENTIONSTATUS_Active;
 }
 #endif
 
