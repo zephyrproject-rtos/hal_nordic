@@ -91,6 +91,11 @@ extern "C" {
     NRF_802154_RSCH_DLY_TS_OP_CSMACA_SLOTS
 
 /**
+ * @brief Invalid timeslot ID.
+ */
+#define NRF_802154_RSCH_DLY_TS_ID_INVALID UINT32_MAX
+
+/**
  * @brief List of the preconditions that have to be met before any radio activity.
  */
 typedef enum
@@ -115,6 +120,12 @@ typedef enum
     RSCH_PRIO_MIN_APPROVED = RSCH_PRIO_IDLE_LISTENING, ///< Minimal priority indicating that the given precondition is approved.
     RSCH_PRIO_MAX          = RSCH_PRIO_TX,             ///< Maximal priority available in the RSCH module.
 } rsch_prio_t;
+
+typedef enum
+{
+    RSCH_TIMESLOT_PRIO_LOW  = 0,
+    RSCH_TIMESLOT_PRIO_HIGH = 1,
+} rsch_timeslot_prio_t;
 
 /**
  * @brief Enumeration of the delayed timeslot operation types.
@@ -227,7 +238,7 @@ void nrf_802154_rsch_continuous_ended(void);
  * @retval false  Slot cannot be assigned due to other activities.
  *
  */
-bool nrf_802154_rsch_timeslot_request(uint32_t length_us);
+bool nrf_802154_rsch_timeslot_request(uint32_t length_us, rsch_timeslot_prio_t prio);
 
 /**
  * @brief Requests a timeslot in the future.

@@ -75,9 +75,10 @@ void nrf_802154_rsch_continuous_ended(void)
     // Intentionally empty
 }
 
-bool nrf_802154_rsch_timeslot_request(uint32_t length_us)
+bool nrf_802154_rsch_timeslot_request(uint32_t length_us, rsch_timeslot_prio_t prio)
 {
     (void)length_us;
+    (void)prio;
 
     NRF_802154_ASSERT(m_ready);
 
@@ -196,12 +197,8 @@ uint32_t nrf_802154_rsch_delayed_timeslot_time_to_hw_trigger_get(void)
 
 #endif
 
-#ifdef NRF54L_SERIES
-
 void nrf_802154_clock_hfclk_latency_set(uint32_t latency_us)
 {
     /* Intentionally empty. */
     (void)latency_us;
 }
-
-#endif

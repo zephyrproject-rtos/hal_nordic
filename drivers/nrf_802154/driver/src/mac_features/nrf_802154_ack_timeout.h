@@ -40,6 +40,7 @@
 
 #include "nrf_802154_const.h"
 #include "nrf_802154_types.h"
+#include "mac_features/nrf_802154_frame.h"
 
 /**
  * @defgroup nrf_802154_ack_timeout 802.15.4 driver ACK timeout support
@@ -81,32 +82,24 @@ bool nrf_802154_ack_timeout_abort(nrf_802154_term_t term_lvl, req_originator_t r
 /**
  * @brief Handles a transmitted event.
  *
- * @param[in]  p_frame  Pointer to the buffer that contains the transmitted frame.
+ * @param[in]  p_frame  Pointer to a frame data structure.
  */
-void nrf_802154_ack_timeout_transmitted_hook(const uint8_t * p_frame);
+void nrf_802154_ack_timeout_transmitted_hook(const nrf_802154_frame_t * p_frame);
 
 /**
  * @brief Handles a TX failed event.
  *
  * @param[in]  p_frame  Pointer to the buffer that contains a frame that was not transmitted.
  * @param[in]  error    Cause of failed transmission.
- *
- * @retval  true   TX failed event is to be propagated to the MAC layer.
- * @retval  false  TX failed event is not to be propagated to the MAC layer. It is handled
- *                 internally in the ACK timeout module.
  */
-bool nrf_802154_ack_timeout_tx_failed_hook(uint8_t * p_frame, nrf_802154_tx_error_t error);
+void nrf_802154_ack_timeout_tx_failed_hook(uint8_t * p_frame, nrf_802154_tx_error_t error);
 
 /**
  * @brief Handles a TX started event.
  *
  * @param[in]  p_frame  Pointer to the buffer that contains a frame being transmitted.
- *
- * @retval  true   TX started event is to be propagated to the MAC layer.
- * @retval  false  TX started event is not to be propagated to the MAC layer. It is handled
- *                 internally in the ACK timeout module.
  */
-bool nrf_802154_ack_timeout_tx_started_hook(uint8_t * p_frame);
+void nrf_802154_ack_timeout_tx_started_hook(uint8_t * p_frame);
 
 /**
  * @brief Handles a RX ACK started event.

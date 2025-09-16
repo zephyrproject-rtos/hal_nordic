@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Nordic Semiconductor ASA
+ * Copyright (c) 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -32,66 +32,43 @@
  *
  */
 
-/**
- * @file
- *   This file implements SWI manager for nRF 802.15.4 driver.
- *
- */
+#ifndef NRF_802154_TX_TIMESTAMP_PROVIDER_H__
+#define NRF_802154_TX_TIMESTAMP_PROVIDER_H__
 
-#include "nrf_802154_swi.h"
-
-#include <stdbool.h>
 #include <stdint.h>
+#include <stdbool.h>
 
-#include "compiler_abstraction.h"
-#include "nrf_802154.h"
-#include "nrf_802154_config.h"
-#include "platform/nrf_802154_irq.h"
+#include "nrf_802154_types_internal.h"
 
-#if NRF_802154_INTERNAL_SWI_IRQ_HANDLING
-/* SWI interrupt handling functionality is implemented directly by the chosen EGU IRQ handler. */
-#define SWI_IRQHandler NRF_802154_EGU_IRQ_HANDLER ///< Symbol of SWI IRQ handler.
-#else
-#define SWI_IRQHandler nrf_802154_swi_irq_handler ///< Symbol of SWI IRQ handler.
-#endif
+#define NRF_802154_TX_TIMESTAMP_PROVIDER_TIMESTAMP_SIZE (sizeof(uint64_t))
 
-__WEAK void nrf_802154_trx_swi_irq_handler(void)
-{
-    /* Implementation provided by other module if necessary */
-}
+/**
+ * @brief TX setup hook for the tx timestamp provider module.
+ *
+ * Checks transmission parameters and if required, latches a frame payload address
+ * where the transmission timestamp shall be written once the transmission starts.
+ *
+ * If the transmission parameters do not request transmit timestamp encoding, this hook exits
+ * without performing any actions.
+ *
+ * @param[in]  p_params  Pointer to the transmission parameters.
+ *
+ * @retval  NRF_802154_TX_ERROR_NONE                      The procedure was successful.
+ * @retval  NRF_802154_TX_ERROR_TIMESTAMP_ENCODING_ERROR  The timestamp cannot be inserted into the frame.
+ */
+nrf_802154_tx_error_t nrf_802154_tx_timestamp_provider_tx_setup(
+    nrf_802154_transmit_params_t * p_params);
 
-__WEAK void nrf_802154_notification_swi_irq_handler(void)
-{
-    /* Implementation provided by other module if necessary */
-}
+/**
+ * @brief TX started hook for the tx timestamp provider module.
+ *
+ * This hook is triggered when a transmission starts.
+ * If @ref nrf_802154_tx_timestamp_provider_tx_setup has configured a valid frame
+ * payload address for timestamping, the hook writes the current transmission
+ * time (in microseconds) to that address.
+ *
+ * @param[in]  p_frame  Pointer to the buffer that contains the PHR and PSDU of the transmitted frame.
+ */
+void nrf_802154_tx_timestamp_provider_tx_started_hook(uint8_t * p_frame);
 
-__WEAK void nrf_802154_request_swi_irq_handler(void)
-{
-    /* Implementation provided by other module if necessary */
-}
-
-static void swi_irq_handler(void)
-{
-    nrf_802154_trx_swi_irq_handler();
-    nrf_802154_notification_swi_irq_handler();
-    nrf_802154_request_swi_irq_handler();
-}
-
-void nrf_802154_swi_init(void)
-{
-    static bool initialized = false;
-
-    if (!initialized)
-    {
-        nrf_802154_irq_init(nrfx_get_irq_number(NRF_802154_EGU_INSTANCE),
-                            NRF_802154_SWI_PRIORITY,
-                            swi_irq_handler);
-        nrf_802154_irq_enable(nrfx_get_irq_number(NRF_802154_EGU_INSTANCE));
-        initialized = true;
-    }
-}
-
-void SWI_IRQHandler(void)
-{
-    swi_irq_handler();
-}
+#endif // NRF_802154_TX_TIMESTAMP_PROVIDER_H__
