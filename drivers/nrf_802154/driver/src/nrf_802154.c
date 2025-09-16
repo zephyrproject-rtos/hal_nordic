@@ -72,9 +72,10 @@
 #include "mac_features/nrf_802154_ack_timeout.h"
 #include "mac_features/nrf_802154_delayed_trx.h"
 #include "mac_features/nrf_802154_ie_writer.h"
-#include "mac_features/nrf_802154_ifs.h"
 #include "mac_features/nrf_802154_security_pib.h"
 #include "mac_features/ack_generator/nrf_802154_ack_data.h"
+#include "mac_features/nrf_802154_frame_parser.h"
+#include "mac_features/nrf_802154_imm_tx.h"
 
 #include "nrf_802154_sl_ant_div.h"
 #include "nrf_802154_sl_crit_sect_if.h"
@@ -99,6 +100,15 @@ static inline bool are_frame_properties_valid(const nrf_802154_transmitted_frame
 static inline bool are_extra_cca_attempts_valid(const nrf_802154_transmit_at_metadata_t * p_data)
 {
     return !p_data->cca || (p_data->extra_cca_attempts < UINT8_MAX);
+}
+
+static inline bool is_tx_timestamp_request_valid(const bool tx_timestamp_encode)
+{
+#if NRF_802154_TX_TIMESTAMP_PROVIDER_ENABLED
+    return true;
+#else
+    return !tx_timestamp_encode;
+#endif
 }
 
 void nrf_802154_channel_set(uint8_t channel)
@@ -207,9 +217,6 @@ void nrf_802154_init(void)
 #if NRF_802154_DELAYED_TRX_ENABLED
     nrf_802154_delayed_trx_init();
 #endif
-#if NRF_802154_IFS_ENABLED
-    nrf_802154_ifs_init();
-#endif
 }
 
 void nrf_802154_deinit(void)
@@ -227,9 +234,6 @@ void nrf_802154_deinit(void)
 #endif
 #if NRF_802154_DELAYED_TRX_ENABLED
     nrf_802154_delayed_trx_deinit();
-#endif
-#if NRF_802154_IFS_ENABLED
-    nrf_802154_ifs_deinit();
 #endif
 }
 
@@ -391,8 +395,8 @@ bool nrf_802154_receive(void)
 bool nrf_802154_transmit_raw(uint8_t                              * p_data,
                              const nrf_802154_transmit_metadata_t * p_metadata)
 {
-    bool    result;
-    uint8_t channel;
+    bool               result;
+    nrf_802154_frame_t frame;
 
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
@@ -400,41 +404,41 @@ bool nrf_802154_transmit_raw(uint8_t                              * p_data,
     {
         static const nrf_802154_transmit_metadata_t metadata_default =
         {
-            .frame_props = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
-            .cca         = true,
-            .tx_power    = {.use_metadata_value = false},
-            .tx_channel  = {.use_metadata_value = false}
+            .frame_props         = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
+            .cca                 = true,
+            .tx_power            = {.use_metadata_value = false},
+            .tx_channel          = {.use_metadata_value = false},
+            .tx_timestamp_encode = false
         };
 
         p_metadata = &metadata_default;
     }
 
-    channel =
-        p_metadata->tx_channel.use_metadata_value ? p_metadata->tx_channel.channel :
-        nrf_802154_pib_channel_get();
+    result = nrf_802154_frame_parser_data_init(p_data,
+                                               p_data[PHR_OFFSET] + PHR_SIZE,
+                                               PARSE_LEVEL_FULL,
+                                               &frame);
 
-    nrf_802154_transmit_params_t params =
+#if NRF_802154_TX_DIAGNOSTIC_MODE
+    if (!result)
     {
-        .frame_props        = p_metadata->frame_props,
-        .tx_power           = {0},
-        .channel            = channel,
-        .cca                = p_metadata->cca,
-        .immediate          = false,
-        .extra_cca_attempts = 0U,
-    };
+        result = nrf_802154_frame_parser_data_init(p_data,
+                                                   p_data[PHR_OFFSET] + PHR_SIZE,
+                                                   PARSE_LEVEL_NONE,
+                                                   &frame);
+    }
+#endif
 
-    (void)nrf_802154_tx_power_convert_metadata_to_tx_power_split(channel,
-                                                                 p_metadata->tx_power,
-                                                                 &params.tx_power);
-
-    result = are_frame_properties_valid(&params.frame_props);
     if (result)
     {
-        result = nrf_802154_request_transmit(NRF_802154_TERM_NONE,
-                                             REQ_ORIG_HIGHER_LAYER,
-                                             p_data,
-                                             &params,
-                                             NULL);
+        result = are_frame_properties_valid(&p_metadata->frame_props) &&
+                 is_tx_timestamp_request_valid(p_metadata->tx_timestamp_encode);
+    }
+
+    if (result)
+    {
+        result = nrf_802154_imm_tx_transmit(&frame,
+                                            p_metadata);
     }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
@@ -447,12 +451,14 @@ bool nrf_802154_transmit_raw_at(uint8_t                                 * p_data
                                 const nrf_802154_transmit_at_metadata_t * p_metadata)
 {
     bool                              result;
+    nrf_802154_frame_t                frame;
     nrf_802154_transmit_at_metadata_t metadata_default =
     {
-        .frame_props        = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
-        .cca                = true,
-        .tx_power           = {.use_metadata_value = false},
-        .extra_cca_attempts = 0,
+        .frame_props         = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
+        .cca                 = true,
+        .tx_power            = {.use_metadata_value = false},
+        .extra_cca_attempts  = 0,
+        .tx_timestamp_encode = false,
     };
 
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
@@ -463,11 +469,31 @@ bool nrf_802154_transmit_raw_at(uint8_t                                 * p_data
         p_metadata               = &metadata_default;
     }
 
-    result = are_frame_properties_valid(&p_metadata->frame_props) &&
-             are_extra_cca_attempts_valid(p_metadata);
+    result = nrf_802154_frame_parser_data_init(p_data,
+                                               p_data[PHR_OFFSET] + PHR_SIZE,
+                                               PARSE_LEVEL_FULL,
+                                               &frame);
+
+#if NRF_802154_TX_DIAGNOSTIC_MODE
+    if (!result)
+    {
+        result = nrf_802154_frame_parser_data_init(p_data,
+                                                   p_data[PHR_OFFSET] + PHR_SIZE,
+                                                   PARSE_LEVEL_NONE,
+                                                   &frame);
+    }
+#endif
+
     if (result)
     {
-        result = nrf_802154_request_transmit_raw_at(p_data, tx_time, p_metadata);
+        result = are_frame_properties_valid(&p_metadata->frame_props) &&
+                 are_extra_cca_attempts_valid(p_metadata) &&
+                 is_tx_timestamp_request_valid(p_metadata->tx_timestamp_encode);
+    }
+
+    if (result)
+    {
+        result = nrf_802154_request_transmit_raw_at(&frame, tx_time, p_metadata);
     }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
@@ -720,7 +746,8 @@ void nrf_802154_cca_cfg_get(nrf_802154_cca_cfg_t * p_cca_cfg)
 bool nrf_802154_transmit_csma_ca_raw(uint8_t                                      * p_data,
                                      const nrf_802154_transmit_csma_ca_metadata_t * p_metadata)
 {
-    bool result;
+    bool               result;
+    nrf_802154_frame_t frame;
 
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
@@ -728,18 +755,39 @@ bool nrf_802154_transmit_csma_ca_raw(uint8_t                                    
     {
         static const nrf_802154_transmit_csma_ca_metadata_t metadata_default =
         {
-            .frame_props = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
-            .tx_power    = {.use_metadata_value = false},
-            .tx_channel  = {.use_metadata_value = false}
+            .frame_props         = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
+            .tx_power            = {.use_metadata_value = false},
+            .tx_channel          = {.use_metadata_value = false},
+            .tx_timestamp_encode = false
         };
 
         p_metadata = &metadata_default;
     }
 
-    result = are_frame_properties_valid(&p_metadata->frame_props);
+    result = nrf_802154_frame_parser_data_init(p_data,
+                                               p_data[PHR_OFFSET] + PHR_SIZE,
+                                               PARSE_LEVEL_FULL,
+                                               &frame);
+
+#if NRF_802154_TX_DIAGNOSTIC_MODE
+    if (!result)
+    {
+        result = nrf_802154_frame_parser_data_init(p_data,
+                                                   p_data[PHR_OFFSET] + PHR_SIZE,
+                                                   PARSE_LEVEL_NONE,
+                                                   &frame);
+    }
+#endif
+
     if (result)
     {
-        result = nrf_802154_request_csma_ca_start(p_data, p_metadata);
+        result = are_frame_properties_valid(&p_metadata->frame_props) &&
+                 is_tx_timestamp_request_valid(p_metadata->tx_timestamp_encode);
+    }
+
+    if (result)
+    {
+        result = nrf_802154_request_csma_ca_start(&frame, p_metadata);
     }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
@@ -846,21 +894,6 @@ nrf_802154_capabilities_t nrf_802154_capabilities_get(void)
     caps_drv |= ((NRF_802154_SECURITY_WRITER_ENABLED && NRF_802154_ENCRYPTION_ENABLED) ?
                  NRF_802154_CAPABILITY_SECURITY : 0UL);
 
-    /* Both IFS and ACK Timeout features require SL timer, however
-     * using them both at the same time requires that SL is able to schedule
-     * several timers simultaneously.
-     *
-     * ACK Timeout capability takes precedence over IFS if only one timer
-     * can be scheduled because there is no known usecase for IFS without ACK Timeout,
-     * and this configuration would require additional testing. If such usecase emerges,
-     * this logic should be updated.
-     */
-    if (NRF_802154_SL_CAPABILITY_MULTITIMER & caps_sl)
-    {
-        caps_drv |= (NRF_802154_IFS_ENABLED ?
-                     NRF_802154_CAPABILITY_IFS : 0UL);
-    }
-
     return caps_drv;
 }
 
@@ -932,7 +965,7 @@ __WEAK void nrf_802154_received_raw(uint8_t * p_data, int8_t power, uint8_t lqi)
 {
     uint64_t timestamp;
 
-    nrf_802154_stat_timestamp_read(&timestamp, last_rx_end_timestamp);
+    timestamp = nrf_802154_stat_timestamp_read_last_rx_end_timestamp();
 
     nrf_802154_received_timestamp_raw(p_data,
                                       power,

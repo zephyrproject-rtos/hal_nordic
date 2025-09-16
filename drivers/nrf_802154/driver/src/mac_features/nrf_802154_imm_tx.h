@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Nordic Semiconductor ASA
+ * Copyright (c) 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -32,66 +32,30 @@
  *
  */
 
-/**
- * @file
- *   This file implements SWI manager for nRF 802.15.4 driver.
- *
- */
-
-#include "nrf_802154_swi.h"
+#ifndef NRF_802154_IMM_TX_H__
+#define NRF_802154_IMM_TX_H__
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "compiler_abstraction.h"
-#include "nrf_802154.h"
+#include "nrf_802154_const.h"
 #include "nrf_802154_config.h"
-#include "platform/nrf_802154_irq.h"
+#include "nrf_802154_types.h"
+#include "mac_features/nrf_802154_frame.h"
 
-#if NRF_802154_INTERNAL_SWI_IRQ_HANDLING
-/* SWI interrupt handling functionality is implemented directly by the chosen EGU IRQ handler. */
-#define SWI_IRQHandler NRF_802154_EGU_IRQ_HANDLER ///< Symbol of SWI IRQ handler.
-#else
-#define SWI_IRQHandler nrf_802154_swi_irq_handler ///< Symbol of SWI IRQ handler.
-#endif
+/**
+ * @brief Immediately transmit the frame.
+ *
+ * The function transmits the immediately, if the radio is sleeping or idle receiving.
+ *
+ * @param[in]  p_frame     Pointer to a frame data structure.
+ * @param[in]  p_metadata  Pointer to metadata structure. Contains detailed properties of data
+ *                         to transmit and additional parameters for the procedure.
+ *
+ * @retval  true   The transmission procedure was scheduled.
+ * @retval  false  The driver could not schedule the transmission procedure.
+ */
+bool nrf_802154_imm_tx_transmit(const nrf_802154_frame_t             * p_frame,
+                                const nrf_802154_transmit_metadata_t * p_metadata);
 
-__WEAK void nrf_802154_trx_swi_irq_handler(void)
-{
-    /* Implementation provided by other module if necessary */
-}
-
-__WEAK void nrf_802154_notification_swi_irq_handler(void)
-{
-    /* Implementation provided by other module if necessary */
-}
-
-__WEAK void nrf_802154_request_swi_irq_handler(void)
-{
-    /* Implementation provided by other module if necessary */
-}
-
-static void swi_irq_handler(void)
-{
-    nrf_802154_trx_swi_irq_handler();
-    nrf_802154_notification_swi_irq_handler();
-    nrf_802154_request_swi_irq_handler();
-}
-
-void nrf_802154_swi_init(void)
-{
-    static bool initialized = false;
-
-    if (!initialized)
-    {
-        nrf_802154_irq_init(nrfx_get_irq_number(NRF_802154_EGU_INSTANCE),
-                            NRF_802154_SWI_PRIORITY,
-                            swi_irq_handler);
-        nrf_802154_irq_enable(nrfx_get_irq_number(NRF_802154_EGU_INSTANCE));
-        initialized = true;
-    }
-}
-
-void SWI_IRQHandler(void)
-{
-    swi_irq_handler();
-}
+#endif /* NRF_802154_IMM_TX_H__ */
