@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -55,15 +55,6 @@
  *          The @ref uarte_handler() is executed with relevant log messages.
  */
 
-/** @brief Symbol specifying UARTE instance to be used. */
-#define UARTE_INST_IDX 1
-
-/** @brief Symbol specifying TX pin number of UARTE. */
-#define UARTE_TX_PIN LOOPBACK_PIN_1A
-
-/** @brief Symbol specifying RX pin number of UARTE. */
-#define UARTE_RX_PIN LOOPBACK_PIN_1B
-
 /** @brief Symbol specifying message to be sent via UARTE data transfer.*/
 #define MSG_TO_SEND "Nordic Semiconductor"
 
@@ -83,7 +74,6 @@ static uint8_t m_rx_buffer[sizeof(MSG_TO_SEND)];
  */
 static void uarte_handler(nrfx_uarte_event_t const * p_event, void * p_context)
 {
-    nrfx_uarte_t * p_inst = p_context;
     if (p_event->type == NRFX_UARTE_EVT_TX_DONE)
     {
         NRFX_LOG_INFO("--> UARTE event: TX done");
@@ -94,7 +84,6 @@ static void uarte_handler(nrfx_uarte_event_t const * p_event, void * p_context)
     {
         NRFX_LOG_INFO("UARTE event: %d", p_event->type);
     }
-    nrfx_uarte_uninit(p_inst);
 }
 
 /**
@@ -119,7 +108,6 @@ int main(void)
 
     nrfx_uarte_t uarte_inst = NRFX_UARTE_INSTANCE(UARTE_INST_IDX);
     nrfx_uarte_config_t uarte_config = NRFX_UARTE_DEFAULT_CONFIG(UARTE_TX_PIN, UARTE_RX_PIN);
-    uarte_config.p_context = &uarte_inst;
     status = nrfx_uarte_init(&uarte_inst, &uarte_config, uarte_handler);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
@@ -132,6 +120,11 @@ int main(void)
 
     status = nrfx_uarte_tx(&uarte_inst, m_tx_buffer, sizeof(m_tx_buffer), 0);
     NRFX_ASSERT(status == NRFX_SUCCESS);
+
+    while (nrfx_uarte_tx_in_progress(&uarte_inst))
+    {}
+
+    nrfx_uarte_uninit(&uarte_inst);
 
     while (1)
     {

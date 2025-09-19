@@ -4,7 +4,6 @@ sample:
 tests:
   examples.nrfx_saadc.simple_non_blocking:
     tags: saadc
-    filter: dt_compat_enabled("nordic,nrf-saadc")
     platform_allow:
       - nrf52dk/nrf52832
       - nrf52833dk/nrf52833
@@ -90,3 +89,74 @@ tests:
         - ".Sample 0. value == -?[0-9]"
         - ".Sample 1. value == -?[0-9]"
         - ".Sample 2. value == -?[0-9]"
+  examples.nrfx_saadc.simple_non_blocking.nrf54l15:
+    tags: saadc
+    platform_allow:
+      - nrf54l15dk/nrf54l15/cpuapp
+    integration_platforms:
+      - nrf54l15dk/nrf54l15/cpuapp
+    harness: console
+    harness_config:
+      fixture: nrfx_example_loopbacks
+      type: multi_line
+      ordered: true
+      regex:
+        - "Starting nrfx_saadc simple non-blocking example."
+        - "Single channel SAADC test."
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == ([0-9]{3})"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == -?[0-9]"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == ([0-9]{3})"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == -?[0-9]"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == ([0-9]{3})"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == -?[0-9]"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == ([0-9]{3})"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == -?[0-9]"
+        - "Multiple channels SAADC test."
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == ([0-9]{3})"
+        - ".Sample 1. value == ([0-9]{3})"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == -?[0-9]"
+        - ".Sample 1. value == -?[0-9]"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == ([0-9]{3})"
+        - ".Sample 1. value == ([0-9]{3})"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == -?[0-9]"
+        - ".Sample 1. value == -?[0-9]"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == ([0-9]{3})"
+        - ".Sample 1. value == ([0-9]{3})"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == -?[0-9]"
+        - ".Sample 1. value == -?[0-9]"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == ([0-9]{3})"
+        - ".Sample 1. value == ([0-9]{3})"
+        - "SAADC event: CALIBRATEDONE"
+        - "SAADC event: DONE"
+        - ".Sample 0. value == -?[0-9]"
+        - ".Sample 1. value == -?[0-9]"
