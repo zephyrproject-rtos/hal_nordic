@@ -168,7 +168,7 @@ extern "C" {
  *
  * @return Bit mask.
  */
-#define NRFX_BIT_MASK(x) (((x) == 32) ? UINT32_MAX : ((1UL << (x)) - 1))
+#define NRFX_BIT_MASK(x) (((x) == 32) ? UINT32_MAX : ((uint32_t)((1ULL << (x)) - 1)))
 
 /**
  * @brief Macro for returning size in bits for given size in bytes.
