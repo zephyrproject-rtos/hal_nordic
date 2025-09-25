@@ -392,11 +392,12 @@ bool nrf_802154_receive(void)
     return result;
 }
 
-bool nrf_802154_transmit_raw(uint8_t                              * p_data,
-                             const nrf_802154_transmit_metadata_t * p_metadata)
+nrf_802154_tx_error_t nrf_802154_transmit_raw(uint8_t                              * p_data,
+                                              const nrf_802154_transmit_metadata_t * p_metadata)
 {
-    bool               result;
-    nrf_802154_frame_t frame;
+    bool                  result;
+    nrf_802154_frame_t    frame;
+    nrf_802154_tx_error_t error;
 
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
@@ -437,21 +438,27 @@ bool nrf_802154_transmit_raw(uint8_t                              * p_data,
 
     if (result)
     {
-        result = nrf_802154_imm_tx_transmit(&frame,
-                                            p_metadata);
+        error = nrf_802154_imm_tx_transmit(&frame,
+                                           p_metadata);
+    }
+    else
+    {
+        error = NRF_802154_TX_ERROR_INVALID_REQUEST;
     }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
-    return result;
+    return error;
 }
 
 #if NRF_802154_DELAYED_TRX_ENABLED
-bool nrf_802154_transmit_raw_at(uint8_t                                 * p_data,
-                                uint64_t                                  tx_time,
-                                const nrf_802154_transmit_at_metadata_t * p_metadata)
+nrf_802154_tx_error_t nrf_802154_transmit_raw_at(
+    uint8_t                                 * p_data,
+    uint64_t                                  tx_time,
+    const nrf_802154_transmit_at_metadata_t * p_metadata)
 {
     bool                              result;
     nrf_802154_frame_t                frame;
+    nrf_802154_tx_error_t             error;
     nrf_802154_transmit_at_metadata_t metadata_default =
     {
         .frame_props         = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
@@ -493,11 +500,15 @@ bool nrf_802154_transmit_raw_at(uint8_t                                 * p_data
 
     if (result)
     {
-        result = nrf_802154_request_transmit_raw_at(&frame, tx_time, p_metadata);
+        error = nrf_802154_request_transmit_raw_at(&frame, tx_time, p_metadata);
+    }
+    else
+    {
+        error = NRF_802154_TX_ERROR_INVALID_REQUEST;
     }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
-    return result;
+    return error;
 }
 
 bool nrf_802154_transmit_at_cancel(void)
@@ -743,11 +754,13 @@ void nrf_802154_cca_cfg_get(nrf_802154_cca_cfg_t * p_cca_cfg)
 
 #if NRF_802154_CSMA_CA_ENABLED
 
-bool nrf_802154_transmit_csma_ca_raw(uint8_t                                      * p_data,
-                                     const nrf_802154_transmit_csma_ca_metadata_t * p_metadata)
+nrf_802154_tx_error_t nrf_802154_transmit_csma_ca_raw(
+    uint8_t                                      * p_data,
+    const nrf_802154_transmit_csma_ca_metadata_t * p_metadata)
 {
-    bool               result;
-    nrf_802154_frame_t frame;
+    bool                  result;
+    nrf_802154_frame_t    frame;
+    nrf_802154_tx_error_t error;
 
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
@@ -787,11 +800,15 @@ bool nrf_802154_transmit_csma_ca_raw(uint8_t                                    
 
     if (result)
     {
-        result = nrf_802154_request_csma_ca_start(&frame, p_metadata);
+        error = nrf_802154_request_csma_ca_start(&frame, p_metadata);
+    }
+    else
+    {
+        error = NRF_802154_TX_ERROR_INVALID_REQUEST;
     }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
-    return result;
+    return error;
 }
 
 bool nrf_802154_csma_ca_min_be_set(uint8_t min_be)

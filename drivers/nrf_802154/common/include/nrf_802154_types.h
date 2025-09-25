@@ -92,6 +92,7 @@ typedef uint8_t nrf_802154_tx_error_t;
 #define NRF_802154_TX_ERROR_KEY_ID_INVALID           0x08 // !< Transmission did not start due to invalid key ID in frame's security header.
 #define NRF_802154_TX_ERROR_FRAME_COUNTER_ERROR      0x09 // !< Transmission did not start due a frame counter error.
 #define NRF_802154_TX_ERROR_TIMESTAMP_ENCODING_ERROR 0x0A // !< Timestamp could not been encoded in the transmission process.
+#define NRF_802154_TX_ERROR_INVALID_REQUEST          0x0B // !< The frame or transmit metadata is invalid.
 
 /**
  * @brief Possible errors during the frame reception.

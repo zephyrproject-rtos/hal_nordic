@@ -166,9 +166,10 @@ static inline bool are_frame_properties_valid(const nrf_802154_transmitted_frame
 }
 
 #if NRF_802154_DELAYED_TRX_ENABLED
-bool nrf_802154_request_transmit_raw_at(const nrf_802154_frame_t                * p_frame,
-                                        uint64_t                                  tx_time,
-                                        const nrf_802154_transmit_at_metadata_t * p_metadata)
+nrf_802154_tx_error_t nrf_802154_request_transmit_raw_at(
+    const nrf_802154_frame_t                * p_frame,
+    uint64_t                                  tx_time,
+    const nrf_802154_transmit_at_metadata_t * p_metadata)
 {
     REQUEST_FUNCTION_PARMS(nrf_802154_delayed_trx_transmit,
                            nrf_802154_tx_error_t,
@@ -202,8 +203,9 @@ bool nrf_802154_request_receive_at_scheduled_cancel(uint32_t id)
 
 #endif
 
-bool nrf_802154_request_csma_ca_start(const nrf_802154_frame_t                     * p_frame,
-                                      const nrf_802154_transmit_csma_ca_metadata_t * p_metadata)
+nrf_802154_tx_error_t nrf_802154_request_csma_ca_start(
+    const nrf_802154_frame_t                     * p_frame,
+    const nrf_802154_transmit_csma_ca_metadata_t * p_metadata)
 {
     REQUEST_FUNCTION_PARMS(nrf_802154_csma_ca_start, nrf_802154_tx_error_t, p_frame, p_metadata);
 }
