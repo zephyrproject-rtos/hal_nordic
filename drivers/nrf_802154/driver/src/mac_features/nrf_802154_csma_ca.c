@@ -136,14 +136,12 @@ static void priority_leverage(void)
                                        NRF_802154_COEX_TX_REQUEST_MODE_CCA_START);
 
     // Leverage priority only after the first backoff in the specified Coex TX request mode
-    if (first_transmit_attempt && coex_requires_boosted_prio)
+    // It should always be possible to update this timeslot's priority here
+    if (first_transmit_attempt && coex_requires_boosted_prio &&
+        !nrf_802154_rsch_delayed_timeslot_priority_update(NRF_802154_RESERVED_CSMACA_ID,
+                                                          RSCH_PRIO_TX))
     {
-        // It should always be possible to update this timeslot's priority here
-        if (!nrf_802154_rsch_delayed_timeslot_priority_update(NRF_802154_RESERVED_CSMACA_ID,
-                                                              RSCH_PRIO_TX))
-        {
-            NRF_802154_ASSERT(false);
-        }
+        NRF_802154_ASSERT(false);
     }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_HIGH);
@@ -350,8 +348,9 @@ static bool channel_busy(void)
     return result;
 }
 
-bool nrf_802154_csma_ca_start(const nrf_802154_frame_t                     * p_frame,
-                              const nrf_802154_transmit_csma_ca_metadata_t * p_metadata)
+nrf_802154_tx_error_t nrf_802154_csma_ca_start(
+    const nrf_802154_frame_t                     * p_frame,
+    const nrf_802154_transmit_csma_ca_metadata_t * p_metadata)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
@@ -361,32 +360,36 @@ bool nrf_802154_csma_ca_start(const nrf_802154_frame_t                     * p_f
     nrf_802154_stat_timestamp_write_last_csmaca_start_timestamp(ts);
 #endif
 
+    nrf_802154_tx_error_t error = NRF_802154_TX_ERROR_TIMESLOT_DENIED;
+
     bool result = csma_ca_state_set(CSMA_CA_STATE_IDLE, CSMA_CA_STATE_BACKOFF);
 
-    NRF_802154_ASSERT(result);
-    (void)result;
+    if (result)
+    {
+        uint8_t channel =
+            p_metadata->tx_channel.use_metadata_value ? p_metadata->tx_channel.channel :
+            nrf_802154_pib_channel_get();
 
-    uint8_t channel =
-        p_metadata->tx_channel.use_metadata_value ? p_metadata->tx_channel.channel :
-        nrf_802154_pib_channel_get();
+        m_frame      = *p_frame;
+        m_data_props = p_metadata->frame_props;
+        m_nb         = 0;
+        m_be         = nrf_802154_pib_csmaca_min_be_get();
+        m_tx_channel = channel;
+    #if NRF_802154_TX_TIMESTAMP_PROVIDER_ENABLED
+        m_tx_timestamp_encode = p_metadata->tx_timestamp_encode;
+    #endif
+        (void)nrf_802154_tx_power_convert_metadata_to_tx_power_split(channel,
+                                                                     p_metadata->tx_power,
+                                                                     &m_tx_power);
 
-    m_frame      = *p_frame;
-    m_data_props = p_metadata->frame_props;
-    m_nb         = 0;
-    m_be         = nrf_802154_pib_csmaca_min_be_get();
-    m_tx_channel = channel;
-#if NRF_802154_TX_TIMESTAMP_PROVIDER_ENABLED
-    m_tx_timestamp_encode = p_metadata->tx_timestamp_encode;
-#endif
-    (void)nrf_802154_tx_power_convert_metadata_to_tx_power_split(channel,
-                                                                 p_metadata->tx_power,
-                                                                 &m_tx_power);
+        random_backoff_start();
 
-    random_backoff_start();
+        error = NRF_802154_TX_ERROR_NONE;
+    }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
 
-    return true;
+    return error;
 }
 
 static bool csma_ca_can_abort(nrf_802154_term_t              term_lvl,
