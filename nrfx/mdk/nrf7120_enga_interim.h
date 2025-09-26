@@ -119,7 +119,10 @@ POSSIBILITY OF SUCH DAMAGE.
     #define P3_PIN_NUM P3_PIN_NUM_SIZE
     #define P4_PIN_NUM P4_PIN_NUM_SIZE
 
-    #define NRF_AUXPLL NRF_AUDIOPLL
+    #define VPR_VEVIF_EVENT_MaxCount  32
+    #define VPR_CLIC_PRIO_COUNT       4
+    #define ADDRESS_SLAVE_Pos         (12UL)
+    #define ADDRESS_SLAVE_Msk         (0x3FUL << ADDRESS_SLAVE_Pos)
 
     typedef enum
     {
