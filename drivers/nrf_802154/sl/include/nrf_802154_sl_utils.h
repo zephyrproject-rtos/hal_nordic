@@ -67,10 +67,14 @@
         (NRF_802154_SL_RTC_FREQUENCY >> NRF_802154_SL_FREQUENCY_US_PER_S_GCD_BITS))
 
 /**@brief Maximum of two values. */
+#ifndef max
 #define max(a, b) ((a) > (b) ? (a) : (b))
+#endif
 
 /**@brief Minimum of two values. */
+#ifndef min
 #define min(a, b) ((a) < (b) ? (a) : (b))
+#endif
 
 #ifndef CONTAINER_OF
 /**@brief Can be used to get a pointer to the structure which contains a given struct element.
