@@ -82,6 +82,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define NRF_MPC00_S_BASE                  0x50041000UL
 #define NRF_DPPIC00_NS_BASE               0x40042000UL
 #define NRF_DPPIC00_S_BASE                0x50042000UL
+#define NRF_MPC03_S_BASE                  0x50043000UL
 #define NRF_PPIB00_NS_BASE                0x40044000UL
 #define NRF_PPIB00_S_BASE                 0x50044000UL
 #define NRF_PPIB01_NS_BASE                0x40045000UL
@@ -293,10 +294,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #define NRF_HFXO64M_S_BASE                0x50124000UL
 #define NRF_OSCRFR_NS_BASE                0x4012A000UL
 #define NRF_OSCRFR_S_BASE                 0x5012A000UL
-#define NRF_AUDIOPLLM_NS_BASE             0x40130000UL
-#define NRF_AUDIOPLL_NS_BASE              0x40130000UL
-#define NRF_AUDIOPLLM_S_BASE              0x50130000UL
-#define NRF_AUDIOPLL_S_BASE               0x50130000UL
+#define NRF_AUXPLL_NS_BASE                0x40130000UL
+#define NRF_AUXPM_NS_BASE                 0x40130000UL
+#define NRF_AUXPLL_S_BASE                 0x50130000UL
+#define NRF_AUXPM_S_BASE                  0x50130000UL
 
 /* =========================================================================================================================== */
 /* ================                                  Peripheral Declaration                                  ================ */
@@ -313,6 +314,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define NRF_MPC00_S                       ((NRF_MPC_Type*)                      NRF_MPC00_S_BASE)
 #define NRF_DPPIC00_NS                    ((NRF_DPPIC_Type*)                    NRF_DPPIC00_NS_BASE)
 #define NRF_DPPIC00_S                     ((NRF_DPPIC_Type*)                    NRF_DPPIC00_S_BASE)
+#define NRF_MPC03_S                       ((NRF_MPC_Type*)                      NRF_MPC03_S_BASE)
 #define NRF_PPIB00_NS                     ((NRF_PPIB_Type*)                     NRF_PPIB00_NS_BASE)
 #define NRF_PPIB00_S                      ((NRF_PPIB_Type*)                     NRF_PPIB00_S_BASE)
 #define NRF_PPIB01_NS                     ((NRF_PPIB_Type*)                     NRF_PPIB01_NS_BASE)
@@ -524,10 +526,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #define NRF_HFXO64M_S                     ((NRF_HFXO64M_Type*)                  NRF_HFXO64M_S_BASE)
 #define NRF_OSCRFR_NS                     ((NRF_OSCRFR_Type*)                   NRF_OSCRFR_NS_BASE)
 #define NRF_OSCRFR_S                      ((NRF_OSCRFR_Type*)                   NRF_OSCRFR_S_BASE)
-#define NRF_AUDIOPLLM_NS                  ((NRF_AUXPM_Type*)                    NRF_AUDIOPLLM_NS_BASE)
-#define NRF_AUDIOPLL_NS                   ((NRF_AUXPLL_Type*)                   NRF_AUDIOPLL_NS_BASE)
-#define NRF_AUDIOPLLM_S                   ((NRF_AUXPM_Type*)                    NRF_AUDIOPLLM_S_BASE)
-#define NRF_AUDIOPLL_S                    ((NRF_AUXPLL_Type*)                   NRF_AUDIOPLL_S_BASE)
+#define NRF_AUXPLL_NS                     ((NRF_AUXPLL_Type*)                   NRF_AUXPLL_NS_BASE)
+#define NRF_AUXPM_NS                      ((NRF_AUXPM_Type*)                    NRF_AUXPM_NS_BASE)
+#define NRF_AUXPLL_S                      ((NRF_AUXPLL_Type*)                   NRF_AUXPLL_S_BASE)
+#define NRF_AUXPM_S                       ((NRF_AUXPM_Type*)                    NRF_AUXPM_S_BASE)
 
 /* =========================================================================================================================== */
 /* ================                                    TrustZone Remapping                                    ================ */
@@ -639,8 +641,8 @@ POSSIBILITY OF SUCH DAMAGE.
   #define NRF_LFRC                                NRF_LFRC_NS
   #define NRF_HFXO64M                             NRF_HFXO64M_NS
   #define NRF_OSCRFR                              NRF_OSCRFR_NS
-  #define NRF_AUDIOPLL                            NRF_AUDIOPLL_NS
-  #define NRF_AUDIOPLLM                           NRF_AUDIOPLLM_NS
+  #define NRF_AUXPLL                              NRF_AUXPLL_NS
+  #define NRF_AUXPM                               NRF_AUXPM_NS
 #else                                                /*!< Remap NRF_X_S instances to NRF_X symbol for ease of use.             */
   #define NRF_WICR                                NRF_WICR_NS
   #define NRF_FICR                                NRF_FICR_NS
@@ -651,6 +653,7 @@ POSSIBILITY OF SUCH DAMAGE.
   #define NRF_SPU00                               NRF_SPU00_S
   #define NRF_MPC00                               NRF_MPC00_S
   #define NRF_DPPIC00                             NRF_DPPIC00_S
+  #define NRF_MPC03                               NRF_MPC03_S
   #define NRF_PPIB00                              NRF_PPIB00_S
   #define NRF_PPIB01                              NRF_PPIB01_S
   #define NRF_KMU                                 NRF_KMU_S
@@ -761,8 +764,8 @@ POSSIBILITY OF SUCH DAMAGE.
   #define NRF_LFRC                                NRF_LFRC_S
   #define NRF_HFXO64M                             NRF_HFXO64M_S
   #define NRF_OSCRFR                              NRF_OSCRFR_S
-  #define NRF_AUDIOPLL                            NRF_AUDIOPLL_S
-  #define NRF_AUDIOPLLM                           NRF_AUDIOPLLM_S
+  #define NRF_AUXPLL                              NRF_AUXPLL_S
+  #define NRF_AUXPM                               NRF_AUXPM_S
 #endif                                               /*!< NRF_TRUSTZONE_NONSECURE                                              */
 
 /* ========================================== End of section using anonymous unions ========================================== */

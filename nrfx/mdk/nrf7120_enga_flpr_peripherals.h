@@ -58,9 +58,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #define VPRCSR_VEVIF_NTASKS_MAX 22                   /*!< VEVIF tasks: 16..22                                                  */
 #define VPRCSR_VEVIF_NTASKS_SIZE 23                  /*!< VEVIF tasks: 16..22                                                  */
 #define VPRCSR_VEVIF_TASKS_MASK 0x007F0000           /*!< Mask of supported VEVIF tasks: 0x007F0000                            */
-#define VPRCSR_VEVIF_NDPPI_MIN 0                     /*!< VEVIF DPPI channels: 0..3                                            */
-#define VPRCSR_VEVIF_NDPPI_MAX 3                     /*!< VEVIF DPPI channels: 0..3                                            */
-#define VPRCSR_VEVIF_NDPPI_SIZE 4                    /*!< VEVIF DPPI channels: 0..3                                            */
+#define VPRCSR_VEVIF_NDPPI_MIN 0                     /*!< VEVIF DPPI indices: 0..3                                             */
+#define VPRCSR_VEVIF_NDPPI_MAX 3                     /*!< VEVIF DPPI indices: 0..3                                             */
+#define VPRCSR_VEVIF_NDPPI_SIZE 4                    /*!< VEVIF DPPI indices: 0..3                                             */
 #define VPRCSR_VEVIF_NEVENTS_MIN 0                   /*!< VEVIF events: 0..31                                                  */
 #define VPRCSR_VEVIF_NEVENTS_MAX 31                  /*!< VEVIF events: 0..31                                                  */
 #define VPRCSR_VEVIF_NEVENTS_SIZE 32                 /*!< VEVIF events: 0..31                                                  */
@@ -128,7 +128,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define CRACENCORE_CRACENRESETVALUES 1               /*!< (unspecified)                                                        */
 #define CRACENCORE_SHA3RESETVALUES 0                 /*!< (unspecified)                                                        */
 #define CRACENCORE_PKE_DATA_MEMORY 0x50018000        /*!< (unspecified)                                                        */
-#define CRACENCORE_PKE_DATA_MEMORY_SIZE 16384        /*!< (unspecified)                                                        */
+#define CRACENCORE_PKE_DATA_MEMORY_SIZE 12288        /*!< (unspecified)                                                        */
 #define CRACENCORE_PKE_CODE_MEMORY 0x5001C000        /*!< (unspecified)                                                        */
 #define CRACENCORE_PKE_CODE_MEMORY_SIZE 8192         /*!< (unspecified)                                                        */
 
@@ -198,11 +198,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 /*Memory Privilege Controller*/
 #define MPC_PRESENT 1
-#define MPC_COUNT 1
+#define MPC_COUNT 2
 
 #define MPC00_EXTEND_CLOCK_REQ 1                     /*!< (unspecified)                                                        */
 #define MPC00_RTCHOKE 0                              /*!< (unspecified)                                                        */
 #define MPC00_OVERRIDE_GRAN 4096                     /*!< The override region granularity is 4096 bytes                        */
+
+#define MPC03_EXTEND_CLOCK_REQ 1                     /*!< (unspecified)                                                        */
+#define MPC03_RTCHOKE 0                              /*!< (unspecified)                                                        */
+#define MPC03_OVERRIDE_GRAN 4096                     /*!< The override region granularity is 4096 bytes                        */
 
 /*Distributed programmable peripheral interconnect controller*/
 #define DPPIC_PRESENT 1
@@ -315,6 +319,21 @@ POSSIBILITY OF SUCH DAMAGE.
 #define VPR_PRESENT 1
 #define VPR_COUNT 1
 
+#define VPR00_RISCV_EXTN_E 1                         /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_M 1                         /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_C 1                         /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_ZBA 1                       /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_ZBB 1                       /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_ZBC 1                       /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_ZBS 1                       /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_ZCB 1                       /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_ZIFENCEI 0                  /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_ZICSR 1                     /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_ZICNTR 0                    /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_SMCLIC 1                    /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_SMCLICCONFIG 1              /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_SDEXT 1                     /*!< (unspecified)                                                        */
+#define VPR00_RISCV_EXTN_SDTRIG 1                    /*!< (unspecified)                                                        */
 #define VPR00_INIT_PC_RESET_VALUE 0x01000000         /*!< Boot vector (INIT_PC_RESET_VALUE): 0x01000000                        */
 #define VPR00_VPR_START_RESET_VALUE 1                /*!< Self-booting (VPR_START_RESET_VALUE): 1                              */
 #define VPR00_RAM_BASE_ADDR 0x20000000               /*!< VPR RAM base address (RAM_BASE_ADDR): 0x20000000                     */
@@ -324,15 +343,16 @@ POSSIBILITY OF SUCH DAMAGE.
 #define VPR00_VPRSAVEDCTX_REGBIT 0                   /*!< (unspecified)                                                        */
 #define VPR00_RETAINED 0                             /*!< Retain registers in Deep Sleep mode: 0                               */
 #define VPR00_VPRSAVEDCTX 1                          /*!< (unspecified)                                                        */
-#define VPR00_VPRSAVEADDR 0x200FFE00                 /*!< VPR context save address: 0x200FFE00                                 */
+#define VPR00_VPRSAVEADDR 0x200FEC00                 /*!< VPR context save address: 0x200FEC00                                 */
+#define VPR00_VPRSAVESIZE 1024                       /*!< VPR context save size: 1024 bytes                                    */
 #define VPR00_VPRREMAPADDRVTOB 0x00000000            /*!< VPR remap address: 0x00000000                                        */
 #define VPR00_VEVIF_NTASKS_MIN 16                    /*!< VEVIF tasks: 16..22                                                  */
 #define VPR00_VEVIF_NTASKS_MAX 22                    /*!< VEVIF tasks: 16..22                                                  */
 #define VPR00_VEVIF_NTASKS_SIZE 23                   /*!< VEVIF tasks: 16..22                                                  */
 #define VPR00_VEVIF_TASKS_MASK 0x007F0000            /*!< Mask of supported VEVIF tasks: 0x007F0000                            */
-#define VPR00_VEVIF_NDPPI_MIN 0                      /*!< VEVIF DPPI channels: 0..3                                            */
-#define VPR00_VEVIF_NDPPI_MAX 3                      /*!< VEVIF DPPI channels: 0..3                                            */
-#define VPR00_VEVIF_NDPPI_SIZE 4                     /*!< VEVIF DPPI channels: 0..3                                            */
+#define VPR00_VEVIF_NDPPI_MIN 16                     /*!< VEVIF DPPI indices: 16..19                                           */
+#define VPR00_VEVIF_NDPPI_MAX 19                     /*!< VEVIF DPPI indices: 16..19                                           */
+#define VPR00_VEVIF_NDPPI_SIZE 20                    /*!< VEVIF DPPI indices: 16..19                                           */
 #define VPR00_VEVIF_DPPI_MASK 0x000F0000             /*!< Mask of supported VEVIF DPPI channels: 0x000F0000                    */
 #define VPR00_VEVIF_NEVENTS_MIN 16                   /*!< VEVIF events: 16..22                                                 */
 #define VPR00_VEVIF_NEVENTS_MAX 22                   /*!< VEVIF events: 16..22                                                 */
@@ -455,7 +475,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define SPIM22_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define SPIM22_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define SPIM22_FEATURE_HARDWARE_CSN_PRESENT 1        /*!< (unspecified)                                                        */
-#define SPIM22_FEATURE_HARDWARE_DCX_PRESENT 0        /*!< (unspecified)                                                        */
+#define SPIM22_FEATURE_HARDWARE_DCX_PRESENT 1        /*!< (unspecified)                                                        */
 #define SPIM22_FEATURE_RXDELAY_PRESENT 1             /*!< (unspecified)                                                        */
 #define SPIM22_STALL_STATUS_PRESENT 0                /*!< (unspecified)                                                        */
 #define SPIM22_STALL_STATUS_TX_PRESENT 0             /*!< (unspecified)                                                        */
@@ -481,7 +501,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define SPIM23_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define SPIM23_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define SPIM23_FEATURE_HARDWARE_CSN_PRESENT 1        /*!< (unspecified)                                                        */
-#define SPIM23_FEATURE_HARDWARE_DCX_PRESENT 0        /*!< (unspecified)                                                        */
+#define SPIM23_FEATURE_HARDWARE_DCX_PRESENT 1        /*!< (unspecified)                                                        */
 #define SPIM23_FEATURE_RXDELAY_PRESENT 1             /*!< (unspecified)                                                        */
 #define SPIM23_STALL_STATUS_PRESENT 0                /*!< (unspecified)                                                        */
 #define SPIM23_STALL_STATUS_TX_PRESENT 0             /*!< (unspecified)                                                        */
@@ -507,7 +527,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define SPIM24_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define SPIM24_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define SPIM24_FEATURE_HARDWARE_CSN_PRESENT 1        /*!< (unspecified)                                                        */
-#define SPIM24_FEATURE_HARDWARE_DCX_PRESENT 0        /*!< (unspecified)                                                        */
+#define SPIM24_FEATURE_HARDWARE_DCX_PRESENT 1        /*!< (unspecified)                                                        */
 #define SPIM24_FEATURE_RXDELAY_PRESENT 1             /*!< (unspecified)                                                        */
 #define SPIM24_STALL_STATUS_PRESENT 0                /*!< (unspecified)                                                        */
 #define SPIM24_STALL_STATUS_TX_PRESENT 0             /*!< (unspecified)                                                        */
@@ -533,7 +553,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define SPIM30_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define SPIM30_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define SPIM30_FEATURE_HARDWARE_CSN_PRESENT 1        /*!< (unspecified)                                                        */
-#define SPIM30_FEATURE_HARDWARE_DCX_PRESENT 0        /*!< (unspecified)                                                        */
+#define SPIM30_FEATURE_HARDWARE_DCX_PRESENT 1        /*!< (unspecified)                                                        */
 #define SPIM30_FEATURE_RXDELAY_PRESENT 1             /*!< (unspecified)                                                        */
 #define SPIM30_STALL_STATUS_PRESENT 0                /*!< (unspecified)                                                        */
 #define SPIM30_STALL_STATUS_TX_PRESENT 0             /*!< (unspecified)                                                        */
@@ -679,9 +699,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #define MRAMC_NMRAMPAGESIZE 4                        /*!< (unspecified)                                                        */
 #define MRAMC_NNVRPAGESIZE 4                         /*!< (unspecified)                                                        */
 #define MRAMC_NMAINMEMORYSIZE 4                      /*!< MRAM main memory size: 4 MB                                          */
-#define MRAMC_NNVRPAGES_MIN 0                        /*!< Number of MRAM NVR pages: 0..1                                       */
-#define MRAMC_NNVRPAGES_MAX 1                        /*!< Number of MRAM NVR pages: 0..1                                       */
-#define MRAMC_NNVRPAGES_SIZE 2                       /*!< Number of MRAM NVR pages: 0..1                                       */
+#define MRAMC_NNVRPAGES_MIN 0                        /*!< Number of MRAM NVR pages: 0..3                                       */
+#define MRAMC_NNVRPAGES_MAX 3                        /*!< Number of MRAM NVR pages: 0..3                                       */
+#define MRAMC_NNVRPAGES_SIZE 4                       /*!< Number of MRAM NVR pages: 0..3                                       */
 #define MRAMC_NSIZEMRAMWORDS_MIN 1                   /*!< Register ERASE.SIZE.SIZE range: 1..262144                            */
 #define MRAMC_NSIZEMRAMWORDS_MAX 262144              /*!< Register ERASE.SIZE.SIZE range: 1..262144                            */
 #define MRAMC_NSIZEMRAMWORDS_SIZE 262145             /*!< Register ERASE.SIZE.SIZE range: 1..262144                            */
@@ -714,6 +734,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define P2_CTRLSEL_MAP2 0                            /*!< (unspecified)                                                        */
 #define P2_CTRLSEL_MAP3 0                            /*!< (unspecified)                                                        */
 #define P2_CTRLSEL_MAP4 1                            /*!< (unspecified)                                                        */
+#define P2_CTRLSEL_MAP5 0                            /*!< (unspecified)                                                        */
 #define P2_PIN_NUM_MIN 0                             /*!< (unspecified)                                                        */
 #define P2_PIN_NUM_MAX 11                            /*!< (unspecified)                                                        */
 #define P2_PIN_NUM_SIZE 12                           /*!< (unspecified)                                                        */
@@ -733,6 +754,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define P1_CTRLSEL_MAP2 0                            /*!< (unspecified)                                                        */
 #define P1_CTRLSEL_MAP3 0                            /*!< (unspecified)                                                        */
 #define P1_CTRLSEL_MAP4 1                            /*!< (unspecified)                                                        */
+#define P1_CTRLSEL_MAP5 0                            /*!< (unspecified)                                                        */
 #define P1_PIN_NUM_MIN 0                             /*!< (unspecified)                                                        */
 #define P1_PIN_NUM_MAX 15                            /*!< (unspecified)                                                        */
 #define P1_PIN_NUM_SIZE 16                           /*!< (unspecified)                                                        */
@@ -752,6 +774,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define P3_CTRLSEL_MAP2 0                            /*!< (unspecified)                                                        */
 #define P3_CTRLSEL_MAP3 0                            /*!< (unspecified)                                                        */
 #define P3_CTRLSEL_MAP4 1                            /*!< (unspecified)                                                        */
+#define P3_CTRLSEL_MAP5 0                            /*!< (unspecified)                                                        */
 #define P3_PIN_NUM_MIN 0                             /*!< (unspecified)                                                        */
 #define P3_PIN_NUM_MAX 11                            /*!< (unspecified)                                                        */
 #define P3_PIN_NUM_SIZE 12                           /*!< (unspecified)                                                        */
@@ -771,6 +794,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define P4_CTRLSEL_MAP2 0                            /*!< (unspecified)                                                        */
 #define P4_CTRLSEL_MAP3 0                            /*!< (unspecified)                                                        */
 #define P4_CTRLSEL_MAP4 1                            /*!< (unspecified)                                                        */
+#define P4_CTRLSEL_MAP5 0                            /*!< (unspecified)                                                        */
 #define P4_PIN_NUM_MIN 0                             /*!< (unspecified)                                                        */
 #define P4_PIN_NUM_MAX 11                            /*!< (unspecified)                                                        */
 #define P4_PIN_NUM_SIZE 12                           /*!< (unspecified)                                                        */
@@ -790,6 +814,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define P0_CTRLSEL_MAP2 0                            /*!< (unspecified)                                                        */
 #define P0_CTRLSEL_MAP3 0                            /*!< (unspecified)                                                        */
 #define P0_CTRLSEL_MAP4 1                            /*!< (unspecified)                                                        */
+#define P0_CTRLSEL_MAP5 0                            /*!< (unspecified)                                                        */
 #define P0_PIN_NUM_MIN 0                             /*!< (unspecified)                                                        */
 #define P0_PIN_NUM_MAX 12                            /*!< (unspecified)                                                        */
 #define P0_PIN_NUM_SIZE 13                           /*!< (unspecified)                                                        */
@@ -922,9 +947,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #define CRACEN_ONLYPROTECTEDRAMLOCK 0                /*!< (unspecified)                                                        */
 #define CRACEN_PROTECTED_RAM_SEED 0x51810000         /*!< (unspecified)                                                        */
 #define CRACEN_PROTECTED_RAM_SEED_SIZE 64            /*!< (unspecified)                                                        */
-#define CRACEN_PROTECTED_RAM_AES_KEY0 0x51810040     /*!< (unspecified)                                                        */
+#define CRACEN_PROTECTED_RAM_AES_KEY0 0x200FFF00     /*!< (unspecified)                                                        */
 #define CRACEN_PROTECTED_RAM_AES_KEY0_SIZE 32        /*!< (unspecified)                                                        */
-#define CRACEN_PROTECTED_RAM_AES_KEY1 0x51810060     /*!< (unspecified)                                                        */
+#define CRACEN_PROTECTED_RAM_AES_KEY1 0x200FFF20     /*!< (unspecified)                                                        */
 #define CRACEN_PROTECTED_RAM_AES_KEY1_SIZE 32        /*!< (unspecified)                                                        */
 #define CRACEN_PROTECTED_RAM_SM4_KEY0 0x51810080     /*!< (unspecified)                                                        */
 #define CRACEN_PROTECTED_RAM_SM4_KEY0_SIZE 16        /*!< (unspecified)                                                        */
@@ -960,13 +985,15 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #define QSPI00_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
 #define QSPI00_FIFO_DEPTH 16                         /*!< Depth of the transmit and receive FIFOs is 16                        */
-#define QSPI00_XIP 0                                 /*!< (unspecified)                                                        */
+#define QSPI00_CONTROLLER 1                          /*!< (unspecified)                                                        */
 #define QSPI00_PERIPHERAL 0                          /*!< (unspecified)                                                        */
+#define QSPI00_XIP 1                                 /*!< (unspecified)                                                        */
 
 #define QSPI01_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
 #define QSPI01_FIFO_DEPTH 16                         /*!< Depth of the transmit and receive FIFOs is 16                        */
-#define QSPI01_XIP 0                                 /*!< (unspecified)                                                        */
+#define QSPI01_CONTROLLER 1                          /*!< (unspecified)                                                        */
 #define QSPI01_PERIPHERAL 1                          /*!< (unspecified)                                                        */
+#define QSPI01_XIP 0                                 /*!< (unspecified)                                                        */
 
 /*2.4 GHz radio*/
 #define RADIO_PRESENT 1
@@ -1054,24 +1081,18 @@ POSSIBILITY OF SUCH DAMAGE.
 #define MEMCONF_PRESENT 1
 #define MEMCONF_COUNT 1
 
-#define MEMCONF_NRAMS_MIN 0                          /*!< Number of RAMs: [0..1]                                               */
-#define MEMCONF_NRAMS_MAX 1                          /*!< Number of RAMs: [0..1]                                               */
-#define MEMCONF_NRAMS_SIZE 2                         /*!< Number of RAMs: [0..1]                                               */
-#define MEMCONF_RETTRIM 1                            /*!< (unspecified)                                                        */
-#define MEMCONF_REPAIR 0                             /*!< (unspecified)                                                        */
+#define MEMCONF_MULTIPLE_INSTANCES 1                 /*!< (unspecified)                                                        */
+#define MEMCONF_NRAMS_MIN 0                          /*!< Number of MEMCONF pages: [0..1]                                      */
+#define MEMCONF_NRAMS_MAX 1                          /*!< Number of MEMCONF pages: [0..1]                                      */
+#define MEMCONF_NRAMS_SIZE 2                         /*!< Number of MEMCONF pages: [0..1]                                      */
 #define MEMCONF_POWER 1                              /*!< (unspecified)                                                        */
-#define MEMCONF_NUMADDRBITS_MIN 0                    /*!< Number of bits in repair address at MEMCONF.REPAIR.BITLINE.ADDR :
-                                                          [0..10]*/
-#define MEMCONF_NUMADDRBITS_MAX 10                   /*!< Number of bits in repair address at MEMCONF.REPAIR.BITLINE.ADDR :
-                                                          [0..10]*/
-#define MEMCONF_NUMADDRBITS_SIZE 11                  /*!< Number of bits in repair address at MEMCONF.REPAIR.BITLINE.ADDR :
-                                                          [0..10]*/
 #define MEMCONF_CONTROL_RESET_N0 0xF0000000          /*!< Reset value of register POWER[0].CONTROL: 0xF0000000                 */
 #define MEMCONF_CONTROL_RESET_N1 0x0000000E          /*!< Reset value of register POWER[1].CONTROL: 0x0000000E                 */
 #define MEMCONF_RETENTION_RESET_N0 0xFFFFFFFF        /*!< Reset value of register POWER[0].RET: 0xFFFFFFFF                     */
 #define MEMCONF_RETENTION_RESET_N1 0x0000000E        /*!< Reset value of register POWER[1].RET: 0x0000000E                     */
 #define MEMCONF_RETENTION2_RESET_N0 0xFFFFFFFF       /*!< Reset value of register POWER[0].RET2: 0xFFFFFFFF                    */
 #define MEMCONF_RETENTION2_RESET_N1 0x00000000       /*!< Reset value of register POWER[1].RET2: 0x00000000                    */
+#define MEMCONF_RETTRIM 1                            /*!< (unspecified)                                                        */
 
 /*Pulse Density Modulation (Digital Microphone) Interface*/
 #define PDM_PRESENT 1
@@ -1200,7 +1221,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define GRTC_CLKOUTREG 1                             /*!< (unspecified)                                                        */
 #define GRTC_CLKSELREG 1                             /*!< (unspecified)                                                        */
 #define GRTC_CLKSELLFLPRC 1                          /*!< (unspecified)                                                        */
-#define GRTC_CCADD_WRITE_ONLY 0                      /*!< (unspecified)                                                        */
+#define GRTC_CCADD_WRITE_ONLY 1                      /*!< (unspecified)                                                        */
 #define GRTC_READY_STATUS_AND_EVENTS 1               /*!< (unspecified)                                                        */
 #define GRTC_SYSCOUNTER_LOADED_STATUS 1              /*!< (unspecified)                                                        */
 #define GRTC_CC_PAST_STATUS 1                        /*!< (unspecified)                                                        */
@@ -1222,6 +1243,11 @@ POSSIBILITY OF SUCH DAMAGE.
 #define TAMPC_APSPIDEN 0                             /*!< (unspecified)                                                        */
 #define TAMPC_PROTECT_INTRESETEN_CTRL_VALUE_RESET 1  /*!< Reset value of field VALUE in register PROTECT.INTRESETEN.CTRL: 1    */
 #define TAMPC_TAMPERSWITCH 1                         /*!< (unspecified)                                                        */
+#define TAMPC_SM4DISABLECM 0                         /*!< (unspecified)                                                        */
+#define TAMPC_PROTECTRESETBEHAVIOR 1                 /*!< (unspecified)                                                        */
+#define TAMPC_SPIDEN 1                               /*!< (unspecified)                                                        */
+#define TAMPC_SPNIDEN 1                              /*!< (unspecified)                                                        */
+#define TAMPC_ACTIVESHIELD 1                         /*!< (unspecified)                                                        */
 
 /*Coexistence controller*/
 #define COEXC_PRESENT 1
@@ -1230,12 +1256,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #define COEXC_NCLIENTS_MIN 0                         /*!< Number of clients supported : 0..7                                   */
 #define COEXC_NCLIENTS_MAX 7                         /*!< Number of clients supported : 0..7                                   */
 #define COEXC_NCLIENTS_SIZE 8                        /*!< Number of clients supported : 0..7                                   */
-#define COEXC_NMODES_MIN 0                           /*!< Number of modes per client: 0..1                                     */
-#define COEXC_NMODES_MAX 1                           /*!< Number of modes per client: 0..1                                     */
-#define COEXC_NMODES_SIZE 2                          /*!< Number of modes per client: 0..1                                     */
+#define COEXC_NMODES_MIN 0                           /*!< Number of modes per client: 0..3                                     */
+#define COEXC_NMODES_MAX 3                           /*!< Number of modes per client: 0..3                                     */
+#define COEXC_NMODES_SIZE 4                          /*!< Number of modes per client: 0..3                                     */
 #define COEXC_NCCMALLOWMODES_MIN 0                   /*!< (unspecified)                                                        */
-#define COEXC_NCCMALLOWMODES_MAX 1                   /*!< (unspecified)                                                        */
-#define COEXC_NCCMALLOWMODES_SIZE 2                  /*!< (unspecified)                                                        */
+#define COEXC_NCCMALLOWMODES_MAX 3                   /*!< (unspecified)                                                        */
+#define COEXC_NCCMALLOWMODES_SIZE 4                  /*!< (unspecified)                                                        */
 #define COEXC_NPRIORITYBITS_MIN 16                   /*!< CCCONF priority bits : 16..23                                        */
 #define COEXC_NPRIORITYBITS_MAX 23                   /*!< CCCONF priority bits : 16..23                                        */
 #define COEXC_NPRIORITYBITS_SIZE 24                  /*!< CCCONF priority bits : 16..23                                        */

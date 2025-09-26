@@ -69,6 +69,7 @@ typedef enum {
   SWI03_IRQn                             = 31,       /*!< 31 SWI03                                                             */
   SPU00_IRQn                             = 64,       /*!< 64 SPU00                                                             */
   MPC00_IRQn                             = 65,       /*!< 65 MPC00                                                             */
+  MPC03_IRQn                             = 67,       /*!< 67 MPC03                                                             */
   AAR00_CCM00_IRQn                       = 74,       /*!< 74 AAR00_CCM00                                                       */
   ECB00_IRQn                             = 75,       /*!< 75 ECB00                                                             */
   VPR00_IRQn                             = 76,       /*!< 76 VPR00                                                             */
@@ -138,7 +139,7 @@ typedef enum {
   LFXO_IRQn                              = 290,      /*!< 290 LFXO                                                             */
   LFRC_IRQn                              = 291,      /*!< 291 LFRC                                                             */
   HFXO64M_IRQn                           = 292,      /*!< 292 HFXO64M                                                          */
-  AUDIOPLL_AUDIOPLLM_IRQn                = 304,      /*!< 304 AUDIOPLL_AUDIOPLLM                                               */
+  AUXPLL_AUXPM_IRQn                      = 304,      /*!< 304 AUXPLL_AUXPM                                                     */
 } IRQn_Type;
 
 /* ==================================================== Interrupt Aliases ==================================================== */
@@ -226,10 +227,10 @@ typedef enum {
 #define CLOCK_IRQHandler              CLOCK_POWER_IRQHandler
 #define POWER_IRQn                    CLOCK_POWER_IRQn
 #define POWER_IRQHandler              CLOCK_POWER_IRQHandler
-#define AUDIOPLL_IRQn                 AUDIOPLL_AUDIOPLLM_IRQn
-#define AUDIOPLL_IRQHandler           AUDIOPLL_AUDIOPLLM_IRQHandler
-#define AUDIOPLLM_IRQn                AUDIOPLL_AUDIOPLLM_IRQn
-#define AUDIOPLLM_IRQHandler          AUDIOPLL_AUDIOPLLM_IRQHandler
+#define AUXPLL_IRQn                   AUXPLL_AUXPM_IRQn
+#define AUXPLL_IRQHandler             AUXPLL_AUXPM_IRQHandler
+#define AUXPM_IRQn                    AUXPLL_AUXPM_IRQn
+#define AUXPM_IRQHandler              AUXPLL_AUXPM_IRQHandler
 
 /* =========================================================================================================================== */
 /* ================                           Processor and Core Peripheral Section                           ================ */
