@@ -48,13 +48,6 @@ extern "C" {
  * @brief   Hardware access layer for managing the Memory-to-Memory Vector DMA (MVDMA) peripheral.
  */
 
-#if defined(MVDMA_TASKS_PAUSE_TASKS_PAUSE_Pos) || defined(__NRFX_DOXYGEN__)
-/** @brief Symbol indicating whether MVDMA uses new or old version. */
-#define NRF_MVDMA_HAS_NEW_VER 1
-#else
-#define NRF_MVDMA_HAS_NEW_VER 0
-#endif
-
 #if defined(MVDMA_CONFIG_AXIMODE_AXIMODE_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether AXIMODE configuration is present. */
 #define NRF_MVDMA_HAS_AXIMODE 1
@@ -72,11 +65,7 @@ extern "C" {
 /** @brief MVDMA tasks. */
 typedef enum
 {
-#if NRF_MVDMA_HAS_NEW_VER
     NRF_MVDMA_TASK_PAUSE  = offsetof(NRF_MVDMA_Type, TASKS_PAUSE),    ///< Pause DMA transaction at next idle stage on memory bus.
-#else
-    NRF_MVDMA_TASK_STOP   = offsetof(NRF_MVDMA_Type, TASKS_STOP),     ///< Stop DMA transaction immediately, or after an ongoing AXI burst.
-#endif
     NRF_MVDMA_TASK_RESET  = offsetof(NRF_MVDMA_Type, TASKS_RESET),    ///< Return all registers to default state and FSMs to IDLE.
     NRF_MVDMA_TASK_START0 = offsetof(NRF_MVDMA_Type, TASKS_START[0]), ///< Start or continue processing of descriptor list 0.
     NRF_MVDMA_TASK_START1 = offsetof(NRF_MVDMA_Type, TASKS_START[1]), ///< Start or continue processing of descriptor list 1.
@@ -93,24 +82,16 @@ typedef enum
 {
     NRF_MVDMA_EVENT_END                 = offsetof(NRF_MVDMA_Type, EVENTS_END),                  ///< Sink data descriptor list has been completed.
     NRF_MVDMA_EVENT_STARTED             = offsetof(NRF_MVDMA_Type, EVENTS_STARTED),              ///< Data descriptor list processing has been started.
-#if NRF_MVDMA_HAS_NEW_VER
     NRF_MVDMA_EVENT_PAUSED              = offsetof(NRF_MVDMA_Type, EVENTS_PAUSED),               ///< Data transfer has been paused.
-#else
-    NRF_MVDMA_EVENT_STOPPED             = offsetof(NRF_MVDMA_Type, EVENTS_STOPPED),              ///< Data descriptor list processing has been stopped.
-#endif
     NRF_MVDMA_EVENT_RESET               = offsetof(NRF_MVDMA_Type, EVENTS_RESET),                ///< MVDMA has been reset.
-#if NRF_MVDMA_HAS_NEW_VER
     NRF_MVDMA_EVENT_SOURCEBUSERROR      = offsetof(NRF_MVDMA_Type, EVENTS_SOURCE.BUSERROR),      ///< Bus error has been received on the source channel.
     NRF_MVDMA_EVENT_SOURCESELECTJOBDONE = offsetof(NRF_MVDMA_Type, EVENTS_SOURCE.SELECTJOBDONE), ///< Job on the source channel with event enable attribute bit active has been processed.
-#else
-    NRF_MVDMA_EVENT_SOURCEBUSERROR      = offsetof(NRF_MVDMA_Type, EVENTS_SOURCEBUSERROR),       ///< Bus error has been received on the source channel.
-#endif
-#if NRF_MVDMA_HAS_NEW_VER
     NRF_MVDMA_EVENT_SINKBUSERROR        = offsetof(NRF_MVDMA_Type, EVENTS_SINK.BUSERROR),        ///< Bus error has been received on the sink channel.
     NRF_MVDMA_EVENT_SINKSELECTJOBDONE   = offsetof(NRF_MVDMA_Type, EVENTS_SINK.SELECTJOBDONE),   ///< Job on the sink channel with event enable attribute bit active has been processed.
-#else
-    NRF_MVDMA_EVENT_SINKBUSERROR        = offsetof(NRF_MVDMA_Type, EVENTS_SINKBUSERROR),         ///< Bus error has been received on the sink channel.
-#endif
+    NRF_MVDMA_EVENT_COMPLETED0          = offsetof(NRF_MVDMA_Type, EVENTS_COMPLETED[0]),         ///< Job 0 is completed.
+    NRF_MVDMA_EVENT_COMPLETED1          = offsetof(NRF_MVDMA_Type, EVENTS_COMPLETED[1]),         ///< Job 0 is completed.
+    NRF_MVDMA_EVENT_COMPLETED2          = offsetof(NRF_MVDMA_Type, EVENTS_COMPLETED[2]),         ///< Job 0 is completed.
+    NRF_MVDMA_EVENT_COMPLETED3          = offsetof(NRF_MVDMA_Type, EVENTS_COMPLETED[3]),         ///< Job 0 is completed.
 } nrf_mvdma_event_t;
 
 /** @brief MVDMA interrupts. */
@@ -118,18 +99,16 @@ typedef enum
 {
     NRF_MVDMA_INT_END_MASK                 = MVDMA_INTENSET_END_Msk,                 ///< Interrupt on END event.
     NRF_MVDMA_INT_STARTED_MASK             = MVDMA_INTENSET_STARTED_Msk,             ///< Interrupt on STARTED event.
-#if NRF_MVDMA_HAS_NEW_VER
     NRF_MVDMA_INT_PAUSED_MASK              = MVDMA_INTENSET_PAUSED_Msk,              ///< Interrupt on PAUSED event.
-#else
-    NRF_MVDMA_INT_STOPPED_MASK             = MVDMA_INTENSET_STOPPED_Msk,             ///< Interrupt on STOPPED event.
-#endif
     NRF_MVDMA_INT_RESET_MASK               = MVDMA_INTENSET_RESET_Msk,               ///< Interrupt on RESET event.
     NRF_MVDMA_INT_SOURCEBUSERROR_MASK      = MVDMA_INTENSET_SOURCEBUSERROR_Msk,      ///< Interrupt on SOURCEBUSERROR event.
     NRF_MVDMA_INT_SINKBUSERROR_MASK        = MVDMA_INTENSET_SINKBUSERROR_Msk,        ///< Interrupt on SINKBUSERROR event.
-#if NRF_MVDMA_HAS_NEW_VER
     NRF_MVDMA_INT_SOURCESELECTJOBDONE_MASK = MVDMA_INTENSET_SOURCESELECTJOBDONE_Msk, ///< Interrupt on SOURCESELECTJOBDONE event.
     NRF_MVDMA_INT_SINKSELECTJOBDONE_MASK   = MVDMA_INTENSET_SINKSELECTJOBDONE_Msk,   ///< Interrupt on SINKSELECTJOBDONE event.
-#endif
+    NRF_MVDMA_INT_COMPLETED0_MASK          = MVDMA_INTENSET_COMPLETED0_Msk,          ///< Interrupt on COMPLETED0 event.
+    NRF_MVDMA_INT_COMPLETED1_MASK          = MVDMA_INTENSET_COMPLETED1_Msk,          ///< Interrupt on COMPLETED0 event.
+    NRF_MVDMA_INT_COMPLETED2_MASK          = MVDMA_INTENSET_COMPLETED2_Msk,          ///< Interrupt on COMPLETED0 event.
+    NRF_MVDMA_INT_COMPLETED3_MASK          = MVDMA_INTENSET_COMPLETED3_Msk,          ///< Interrupt on COMPLETED0 event.
 } nrf_mvdma_int_mask_t;
 
 /** @brief MVDMA modes of operation. */
@@ -152,44 +131,26 @@ typedef enum
 typedef enum
 {
     NRF_MVDMA_FIFO_STATUS_EMPTY       = MVDMA_STATUS_FIFO_FIFOSTATUS_Empty,      ///< No data in intermediate FIFO.
-#if NRF_MVDMA_HAS_NEW_VER
     NRF_MVDMA_FIFO_STATUS_NOT_EMPTY   = MVDMA_STATUS_FIFO_FIFOSTATUS_NotEmpty,   ///< Intermediate FIFO contains data.
-#else
-    NRF_MVDMA_FIFO_STATUS_ALMOST_FULL = MVDMA_STATUS_FIFO_FIFOSTATUS_AlmostFull, ///< Intermediate FIFO is almost full.
-#endif
     NRF_MVDMA_FIFO_STATUS_FULL        = MVDMA_STATUS_FIFO_FIFOSTATUS_Full,       ///< Intermediate FIFO is full.
 } nrf_mvdma_fifo_status_t;
 
 /** @brief MVDMA data source errors. */
 typedef enum
 {
-#if NRF_MVDMA_HAS_NEW_VER
     NRF_MVDMA_SOURCE_ERROR_NONE        = MVDMA_SOURCE_BUSERROR_BUSERROR_NoError,           ///< No error.
     NRF_MVDMA_SOURCE_ERROR_READ        = MVDMA_SOURCE_BUSERROR_BUSERROR_ReadError,         ///< Error related to memory when reading joblist or memory/register when reading data.
     NRF_MVDMA_SOURCE_ERROR_READ_DECODE = MVDMA_SOURCE_BUSERROR_BUSERROR_ReadDecodeError,   ///< Error related to the joblist address or address when reading memory/register.
-#else
-    NRF_MVDMA_SOURCE_ERROR_NONE        = MVDMA_STATUS_SOURCEBUSERROR_BUSERROR_NoError,     ///< No error.
-    NRF_MVDMA_SOURCE_ERROR_SLAVE       = MVDMA_STATUS_SOURCEBUSERROR_BUSERROR_SlaveError,  ///< Error generated by AXI slave.
-    NRF_MVDMA_SOURCE_ERROR_DECODE      = MVDMA_STATUS_SOURCEBUSERROR_BUSERROR_DecodeError, ///< Error generated by interconnect.
-#endif
 } nrf_mvdma_source_error_t;
 
 /** @brief MVDMA data sink errors. */
 typedef enum
 {
-#if NRF_MVDMA_HAS_NEW_VER
     NRF_MVDMA_SINK_ERROR_NONE         = MVDMA_SINK_BUSERROR_BUSERROR_NoError,          ///< No error.
     NRF_MVDMA_SINK_ERROR_READ         = MVDMA_SINK_BUSERROR_BUSERROR_ReadError,        ///< Error related to memory when reading joblist.
     NRF_MVDMA_SINK_ERROR_WRITE        = MVDMA_SINK_BUSERROR_BUSERROR_WriteError,       ///< Error related to memory/register when writing data.
     NRF_MVDMA_SINK_ERROR_DECODE_READ  = MVDMA_SINK_BUSERROR_BUSERROR_ReadDecodeError,  ///< Error related to the joblist address when reading joblist.
     NRF_MVDMA_SINK_ERROR_DECODE_WRITE = MVDMA_SINK_BUSERROR_BUSERROR_WriteDecodeError, ///< Error related to the memory/register address when writing data.
-#else
-    NRF_MVDMA_SINK_ERROR_NONE         = MVDMA_STATUS_SINKBUSERROR_BUSERROR_NoError,          ///< No error.
-    NRF_MVDMA_SINK_ERROR_SLAVE_READ   = MVDMA_STATUS_SINKBUSERROR_BUSERROR_ReadSlaveError,   ///< Read error generated by AXI slave.
-    NRF_MVDMA_SINK_ERROR_SLAVE_WRITE  = MVDMA_STATUS_SINKBUSERROR_BUSERROR_WriteSlaveError,  ///< Write error generated by AXI slave.
-    NRF_MVDMA_SINK_ERROR_DECODE_READ  = MVDMA_STATUS_SINKBUSERROR_BUSERROR_ReadDecodeError,  ///< Read error generated by interconnect.
-    NRF_MVDMA_SINK_ERROR_DECODE_WRITE = MVDMA_STATUS_SINKBUSERROR_BUSERROR_WriteDecodeError, ///< Write error generated by interconnect.
-#endif
 } nrf_mvdma_sink_error_t;
 
 /**
@@ -627,39 +588,23 @@ NRF_STATIC_INLINE void nrf_mvdma_aximode_set(NRF_MVDMA_Type * p_reg, nrf_mvdma_a
 NRF_STATIC_INLINE void nrf_mvdma_source_list_ptr_set(NRF_MVDMA_Type *       p_reg,
                                                      nrf_vdma_job_t const * p_job)
 {
-#if NRF_MVDMA_HAS_NEW_VER
     p_reg->SOURCE.LISTPTR = (uint32_t)p_job;
-#else
-    p_reg->CONFIG.SOURCELISTPTR = (uint32_t)p_job;
-#endif
 }
 
 NRF_STATIC_INLINE nrf_vdma_job_t * nrf_mvdma_source_list_ptr_get(NRF_MVDMA_Type const * p_reg)
 {
-#if NRF_MVDMA_HAS_NEW_VER
     return (nrf_vdma_job_t *)(p_reg->SOURCE.LISTPTR);
-#else
-    return (nrf_vdma_job_t *)(p_reg->CONFIG.SOURCELISTPTR);
-#endif
 }
 
 NRF_STATIC_INLINE void nrf_mvdma_sink_list_ptr_set(NRF_MVDMA_Type *       p_reg,
                                                    nrf_vdma_job_t const * p_job)
 {
-#if NRF_MVDMA_HAS_NEW_VER
     p_reg->SINK.LISTPTR = (uint32_t)p_job;
-#else
-    p_reg->CONFIG.SINKLISTPTR = (uint32_t)p_job;
-#endif
 }
 
 NRF_STATIC_INLINE nrf_vdma_job_t * nrf_mvdma_sink_list_ptr_get(NRF_MVDMA_Type const * p_reg)
 {
-#if NRF_MVDMA_HAS_NEW_VER
     return (nrf_vdma_job_t *)(p_reg->SINK.LISTPTR);
-#else
-    return (nrf_vdma_job_t *)(p_reg->CONFIG.SINKLISTPTR);
-#endif
 }
 
 NRF_STATIC_INLINE uint32_t nrf_mvdma_crc_result_get(NRF_MVDMA_Type const * p_reg)
@@ -680,56 +625,32 @@ NRF_STATIC_INLINE bool nrf_mvdma_activity_check(NRF_MVDMA_Type const * p_reg)
 
 NRF_STATIC_INLINE nrf_mvdma_source_error_t nrf_mvdma_source_error_get(NRF_MVDMA_Type const * p_reg)
 {
-#if NRF_MVDMA_HAS_NEW_VER
     return (nrf_mvdma_source_error_t)(p_reg->SOURCE.BUSERROR);
-#else
-    return (nrf_mvdma_source_error_t)(p_reg->STATUS.SOURCEBUSERROR);
-#endif
 }
 
 NRF_STATIC_INLINE nrf_mvdma_sink_error_t nrf_mvdma_sink_error_get(NRF_MVDMA_Type const * p_reg)
 {
-#if NRF_MVDMA_HAS_NEW_VER
     return (nrf_mvdma_sink_error_t)(p_reg->SINK.BUSERROR);
-#else
-    return (nrf_mvdma_sink_error_t)(p_reg->STATUS.SINKBUSERROR);
-#endif
 }
 
 NRF_STATIC_INLINE uint32_t nrf_mvdma_last_source_address_get(NRF_MVDMA_Type const * p_reg)
 {
-#if NRF_MVDMA_HAS_NEW_VER
     return p_reg->SOURCE.ADDRESS;
-#else
-    return p_reg->STATUS.SOURCEADDRESS;
-#endif
 }
 
 NRF_STATIC_INLINE uint32_t nrf_mvdma_last_sink_address_get(NRF_MVDMA_Type const * p_reg)
 {
-#if NRF_MVDMA_HAS_NEW_VER
     return p_reg->SINK.ADDRESS;
-#else
-    return p_reg->STATUS.SINKADDRESS;
-#endif
 }
 
 NRF_STATIC_INLINE uint32_t nrf_mvdma_source_job_count_get(NRF_MVDMA_Type const * p_reg)
 {
-#if NRF_MVDMA_HAS_NEW_VER
     return p_reg->SOURCE.JOBCOUNT;
-#else
-    return p_reg->STATUS.SOURCEJOBCOUNT;
-#endif
 }
 
 NRF_STATIC_INLINE uint32_t nrf_mvdma_sink_job_count_get(NRF_MVDMA_Type const * p_reg)
 {
-#if NRF_MVDMA_HAS_NEW_VER
     return p_reg->SINK.JOBCOUNT;
-#else
-    return p_reg->STATUS.SINKJOBCOUNT;
-#endif
 }
 
 #endif // NRF_DECLARE_ONLY
