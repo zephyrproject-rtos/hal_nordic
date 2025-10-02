@@ -12,7 +12,9 @@ The sample supports the following development kits:
 | nrf52833dk_nrf52833 |     Yes     |
 | nrf52840dk_nrf52840 |     Yes     |
 | nrf5340dk_nrf5340   |     Yes     |
+| nrf54l15dk_nrf54l15 |     Yes     |
 | nrf9160dk_nrf9160   |     Yes     |
+
 ## Overview
 
 Application initializes the nrfx_saadc driver and starts operating in the blocking mode.
@@ -116,5 +118,70 @@ You should see the following output:
 - "[CHANNEL 1] Sampled value == -?[0-9]"
 - "[CHANNEL 2] Sampled value == -?[0-9]"
 ```
+
+On nRF54L15 DK, in order to keep the loopbacks consistent for all the samples, just two channels are used so the output should look something like:
+
+```
+- "Starting nrfx_saadc simple blocking example."
+- "Single channel SAADC test."
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 1 / 8"
+- "[CHANNEL 0] Sampled value == ([0-9]{3})"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 2 / 8"
+- "[CHANNEL 0] Sampled value == -?[0-9]"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 3 / 8"
+- "[CHANNEL 0] Sampled value == ([0-9]{3})"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 4 / 8"
+- "[CHANNEL 0] Sampled value == -?[0-9]"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 5 / 8"
+- "[CHANNEL 0] Sampled value == ([0-9]{3})"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 6 / 8"
+- "[CHANNEL 0] Sampled value == -?[0-9]"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 7 / 8"
+- "[CHANNEL 0] Sampled value == ([0-9]{3})"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 8 / 8"
+- "[CHANNEL 0] Sampled value == -?[0-9]"
+- "Multiple channels SAADC test."
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 1 / 8"
+- "[CHANNEL 0] Sampled value == ([0-9]{3})"
+- "[CHANNEL 1] Sampled value == ([0-9]{3})"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 2 / 8"
+- "[CHANNEL 0] Sampled value == -?[0-9]"
+- "[CHANNEL 1] Sampled value == -?[0-9]"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 3 / 8"
+- "[CHANNEL 0] Sampled value == ([0-9]{3})"
+- "[CHANNEL 1] Sampled value == ([0-9]{3})"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 4 / 8"
+- "[CHANNEL 0] Sampled value == -?[0-9]"
+- "[CHANNEL 1] Sampled value == -?[0-9]"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 5 / 8"
+- "[CHANNEL 0] Sampled value == ([0-9]{3})"
+- "[CHANNEL 1] Sampled value == ([0-9]{3})"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 6 / 8"
+- "[CHANNEL 0] Sampled value == -?[0-9]"
+- "[CHANNEL 1] Sampled value == -?[0-9]"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 7 / 8"
+- "[CHANNEL 0] Sampled value == ([0-9]{3})"
+- "[CHANNEL 1] Sampled value == ([0-9]{3})"
+- "Calibration in the blocking manner finished successfully."
+- "Sampling 8 / 8"
+- "[CHANNEL 0] Sampled value == -?[0-9]"
+- "[CHANNEL 1] Sampled value == -?[0-9]"
+```
+
 [//]: #
 [Building and running]: <../../../README.md#building-and-running>

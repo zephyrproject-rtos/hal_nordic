@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -52,17 +52,8 @@
  *          TIMER compare event is set up to be forwarded via PPI/DPPI to GPIOTE and toggle a pin.
  */
 
-/** @brief Symbol specifying timer instance to be used. */
-#define TIMER_INST_IDX 0
-
 /** @brief Symbol specifying time in milliseconds to wait for handler execution. */
 #define TIME_TO_WAIT_MS 1000UL
-
-/** @brief Symbol specifying GPIOTE instance to be used. */
-#define GPIOTE_INST_IDX 0
-
-/** @brief Symbol specifying ouput pin associated with the task. */
-#define OUTPUT_PIN LED1_PIN
 
 /**
  * @brief Function for handling TIMER driver events.
@@ -78,8 +69,8 @@ static void timer_handler(nrf_timer_event_t event_type, void * p_context)
     {
         char * p_msg = p_context;
         NRFX_LOG_INFO("Timer finished. Context passed to the handler: >%s<", p_msg);
-        NRFX_LOG_INFO("GPIOTE output pin: %d is %s", OUTPUT_PIN,
-                      nrfx_gpiote_in_is_set(OUTPUT_PIN) ? "high" : "low");
+        NRFX_LOG_INFO("GPIOTE output pin: %d is %s", GPPI_OUTPUT_PIN_PRIMARY,
+                      nrfx_gpiote_in_is_set(GPPI_OUTPUT_PIN_PRIMARY) ? "high" : "low");
     }
 }
 
@@ -97,10 +88,10 @@ int main(void)
     uint8_t gppi_channel;
 
 #if defined(__ZEPHYR__)
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0, 0);
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_GPIOTE_INST_HANDLER_GET(GPIOTE_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(GPPI_TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_TIMER_INST_HANDLER_GET(GPPI_TIMER_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPPI_GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_GPIOTE_INST_HANDLER_GET(GPPI_GPIOTE_INST_IDX), 0, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -108,7 +99,7 @@ int main(void)
     NRFX_LOG_INFO("Starting nrfx_gppi basic one-to-one example.");
     NRFX_EXAMPLE_LOG_PROCESS();
 
-    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPIOTE_INST_IDX);
+    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPPI_GPIOTE_INST_IDX);
     status = nrfx_gpiote_init(&gpiote_inst, NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
     NRFX_LOG_INFO("GPIOTE status: %s",
@@ -135,12 +126,12 @@ int main(void)
         .init_val = NRF_GPIOTE_INITIAL_VALUE_HIGH,
     };
 
-    status = nrfx_gpiote_output_configure(&gpiote_inst, OUTPUT_PIN, &output_config, &task_config);
+    status = nrfx_gpiote_output_configure(&gpiote_inst, GPPI_OUTPUT_PIN_PRIMARY, &output_config, &task_config);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    nrfx_gpiote_out_task_enable(&gpiote_inst, OUTPUT_PIN);
+    nrfx_gpiote_out_task_enable(&gpiote_inst, GPPI_OUTPUT_PIN_PRIMARY);
 
-    nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
+    nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(GPPI_TIMER_INST_IDX);
     uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
     nrfx_timer_config_t timer_config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
     timer_config.bit_width = NRF_TIMER_BIT_WIDTH_32;
@@ -172,7 +163,7 @@ int main(void)
      */
     nrfx_gppi_channel_endpoints_setup(gppi_channel,
         nrfx_timer_compare_event_address_get(&timer_inst, NRF_TIMER_CC_CHANNEL0),
-        nrfx_gpiote_out_task_address_get(&gpiote_inst, OUTPUT_PIN));
+        nrfx_gpiote_out_task_address_get(&gpiote_inst, GPPI_OUTPUT_PIN_PRIMARY));
 
     nrfx_gppi_channels_enable(BIT(gppi_channel));
 

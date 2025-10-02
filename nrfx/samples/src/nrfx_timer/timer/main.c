@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -49,9 +49,6 @@
  * @details Application initializes nrfx_timer driver. The @ref timer_handler() is executed after
  *          the specified time.
  */
-
-/** @brief Symbol specifying timer instance to be used. */
-#define TIMER_INST_IDX 0
 
 /** @brief Symbol specifying time in milliseconds to wait for handler execution. */
 #define TIME_TO_WAIT_MS 5000UL

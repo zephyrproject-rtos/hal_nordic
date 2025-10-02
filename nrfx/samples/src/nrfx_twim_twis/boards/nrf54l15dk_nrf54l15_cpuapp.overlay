@@ -1,0 +1,29 @@
+#include "../../../common/common-pinctrl.dtsi"
+
+/ {
+    chosen {
+        zephyr,console = &uart30;
+    };
+};
+
+&uart20 {
+    status = "disabled";
+};
+
+&uart30 {
+    status = "okay";
+};
+
+&i2c21 {
+    status = "okay";
+    compatible = "nordic,nrf-twim";
+    pinctrl-0 = <&i2c_master_dummy>;
+    pinctrl-names = "dummy";
+};
+
+&i2c22 {
+    status = "okay";
+    compatible = "nordic,nrf-twis";
+    pinctrl-0 = <&i2c_slave_dummy>;
+    pinctrl-names = "dummy";
+};
