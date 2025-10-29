@@ -63,6 +63,9 @@ void SystemCoreClockUpdate(void)
         case OSCILLATORS_PLL_CURRENTFREQ_CURRENTFREQ_CK128M:
             SystemCoreClock = 128000000ul;
             break;
+        case OSCILLATORS_PLL_CURRENTFREQ_CURRENTFREQ_CK256M:
+            SystemCoreClock = 256000000ul;
+            break;
     }
 }
 
@@ -87,6 +90,10 @@ void SystemInit(void)
         #endif
 
         #if !defined(NRF_TRUSTZONE_NONSECURE) && defined(__ARM_FEATURE_CMSE)
+            /* Dummy-read KMU to starts its boot preparations. This operation should be at
+                the beginning of SystemInit to allow KMU to run to completion during the function call */
+            NRF_KMU->STATUS;
+
             #ifndef NRF_SKIP_TAMPC_SETUP
                 nrf7120_handle_approtect();
             #endif
@@ -177,6 +184,19 @@ void SystemInit(void)
             #endif
 
             #if !defined(NRF_SKIP_RESET_FLPR)
+                //      Poll the SPU until the VPR goes NS before we move onto polling the NS VPR address
+                // Acquire the APB Slave index from the VPR_00 address (instead of hardcoding 12 into the index)
+                uint8_t flpr_apb_slave_index = ((NRF_VPR00_S_BASE & 0x0003F000) >> 12); // 12 = 0xC
+
+                // Wait until the VPR has been set to NS
+                while(
+                    (((NRF_SPU00->PERIPH[flpr_apb_slave_index].PERM & SPU_PERIPH_PERM_DMASEC_Msk) >> SPU_PERIPH_PERM_DMASEC_Pos) != SPU_PERIPH_PERM_DMASEC_NonSecure) &&
+                    (((NRF_SPU00->PERIPH[flpr_apb_slave_index].PERM & SPU_PERIPH_PERM_SECATTR_Msk) >> SPU_PERIPH_PERM_SECATTR_Pos) != SPU_PERIPH_PERM_SECATTR_NonSecure)
+                ) {}
+
+                // Wait until the FLPR is WFI (in sleep state) before resetting it. If the VPR is in RUNNING, do not proceed
+                while(((NRF_VPR00_NS->VPRSTATUS & VPR_VPRSTATUS_CPUSTATUS_Msk) >> VPR_VPRSTATUS_CPUSTATUS_Pos) == VPR_VPRSTATUS_CPUSTATUS_RUNNING){}
+
                 // Assert a sync reset in FLPR
                 NRF_VPR00_NS->DEBUGIF.DMCONTROL = (VPR_DEBUGIF_DMCONTROL_NDMRESET_Active << VPR_DEBUGIF_DMCONTROL_NDMRESET_Pos) | (VPR_DEBUGIF_DMCONTROL_DMACTIVE_Enabled << VPR_DEBUGIF_DMCONTROL_DMACTIVE_Pos);
 
@@ -193,6 +213,14 @@ void SystemInit(void)
                 NRF_GLITCHDET_S->CONFIG = (GLITCHDET_CONFIG_ENABLE_Disable << GLITCHDET_CONFIG_ENABLE_Pos);
             #endif
         #endif
+
+        #if !defined(NRF_TRUSTZONE_NONSECURE) && defined(__ARM_FEATURE_CMSE) && !defined (NRF_SKIP_KMU_WAIT_FOR_READY)
+            /* KMU is ready by now, but to be sure allow it to run to completion */
+            while(NRF_KMU->STATUS == KMU_STATUS_STATUS_Busy)
+            {
+            }
+        #endif
+
     #endif
 }
 
