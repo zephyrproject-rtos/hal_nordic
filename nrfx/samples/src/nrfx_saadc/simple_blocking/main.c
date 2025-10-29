@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -65,14 +65,38 @@
  *          are being triggered between successive samplings to verify the functionality of the SAADC on the non-constant analog signal.
  */
 
-/** @brief Symbol specifying analog input to be observed by SAADC channel 0. */
-#define CH0_AIN ANALOG_INPUT_TO_SAADC_AIN(ANALOG_INPUT_A0)
+/** @brief SAADC channel configuration structure for multiple channel use. */
+static const nrfx_saadc_channel_t m_multiple_channels[] =
+{
+    NRFX_SAADC_DEFAULT_CHANNEL_SE(SAADC_CH0_AIN, 0),
+    NRFX_SAADC_DEFAULT_CHANNEL_SE(SAADC_CH1_AIN, 1),
+#if SAADC_MAX_CHANNELS == 3
+    NRFX_SAADC_DEFAULT_CHANNEL_SE(SAADC_CH2_AIN, 2)
+#endif
+};
+/** @brief Symbol specifying numbers of multiple channels ( @ref m_multiple_channels) used by SAADC. */
+#define CHANNEL_COUNT NRFX_ARRAY_SIZE(m_multiple_channels)
 
-/** @brief Symbol specifying analog input to be observed by SAADC channel 1. */
-#define CH1_AIN ANALOG_INPUT_TO_SAADC_AIN(ANALOG_INPUT_A1)
+/** @brief Array specifying GPIO pins used to test the functionality of SAADC. */
+static uint8_t m_out_pins[CHANNEL_COUNT] = {
+    SAADC_CH0_LOOPBACK_PIN,
+    SAADC_CH1_LOOPBACK_PIN,
+#if SAADC_MAX_CHANNELS == 3
+    SAADC_CH2_LOOPBACK_PIN
+#endif
+};
 
-/** @brief Symbol specifying analog input to be observed by SAADC channel 2. */
-#define CH2_AIN ANALOG_INPUT_TO_SAADC_AIN(ANALOG_INPUT_A2)
+/** @brief SAADC channel configuration structure for single channel use. */
+static const nrfx_saadc_channel_t m_single_channel = NRFX_SAADC_DEFAULT_CHANNEL_SE(SAADC_CH0_AIN, 0);
+
+/** @brief Symbol specifying the number of SAADC samplings to trigger. */
+#define SAMPLING_ITERATIONS 8
+
+/** @brief Symbol specifying the resolution of the SAADC. */
+#define RESOLUTION NRF_SAADC_RESOLUTION_8BIT
+
+/** @brief Samples buffer defined with the size of @ref CHANNEL_COUNT symbol to store values from each channel ( @ref m_multiple_channels). */
+static uint16_t samples_buffer[CHANNEL_COUNT];
 
 /** @brief Declaration of enum containing a set of states for the simple state machine. */
 typedef enum
@@ -82,35 +106,6 @@ typedef enum
     STATE_MULTIPLE_CONFIG,   ///< Configure multiple SAADC channels and set the SAADC driver in the simple mode.
     STATE_MULTIPLE_SAMPLING, ///< Trigger SAADC sampling on multiple channels.
 } state_t;
-
-/** @brief SAADC channel configuration structure for single channel use. */
-static const nrfx_saadc_channel_t m_single_channel = NRFX_SAADC_DEFAULT_CHANNEL_SE(CH0_AIN, 0);
-
-/** @brief SAADC channel configuration structure for multiple channel use. */
-static const nrfx_saadc_channel_t m_multiple_channels[] =
-{
-    NRFX_SAADC_DEFAULT_CHANNEL_SE(CH0_AIN, 0),
-    NRFX_SAADC_DEFAULT_CHANNEL_SE(CH1_AIN, 1),
-    NRFX_SAADC_DEFAULT_CHANNEL_SE(CH2_AIN, 2),
-};
-
-/** @brief Symbol specifying numbers of multiple channels ( @ref m_multiple_channels) used by SAADC. */
-#define CHANNEL_COUNT NRFX_ARRAY_SIZE(m_multiple_channels)
-
-/** @brief Symbol specifying the number of SAADC samplings to trigger. */
-#define SAMPLING_ITERATIONS 8
-
-/** @brief Symbol specifying the resolution of the SAADC. */
-#define RESOLUTION NRF_SAADC_RESOLUTION_8BIT
-
-/** @brief Symbol specifying GPIOTE instance to be used. */
-#define GPIOTE_INST_IDX 0
-
-/** @brief Array specifying GPIO pins used to test the functionality of SAADC. */
-static uint8_t m_out_pins[CHANNEL_COUNT] = {LOOPBACK_PIN_1B, LOOPBACK_PIN_2B, LOOPBACK_PIN_3B};
-
-/** @brief Samples buffer defined with the size of @ref CHANNEL_COUNT symbol to store values from each channel ( @ref m_multiple_channels). */
-static uint16_t samples_buffer[CHANNEL_COUNT];
 
 /** @brief Enum with the current state of the simple state machine. */
 static state_t m_current_state = STATE_SINGLE_CONFIG;
@@ -126,8 +121,8 @@ int main(void)
     (void)status;
 
 #if defined(__ZEPHYR__)
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_GPIOTE_INST_HANDLER_GET(GPIOTE_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(SAADC_GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                NRFX_GPIOTE_INST_HANDLER_GET(SAADC_GPIOTE_INST_IDX), 0, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -137,7 +132,7 @@ int main(void)
     status = nrfx_saadc_init(NRFX_SAADC_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPIOTE_INST_IDX);
+    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(SAADC_GPIOTE_INST_IDX);
     status = nrfx_gpiote_init(&gpiote_inst, NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
     NRFX_LOG_INFO("GPIOTE status: %s",

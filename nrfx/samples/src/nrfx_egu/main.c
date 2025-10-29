@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -50,9 +50,6 @@
  *          three subsequent EGU channels. Then @ref egu_handler() is executed once
  *          for each triggered channel with relevant log message.
  */
-
-/** @brief Symbol specifying EGU instance to use. */
-#define EGU_INST_IDX 0
 
 /**
  * @brief Function for handling EGU driver events.
