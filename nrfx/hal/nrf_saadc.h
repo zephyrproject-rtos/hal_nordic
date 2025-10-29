@@ -226,6 +226,21 @@ typedef uint32_t nrf_saadc_input_t;
                                     << SAADC_CH_PSELP_INTERNAL_Pos)
 #endif
 
+#if defined(SAADC_CH_PSELP_INTERNAL_VddL) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying AVDD_AO_1V5 as input. */
+#define NRF_SAADC_INPUT_VDDL ((SAADC_CH_PSELP_INTERNAL_VddL + 1) << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Decb) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying DECB as input. */
+#define NRF_SAADC_INPUT_DECB ((SAADC_CH_PSELP_INTERNAL_Decb + 1) << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Vss) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying VSS as input. */
+#define NRF_SAADC_INPUT_VSS ((SAADC_CH_PSELP_INTERNAL_Vss + 1) << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
 #if defined(SAADC_CH_PSELP_INTERNAL_VDDAO0V8) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol specifying VDD_AO_0V8 as input. */
 #define NRF_SAADC_INPUT_VDDAO0V8 ((SAADC_CH_PSELP_INTERNAL_VDDAO0V8 + 1) \
@@ -240,6 +255,30 @@ typedef uint32_t nrf_saadc_input_t;
 #if defined(SAADC_CH_PSELP_INTERNAL_VBAT) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol specifying VBat as input. */
 #define NRF_SAADC_INPUT_VBAT ((SAADC_CH_PSELP_INTERNAL_VBAT + 1) << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Internal0) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying Internal0 as input. */
+#define NRF_SAADC_INPUT_INTERNAL0 ((SAADC_CH_PSELP_INTERNAL_Internal0 + 1) \
+                                     << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Internal1) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying Internal1 as input. */
+#define NRF_SAADC_INPUT_INTERNAL1 ((SAADC_CH_PSELP_INTERNAL_Internal1 + 1) \
+                                     << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Internal2) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying Internal2 as input. */
+#define NRF_SAADC_INPUT_INTERNAL2 ((SAADC_CH_PSELP_INTERNAL_Internal2 + 1) \
+                                     << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Internal3) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying Internal3 as input. */
+#define NRF_SAADC_INPUT_INTERNAL3 ((SAADC_CH_PSELP_INTERNAL_Internal3 + 1) \
+                                     << SAADC_CH_PSELP_INTERNAL_Pos)
 #endif
 
 /** @brief Symbol specifying disconnected analog input. */
@@ -497,12 +536,8 @@ typedef enum
     NRF_SAADC_LIMIT_HIGH = 1  ///< High limit type.
 } nrf_saadc_limit_t;
 
-#if NRFX_API_VER_AT_LEAST(3, 2, 0) || defined(__NRFX_DOXYGEN__)
 /** @brief Type of a single ADC conversion result. */
-typedef void nrf_saadc_value_t;
-#else
-typedef uint16_t nrf_saadc_value_t;
-#endif
+typedef int16_t nrf_saadc_value_t;
 
 /** @brief Analog-to-digital converter configuration structure. */
 typedef struct
@@ -997,7 +1032,7 @@ NRF_STATIC_INLINE void nrf_saadc_burst_set(NRF_SAADC_Type *  p_reg,
  *
  * @return Minimum value of the conversion result.
  */
-NRF_STATIC_INLINE int16_t nrf_saadc_value_min_get(nrf_saadc_resolution_t resolution);
+NRF_STATIC_INLINE nrf_saadc_value_t nrf_saadc_value_min_get(nrf_saadc_resolution_t resolution);
 
 /**
  * @brief Function for getting the maximum value of the conversion result.
@@ -1008,7 +1043,7 @@ NRF_STATIC_INLINE int16_t nrf_saadc_value_min_get(nrf_saadc_resolution_t resolut
  *
  * @return Maximum value of the conversion result.
  */
-NRF_STATIC_INLINE int16_t nrf_saadc_value_max_get(nrf_saadc_resolution_t resolution);
+NRF_STATIC_INLINE nrf_saadc_value_t nrf_saadc_value_max_get(nrf_saadc_resolution_t resolution);
 
 #if NRF_SAADC_HAS_CAL
 /**
@@ -1406,7 +1441,7 @@ NRF_STATIC_INLINE void nrf_saadc_burst_set(NRF_SAADC_Type *  p_reg,
 }
 #endif
 
-NRF_STATIC_INLINE int16_t nrf_saadc_value_min_get(nrf_saadc_resolution_t resolution)
+NRF_STATIC_INLINE nrf_saadc_value_t nrf_saadc_value_min_get(nrf_saadc_resolution_t resolution)
 {
     uint8_t res_bits = 0;
     switch (resolution)
@@ -1426,10 +1461,10 @@ NRF_STATIC_INLINE int16_t nrf_saadc_value_min_get(nrf_saadc_resolution_t resolut
         default:
             NRFX_ASSERT(false);
     }
-    return (int16_t)(-(1 << res_bits));
+    return (nrf_saadc_value_t)(-(1 << res_bits));
 }
 
-NRF_STATIC_INLINE int16_t nrf_saadc_value_max_get(nrf_saadc_resolution_t resolution)
+NRF_STATIC_INLINE nrf_saadc_value_t nrf_saadc_value_max_get(nrf_saadc_resolution_t resolution)
 {
     uint8_t res_bits = 0;
     switch (resolution)
@@ -1449,7 +1484,7 @@ NRF_STATIC_INLINE int16_t nrf_saadc_value_max_get(nrf_saadc_resolution_t resolut
         default:
             NRFX_ASSERT(false);
     }
-    return (int16_t)((1 << res_bits) - 1);
+    return (nrf_saadc_value_t)((1 << res_bits) - 1);
 }
 
 #if NRF_SAADC_HAS_CAL
