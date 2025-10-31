@@ -256,10 +256,10 @@ nrfx_power_usb_event_handler_t nrfx_power_usb_handler_get(void);
  *
  * @param[in] p_config Pointer to the structure with the initial configuration.
  *
- * @retval NRFX_SUCCESS       Successfully initialized.
- * @retval NRFX_ERROR_ALREADY Module was already initialized.
+ * @retval 0         Successfully initialized.
+ * @retval -EALREADY Module was already initialized.
  */
-nrfx_err_t nrfx_power_init(nrfx_power_config_t const * p_config);
+int nrfx_power_init(nrfx_power_config_t const * p_config);
 
 /**
  * @brief Function for unintializing the power module driver.
@@ -355,10 +355,10 @@ void nrfx_power_sleepevt_uninit(void);
  *       the function @ref nrfx_power_constlat_mode_free() needs to be called the same number of
  *       times to change the mode to Low Power.
  *
- * @retval NRFX_SUCCESS       The sub-power mode was successfully changed to Constant Latency.
- * @retval NRFX_ERROR_ALREADY Constant Latency mode was already requested and it is the current sub-power mode.
+ * @retval 0         The sub-power mode was successfully changed to Constant Latency.
+ * @retval -EALREADY Constant Latency mode was already requested and it is the current sub-power mode.
  */
-nrfx_err_t nrfx_power_constlat_mode_request(void);
+int nrfx_power_constlat_mode_request(void);
 
 /**
  * @brief Function for freeing Constant Latency sub-power mode.
@@ -367,10 +367,10 @@ nrfx_err_t nrfx_power_constlat_mode_request(void);
  *       of times as the @ref nrfx_power_constlat_mode_request() function to change the mode back
  *       to Low Power.
  *
- * @retval NRFX_SUCCESS    The sub-power mode was successfully changed to Low Power.
- * @retval NRFX_ERROR_BUSY The sub-power mode was not changed due to multiple calls to @ref nrfx_power_constlat_mode_request.
+ * @retval 0      The sub-power mode was successfully changed to Low Power.
+ * @retval -EBUSY The sub-power mode was not changed due to multiple calls to @ref nrfx_power_constlat_mode_request.
  */
-nrfx_err_t nrfx_power_constlat_mode_free(void);
+int nrfx_power_constlat_mode_free(void);
 
 /**
  * @brief Function for getting the current sub-power mode.

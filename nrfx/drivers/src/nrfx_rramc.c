@@ -32,9 +32,6 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_RRAMC_ENABLED)
-
 #include <nrfx_rramc.h>
 #include <hal/nrf_ficr.h>
 
@@ -169,7 +166,7 @@ bool nrfx_rramc_write_enable_check(void)
     return (rramc_config.mode_write == true);
 }
 
-static nrfx_err_t rramc_configure(nrfx_rramc_config_t const * p_config)
+static int rramc_configure(nrfx_rramc_config_t const * p_config)
 {
     nrfy_rramc_config_t nrfy_config =
     {
@@ -192,19 +189,19 @@ static nrfx_err_t rramc_configure(nrfx_rramc_config_t const * p_config)
     {
         nrfy_rramc_int_init(NRF_RRAMC, NRF_RRAMC_ALL_INTS_MASK, p_config->irq_priority, true);
     }
-    return NRFX_SUCCESS;
+    return 0;
 }
 
-nrfx_err_t nrfx_rramc_init(nrfx_rramc_config_t const * p_config,
-                           nrfx_rramc_evt_handler_t    handler)
+int nrfx_rramc_init(nrfx_rramc_config_t const * p_config,
+                    nrfx_rramc_evt_handler_t    handler)
 {
     NRFX_ASSERT(p_config);
 
-    nrfx_err_t err_code = NRFX_SUCCESS;
+    int err_code = 0;
 
     if (m_cb.state != NRFX_DRV_STATE_UNINITIALIZED)
     {
-        err_code = NRFX_ERROR_ALREADY;
+        err_code = -EALREADY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -214,25 +211,27 @@ nrfx_err_t nrfx_rramc_init(nrfx_rramc_config_t const * p_config,
     m_cb.handler = handler;
 
     err_code = rramc_configure(p_config);
-    if (err_code != NRFX_SUCCESS)
+    if (err_code != 0)
     {
         return err_code;
     }
 
     m_cb.state = NRFX_DRV_STATE_INITIALIZED;
 
-    NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
+    NRFX_LOG_INFO("Function: %s, error code: %s.",
+                  __func__,
+                  NRFX_LOG_ERROR_STRING_GET(err_code));
     return err_code;
 }
 
-nrfx_err_t nrfx_rramc_reconfigure(nrfx_rramc_config_t const * p_config)
+int nrfx_rramc_reconfigure(nrfx_rramc_config_t const * p_config)
 {
     NRFX_ASSERT(p_config);
-    nrfx_err_t err_code;
+    int err_code;
 
     if (m_cb.state == NRFX_DRV_STATE_UNINITIALIZED)
     {
-        err_code = NRFX_ERROR_INVALID_STATE;
+        err_code = -EINPROGRESS;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -306,5 +305,3 @@ void nrfx_rramc_irq_handler(void)
         m_cb.handler(NRF_RRAMC_EVENT_WOKENUP);
     }
 }
-
-#endif // NRFX_CHECK(NRFX_RRAMC_ENABLED)

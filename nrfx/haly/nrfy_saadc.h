@@ -66,6 +66,7 @@ NRFY_STATIC_INLINE void __nrfy_internal_saadc_stop(NRF_SAADC_Type * p_reg, bool 
  * @{
  * @ingroup nrf_saadc
  * @brief   Hardware access layer with cache and barrier support for managing the SAADC peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
  #if NRF_SAADC_HAS_CAL || defined(__NRFX_DOXYGEN__)
@@ -651,13 +652,13 @@ NRFY_STATIC_INLINE void nrfy_saadc_burst_set(NRF_SAADC_Type *  p_reg,
 #endif
 
 /** @refhal{nrf_saadc_value_min_get} */
-NRFY_STATIC_INLINE int16_t nrfy_saadc_value_min_get(nrf_saadc_resolution_t resolution)
+NRFY_STATIC_INLINE nrf_saadc_value_t nrfy_saadc_value_min_get(nrf_saadc_resolution_t resolution)
 {
     return nrf_saadc_value_min_get(resolution);
 }
 
 /** @refhal{nrf_saadc_value_max_get} */
-NRFY_STATIC_INLINE int16_t nrfy_saadc_value_max_get(nrf_saadc_resolution_t resolution)
+NRFY_STATIC_INLINE nrf_saadc_value_t nrfy_saadc_value_max_get(nrf_saadc_resolution_t resolution)
 {
     return nrf_saadc_value_max_get(resolution);
 }

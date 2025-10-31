@@ -40,7 +40,7 @@
 extern "C" {
 #endif
 
-#if defined(NRF54H20_XXAA) || defined(NRF92_SERIES)
+#if defined(UARTE_CLOCKPIN_TXD_NEEDED)
 #define NRF_UARTE_CLOCKPIN_TXD_NEEDED 1
 #endif
 
@@ -97,6 +97,20 @@ extern "C" {
 #define NRF_UARTE_HAS_FRAME_TIMEOUT 1
 #else
 #define NRF_UARTE_HAS_FRAME_TIMEOUT 0
+#endif
+
+#if defined(UARTE_CONFIG_PARITYTYPE_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether UARTE parity types are present. */
+#define NRF_UARTE_HAS_PARITY_TYPES 1
+#else
+#define NRF_UARTE_HAS_PARITY_TYPES 0
+#endif
+
+#if defined(UARTE_CONFIG_STOP_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether UARTE STOP modes are present. */
+#define NRF_UARTE_HAS_STOP_MODES 1
+#else
+#define NRF_UARTE_HAS_STOP_MODES 0
 #endif
 
 #if defined(UARTE_ADDRESS_ADDRESS_Msk) || defined(__NRFX_DOXYGEN__)

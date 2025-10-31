@@ -40,6 +40,22 @@
 #if defined(LFRC_PRESENT)
 #include <hal/nrf_lfrc.h>
 #endif
+#if NRF_CLOCK_HAS_HFCLK
+#include <nrfx_clock_hfclk.h>
+#endif
+#if NRF_CLOCK_HAS_XO
+#include <nrfx_clock_xo.h>
+#endif
+#include <nrfx_clock_lfclk.h>
+#if NRF_CLOCK_HAS_HFCLK192M
+#include <nrfx_clock_hfclk192m.h>
+#endif
+#if NRF_CLOCK_HAS_HFCLK24M
+#include <nrfx_clock_xo24m.h>
+#endif
+#if NRF_CLOCK_HAS_HFCLKAUDIO
+#include <nrfx_clock_hfclkaudio.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,39 +68,37 @@ extern "C" {
  * @brief   CLOCK peripheral driver.
  */
 
-/** @brief Symbol specifying driver event offset for LFRC hardware events. */
-#define NRFX_CLOCK_LFRC_EVT_OFFSET 32
-
 /** @brief Clock events. */
 typedef enum
 {
-    NRFX_CLOCK_EVT_HFCLK_STARTED      = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_HF_STARTED_MASK),       ///< HFCLK has been started.
+#if NRF_CLOCK_HAS_HFCLK
+    NRFX_CLOCK_EVT_HFCLK_STARTED      = NRFX_CLOCK_HFCLK_EVT_HFCLK_STARTED,           ///< HFCLK has been started.
+#else
+    NRFX_CLOCK_EVT_HFCLK_STARTED      = NRFX_CLOCK_XO_EVT_HFCLK_STARTED,              ///< XO has been started.
+#endif
 #if NRF_CLOCK_HAS_PLL
-    NRFX_CLOCK_EVT_PLL_STARTED        = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_PLL_STARTED_MASK),      ///< PLL has been started.
+    NRFX_CLOCK_EVT_PLL_STARTED        = NRFX_CLOCK_XO_EVT_PLL_STARTED,                ///< PLL has been started.
 #endif
-    NRFX_CLOCK_EVT_LFCLK_STARTED      = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_LF_STARTED_MASK),       ///< LFCLK has been started.
+    NRFX_CLOCK_EVT_LFCLK_STARTED      = NRFX_CLOCK_LFCLK_EVT_LFCLK_STARTED,           ///< LFCLK has been started.
 #if NRF_CLOCK_HAS_CALIBRATION_TIMER
-    NRFX_CLOCK_EVT_CTTO               = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_CTTO_MASK),             ///< Calibration timeout.
+    NRFX_CLOCK_EVT_CTTO               = NRFX_CLOCK_LFCLK_EVT_CTTO,                    ///< Calibration timeout.
 #endif
-#if NRF_CLOCK_HAS_CALIBRATION
-    NRFX_CLOCK_EVT_CAL_DONE           = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_DONE_MASK),             ///< Calibration has been done.
-#elif NRFX_CHECK(NRF_LFRC_HAS_CALIBRATION)
-    NRFX_CLOCK_EVT_CAL_DONE           = NRFX_BITMASK_TO_BITPOS(NRF_LFRC_INT_CALDONE_MASK) + \
-                                        NRFX_CLOCK_LFRC_EVT_OFFSET,                                  ///< Calibration has been done.
+#if NRF_CLOCK_HAS_CALIBRATION || NRFX_CHECK(NRF_LFRC_HAS_CALIBRATION)
+    NRFX_CLOCK_EVT_CAL_DONE           = NRFX_CLOCK_LFCLK_EVT_CAL_DONE,                ///< Calibration has been done.
 #endif
 #if NRF_CLOCK_HAS_HFCLKAUDIO
-    NRFX_CLOCK_EVT_HFCLKAUDIO_STARTED = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_HFAUDIO_STARTED_MASK),  ///< HFCLKAUDIO has been started.
+    NRFX_CLOCK_EVT_HFCLKAUDIO_STARTED = NRFX_CLOCK_HFCLKAUDIO_EVT_HFCLKAUDIO_STARTED, ///< HFCLKAUDIO has been started.
 #endif
 #if NRF_CLOCK_HAS_HFCLK24M
-    NRFX_CLOCK_EVT_HFCLK24M_STARTED   = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_HFCLK24M_STARTED_MASK), ///< HFCLK24M has been started.
+    NRFX_CLOCK_EVT_HFCLK24M_STARTED   = NRFX_CLOCK_XO24M_EVT_HFCLK24M_STARTED,        ///< HFCLK24M has been started.
 #endif
 #if NRF_CLOCK_HAS_HFCLK192M
-    NRFX_CLOCK_EVT_HFCLK192M_STARTED  = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_HF192M_STARTED_MASK),   ///< HFCLK192M has been started.
+    NRFX_CLOCK_EVT_HFCLK192M_STARTED  = NRFX_CLOCK_HFCLK192M_EVT_HFCLK192M_STARTED,   ///< HFCLK192M has been started.
 #endif
 #if NRF_CLOCK_HAS_XO_TUNE
-    NRFX_CLOCK_EVT_XO_TUNED           = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_XOTUNED_MASK),          ///< XO tune has been done.
-    NRFX_CLOCK_EVT_XO_TUNE_ERROR      = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_XOTUNEERROR_MASK),      ///< XO is not tuned.
-    NRFX_CLOCK_EVT_XO_TUNE_FAILED     = NRFX_BITMASK_TO_BITPOS(NRF_CLOCK_INT_XOTUNEFAILED_MASK),     ///< XO tune operation failed.
+    NRFX_CLOCK_EVT_XO_TUNED           = NRFX_CLOCK_XO_EVT_XO_TUNED,                   ///< XO tune has been done.
+    NRFX_CLOCK_EVT_XO_TUNE_ERROR      = NRFX_CLOCK_XO_EVT_XO_TUNE_ERROR,              ///< XO is not tuned.
+    NRFX_CLOCK_EVT_XO_TUNE_FAILED     = NRFX_CLOCK_XO_EVT_XO_TUNE_FAILED,             ///< XO tune operation failed.
 #endif
 } nrfx_clock_evt_type_t;
 
@@ -103,10 +117,10 @@ typedef void (*nrfx_clock_event_handler_t)(nrfx_clock_evt_type_t event);
  * @param[in] event_handler Event handler provided by the user.
  *                          If not provided, driver works in blocking mode.
  *
- * @retval NRFX_SUCCESS       The procedure is successful.
- * @retval NRFX_ERROR_ALREADY The driver is already initialized.
+ * @retval 0         The procedure is successful.
+ * @retval -EALREADY The driver is already initialized.
  */
-nrfx_err_t nrfx_clock_init(nrfx_clock_event_handler_t  event_handler);
+int nrfx_clock_init(nrfx_clock_event_handler_t  event_handler);
 
 /** @brief Function for enabling interrupts in the clock module. */
 void nrfx_clock_enable(void);
@@ -155,7 +169,7 @@ void nrfx_clock_stop(nrf_clock_domain_t domain);
  */
 NRFX_STATIC_INLINE bool nrfx_clock_is_running(nrf_clock_domain_t domain, void * p_clk_src);
 
-#if defined(CLOCK_FEATURE_HFCLK_DIVIDE_PRESENT) || NRF_CLOCK_HAS_HFCLK192M || \
+#if NRF_CLOCK_FEATURE_HFCLK_DIVIDE_PRESENT || NRF_CLOCK_HAS_HFCLK192M || \
     defined(__NRFX_DOXYGEN__)
 /**
  * @brief Function for setting the specified clock domain divider.
@@ -163,12 +177,12 @@ NRFX_STATIC_INLINE bool nrfx_clock_is_running(nrf_clock_domain_t domain, void * 
  * @param[in] domain Clock domain.
  * @param[in] div    New divider for the clock domain.
  *
- * @retval NRFX_SUCCESS             Divider successfully set.
- * @retval NRFX_ERROR_NOT_SUPPORTED Domain does not support setting the divider.
- * @retval NRFX_ERROR_INVALID_PARAM Divider not supported by the specified domain.
+ * @retval 0        Divider successfully set.
+ * @retval -ENOTSUP Domain does not support setting the divider.
+ * @retval -EINVAL  Divider not supported by the specified domain.
  */
-nrfx_err_t nrfx_clock_divider_set(nrf_clock_domain_t    domain,
-                                  nrf_clock_hfclk_div_t div);
+int nrfx_clock_divider_set(nrf_clock_domain_t    domain,
+                           nrf_clock_hfclk_div_t div);
 
 /**
  * @brief Function for getting the specified clock domain divider.
@@ -181,125 +195,6 @@ nrfx_err_t nrfx_clock_divider_set(nrf_clock_domain_t    domain,
 NRFX_STATIC_INLINE nrf_clock_hfclk_div_t nrfx_clock_divider_get(nrf_clock_domain_t domain);
 #endif
 
-/**
- * @brief Function for starting the LFCLK.
- *
- * @note This function is deprecated. Use @ref nrfx_clock_start instead.
- */
-NRFX_STATIC_INLINE void nrfx_clock_lfclk_start(void);
-
-/**
- * @brief Function for stopping the LFCLK.
- *
- * @note This function is deprecated. Use @ref nrfx_clock_stop instead.
- */
-NRFX_STATIC_INLINE void nrfx_clock_lfclk_stop(void);
-
-/**
- * @brief Function for checking the LFCLK state.
- *
- * @note This function is deprecated. Use @ref nrfx_clock_is_running instead.
- *
- * @retval true  The LFCLK is running.
- * @retval false The LFCLK is not running.
- */
-NRFX_STATIC_INLINE bool nrfx_clock_lfclk_is_running(void);
-
-/**
- * @brief Function for starting the high-accuracy source HFCLK.
- *
- * @note This function is deprecated. Use @ref nrfx_clock_start instead.
- */
-NRFX_STATIC_INLINE void nrfx_clock_hfclk_start(void);
-
-/**
- * @brief Function for stopping the external high-accuracy source HFCLK.
- *
- * @note This function is deprecated. Use @ref nrfx_clock_stop instead.
- */
-NRFX_STATIC_INLINE void nrfx_clock_hfclk_stop(void);
-
-/**
- * @brief Function for checking the HFCLK state.
- *
- * @note This function is deprecated. Use @ref nrfx_clock_is_running instead.
- *
- * @retval true  The HFCLK is running (XTAL source).
- * @retval false The HFCLK is not running.
- */
-NRFX_STATIC_INLINE bool nrfx_clock_hfclk_is_running(void);
-
-
-#if NRF_CLOCK_HAS_HFCLKAUDIO || defined(__NRFX_DOXYGEN__)
-/**
- * @brief Function for setting the HFCLKAUDIO configuration.
- *
- * The frequency of HFCLKAUDIO ranges from 10.666 MHz to 13.333 MHz in 40.7 Hz steps.
- * To calculate @p freq_value corresponding to the chosen frequency, use the following equation:
- * FREQ_VALUE = 2^16 * ((12 * f_out / 32M) - 4)
- *
- * @warning Chosen frequency must fit in 11.176 MHz - 11.402 MHz or 12.165 MHz - 12.411 MHz
- *          frequency bands.
- *
- * @param[in] freq_value New FREQ_VALUE for HFCLKAUDIO.
- */
-NRFX_STATIC_INLINE void nrfx_clock_hfclkaudio_config_set(uint16_t freq_value);
-
-/**
- * @brief Function for getting the HFCLKAUDIO configuration.
- *
- * The frequency of HFCLKAUDIO ranges from 10.666 MHz to 13.333 MHz in 40.7 Hz steps.
- * To calculate frequency corresponding to the returned FREQ_VALUE, use the following equation:
- * f_out = 32M * (4 + FREQ_VALUE * 2^(-16))/12
- *
- * @return Current value of FREQ_VALUE for HFCLKAUDIO.
- */
-NRFX_STATIC_INLINE uint16_t nrfx_clock_hfclkaudio_config_get(void);
-#endif
-
-#if NRF_CLOCK_HAS_XO_TUNE
-
-/**
- * @brief Function for starting tune of crystal HFCLK.
- *
- * This function starts tuning process of the HFCLK.
- *
- * @retval NRFX_SUCCESS             The procedure is successful.
- * @retval NRFX_ERROR_INVALID_STATE The high-frequency XO clock is off or operation is in progress.
- * @retval NRFX_ERROR_INTERNAL      XO tune operation failed.
- */
-nrfx_err_t nrfx_clock_xo_tune_start(void);
-
-/**
- * @brief Function for aborting tune of crystal HFCLK.
- *
- * This function aborts tuning process.
- *
- * @retval NRFX_SUCCESS             The procedure is successful.
- * @retval NRFX_ERROR_INVALID_STATE The high-frequency XO clock is off or operation is not in progress.
- */
-nrfx_err_t nrfx_clock_xo_tune_abort(void);
-
-/**
- * @brief Function for checking if XO tune error occurred.
- *
- * @note Must be used only if @p event_handler was not provided during driver initialization.
- *
- * @retval true  XO tune procedure failed.
- * @retval false No error.
- */
-bool nrfx_clock_xo_tune_error_check(void);
-
-/**
- * @brief Function for checking if XO has been successfully tuned.
- *
- * @retval true  XO is successfully tuned.
- * @retval false XO is not tuned.
- */
-bool nrfx_clock_xo_tune_status_check(void);
-
-#endif
-
 #if ((NRF_CLOCK_HAS_CALIBRATION || NRFX_CHECK(NRF_LFRC_HAS_CALIBRATION)) && \
      NRFX_CHECK(NRFX_CLOCK_CONFIG_LF_CAL_ENABLED)) || defined(__NRFX_DOXYGEN__)
 /**
@@ -308,21 +203,21 @@ bool nrfx_clock_xo_tune_status_check(void);
  * This function starts the calibration process. The process cannot be aborted. LFCLK and HFCLK
  * must be running before this function is called.
  *
- * @retval NRFX_SUCCESS             The procedure is successful.
- * @retval NRFX_ERROR_INVALID_STATE The low-frequency or high-frequency clock is off.
- * @retval NRFX_ERROR_BUSY          Clock is in the calibration phase.
+ * @retval 0            The procedure is successful.
+ * @retval -EINPROGRESS The low-frequency or high-frequency clock is off.
+ * @retval -EBUSY       Clock is in the calibration phase.
  */
-nrfx_err_t nrfx_clock_calibration_start(void);
+int nrfx_clock_calibration_start(void);
 
 /**
  * @brief Function for checking if calibration is in progress.
  *
  * This function indicates that the system is in calibration phase.
  *
- * @retval NRFX_SUCCESS    The procedure is successful.
- * @retval NRFX_ERROR_BUSY Clock is in the calibration phase.
+ * @retval 0      The procedure is successful.
+ * @retval -EBUSY Clock is in the calibration phase.
  */
-nrfx_err_t nrfx_clock_is_calibrating(void);
+int nrfx_clock_is_calibrating(void);
 
 #if (NRF_CLOCK_HAS_CALIBRATION_TIMER && NRFX_CHECK(NRFX_CLOCK_CONFIG_CT_ENABLED)) || \
     defined(__NRFX_DOXYGEN__)
@@ -359,45 +254,25 @@ NRFX_STATIC_INLINE uint32_t nrfx_clock_event_address_get(nrf_clock_event_t event
 
 #ifndef NRFX_DECLARE_ONLY
 
-#if defined(CLOCK_FEATURE_HFCLK_DIVIDE_PRESENT) || NRF_CLOCK_HAS_HFCLK192M
+#if NRF_CLOCK_FEATURE_HFCLK_DIVIDE_PRESENT || NRF_CLOCK_HAS_HFCLK192M
 NRFX_STATIC_INLINE nrf_clock_hfclk_div_t nrfx_clock_divider_get(nrf_clock_domain_t domain)
 {
     switch (domain)
     {
-#if defined(CLOCK_FEATURE_HFCLK_DIVIDE_PRESENT)
+#if NRF_CLOCK_FEATURE_HFCLK_DIVIDE_PRESENT
         case NRF_CLOCK_DOMAIN_HFCLK:
-            return nrf_clock_hfclk_div_get(NRF_CLOCK);
+            return nrfx_clock_hfclk_divider_get();
 #endif
 #if NRF_CLOCK_HAS_HFCLK192M
         case NRF_CLOCK_DOMAIN_HFCLK192M:
-            return nrf_clock_hfclk192m_div_get(NRF_CLOCK);
+            return nrfx_clock_hfclk192m_divider_get();
 #endif
         default:
             NRFX_ASSERT(0);
             return (nrf_clock_hfclk_div_t)0;
     }
 }
-#endif // defined(CLOCK_FEATURE_HFCLK_DIVIDE_PRESENT) || NRF_CLOCK_HAS_HFCLK192M
-
-NRFX_STATIC_INLINE void nrfx_clock_lfclk_start(void)
-{
-    nrfx_clock_start(NRF_CLOCK_DOMAIN_LFCLK);
-}
-
-NRFX_STATIC_INLINE void nrfx_clock_lfclk_stop(void)
-{
-    nrfx_clock_stop(NRF_CLOCK_DOMAIN_LFCLK);
-}
-
-NRFX_STATIC_INLINE void nrfx_clock_hfclk_start(void)
-{
-    nrfx_clock_start(NRF_CLOCK_DOMAIN_HFCLK);
-}
-
-NRFX_STATIC_INLINE void nrfx_clock_hfclk_stop(void)
-{
-    nrfx_clock_stop(NRF_CLOCK_DOMAIN_HFCLK);
-}
+#endif // NRF_CLOCK_FEATURE_HFCLK_DIVIDE_PRESENT || NRF_CLOCK_HAS_HFCLK192M
 
 NRFX_STATIC_INLINE uint32_t nrfx_clock_task_address_get(nrf_clock_task_t task)
 {
@@ -411,34 +286,33 @@ NRFX_STATIC_INLINE uint32_t nrfx_clock_event_address_get(nrf_clock_event_t event
 
 NRFX_STATIC_INLINE bool nrfx_clock_is_running(nrf_clock_domain_t domain, void * p_clk_src)
 {
-    return nrf_clock_is_running(NRF_CLOCK, domain, p_clk_src);
-}
-
-NRFX_STATIC_INLINE bool nrfx_clock_hfclk_is_running(void)
-{
-    nrf_clock_hfclk_t clk_src;
-    bool ret = nrfx_clock_is_running(NRF_CLOCK_DOMAIN_HFCLK, &clk_src);
-    return (ret && (clk_src == NRF_CLOCK_HFCLK_HIGH_ACCURACY));
-}
-
-NRFX_STATIC_INLINE bool nrfx_clock_lfclk_is_running(void)
-{
-    return nrfx_clock_is_running(NRF_CLOCK_DOMAIN_LFCLK, NULL);
-}
-
-#if NRF_CLOCK_HAS_HFCLKAUDIO
-
-NRFX_STATIC_INLINE void nrfx_clock_hfclkaudio_config_set(uint16_t freq_value)
-{
-    nrf_clock_hfclkaudio_config_set(NRF_CLOCK, freq_value);
-}
-
-NRFX_STATIC_INLINE uint16_t nrfx_clock_hfclkaudio_config_get(void)
-{
-    return nrf_clock_hfclkaudio_config_get(NRF_CLOCK);
-}
-
+    switch (domain)
+    {
+        case NRF_CLOCK_DOMAIN_HFCLK:
+#if NRF_CLOCK_HAS_HFCLK
+            return nrfx_clock_hfclk_running_check((nrf_clock_hfclk_t *)p_clk_src);
+#elif NRF_CLOCK_HAS_XO
+            return nrfx_clock_xo_running_check((nrf_clock_hfclk_t *)p_clk_src);
 #endif
+        case NRF_CLOCK_DOMAIN_LFCLK:
+            return nrfx_clock_lfclk_running_check((nrf_clock_lfclk_t *)p_clk_src);
+#if NRF_CLOCK_HAS_HFCLK192M
+        case NRF_CLOCK_DOMAIN_HFCLK192M:
+            return nrfx_clock_hfclk192m_running_check((nrf_clock_hfclk_t *)p_clk_src);
+#endif
+#if NRF_CLOCK_HAS_HFCLK24M
+        case NRF_CLOCK_DOMAIN_HFCLK24M:
+            return nrfx_clock_xo24m_running_check();
+#endif
+#if NRF_CLOCK_HAS_HFCLKAUDIO
+        case NRF_CLOCK_DOMAIN_HFCLKAUDIO:
+            return nrfx_clock_hfclkaudio_running_check();
+#endif
+        default:
+            NRFX_ASSERT(0);
+            return false;
+    }
+}
 
 #endif // NRFX_DECLARE_ONLY
 

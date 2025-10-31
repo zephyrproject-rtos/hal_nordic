@@ -48,10 +48,10 @@ extern "C" {
  */
 
 /** @brief Maximum EXMIF memory size. */
-#define NRF_EXMIF_MAX_MEMORY_DEVICE_SIZE 0x10000000UL
+#define NRF_EXMIF_MAX_MEMORY_DEVICE_SIZE EXMIF_MAX_MEMORY_DEVICE_SIZE
 
 /** @brief Maximum number of EXMIF memory devices. */
-#define NRF_EXMIF_MAX_NUMBER_OF_DEVICES 2
+#define NRF_EXMIF_MAX_NUMBER_OF_DEVICES EXMIF_MAX_NUMBER_OF_DEVICES
 
 /** @brief EXMIF tasks. */
 typedef enum

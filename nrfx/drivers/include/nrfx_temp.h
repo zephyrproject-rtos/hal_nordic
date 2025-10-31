@@ -76,10 +76,10 @@ typedef void (* nrfx_temp_data_handler_t)(int32_t temperature);
  * @param[in] handler   Data handler provided by the user. If not provided,
  *                      the driver is initialized in blocking mode.
  *
- * @retval NRFX_SUCCESS       Driver was successfully initialized.
- * @retval NRFX_ERROR_ALREADY Driver was already initialized.
+ * @retval 0         Driver was successfully initialized.
+ * @retval -EALREADY Driver was already initialized.
  */
-nrfx_err_t nrfx_temp_init(nrfx_temp_config_t const * p_config, nrfx_temp_data_handler_t handler);
+int nrfx_temp_init(nrfx_temp_config_t const * p_config, nrfx_temp_data_handler_t handler);
 
 /** @brief Function for uninitializing the TEMP driver. */
 void nrfx_temp_uninit(void);
@@ -131,17 +131,14 @@ int32_t nrfx_temp_calculate(int32_t raw_measurement);
  * This function waits until the measurement is finished. The value should be read
  * using the @ref nrfx_temp_result_get() function.
  *
- * @retval NRFX_SUCCESS        In non-blocking mode: Measurement was started.
- *                             An interrupt will be generated soon. <br>
- *                             In blocking mode:
- *                             Measurement was started and finished. Data can
- *                             be read using the @ref nrfx_temp_result_get() function.
- * @retval NRFX_ERROR_INTERNAL In non-blocking mode:
- *                             Not applicable. <br>
- *                             In blocking mode:
- *                             Measurement data ready event did not occur.
+ * @retval 0          In non-blocking mode: Measurement was started.
+ *                    An interrupt will be generated soon. <br>
+ *                    In blocking mode: Measurement was started and finished. Data can
+ *                    be read using the @ref nrfx_temp_result_get() function.
+ * @retval -ECANCELED In non-blocking mode: Not applicable. <br>
+ *                    In blocking mode: Measurement data ready event did not occur.
  */
-nrfx_err_t nrfx_temp_measure(void);
+int nrfx_temp_measure(void);
 
 #ifndef NRFX_DECLARE_ONLY
 NRFX_STATIC_INLINE int32_t nrfx_temp_result_get(void)

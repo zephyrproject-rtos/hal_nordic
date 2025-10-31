@@ -58,6 +58,7 @@ NRFY_STATIC_INLINE uint32_t __nrfy_internal_qdec_events_process(NRF_QDEC_Type * 
  * @{
  * @ingroup nrf_qdec
  * @brief   Hardware access layer with cache and barrier support for managing the QDEC peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 /** @brief Configuration structure for QDEC pins. */

@@ -156,6 +156,10 @@ extern "C" {
                                  (bit_width == NRF_TIMER_BIT_WIDTH_32) :  \
     false))))
 
+/** @brief Internal macro used by @ref NRF_TIMER_IS_BIT_WIDTH_VALID. */
+#define _NRF_TIMER_IS_BIT_WIDTH_VALID_ELEM(periph_name, prefix, idx, reg, bit_width) \
+    ((reg == NRFX_CONCAT(NRF_TIMER, prefix, idx)) && TIMER_BIT_WIDTH_MAX(prefix##idx, bit_width)) ||
+
 /**
  * @brief Macro for checking correctness of bit width configuration for the specified timer.
  *
@@ -165,57 +169,8 @@ extern "C" {
  * @retval true  Timer instance supports the specified bit width resolution value.
  * @retval false Timer instance does not support the specified bit width resolution value.
  */
-#define NRF_TIMER_IS_BIT_WIDTH_VALID(p_reg, bit_width)                                  \
-    (NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER0),                                    \
-        (((p_reg == NRF_TIMER0)   && TIMER_BIT_WIDTH_MAX(0, bit_width))),   (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER1),                                    \
-        (((p_reg == NRF_TIMER1)   && TIMER_BIT_WIDTH_MAX(1, bit_width))),   (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER2),                                    \
-        (((p_reg == NRF_TIMER2)   && TIMER_BIT_WIDTH_MAX(2, bit_width))),   (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER3),                                    \
-        (((p_reg == NRF_TIMER3)   && TIMER_BIT_WIDTH_MAX(3, bit_width))),   (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER4),                                    \
-        (((p_reg == NRF_TIMER4)   && TIMER_BIT_WIDTH_MAX(4, bit_width))),   (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER00),                                   \
-        (((p_reg == NRF_TIMER00)  && TIMER_BIT_WIDTH_MAX(00, bit_width))),  (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER10),                                   \
-        (((p_reg == NRF_TIMER10)  && TIMER_BIT_WIDTH_MAX(10, bit_width))),  (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER20),                                   \
-        (((p_reg == NRF_TIMER20)  && TIMER_BIT_WIDTH_MAX(20, bit_width))),  (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER21),                                   \
-        (((p_reg == NRF_TIMER21)  && TIMER_BIT_WIDTH_MAX(21, bit_width))),  (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER22),                                   \
-        (((p_reg == NRF_TIMER22)  && TIMER_BIT_WIDTH_MAX(22, bit_width))),  (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER23),                                   \
-        (((p_reg == NRF_TIMER23)  && TIMER_BIT_WIDTH_MAX(23, bit_width))),  (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER24),                                   \
-        (((p_reg == NRF_TIMER24)  && TIMER_BIT_WIDTH_MAX(24, bit_width))),  (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER020),                                  \
-        (((p_reg == NRF_TIMER020) && TIMER_BIT_WIDTH_MAX(020, bit_width))), (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER021),                                  \
-        (((p_reg == NRF_TIMER021) && TIMER_BIT_WIDTH_MAX(021, bit_width))), (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER022),                                  \
-        (((p_reg == NRF_TIMER022) && TIMER_BIT_WIDTH_MAX(022, bit_width))), (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER120),                                  \
-        (((p_reg == NRF_TIMER120) && TIMER_BIT_WIDTH_MAX(120, bit_width))), (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER121),                                  \
-        (((p_reg == NRF_TIMER121) && TIMER_BIT_WIDTH_MAX(121, bit_width))), (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER130),                                  \
-        (((p_reg == NRF_TIMER130) && TIMER_BIT_WIDTH_MAX(130, bit_width))), (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER131),                                  \
-        (((p_reg == NRF_TIMER131) && TIMER_BIT_WIDTH_MAX(131, bit_width))), (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER132),                                  \
-        (((p_reg == NRF_TIMER132) && TIMER_BIT_WIDTH_MAX(132, bit_width))), (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER133),                                  \
-        (((p_reg == NRF_TIMER133) && TIMER_BIT_WIDTH_MAX(133, bit_width))), (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER134),                                  \
-        (((p_reg == NRF_TIMER134) && TIMER_BIT_WIDTH_MAX(134, bit_width))), (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER135),                                  \
-        (((p_reg == NRF_TIMER135) && TIMER_BIT_WIDTH_MAX(135, bit_width))), (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER136),                                  \
-        (((p_reg == NRF_TIMER136) && TIMER_BIT_WIDTH_MAX(136, bit_width))), (false)) || \
-     NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(TIMER137),                                  \
-        (((p_reg == NRF_TIMER137) && TIMER_BIT_WIDTH_MAX(137, bit_width))), (false)))
+#define NRF_TIMER_IS_BIT_WIDTH_VALID(p_reg, bit_width) \
+    NRFX_FOREACH_PRESENT(TIMER, _NRF_TIMER_IS_BIT_WIDTH_VALID_ELEM, (), (), p_reg, bit_width) 0
 
 #if !defined(NRF_TIMER_IS_320MHZ_TIMER)
 /** @brief Macro for checking whether the base frequency for the specified timer is 320 MHz. */

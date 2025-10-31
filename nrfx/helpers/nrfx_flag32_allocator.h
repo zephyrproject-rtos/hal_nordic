@@ -89,12 +89,11 @@ bool nrfx_flag32_is_allocated(nrfx_atomic_t mask, uint8_t bitpos);
  * is cleared in the mask. Mask is set to 0x00000002 on return after successful allocation.
  *
  * @param[in,out] p_mask Mask with available flags set. On successful allocation flag is cleared.
- * @param[out]    p_flag Index of the allocated flag.
  *
- * @retval NRFX_SUCCESS      Allocation was successful.
- * @retval NRFX_ERROR_NO_MEM No resource available.
+ * @retval non-negative Index of the allocated flag.
+ * @retval -ENOMEM      No resource available.
  */
-nrfx_err_t nrfx_flag32_alloc(nrfx_atomic_t * p_mask, uint8_t * p_flag);
+int nrfx_flag32_alloc(nrfx_atomic_t * p_mask);
 
 /**
  * @brief Function for freeing a flag allocated with @ref nrfx_flag32_alloc.
@@ -106,10 +105,10 @@ nrfx_err_t nrfx_flag32_alloc(nrfx_atomic_t * p_mask, uint8_t * p_flag);
  * @param[in,out] p_mask Mask with available flags set. On successful allocation flag is set.
  * @param[in]     flag   Flag index.
  *
- * @retval NRFX_SUCCESS             Freeing was successful.
- * @retval NRFX_ERROR_INVALID_PARAM Flag was not allocated.
+ * @retval 0       Freeing was successful.
+ * @retval -EINVAL Flag was not allocated.
  */
-nrfx_err_t nrfx_flag32_free(nrfx_atomic_t * p_mask, uint8_t flag);
+int nrfx_flag32_free(nrfx_atomic_t * p_mask, uint8_t flag);
 
 /** @} */
 

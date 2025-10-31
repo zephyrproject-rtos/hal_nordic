@@ -126,12 +126,6 @@ typedef enum
     NRF_LPCOMP_REF_SUPPLY_15_16 = LPCOMP_REFSEL_REFSEL_Ref15_16Vdd,                    ///< Use supply with a 15/16 prescaler as reference.
 #endif
     NRF_LPCOMP_REF_EXT_REF      = LPCOMP_REFSEL_REFSEL_ARef,                           ///< Use external analog reference.
-#if !NRF_LPCOMP_HAS_AIN_AS_PIN
-    NRF_LPCOMP_REF_EXT_REF0     = LPCOMP_REFSEL_REFSEL_ARef |
-                                  (LPCOMP_EXTREFSEL_EXTREFSEL_AnalogReference0 << 16), ///< @deprecated Use @ref nrf_lpcomp_ext_ref_t instead.
-    NRF_LPCOMP_REF_EXT_REF1     = LPCOMP_REFSEL_REFSEL_ARef |
-                                  (LPCOMP_EXTREFSEL_EXTREFSEL_AnalogReference1 << 16), ///< @deprecated Use @ref nrf_lpcomp_ext_ref_t instead.
-#endif
 } nrf_lpcomp_ref_t;
 
 /** @brief LPCOMP external reference selection. */
@@ -186,16 +180,6 @@ typedef enum
 #endif
 } nrf_lpcomp_hyst_t;
 #endif // NRF_LPCOMP_HAS_HYST
-
-/** @brief LPCOMP configuration. */
-typedef struct
-{
-    nrf_lpcomp_ref_t        reference; ///< LPCOMP reference.
-    nrf_lpcomp_detect_t     detection; ///< LPCOMP detection type.
-#if NRF_LPCOMP_HAS_HYST
-    nrf_lpcomp_hyst_t       hyst;      ///< LPCOMP hysteresis.
-#endif // LPCOMP_FEATURE_HYST_PRESENT
-} nrf_lpcomp_config_t;
 
 /**
  * @brief Function for setting the specified LPCOMP task.
@@ -372,20 +356,6 @@ NRF_STATIC_INLINE void nrf_lpcomp_publish_clear(NRF_LPCOMP_Type *  p_reg,
 NRF_STATIC_INLINE uint32_t nrf_lpcomp_publish_get(NRF_LPCOMP_Type const * p_reg,
                                                   nrf_lpcomp_event_t      event);
 #endif // defined(DPPI_PRESENT) || defined(__NRFX_DOXYGEN__)
-
-/**
- * @brief Function for configuring LPCOMP.
- *
- * This function powers on LPCOMP and configures it. LPCOMP is in DISABLE state after configuration,
- * so it must be enabled before using it. All shorts are inactive, events are cleared, and LPCOMP is stopped.
- *
- * @deprecated Use the dedicated functions instead.
- *
- * @param[in] p_reg    Pointer to the structure of registers of the peripheral.
- * @param[in] p_config Configuration.
- */
-NRF_STATIC_INLINE void nrf_lpcomp_configure(NRF_LPCOMP_Type *           p_reg,
-                                            nrf_lpcomp_config_t const * p_config);
 
 /**
  * @brief Function for setting the reference source.
@@ -570,28 +540,6 @@ NRF_STATIC_INLINE uint32_t nrf_lpcomp_publish_get(NRF_LPCOMP_Type const * p_reg,
     return *((volatile uint32_t const *) ((uint8_t const *) p_reg + (uint32_t) event + 0x80uL));
 }
 #endif // defined(DPPI_PRESENT) || defined(__NRFX_DOXYGEN__)
-
-NRF_STATIC_INLINE void nrf_lpcomp_configure(NRF_LPCOMP_Type *           p_reg,
-                                            nrf_lpcomp_config_t const * p_config)
-{
-    p_reg->REFSEL = (p_config->reference << LPCOMP_REFSEL_REFSEL_Pos) & LPCOMP_REFSEL_REFSEL_Msk;
-
-#if !NRF_LPCOMP_HAS_AIN_AS_PIN
-    //If external source is choosen extract analog reference index.
-    if ((p_config->reference & LPCOMP_REFSEL_REFSEL_ARef)==LPCOMP_REFSEL_REFSEL_ARef)
-    {
-        uint32_t extref  = p_config->reference >> 16;
-        p_reg->EXTREFSEL = (extref << LPCOMP_EXTREFSEL_EXTREFSEL_Pos) &
-                           LPCOMP_EXTREFSEL_EXTREFSEL_Msk;
-    }
-#endif
-
-    p_reg->ANADETECT = (p_config->detection << LPCOMP_ANADETECT_ANADETECT_Pos) &
-                       LPCOMP_ANADETECT_ANADETECT_Msk;
-#if NRF_LPCOMP_HAS_HYST
-    p_reg->HYST      = ((p_config->hyst) << LPCOMP_HYST_HYST_Pos) & LPCOMP_HYST_HYST_Msk;
-#endif
-}
 
 NRF_STATIC_INLINE void nrf_lpcomp_ref_set(NRF_LPCOMP_Type * p_reg, nrf_lpcomp_ref_t reference)
 {

@@ -43,6 +43,7 @@ extern "C" {
  * @{
  * @ingroup nrfx
  * @brief Common nrfy module.
+ * @note Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 /**

@@ -54,6 +54,7 @@ NRFY_STATIC_INLINE void __nrfy_internal_tbm_event_enabled_clear(NRF_TBM_Type *  
 * @ingroup nrf_tbm
 * @brief   Hardware access layer with cache and barrier support
 *          for managing the Trace Buffer Monitor (TBM).
+* @note    Extended Hardware Access Layer (HALY) is deprecated.
 */
 
 /**

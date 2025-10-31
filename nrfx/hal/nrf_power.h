@@ -35,7 +35,6 @@
 #define NRF_POWER_H__
 
 #include <nrfx.h>
-#include <nrf_erratas.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,14 +47,14 @@ extern "C" {
  * @brief   Hardware access layer for managing the POWER peripheral.
  */
 
-#if defined(POWER_TASKS_CONSTLAT_TASKS_CONSTLAT_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(POWER_TASKS_CONSTLAT_TASKS_CONSTLAT_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether Constant Latency mode is present. */
 #define NRF_POWER_HAS_CONST_LATENCY 1
 #else
 #define NRF_POWER_HAS_CONST_LATENCY 0
 #endif
 
-#if defined(POWER_TASKS_LOWPWR_TASKS_LOWPWR_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(POWER_TASKS_LOWPWR_TASKS_LOWPWR_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether Low-Power mode is present. */
 #define NRF_POWER_HAS_LOW_POWER 1
 #else
@@ -160,18 +159,16 @@ extern "C" {
 #define NRF_POWER_HAS_GPREGRET 0
 #endif
 
-#if (!defined(POWER_GPREGRET2_GPREGRET_Msk) && !defined(NRF51)) || defined(__NRFX_DOXYGEN__)
+#if defined(POWER_GPREGRET_MaxCount) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether GPREGRET register is treated as an array. */
 #define NRF_POWER_HAS_GPREGRET_ARRAY 1
 #else
 #define NRF_POWER_HAS_GPREGRET_ARRAY 0
 #endif
 
-#if NRF_POWER_HAS_GPREGRET_ARRAY && defined(POWER_GPREGRET_MaxCount) || defined(__NRFX_DOXYGEN__)
+#if NRF_POWER_HAS_GPREGRET_ARRAY || defined(__NRFX_DOXYGEN__)
 /** @brief Size of GPREGRET register when defined as array. */
 #define NRFX_POWER_GPREGRET_COUNT POWER_GPREGRET_MaxCount
-#elif NRF_POWER_HAS_GPREGRET_ARRAY
-#define NRFX_POWER_GPREGRET_COUNT 2
 #endif
 
 #if defined(POWER_TASKS_SEMAPHORE_ACQUIRE_ACQUIRE_Msk) || defined(__NRFX_DOXYGEN__)
@@ -222,6 +219,13 @@ extern "C" {
 #define NRF_POWER_HAS_PMIC 1
 #else
 #define NRF_POWER_HAS_PMIC 0
+#endif
+
+#if defined(POWER_RAM_POWER_S0POWER_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the RAM power can be controlled here */
+#define NRF_POWER_HAS_RAM_POWER 1
+#else
+#define NRF_POWER_HAS_RAM_POWER 0
 #endif
 
 #if NRF_POWER_HAS_ABB
@@ -469,54 +473,7 @@ typedef enum
 } nrf_power_mainregstatus_t;
 #endif
 
-#if defined(POWER_RAM_POWER_S0POWER_Msk) || defined(__NRFX_DOXYGEN__)
-/**
- * @brief Bit positions for RAMPOWER register
- *
- * @deprecated Use @ref NRF_POWER_RAMPOWER_S0POWER_POS or
- *             NRF_POWER_RAMPOWER_S0RETENTION_POS instead.
- *
- * All possible bits described, even if they are not used in selected MCU.
- */
-typedef enum
-{
-    /** Keep RAM section S0 ON in System ON mode */
-    NRF_POWER_RAMPOWER_S0POWER = POWER_RAM_POWER_S0POWER_Pos,
-    NRF_POWER_RAMPOWER_S1POWER,  /**< Keep RAM section S1 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S2POWER,  /**< Keep RAM section S2 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S3POWER,  /**< Keep RAM section S3 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S4POWER,  /**< Keep RAM section S4 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S5POWER,  /**< Keep RAM section S5 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S6POWER,  /**< Keep RAM section S6 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S7POWER,  /**< Keep RAM section S7 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S8POWER,  /**< Keep RAM section S8 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S9POWER,  /**< Keep RAM section S9 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S10POWER, /**< Keep RAM section S10 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S11POWER, /**< Keep RAM section S11 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S12POWER, /**< Keep RAM section S12 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S13POWER, /**< Keep RAM section S13 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S14POWER, /**< Keep RAM section S14 ON in System ON mode. */
-    NRF_POWER_RAMPOWER_S15POWER, /**< Keep RAM section S15 ON in System ON mode. */
-
-    /** Keep section retention in OFF mode when section is OFF */
-    NRF_POWER_RAMPOWER_S0RETENTION = POWER_RAM_POWER_S0RETENTION_Pos,
-    NRF_POWER_RAMPOWER_S1RETENTION,  /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S2RETENTION,  /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S3RETENTION,  /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S4RETENTION,  /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S5RETENTION,  /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S6RETENTION,  /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S7RETENTION,  /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S8RETENTION,  /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S9RETENTION,  /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S10RETENTION, /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S11RETENTION, /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S12RETENTION, /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S13RETENTION, /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S14RETENTION, /**< Keep section retention in OFF mode when section is OFF. */
-    NRF_POWER_RAMPOWER_S15RETENTION, /**< Keep section retention in OFF mode when section is OFF. */
-} nrf_power_rampower_t;
-
+#if NRF_POWER_HAS_RAM_POWER
 /** @brief Position of power configuration bits for RAM section 0. */
 #define NRF_POWER_RAMPOWER_S0POWER_POS POWER_RAM_POWER_S0POWER_Pos
 
@@ -627,7 +584,7 @@ typedef enum
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
-#endif // defined(POWER_RAM_POWER_S0POWER_Msk) || defined(__NRFX_DOXYGEN__)
+#endif // NRF_POWER_HAS_RAM_POWER
 
 #if NRF_POWER_HAS_VREG_CONFIG
 /** @brief POWER voltage regulators bit masks. */
@@ -1002,7 +959,7 @@ NRF_STATIC_INLINE void nrf_power_dcdcen_set(NRF_POWER_Type * p_reg, bool enable)
 NRF_STATIC_INLINE bool nrf_power_dcdcen_get(NRF_POWER_Type const * p_reg);
 #endif // NRF_POWER_HAS_DCDCEN
 
-#if defined(POWER_RAM_POWER_S0POWER_Msk) || defined(__NRFX_DOXYGEN__)
+#if NRF_POWER_HAS_RAM_POWER
 /**
  * @brief Turn ON sections in the selected RAM block.
  *
@@ -1046,7 +1003,7 @@ NRF_STATIC_INLINE void nrf_power_rampower_mask_off(NRF_POWER_Type * p_reg,
  * @return Mask of sections state composed from @ref nrf_power_rampower_mask_t flags.
  */
 NRF_STATIC_INLINE uint32_t nrf_power_rampower_mask_get(NRF_POWER_Type const * p_reg, uint8_t block);
-#endif /* defined(POWER_RAM_POWER_S0POWER_Msk) || defined(__NRFX_DOXYGEN__) */
+#endif /* NRF_POWER_HAS_RAM_POWER */
 
 #if NRF_POWER_HAS_DCDCEN_VDDH
 /**
@@ -1181,41 +1138,6 @@ NRF_STATIC_INLINE bool nrf_power_abb_force_lock_check(NRF_POWER_Type const * p_r
 #endif // NRF_POWER_HAS_ABB
 
 #if NRF_POWER_HAS_VREG_CONFIG
-/**
- * @brief Function for enabling specified voltage regulator.
- *
- * @deprecated Use @ref nrf_power_vreg_set instead.
- *
- * @param[in] p_reg Pointer to the structure of registers of the peripheral.
- * @param[in] mask  Mask of voltage regulators to be enabled.
- *                  Use @ref nrf_power_vreg_mask_t values for bit masking.
- */
-NRF_STATIC_INLINE void nrf_power_vreg_enable(NRF_POWER_Type * p_reg, uint32_t mask);
-
-/**
- * @brief Function for disabling specified voltage regulator.
- *
- * @deprecated Use @ref nrf_power_vreg_set instead.
- *
- * @param[in] p_reg Pointer to the structure of registers of the peripheral.
- * @param[in] mask  Mask of voltage regulators to be disabled.
- *                  Use @ref nrf_power_vreg_mask_t values for bit masking.
- */
-NRF_STATIC_INLINE void nrf_power_vreg_disable(NRF_POWER_Type * p_reg, uint32_t mask);
-
-/**
- * @brief Function for checking if the specified voltage regulator is enabled.
- *
- * @deprecated Use @ref nrf_power_vreg_get instead.
- *
- * @param[in] p_reg Pointer to the structure of registers of the peripheral.
- * @param[in] mask  Mask of voltage regulator to be checked.
- *                  Use @ref nrf_power_vreg_mask_t values for bit masking.
- *
- * @return Mask of enabled voltage regulators.
- */
-NRF_STATIC_INLINE uint32_t nrf_power_vreg_enable_check(NRF_POWER_Type const * p_reg, uint32_t mask);
-
 /**
  * @brief Function for setting the enabled voltage regulators.
  *
@@ -1627,7 +1549,7 @@ NRF_STATIC_INLINE bool nrf_power_dcdcen_get(NRF_POWER_Type const * p_reg)
 }
 #endif // NRF_POWER_HAS_DCDCEN
 
-#if defined(POWER_RAM_POWER_S0POWER_Msk)
+#if NRF_POWER_HAS_RAM_POWER
 NRF_STATIC_INLINE void nrf_power_rampower_mask_on(NRF_POWER_Type * p_reg,
                                                   uint8_t          block,
                                                   uint32_t         section_mask)
@@ -1646,14 +1568,13 @@ NRF_STATIC_INLINE uint32_t nrf_power_rampower_mask_get(NRF_POWER_Type const * p_
 {
     return p_reg->RAM[block].POWER;
 }
-#endif // defined(POWER_RAM_POWER_S0POWER_Msk)
+#endif // NRF_POWER_HAS_RAM_POWER
 
 #if NRF_POWER_HAS_DCDCEN_VDDH
 NRF_STATIC_INLINE void nrf_power_dcdcen_vddh_set(NRF_POWER_Type * p_reg, bool enable)
 {
-    if (enable && nrf52_errata_197())
+    if (enable && NRF_ERRATA_DYNAMIC_CHECK(52, 197))
     {
-        // Workaround for anomaly 197 "POWER: DCDC of REG0 not functional".
         *(volatile uint32_t *)0x40000638ul = 1ul;
     }
     p_reg->DCDCEN0 = (enable ? POWER_DCDCEN0_DCDCEN_Enabled : POWER_DCDCEN0_DCDCEN_Disabled) <<
@@ -1756,21 +1677,6 @@ NRF_STATIC_INLINE bool nrf_power_abb_force_lock_check(NRF_POWER_Type const * p_r
 #endif // NRF_POWER_HAS_ABB
 
 #if NRF_POWER_HAS_VREG_CONFIG
-NRF_STATIC_INLINE void nrf_power_vreg_enable(NRF_POWER_Type * p_reg, uint32_t mask)
-{
-    p_reg->REGCONFIG = mask;
-}
-
-NRF_STATIC_INLINE void nrf_power_vreg_disable(NRF_POWER_Type * p_reg, uint32_t mask)
-{
-    p_reg->REGCONFIG = ~mask;
-}
-
-NRF_STATIC_INLINE uint32_t nrf_power_vreg_enable_check(NRF_POWER_Type const * p_reg, uint32_t mask)
-{
-    return p_reg->REGCONFIG & mask;
-}
-
 NRF_STATIC_INLINE void nrf_power_vreg_set(NRF_POWER_Type * p_reg, uint32_t mask)
 {
     p_reg->REGCONFIG = mask;

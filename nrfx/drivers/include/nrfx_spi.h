@@ -217,19 +217,15 @@ typedef void (* nrfx_spi_evt_handler_t)(nrfx_spi_evt_t const * p_event,
  *                       will be performed in blocking mode.
  * @param[in] p_context  Context passed to the event handler.
  *
- * @retval NRFX_SUCCESS             Initialization was successful.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
- * @retval NRFX_ERROR_BUSY          Some other peripheral with the same
- *                                  instance ID is already in use. This is
- *                                  possible only if @ref nrfx_prs module
- *                                  is enabled.
+ * @retval 0         Initialization was successful.
+ * @retval -EALREADY The driver is already initialized.
+ * @retval -EBUSY    Some other peripheral with the same instance ID is already in use.
+ *                   This is possible only if @ref nrfx_prs module is enabled.
  */
-nrfx_err_t nrfx_spi_init(nrfx_spi_t const *        p_instance,
-                         nrfx_spi_config_t const * p_config,
-                         nrfx_spi_evt_handler_t    handler,
-                         void *                    p_context);
+int nrfx_spi_init(nrfx_spi_t const *        p_instance,
+                  nrfx_spi_config_t const * p_config,
+                  nrfx_spi_evt_handler_t    handler,
+                  void *                    p_context);
 
 /**
  * @brief Function for reconfiguring the SPI master driver instance.
@@ -237,12 +233,12 @@ nrfx_err_t nrfx_spi_init(nrfx_spi_t const *        p_instance,
  * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] p_config   Pointer to the structure with the configuration.
  *
- * @retval NRFX_SUCCESS             Reconfiguration was successful.
- * @retval NRFX_ERROR_BUSY          The driver is during transfer.
- * @retval NRFX_ERROR_INVALID_STATE The driver is uninitialized.
+ * @retval 0            Reconfiguration was successful.
+ * @retval -EBUSY       The driver is during transfer.
+ * @retval -EINPROGRESS The driver is uninitialized.
  */
-nrfx_err_t nrfx_spi_reconfigure(nrfx_spi_t const *        p_instance,
-                                nrfx_spi_config_t const * p_config);
+int nrfx_spi_reconfigure(nrfx_spi_t const *        p_instance,
+                         nrfx_spi_config_t const * p_config);
 
 /**
  * @brief Function for uninitializing the SPI master driver instance.
@@ -274,13 +270,13 @@ bool nrfx_spi_init_check(nrfx_spi_t const * p_instance);
  * @param flags       Transfer options (0 for default settings).
  *                    Currently, no additional flags are available.
  *
- * @retval NRFX_SUCCESS             The procedure is successful.
- * @retval NRFX_ERROR_BUSY          The driver is not ready for a new transfer.
- * @retval NRFX_ERROR_NOT_SUPPORTED The provided parameters are not supported.
+ * @retval 0        The procedure is successful.
+ * @retval -EBUSY   The driver is not ready for a new transfer.
+ * @retval -ENOTSUP The provided parameters are not supported.
  */
-nrfx_err_t nrfx_spi_xfer(nrfx_spi_t const *           p_instance,
-                         nrfx_spi_xfer_desc_t const * p_xfer_desc,
-                         uint32_t                     flags);
+int nrfx_spi_xfer(nrfx_spi_t const *           p_instance,
+                  nrfx_spi_xfer_desc_t const * p_xfer_desc,
+                  uint32_t                     flags);
 
 /**
  * @brief Function for aborting the ongoing transfer.

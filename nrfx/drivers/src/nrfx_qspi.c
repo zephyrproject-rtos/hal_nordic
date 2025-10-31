@@ -32,13 +32,9 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_QSPI_ENABLED)
-
 #include <nrfx_qspi.h>
 #include <hal/nrf_clock.h>
 #include <hal/nrf_gpio.h>
-#include <nrf_erratas.h>
 
 #define NRFX_LOG_MODULE QSPI
 #include <nrfx_log.h>
@@ -75,11 +71,6 @@
                                          NRF_GPIO_PIN_H0H1,             \
                                          NRF_GPIO_PIN_NOSENSE)
 
-#if !defined(USE_WORKAROUND_FOR_ANOMALY_121) && defined(NRF53_SERIES)
-    // ANOMALY 121 - Configuration of QSPI peripheral requires additional steps.
-    #define USE_WORKAROUND_FOR_ANOMALY_121 1
-#endif
-
 /** @brief QSPI driver states.*/
 typedef enum
 {
@@ -114,33 +105,33 @@ typedef struct
 
 static qspi_control_block_t m_cb;
 
-static nrfx_err_t qspi_activate(bool wait);
-static nrfx_err_t qspi_ready_wait(void);
-static void       qspi_workaround_215_43_apply(void);
-static bool       qspi_errata_159_conditions_check(void);
+static int  qspi_activate(bool wait);
+static int  qspi_ready_wait(void);
+static void qspi_workaround_215_43_apply(void);
+static bool qspi_errata_159_conditions_check(void);
 
-static nrfx_err_t qspi_xfer(void *            p_buffer,
-                            size_t            length,
-                            uint32_t          address,
-                            nrfx_qspi_state_t desired_state)
+static int qspi_xfer(void *            p_buffer,
+                     size_t            length,
+                     uint32_t          address,
+                     nrfx_qspi_state_t desired_state)
 {
     NRFX_ASSERT(m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
     NRFX_ASSERT(p_buffer != NULL);
 
     if (qspi_errata_159_conditions_check())
     {
-        return NRFX_ERROR_FORBIDDEN;
+        return -EPERM;
     }
 
     if (!nrfx_is_in_ram(p_buffer) || !nrfx_is_word_aligned(p_buffer))
     {
-        return NRFX_ERROR_INVALID_ADDR;
+        return -EACCES;
     }
 
     if (m_cb.state != NRFX_QSPI_STATE_IDLE &&
         (m_cb.state != desired_state || !m_cb.activated))
     {
-        return NRFX_ERROR_BUSY;
+        return -EBUSY;
     }
 
     nrf_qspi_task_t task;
@@ -159,9 +150,9 @@ static nrfx_err_t qspi_xfer(void *            p_buffer,
 
     if (!m_cb.handler)
     {
-        if (!m_cb.activated && qspi_activate(true) == NRFX_ERROR_TIMEOUT)
+        if (!m_cb.activated && qspi_activate(true) == -ETIMEDOUT)
         {
-            return NRFX_ERROR_TIMEOUT;
+            return -ETIMEDOUT;
         }
 
         nrf_qspi_event_clear(NRF_QSPI, NRF_QSPI_EVENT_READY);
@@ -195,7 +186,7 @@ static nrfx_err_t qspi_xfer(void *            p_buffer,
         }
     }
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 static bool qspi_pins_configure(nrfx_qspi_config_t const * p_config)
@@ -217,16 +208,8 @@ static bool qspi_pins_configure(nrfx_qspi_config_t const * p_config)
         return false;
     }
 
-#if defined(NRF5340_XXAA)
+#if defined(QSPI_IO0_DEDICATED)
     // Check if dedicated QSPI pins are used.
-    enum {
-        QSPI_IO0_DEDICATED = NRF_GPIO_PIN_MAP(0, 13),
-        QSPI_IO1_DEDICATED = NRF_GPIO_PIN_MAP(0, 14),
-        QSPI_IO2_DEDICATED = NRF_GPIO_PIN_MAP(0, 15),
-        QSPI_IO3_DEDICATED = NRF_GPIO_PIN_MAP(0, 16),
-        QSPI_SCK_DEDICATED = NRF_GPIO_PIN_MAP(0, 17),
-        QSPI_CSN_DEDICATED = NRF_GPIO_PIN_MAP(0, 18)
-    };
 
     if ((p_config->pins.sck_pin != QSPI_SCK_DEDICATED) ||
         (p_config->pins.csn_pin != QSPI_CSN_DEDICATED) ||
@@ -284,7 +267,7 @@ static void qspi_pins_deconfigure(void)
     }
 }
 
-static nrfx_err_t qspi_ready_wait(void)
+static int qspi_ready_wait(void)
 {
     bool result;
     uint32_t attempts = m_cb.timeout > 0 ?
@@ -297,17 +280,17 @@ static nrfx_err_t qspi_ready_wait(void)
 
     if (!result || m_cb.timeout_signal)
     {
-        return NRFX_ERROR_TIMEOUT;
+        return -ETIMEDOUT;
     }
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 
-static nrfx_err_t qspi_configure(nrfx_qspi_config_t const * p_config)
+static int qspi_configure(nrfx_qspi_config_t const * p_config)
 {
     if (!qspi_pins_configure(p_config))
     {
-        return NRFX_ERROR_INVALID_PARAM;
+        return -EINVAL;
     }
 
     m_cb.timeout = p_config->timeout;
@@ -317,7 +300,7 @@ static nrfx_err_t qspi_configure(nrfx_qspi_config_t const * p_config)
      * may trigger anomaly 215 on nRF52840 or anomaly 43 on nRF5340. Use
      * the proper workaround then.
      */
-    if (NRF52_ERRATA_215_ENABLE_WORKAROUND || NRF53_ERRATA_43_ENABLE_WORKAROUND)
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 215) || NRF_ERRATA_DYNAMIC_CHECK(53, 43))
     {
         /* The interrupt is disabled because of the anomaly handling.
          * It will be reenabled if needed before the next QSPI operation.
@@ -329,20 +312,21 @@ static nrfx_err_t qspi_configure(nrfx_qspi_config_t const * p_config)
     nrf_qspi_xip_offset_set(NRF_QSPI, p_config->xip_offset);
 
     nrf_qspi_ifconfig0_set(NRF_QSPI, &p_config->prot_if);
-#if NRFX_CHECK(USE_WORKAROUND_FOR_ANOMALY_121)
-    uint32_t regval = nrf_qspi_ifconfig0_raw_get(NRF_QSPI);
-    if (p_config->phy_if.sck_freq == NRF_QSPI_FREQ_DIV1)
+    if (NRF_ERRATA_DYNAMIC_CHECK(53, 121))
     {
-        regval |= ((1UL << 16) | (1UL << 17));
+        uint32_t regval = nrf_qspi_ifconfig0_raw_get(NRF_QSPI);
+        if (p_config->phy_if.sck_freq == NRF_QSPI_FREQ_DIV1)
+        {
+            regval |= ((1UL << 16) | (1UL << 17));
+        }
+        else
+        {
+            regval &= ~(1UL << 17);
+            regval |=  (1UL << 16);
+        }
+        nrf_qspi_ifconfig0_raw_set(NRF_QSPI, regval);
+        nrf_qspi_iftiming_set(NRF_QSPI, 6);
     }
-    else
-    {
-        regval &= ~(1UL << 17);
-        regval |=  (1UL << 16);
-    }
-    nrf_qspi_ifconfig0_raw_set(NRF_QSPI, regval);
-    nrf_qspi_iftiming_set(NRF_QSPI, 6);
-#endif
     nrf_qspi_ifconfig1_set(NRF_QSPI, &p_config->phy_if);
 
     if (m_cb.handler)
@@ -351,10 +335,10 @@ static nrfx_err_t qspi_configure(nrfx_qspi_config_t const * p_config)
         NRFX_IRQ_ENABLE(QSPI_IRQn);
     }
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 
-static nrfx_err_t qspi_activate(bool wait)
+static int qspi_activate(bool wait)
 {
     nrf_qspi_enable(NRF_QSPI);
 
@@ -363,16 +347,16 @@ static nrfx_err_t qspi_activate(bool wait)
 
     if (wait)
     {
-        nrfx_err_t ret = qspi_ready_wait();
+        int ret = qspi_ready_wait();
 
-        if (ret == NRFX_SUCCESS)
+        if (ret == 0)
         {
             m_cb.activated = true;
         }
         return ret;
     }
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 static void qspi_deactivate(void)
@@ -390,9 +374,10 @@ static void qspi_deactivate(void)
 
 static bool qspi_errata_159_conditions_check(void)
 {
-#if NRF_CLOCK_HAS_HFCLK192M && NRF53_ERRATA_159_ENABLE_WORKAROUND
-    if ((nrf_clock_hfclk192m_div_get(NRF_CLOCK) != NRF_CLOCK_HFCLK_DIV_1) ||
-        (nrf_clock_hfclk_div_get(NRF_CLOCK) != NRF_CLOCK_HFCLK_DIV_2))
+#if NRF_CLOCK_HAS_HFCLK192M
+    if (NRF_ERRATA_DYNAMIC_CHECK(53, 159) &&
+        ((nrf_clock_hfclk192m_div_get(NRF_CLOCK) != NRF_CLOCK_HFCLK_DIV_1) ||
+         (nrf_clock_hfclk_div_get(NRF_CLOCK) != NRF_CLOCK_HFCLK_DIV_2)))
     {
         return true;
     }
@@ -429,21 +414,17 @@ static void qspi_workaround_215_43_apply(void)
     nrf_qspi_pins_set(NRF_QSPI, &pins);
 }
 
-nrfx_err_t nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
-                          nrfx_qspi_handler_t        handler,
-                          void *                     p_context)
+int nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
+                   nrfx_qspi_handler_t        handler,
+                   void *                     p_context)
 {
-    nrfx_err_t err_code;
+    int err_code;
 
     NRFX_ASSERT(p_config);
 
     if (m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED)
     {
-#if NRFX_API_VER_AT_LEAST(3, 2, 0)
-        err_code = NRFX_ERROR_ALREADY;
-#else
-        err_code = NRFX_ERROR_INVALID_STATE;
-#endif
+        err_code = -EALREADY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -456,7 +437,7 @@ nrfx_err_t nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
     if (p_config)
     {
         err_code = qspi_configure(p_config);
-        if (err_code != NRFX_SUCCESS)
+        if (err_code != 0)
         {
             NRFX_LOG_WARNING("Function: %s, error code: %s.",
                             __func__,
@@ -471,22 +452,22 @@ nrfx_err_t nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
     m_cb.state = NRFX_QSPI_STATE_IDLE;
     m_cb.activated = false;
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 
-nrfx_err_t nrfx_qspi_reconfigure(nrfx_qspi_config_t const * p_config)
+int nrfx_qspi_reconfigure(nrfx_qspi_config_t const * p_config)
 {
     NRFX_ASSERT(p_config);
-    nrfx_err_t err_code = NRFX_SUCCESS;
+    int err_code = 0;
 
     if (m_cb.state == NRFX_QSPI_STATE_UNINITIALIZED)
     {
-        return NRFX_ERROR_INVALID_STATE;
+        return -EINPROGRESS;
     }
 
     if (m_cb.state != NRFX_QSPI_STATE_IDLE)
     {
-        return NRFX_ERROR_BUSY;
+        return -EBUSY;
     }
 
     if (!m_cb.activated)
@@ -509,25 +490,25 @@ void nrfx_qspi_timeout_signal(void)
     m_cb.timeout_signal = true;
 }
 
-nrfx_err_t nrfx_qspi_cinstr_xfer(nrf_qspi_cinstr_conf_t const * p_config,
-                                 void const *                   p_tx_buffer,
-                                 void *                         p_rx_buffer)
+int nrfx_qspi_cinstr_xfer(nrf_qspi_cinstr_conf_t const * p_config,
+                          void const *                   p_tx_buffer,
+                          void *                         p_rx_buffer)
 {
     NRFX_ASSERT(m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
 
     if (qspi_errata_159_conditions_check())
     {
-        return NRFX_ERROR_FORBIDDEN;
+        return -EPERM;
     }
 
     if (m_cb.state != NRFX_QSPI_STATE_IDLE)
     {
-        return NRFX_ERROR_BUSY;
+        return -EBUSY;
     }
 
-    if (!m_cb.activated && qspi_activate(true) == NRFX_ERROR_TIMEOUT)
+    if (!m_cb.activated && qspi_activate(true) == -ETIMEDOUT)
     {
-        return NRFX_ERROR_TIMEOUT;
+        return -ETIMEDOUT;
     }
 
     /* For custom instruction transfer driver has to switch to blocking mode.
@@ -540,7 +521,7 @@ nrfx_err_t nrfx_qspi_cinstr_xfer(nrf_qspi_cinstr_conf_t const * p_config,
      * anomaly 215 on nRF52840 or anomaly 43 on nRF5340. Use the proper
      * workaround then.
      */
-    if (NRF52_ERRATA_215_ENABLE_WORKAROUND || NRF53_ERRATA_43_ENABLE_WORKAROUND)
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 215) || NRF_ERRATA_DYNAMIC_CHECK(53, 43))
     {
         qspi_workaround_215_43_apply();
     }
@@ -558,14 +539,14 @@ nrfx_err_t nrfx_qspi_cinstr_xfer(nrf_qspi_cinstr_conf_t const * p_config,
     nrf_qspi_event_clear(NRF_QSPI, NRF_QSPI_EVENT_READY);
     nrf_qspi_cinstr_transfer_start(NRF_QSPI, p_config);
 
-    if (qspi_ready_wait() == NRFX_ERROR_TIMEOUT)
+    if (qspi_ready_wait() == -ETIMEDOUT)
     {
         // This timeout should never occur when WIPWAIT is not active, since in this
         // case the QSPI peripheral should send the command immediately, without any
         // waiting for previous write to complete.
         NRFX_ASSERT(p_config->wipwait);
 
-        return NRFX_ERROR_TIMEOUT;
+        return -ETIMEDOUT;
     }
     nrf_qspi_event_clear(NRF_QSPI, NRF_QSPI_EVENT_READY);
 
@@ -574,12 +555,12 @@ nrfx_err_t nrfx_qspi_cinstr_xfer(nrf_qspi_cinstr_conf_t const * p_config,
         nrf_qspi_cinstrdata_get(NRF_QSPI, p_config->length, p_rx_buffer);
     }
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 
-nrfx_err_t nrfx_qspi_cinstr_quick_send(uint8_t               opcode,
-                                       nrf_qspi_cinstr_len_t length,
-                                       void const *          p_tx_buffer)
+int nrfx_qspi_cinstr_quick_send(uint8_t               opcode,
+                                nrf_qspi_cinstr_len_t length,
+                                void const *          p_tx_buffer)
 {
     NRFX_ASSERT(m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
     NRFX_ASSERT(p_tx_buffer);
@@ -588,24 +569,24 @@ nrfx_err_t nrfx_qspi_cinstr_quick_send(uint8_t               opcode,
     return nrfx_qspi_cinstr_xfer(&config, p_tx_buffer, NULL);
 }
 
-nrfx_err_t nrfx_qspi_lfm_start(nrf_qspi_cinstr_conf_t const * p_config)
+int nrfx_qspi_lfm_start(nrf_qspi_cinstr_conf_t const * p_config)
 {
     NRFX_ASSERT(m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
     NRFX_ASSERT(p_config->length == NRF_QSPI_CINSTR_LEN_1B);
 
     if (qspi_errata_159_conditions_check())
     {
-        return NRFX_ERROR_FORBIDDEN;
+        return -EPERM;
     }
 
     if (m_cb.state != NRFX_QSPI_STATE_IDLE)
     {
-        return NRFX_ERROR_BUSY;
+        return -EBUSY;
     }
 
-    if (!m_cb.activated && qspi_activate(true) == NRFX_ERROR_TIMEOUT)
+    if (!m_cb.activated && qspi_activate(true) == -ETIMEDOUT)
     {
-        return NRFX_ERROR_TIMEOUT;
+        return -ETIMEDOUT;
     }
 
     /* For transferring arbitrary byte length custom instructions driver has to switch to
@@ -618,7 +599,7 @@ nrfx_err_t nrfx_qspi_lfm_start(nrf_qspi_cinstr_conf_t const * p_config)
      * anomaly 215 on nRF52840 or anomaly 43 on nRF5340. Use the proper
      * workaround then.
      */
-    if (NRF52_ERRATA_215_ENABLE_WORKAROUND || NRF53_ERRATA_43_ENABLE_WORKAROUND)
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 215) || NRF_ERRATA_DYNAMIC_CHECK(53, 43))
     {
         qspi_workaround_215_43_apply();
     }
@@ -630,31 +611,31 @@ nrfx_err_t nrfx_qspi_lfm_start(nrf_qspi_cinstr_conf_t const * p_config)
     nrf_qspi_event_clear(NRF_QSPI, NRF_QSPI_EVENT_READY);
     nrf_qspi_cinstr_long_transfer_start(NRF_QSPI, p_config);
 
-    if (qspi_ready_wait() == NRFX_ERROR_TIMEOUT)
+    if (qspi_ready_wait() == -ETIMEDOUT)
     {
         /* In case of error, abort long frame mode */
         nrf_qspi_cinstr_long_transfer_continue(NRF_QSPI, NRF_QSPI_CINSTR_LEN_1B, true);
-        return NRFX_ERROR_TIMEOUT;
+        return -ETIMEDOUT;
     }
 
     m_cb.state = NRFX_QSPI_STATE_CINSTR;
-    return NRFX_SUCCESS;
+    return 0;
 }
 
-nrfx_err_t nrfx_qspi_lfm_xfer(void const * p_tx_buffer,
-                              void *       p_rx_buffer,
-                              size_t       transfer_length,
-                              bool         finalize)
+int nrfx_qspi_lfm_xfer(void const * p_tx_buffer,
+                       void *       p_rx_buffer,
+                       size_t       transfer_length,
+                       bool         finalize)
 {
     NRFX_ASSERT(m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
     NRFX_ASSERT(nrf_qspi_cinstr_long_transfer_is_ongoing(NRF_QSPI));
 
     if (qspi_errata_159_conditions_check())
     {
-        return NRFX_ERROR_FORBIDDEN;
+        return -EPERM;
     }
 
-    nrfx_err_t status = NRFX_SUCCESS;
+    int status = 0;
 
     /* Perform transfers in packets of 8 bytes. Last transfer may be shorter. */
     nrf_qspi_cinstr_len_t length = NRF_QSPI_CINSTR_LEN_9B;
@@ -686,11 +667,11 @@ nrfx_err_t nrfx_qspi_lfm_xfer(void const * p_tx_buffer,
             nrf_qspi_cinstr_long_transfer_continue(NRF_QSPI, length, false);
         }
 
-        if (qspi_ready_wait() == NRFX_ERROR_TIMEOUT)
+        if (qspi_ready_wait() == -ETIMEDOUT)
         {
             /* In case of error, abort long frame mode */
             nrf_qspi_cinstr_long_transfer_continue(NRF_QSPI, NRF_QSPI_CINSTR_LEN_1B, true);
-            status = NRFX_ERROR_TIMEOUT;
+            status = -ETIMEDOUT;
             break;
         }
 
@@ -703,7 +684,7 @@ nrfx_err_t nrfx_qspi_lfm_xfer(void const * p_tx_buffer,
     }
     nrf_qspi_event_clear(NRF_QSPI, NRF_QSPI_EVENT_READY);
 
-    if ((finalize) || (status == NRFX_ERROR_TIMEOUT))
+    if ((finalize) || (status == -ETIMEDOUT))
     {
         m_cb.state = NRFX_QSPI_STATE_IDLE;
     }
@@ -711,11 +692,11 @@ nrfx_err_t nrfx_qspi_lfm_xfer(void const * p_tx_buffer,
     return status;
 }
 
-nrfx_err_t nrfx_qspi_mem_busy_check(void)
+int nrfx_qspi_mem_busy_check(void)
 {
     NRFX_ASSERT(m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
 
-    nrfx_err_t ret_code;
+    int ret_code;
     uint8_t status_value = 0;
 
     nrf_qspi_cinstr_conf_t const config = {
@@ -730,17 +711,17 @@ nrfx_err_t nrfx_qspi_mem_busy_check(void)
     };
     ret_code = nrfx_qspi_cinstr_xfer(&config, &status_value, &status_value);
 
-    if (ret_code != NRFX_SUCCESS)
+    if (ret_code != 0)
     {
         return ret_code;
     }
 
     if ((status_value & QSPI_MEM_STATUSREG_WIP_MASK) != 0x00)
     {
-        return NRFX_ERROR_BUSY;
+        return -EBUSY;
     }
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 void nrfx_qspi_uninit(void)
@@ -759,29 +740,29 @@ void nrfx_qspi_uninit(void)
     NRFX_LOG_INFO("Uninitialized.");
 }
 
-nrfx_err_t nrfx_qspi_activate(bool wait)
+int nrfx_qspi_activate(bool wait)
 {
     NRFX_ASSERT(m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
 
     if (m_cb.activated)
     {
-        return NRFX_ERROR_ALREADY;
+        return -EALREADY;
     }
 
     return qspi_activate(wait);
 }
 
-nrfx_err_t nrfx_qspi_deactivate(void)
+int nrfx_qspi_deactivate(void)
 {
     NRFX_ASSERT(m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
 
     if (m_cb.state != NRFX_QSPI_STATE_IDLE)
     {
-        return NRFX_ERROR_BUSY;
+        return -EBUSY;
     }
 
     qspi_deactivate();
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 bool nrfx_qspi_init_check(void)
@@ -789,9 +770,9 @@ bool nrfx_qspi_init_check(void)
     return (m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
 }
 
-nrfx_err_t nrfx_qspi_write(void const * p_tx_buffer,
-                           size_t       tx_buffer_length,
-                           uint32_t     dst_address)
+int nrfx_qspi_write(void const * p_tx_buffer,
+                    size_t       tx_buffer_length,
+                    uint32_t     dst_address)
 {
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
@@ -804,31 +785,31 @@ nrfx_err_t nrfx_qspi_write(void const * p_tx_buffer,
 #endif
 }
 
-nrfx_err_t nrfx_qspi_read(void *   p_rx_buffer,
+int nrfx_qspi_read(void *   p_rx_buffer,
                           size_t   rx_buffer_length,
                           uint32_t src_address)
 {
     return qspi_xfer((void *)p_rx_buffer, rx_buffer_length, src_address, NRFX_QSPI_STATE_READ);
 }
 
-nrfx_err_t nrfx_qspi_erase(nrf_qspi_erase_len_t length,
+int nrfx_qspi_erase(nrf_qspi_erase_len_t length,
                            uint32_t             start_address)
 {
     NRFX_ASSERT(m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
 
     if (qspi_errata_159_conditions_check())
     {
-        return NRFX_ERROR_FORBIDDEN;
+        return -EPERM;
     }
 
     if (!nrfx_is_word_aligned((void const *)start_address))
     {
-        return NRFX_ERROR_INVALID_ADDR;
+        return -EACCES;
     }
 
     if (m_cb.handler && m_cb.state != NRFX_QSPI_STATE_IDLE)
     {
-        return NRFX_ERROR_BUSY;
+        return -EBUSY;
     }
 
     nrf_qspi_erase_ptr_set(NRF_QSPI, start_address, length);
@@ -836,9 +817,9 @@ nrfx_err_t nrfx_qspi_erase(nrf_qspi_erase_len_t length,
 
     if (!m_cb.handler)
     {
-        if (!m_cb.activated && qspi_activate(true) == NRFX_ERROR_TIMEOUT)
+        if (!m_cb.activated && qspi_activate(true) == -ETIMEDOUT)
         {
-            return NRFX_ERROR_TIMEOUT;
+            return -ETIMEDOUT;
         }
 
         nrf_qspi_event_clear(NRF_QSPI, NRF_QSPI_EVENT_READY);
@@ -860,10 +841,10 @@ nrfx_err_t nrfx_qspi_erase(nrf_qspi_erase_len_t length,
         nrf_qspi_task_trigger(NRF_QSPI, NRF_QSPI_TASK_ERASESTART);
     }
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 
-nrfx_err_t nrfx_qspi_chip_erase(void)
+int nrfx_qspi_chip_erase(void)
 {
     NRFX_ASSERT(m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
 
@@ -885,13 +866,13 @@ bool nrfx_qspi_xfer_buffered_check(void)
 }
 
 #if NRF_QSPI_HAS_XIP_ENC
-nrfx_err_t nrfx_qspi_xip_encrypt(nrf_qspi_encryption_t const * p_config)
+int nrfx_qspi_xip_encrypt(nrf_qspi_encryption_t const * p_config)
 {
     NRFX_ASSERT(m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
 
     if (m_cb.state != NRFX_QSPI_STATE_IDLE)
     {
-        return NRFX_ERROR_BUSY;
+        return -EBUSY;
     }
 
     if (p_config)
@@ -904,18 +885,18 @@ nrfx_err_t nrfx_qspi_xip_encrypt(nrf_qspi_encryption_t const * p_config)
         nrf_qspi_xip_encryption_set(NRF_QSPI, false);
     }
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 #endif
 
 #if NRF_QSPI_HAS_DMA_ENC
-nrfx_err_t nrfx_qspi_dma_encrypt(nrf_qspi_encryption_t const * p_config)
+int nrfx_qspi_dma_encrypt(nrf_qspi_encryption_t const * p_config)
 {
     NRFX_ASSERT(m_cb.state != NRFX_QSPI_STATE_UNINITIALIZED);
 
     if (m_cb.state != NRFX_QSPI_STATE_IDLE)
     {
-        return NRFX_ERROR_BUSY;
+        return -EBUSY;
     }
 
     if (p_config)
@@ -928,7 +909,7 @@ nrfx_err_t nrfx_qspi_dma_encrypt(nrf_qspi_encryption_t const * p_config)
         nrf_qspi_dma_encryption_set(NRF_QSPI, false);
     }
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 #endif
 
@@ -1030,5 +1011,3 @@ void nrfx_qspi_irq_handler(void)
         m_cb.evt_ext.type = NRFX_QSPI_EVENT_NONE;
     }
 }
-
-#endif // NRFX_CHECK(NRFX_QSPI_ENABLED)

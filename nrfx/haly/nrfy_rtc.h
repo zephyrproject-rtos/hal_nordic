@@ -58,6 +58,7 @@ NRFY_STATIC_INLINE void __nrfy_internal_rtc_event_enabled_clear(NRF_RTC_Type *  
  * @{
  * @ingroup nrf_rtc
  * @brief   Hardware access layer with cache and barrier support for managing the RTC peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 /** @brief Structure for RTC configuration. */

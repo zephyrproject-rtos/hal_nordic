@@ -195,18 +195,14 @@ typedef void (*nrfx_uart_event_handler_t)(nrfx_uart_event_t const * p_event,
  * @param[in] event_handler Event handler provided by the user. If not provided, the driver works in
  *                          blocking mode.
  *
- * @retval NRFX_SUCCESS             Initialization is successful.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
- * @retval NRFX_ERROR_BUSY          Some other peripheral with the same
- *                                  instance ID is already in use. This is
- *                                  possible only if @ref nrfx_prs module
- *                                  is enabled.
+ * @retval 0         Initialization is successful.
+ * @retval -EALREADY The driver is already initialized.
+ * @retval -EBUSY    Some other peripheral with the same instance ID is already in use.
+ *                   This is possible only if @ref nrfx_prs module is enabled.
  */
-nrfx_err_t nrfx_uart_init(nrfx_uart_t const *        p_instance,
-                          nrfx_uart_config_t const * p_config,
-                          nrfx_uart_event_handler_t  event_handler);
+int nrfx_uart_init(nrfx_uart_t const *        p_instance,
+                   nrfx_uart_config_t const * p_config,
+                   nrfx_uart_event_handler_t  event_handler);
 
 /**
  * @brief Function for reconfiguring the UART driver.
@@ -214,12 +210,12 @@ nrfx_err_t nrfx_uart_init(nrfx_uart_t const *        p_instance,
  * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] p_config   Pointer to the structure with the configuration.
  *
- * @retval NRFX_SUCCESS             Reconfiguration was successful.
- * @retval NRFX_ERROR_BUSY          The driver is during transfer.
- * @retval NRFX_ERROR_INVALID_STATE The driver is uninitialized.
+ * @retval 0            Reconfiguration was successful.
+ * @retval -EBUSY       The driver is during transfer.
+ * @retval -EINPROGRESS The driver is uninitialized.
  */
-nrfx_err_t nrfx_uart_reconfigure(nrfx_uart_t const *        p_instance,
-                                 nrfx_uart_config_t const * p_config);
+int nrfx_uart_reconfigure(nrfx_uart_t const *        p_instance,
+                          nrfx_uart_config_t const * p_config);
 
 /**
  * @brief Function for uninitializing the UART driver.
@@ -273,14 +269,13 @@ NRFX_STATIC_INLINE uint32_t nrfx_uart_event_address_get(nrfx_uart_t const * p_in
  * @param[in] p_data     Pointer to data.
  * @param[in] length     Number of bytes to send.
  *
- * @retval NRFX_SUCCESS         Initialization was successful.
- * @retval NRFX_ERROR_BUSY      Driver is already transferring.
- * @retval NRFX_ERROR_FORBIDDEN The transfer was aborted from a different context
- *                              (blocking mode only).
+ * @retval 0      Initialization was successful.
+ * @retval -EBUSY Driver is already transferring.
+ * @retval -EPERM The transfer was aborted from a different context (blocking mode only).
  */
-nrfx_err_t nrfx_uart_tx(nrfx_uart_t const * p_instance,
-                        uint8_t const *     p_data,
-                        size_t              length);
+int nrfx_uart_tx(nrfx_uart_t const * p_instance,
+                 uint8_t const *     p_data,
+                 size_t              length);
 
 /**
  * @brief Function for checking if UART is currently transmitting.
@@ -328,18 +323,17 @@ void nrfx_uart_tx_abort(nrfx_uart_t const * p_instance);
  * @param[in] p_data     Pointer to data.
  * @param[in] length     Number of bytes to receive.
  *
- * @retval    NRFX_SUCCESS         Reception is complete (in case of blocking mode) or it is
- *                                 successfully started (in case of non-blocking mode).
- * @retval    NRFX_ERROR_BUSY      The driver is already receiving
- *                                 (and the secondary buffer has already been set
- *                                 in non-blocking mode).
- * @retval    NRFX_ERROR_FORBIDDEN The transfer was aborted from a different context
- *                                 (blocking mode only, also see @ref nrfx_uart_rx_disable).
- * @retval    NRFX_ERROR_INTERNAL  The UART peripheral reported an error.
+ * @retval    0           Reception is complete (in case of blocking mode) or it is
+ *                        successfully started (in case of non-blocking mode).
+ * @retval    -EBUSY      The driver is already receiving
+ *                        (and the secondary buffer has already been set in non-blocking mode).
+ * @retval    -EPERM      The transfer was aborted from a different context
+ *                        (blocking mode only, also see @ref nrfx_uart_rx_disable).
+ * @retval    -ECANCELED  The UART peripheral reported an error.
  */
-nrfx_err_t nrfx_uart_rx(nrfx_uart_t const * p_instance,
-                        uint8_t *           p_data,
-                        size_t              length);
+int nrfx_uart_rx(nrfx_uart_t const * p_instance,
+                 uint8_t *           p_data,
+                 size_t              length);
 
 /**
  * @brief Function for testing the receiver state in blocking mode.

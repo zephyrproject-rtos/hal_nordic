@@ -33,8 +33,6 @@
 
 #include <nrfx.h>
 
-#if NRFX_CHECK(NRFX_TWI_ENABLED)
-
 #if !NRFX_FEATURE_PRESENT(NRFX_TWI, _ENABLED)
 #error "No enabled TWI instances. Check <nrfx_config.h>."
 #endif
@@ -114,23 +112,23 @@ typedef struct
 
 static twi_control_block_t m_cb[NRFX_TWI_ENABLED_COUNT];
 
-static nrfx_err_t twi_process_error(uint32_t errorsrc)
+static int twi_process_error(uint32_t errorsrc)
 {
-    nrfx_err_t ret = NRFX_ERROR_INTERNAL;
+    int ret = -ECANCELED;
 
     if (errorsrc & NRF_TWI_ERROR_OVERRUN)
     {
-        ret = NRFX_ERROR_DRV_TWI_ERR_OVERRUN;
+        ret = -EOVERFLOW;
     }
 
     if (errorsrc & NRF_TWI_ERROR_ADDRESS_NACK)
     {
-        ret = NRFX_ERROR_DRV_TWI_ERR_ANACK;
+        ret = -EIO;
     }
 
     if (errorsrc & NRF_TWI_ERROR_DATA_NACK)
     {
-        ret = NRFX_ERROR_DRV_TWI_ERR_DNACK;
+        ret = -EAGAIN;
     }
 
     return ret;
@@ -173,23 +171,19 @@ static void twi_configure(nrfx_twi_t const *        p_instance,
     }
 }
 
-nrfx_err_t nrfx_twi_init(nrfx_twi_t const *        p_instance,
-                         nrfx_twi_config_t const * p_config,
-                         nrfx_twi_evt_handler_t    event_handler,
-                         void *                    p_context)
+int nrfx_twi_init(nrfx_twi_t const *        p_instance,
+                  nrfx_twi_config_t const * p_config,
+                  nrfx_twi_evt_handler_t    event_handler,
+                  void *                    p_context)
 {
     NRFX_ASSERT(p_config);
 
     twi_control_block_t * p_cb  = &m_cb[p_instance->drv_inst_idx];
-    nrfx_err_t err_code;
+    int err_code;
 
     if (p_cb->state != NRFX_DRV_STATE_UNINITIALIZED)
     {
-#if NRFX_API_VER_AT_LEAST(3, 2, 0)
-        err_code = NRFX_ERROR_ALREADY;
-#else
-        err_code = NRFX_ERROR_INVALID_STATE;
-#endif
+        err_code = -EALREADY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -201,9 +195,9 @@ nrfx_err_t nrfx_twi_init(nrfx_twi_t const *        p_instance,
         NRFX_INSTANCE_IRQ_HANDLERS_LIST(TWI, twi)
     };
     if (nrfx_prs_acquire(p_instance->p_twi,
-            irq_handlers[p_instance->drv_inst_idx]) != NRFX_SUCCESS)
+            irq_handlers[p_instance->drv_inst_idx], NULL) != NRFX_SUCCESS)
     {
-        err_code = NRFX_ERROR_BUSY;
+        err_code = -EBUSY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -238,13 +232,15 @@ nrfx_err_t nrfx_twi_init(nrfx_twi_t const *        p_instance,
 
     p_cb->state = NRFX_DRV_STATE_INITIALIZED;
 
-    err_code = NRFX_SUCCESS;
-    NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
+    err_code = 0;
+    NRFX_LOG_INFO("Function: %s, error code: %s.",
+                  __func__,
+                  NRFX_LOG_ERROR_STRING_GET(err_code));
     return err_code;
 }
 
-nrfx_err_t nrfx_twi_reconfigure(nrfx_twi_t const *        p_instance,
-                                nrfx_twi_config_t const * p_config)
+int nrfx_twi_reconfigure(nrfx_twi_t const *        p_instance,
+                         nrfx_twi_config_t const * p_config)
 {
     NRFX_ASSERT(p_config);
 
@@ -252,17 +248,17 @@ nrfx_err_t nrfx_twi_reconfigure(nrfx_twi_t const *        p_instance,
 
     if (p_cb->state == NRFX_DRV_STATE_UNINITIALIZED)
     {
-        return NRFX_ERROR_INVALID_STATE;
+        return -EINPROGRESS;
     }
     if (p_cb->busy)
     {
-        return NRFX_ERROR_BUSY;
+        return -EBUSY;
     }
     nrf_twi_disable(p_instance->p_twi);
     p_cb->hold_bus_uninit = p_config->hold_bus_uninit;
     twi_configure(p_instance, p_config);
     nrf_twi_enable(p_instance->p_twi);
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 void nrfx_twi_uninit(nrfx_twi_t const * p_instance)
@@ -469,10 +465,10 @@ static bool twi_transfer(NRF_TWI_Type           * p_twi,
     return true;
 }
 
-static nrfx_err_t twi_tx_start_transfer(NRF_TWI_Type        * p_twi,
-                                        twi_control_block_t * p_cb)
+static int twi_tx_start_transfer(NRF_TWI_Type        * p_twi,
+                                 twi_control_block_t * p_cb)
 {
-    nrfx_err_t ret_code = NRFX_SUCCESS;
+    int ret_code = 0;
     volatile int32_t hw_timeout;
 
     hw_timeout = HW_TIMEOUT;
@@ -523,7 +519,7 @@ static nrfx_err_t twi_tx_start_transfer(NRF_TWI_Type        * p_twi,
             }
             else
             {
-                ret_code = NRFX_ERROR_INTERNAL;
+                ret_code = -ECANCELED;
             }
         }
 
@@ -531,17 +527,17 @@ static nrfx_err_t twi_tx_start_transfer(NRF_TWI_Type        * p_twi,
         {
             nrf_twi_disable(p_twi);
             nrf_twi_enable(p_twi);
-            ret_code = NRFX_ERROR_INTERNAL;
+            ret_code = -ECANCELED;
         }
 
     }
     return ret_code;
 }
 
-static nrfx_err_t twi_rx_start_transfer(NRF_TWI_Type        * p_twi,
-                                        twi_control_block_t * p_cb)
+static int twi_rx_start_transfer(NRF_TWI_Type        * p_twi,
+                                 twi_control_block_t * p_cb)
 {
-    nrfx_err_t ret_code = NRFX_SUCCESS;
+    int ret_code = 0;
     volatile int32_t hw_timeout;
 
     hw_timeout = HW_TIMEOUT;
@@ -596,35 +592,35 @@ static nrfx_err_t twi_rx_start_transfer(NRF_TWI_Type        * p_twi,
             }
             else
             {
-                ret_code = NRFX_ERROR_INTERNAL;
+                ret_code = -ECANCELED;
             }
         }
         if (hw_timeout <= 0)
         {
             nrf_twi_disable(p_twi);
             nrf_twi_enable(p_twi);
-            ret_code = NRFX_ERROR_INTERNAL;
+            ret_code = -ECANCELED;
         }
     }
     return ret_code;
 }
 
-static nrfx_err_t twi_xfer(NRF_TWI_Type               * p_twi,
-                           twi_control_block_t        * p_cb,
-                           nrfx_twi_xfer_desc_t const * p_xfer_desc,
-                           uint32_t                     flags)
+static int twi_xfer(NRF_TWI_Type               * p_twi,
+                    twi_control_block_t        * p_cb,
+                    nrfx_twi_xfer_desc_t const * p_xfer_desc,
+                    uint32_t                     flags)
 {
-    nrfx_err_t err_code = NRFX_SUCCESS;
+    int err_code = 0;
 
     if ((p_cb->prev_suspend == TWI_SUSPEND_TX) && (p_xfer_desc->type == NRFX_TWI_XFER_RX))
     {
         /* RX is invalid after TX suspend */
-        return NRFX_ERROR_INVALID_STATE;
+        return -EINPROGRESS;
     }
     else if ((p_cb->prev_suspend == TWI_SUSPEND_RX) && (p_xfer_desc->type != NRFX_TWI_XFER_RX))
     {
         /* TX, TXRX and TXTX are invalid after RX suspend */
-        return NRFX_ERROR_INVALID_STATE;
+        return -EINPROGRESS;
     }
 
     /* Block TWI interrupts to ensure that function is not interrupted by TWI interrupt. */
@@ -633,7 +629,7 @@ static nrfx_err_t twi_xfer(NRF_TWI_Type               * p_twi,
     if (p_cb->busy)
     {
         nrf_twi_int_enable(p_twi, p_cb->int_mask);
-        err_code = NRFX_ERROR_BUSY;
+        err_code = -EBUSY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -676,11 +672,11 @@ bool nrfx_twi_is_busy(nrfx_twi_t const * p_instance)
     return p_cb->busy;
 }
 
-nrfx_err_t nrfx_twi_xfer(nrfx_twi_t const *           p_instance,
-                         nrfx_twi_xfer_desc_t const * p_xfer_desc,
-                         uint32_t                     flags)
+int nrfx_twi_xfer(nrfx_twi_t const *           p_instance,
+                  nrfx_twi_xfer_desc_t const * p_xfer_desc,
+                  uint32_t                     flags)
 {
-    nrfx_err_t err_code = NRFX_SUCCESS;
+    int err_code = 0;
     twi_control_block_t * p_cb = &m_cb[p_instance->drv_inst_idx];
 
     NRFX_ASSERT(p_cb->state == NRFX_DRV_STATE_POWERED_ON);
@@ -796,5 +792,3 @@ static void irq_handler(NRF_TWI_Type * p_twi, twi_control_block_t * p_cb)
 }
 
 NRFX_INSTANCE_IRQ_HANDLERS(TWI, twi)
-
-#endif // NRFX_CHECK(NRFX_TWI_ENABLED)

@@ -40,11 +40,11 @@
 extern "C" {
 #endif
 
-#if defined(NRF54H20_XXAA)
+#if defined(TWIS_CLOCKPIN_SDA_NEEDED)
 #define NRF_TWIS_CLOCKPIN_SDA_NEEDED 1
 #endif
 
-#if defined(HALTIUM_XXAA)
+#if defined(TWIS_CLOCKPIN_SCL_NEEDED)
 #define NRF_TWIS_CLOCKPIN_SCL_NEEDED 1
 #endif
 

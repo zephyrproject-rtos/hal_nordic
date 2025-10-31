@@ -36,6 +36,7 @@
 
 #include <nrfx.h>
 #include <haly/nrfy_comp.h>
+#include <helpers/nrfx_analog_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,44 +67,19 @@ extern "C" {
  */
 typedef void (* nrfx_comp_event_handler_t)(nrf_comp_event_t event);
 
-/**
- * @brief COMP shortcut masks.
- *
- * @deprecated Use @ref nrf_comp_short_mask_t instead.
-*/
-typedef enum
-{
-    NRFX_COMP_SHORT_STOP_AFTER_CROSS_EVT = NRF_COMP_SHORT_STOP_CROSS_MASK, ///< Shortcut between the CROSS event and the STOP task.
-    NRFX_COMP_SHORT_STOP_AFTER_UP_EVT    = NRF_COMP_SHORT_STOP_UP_MASK,    ///< Shortcut between the UP event and the STOP task.
-    NRFX_COMP_SHORT_STOP_AFTER_DOWN_EVT  = NRF_COMP_SHORT_STOP_DOWN_MASK   ///< Shortcut between the DOWN event and the STOP task.
-} nrfx_comp_short_mask_t;
-
-/**
- * @brief COMP events masks.
- *
- * @deprecated Use @ref nrf_comp_int_mask_t instead.
-*/
-typedef enum
-{
-    NRFX_COMP_EVT_EN_CROSS_MASK = NRF_COMP_INT_CROSS_MASK, ///< CROSS event (generated after VIN+ == VIN-).
-    NRFX_COMP_EVT_EN_UP_MASK    = NRF_COMP_INT_UP_MASK,    ///< UP event (generated when VIN+ crosses VIN- while increasing).
-    NRFX_COMP_EVT_EN_DOWN_MASK  = NRF_COMP_INT_DOWN_MASK,  ///< DOWN event (generated when VIN+ crosses VIN- while decreasing).
-    NRFX_COMP_EVT_EN_READY_MASK = NRF_COMP_INT_READY_MASK  ///< READY event (generated when the module is ready).
-} nrfx_comp_evt_en_mask_t;
-
 /** @brief COMP configuration. */
 typedef struct
 {
     nrf_comp_ref_t       reference;          ///< Reference selection.
-    nrf_comp_ext_ref_t   ext_ref;            ///< External analog reference selection.
+    nrfx_analog_input_t  ext_ref;            ///< External analog reference selection.
     nrf_comp_main_mode_t main_mode;          ///< Main operation mode.
     nrf_comp_th_t        threshold;          ///< Structure holding THDOWN and THUP values needed by the COMP_TH register.
     nrf_comp_sp_mode_t   speed_mode;         ///< Speed and power mode.
     nrf_comp_hyst_t      hyst;               ///< Comparator hysteresis.
 #if NRF_COMP_HAS_ISOURCE
-    nrf_isource_t        isource;            ///< Current source selected on analog input.
+    nrf_comp_isource_t   isource;            ///< Current source selected on analog input.
 #endif
-    nrf_comp_input_t     input;              ///< Input to be monitored.
+    nrfx_analog_input_t  input;              ///< Input to be monitored.
     uint8_t              interrupt_priority; ///< Interrupt priority.
 } nrfx_comp_config_t;
 
@@ -136,7 +112,7 @@ typedef struct
     .speed_mode         = NRF_COMP_SP_MODE_HIGH,                                   \
     .hyst               = NRF_COMP_HYST_NO_HYST,                                   \
     NRFX_COND_CODE_1(NRF_COMP_HAS_ISOURCE, (.isource = NRF_COMP_ISOURCE_OFF,), ()) \
-    .input              = (nrf_comp_input_t)_input,                                \
+    .input              = (nrfx_analog_input_t)_input,                             \
     .interrupt_priority = NRFX_COMP_DEFAULT_CONFIG_IRQ_PRIORITY                    \
 }
 
@@ -150,27 +126,26 @@ typedef struct
  * @param[in] event_handler Event handler provided by the user.
  *                          Must not be NULL.
  *
- * @retval NRFX_SUCCESS             Initialization was successful.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
- * @retval NRFX_ERROR_BUSY          The LPCOMP peripheral is already in use.
- *                                  This is possible only if @ref nrfx_prs module
- *                                  is enabled.
+ * @retval 0         Initialization was successful.
+ * @retval -EALREADY The driver is already initialized.
+ * @retval -EBUSY    The LPCOMP peripheral is already in use.
+ *                   This is possible only if @ref nrfx_prs module is enabled.
+ * @retval -EINVAL   The analog input pin or external reference is invalid.
  */
-nrfx_err_t nrfx_comp_init(nrfx_comp_config_t const * p_config,
-                          nrfx_comp_event_handler_t  event_handler);
+int nrfx_comp_init(nrfx_comp_config_t const * p_config,
+                   nrfx_comp_event_handler_t  event_handler);
 
 /**
  * @brief Function for reconfiguring the COMP driver.
  *
  * @param[in] p_config Pointer to the structure with the configuration.
  *
- * @retval NRFX_SUCCESS             Reconfiguration was successful.
- * @retval NRFX_ERROR_BUSY          The driver is running and cannot be reconfigured.
- * @retval NRFX_ERROR_INVALID_STATE The driver is uninitialized.
+ * @retval 0            Reconfiguration was successful.
+ * @retval -EBUSY       The driver is running and cannot be reconfigured.
+ * @retval -EINPROGRESS The driver is uninitialized.
+ * @retval -EINVAL      The analog input pin or external reference is invalid.
  */
-nrfx_err_t nrfx_comp_reconfigure(nrfx_comp_config_t const * p_config);
+int nrfx_comp_reconfigure(nrfx_comp_config_t const * p_config);
 
 /**
  * @brief Function for uninitializing the COMP driver.
@@ -194,9 +169,12 @@ bool nrfx_comp_init_check(void);
 /**
  * @brief Function for setting the analog input.
  *
- * @param[in] psel COMP analog pin selection.
+ * @param[in] psel Generic analog pin selection.
+ *
+ * @retval 0       Setting the pin was successful.
+ * @retval -EINVAL The analog input pin is invalid.
  */
-void nrfx_comp_pin_select(nrf_comp_input_t psel);
+int nrfx_comp_pin_select(nrfx_analog_input_t psel);
 
 /**
  * @brief Function for starting the COMP peripheral and interrupts.

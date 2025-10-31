@@ -61,10 +61,6 @@ extern "C" {
 #define GPIO_PIN_CNF_DRIVE1_OFFSET (GPIO_PIN_CNF_DRIVE1_Pos - GPIO_PIN_CNF_DRIVE0_Pos)
 #endif
 
-#if defined(NRF52820_XXAA)
-#include <nrf_erratas.h>
-#endif
-
 /*
  * Macro for generating case code blocks that return token NRF_<periph_name><prefix><i>
  * for case value equal to <i>.
@@ -176,6 +172,16 @@ extern "C" {
 #define NRF_GPIO_HAS_CTRLSEL_GRTC 1
 #else
 #define NRF_GPIO_HAS_CTRLSEL_GRTC 0
+#endif
+
+/** @brief Macro for getting number of pins in the port */
+#define NRF_GPIO_PIN_NUM(periph, prefix, i, _) NRFX_CONCAT(periph, prefix, i, _PIN_NUM)
+
+#if defined(GPIOTE_SPARSE_PINS) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying total number of GPIO pins across all ports. */
+#define NRF_GPIO_MAX_PIN_NUMBER 32
+#else
+#define NRF_GPIO_MAX_PIN_NUMBER NRFX_FOREACH_PRESENT(P, NRF_GPIO_PIN_NUM, (+), (0), _)
 #endif
 
 /** @brief Macro for mapping port and pin numbers to values understandable for nrf_gpio functions. */
@@ -1486,6 +1492,14 @@ NRF_STATIC_INLINE void nrf_gpio_latches_read_and_clear(uint32_t   start_port,
 
         p_masks++;
     }
+
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 173) || NRF_ERRATA_DYNAMIC_CHECK(53, 119))
+    {
+        for (i = start_port; i < (start_port + length); i++)
+        {
+            (void)gpio_regs[i]->LATCH;
+        }
+    }
 }
 
 NRF_STATIC_INLINE uint32_t nrf_gpio_pin_latch_get(uint32_t pin_number)
@@ -1501,6 +1515,14 @@ NRF_STATIC_INLINE void nrf_gpio_pin_latch_clear(uint32_t pin_number)
     NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
 
     reg->LATCH = (1 << pin_number);
+
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 173) || NRF_ERRATA_DYNAMIC_CHECK(53, 119))
+    {
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            (void)reg->LATCH;
+        }
+    }
 }
 #endif // defined(NRF_GPIO_LATCH_PRESENT)
 
@@ -1550,18 +1572,8 @@ NRF_STATIC_INLINE bool nrf_gpio_pin_present_check(uint32_t pin_number)
             return false;
     }
 
-#ifdef P0_FEATURE_PINS_PRESENT
-#if defined(NRF52820_XXAA) && defined(DEVELOP_IN_NRF52833)
-    /* Allow use of the following additional GPIOs that are connected to LEDs and buttons
-        * on the nRF52833 DK:
-        * - P0.11 - Button 1
-        * - P0.12 - Button 2
-        * - P0.13 - LED 1
-        * - P0.24 - Button 3
-        * - P0.25 - Button 4
-        */
-    mask |= 0x03003800;
-#endif // defined(NRF52820_XXAA) && defined(DEVELOP_IN_NRF52833)
+#if defined(P0_FEATURE_PINS_PRESENT) && defined(GPIO_PINS_OVERRIDE)
+    mask |= GPIO_PINS_OVERRIDE;
 #endif
 
     pin_number &= 0x1F;

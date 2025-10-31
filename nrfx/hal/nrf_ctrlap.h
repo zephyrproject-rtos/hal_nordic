@@ -292,6 +292,9 @@ NRF_STATIC_INLINE void nrf_ctrlap_info_get(NRF_CTRLAPPERI_Type const * p_reg,
 /**
  * @brief Function for locking erase operation in CTRLAP until next reset.
  *
+ * @note  Some devices do not support erase operation unlocking.
+ *        Refer to the Product Specification for more information.
+ *
  * @param[in] p_reg  Pointer to the structure of registers of the peripheral.
  * @param[in] enable True if erase is to be locked, false otherwise.
  */
@@ -430,9 +433,20 @@ NRF_STATIC_INLINE void nrf_ctrlap_info_get(NRF_CTRLAPPERI_Type const * p_reg,
 #if NRF_CTRLAP_HAS_ERASEPROTECT
 NRF_STATIC_INLINE void nrf_ctrlap_erase_lock_set(NRF_CTRLAPPERI_Type * p_reg, bool enable)
 {
-    p_reg->ERASEPROTECT.LOCK = ((enable ? CTRLAPPERI_ERASEPROTECT_LOCK_LOCK_Locked
-                                        : CTRLAPPERI_ERASEPROTECT_LOCK_LOCK_Unlocked)
-                                       << CTRLAPPERI_ERASEPROTECT_LOCK_LOCK_Pos);
+    if (enable)
+    {
+        p_reg->ERASEPROTECT.LOCK = (CTRLAPPERI_ERASEPROTECT_LOCK_LOCK_Locked
+                                    << CTRLAPPERI_ERASEPROTECT_LOCK_LOCK_Pos);
+    }
+    else
+    {
+#if defined(CTRLAPPERI_ERASEPROTECT_LOCK_LOCK_Unlocked)
+        p_reg->ERASEPROTECT.LOCK = (CTRLAPPERI_ERASEPROTECT_LOCK_LOCK_Unlocked
+                                    << CTRLAPPERI_ERASEPROTECT_LOCK_LOCK_Pos);
+#else
+        NRFX_ASSERT(0);
+#endif
+    }
 }
 
 NRF_STATIC_INLINE bool nrf_ctrlap_erase_lock_get(NRF_CTRLAPPERI_Type const * p_reg)

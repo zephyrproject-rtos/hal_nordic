@@ -4,29 +4,13 @@
  * @{
  * @ingroup nrfx_twim
  */
-/** @brief 
+/** @brief
  *
  *  Set to 1 to activate.
  *
  * @note This is an NRF_CONFIG macro.
  */
 #define NRFX_TWIM_ENABLED
-
-/** @brief Enable TWIM0 instance
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_TWIM0_ENABLED
-
-/** @brief Enable TWIM1 instance
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_TWIM1_ENABLED
 
 /** @brief Interrupt priority
  *
@@ -98,21 +82,5 @@
  * @note This is an NRF_CONFIG macro.
  */
 #define NRFX_TWIM_CONFIG_DEBUG_COLOR
-
-
-/** @brief Enables nRF52 anomaly 109 workaround for TWIM.
- *
- * The workaround uses interrupts to wake up the CPU by catching
- * the start event of zero-frequency transmission, clear the 
- * peripheral, set desired frequency, start the peripheral, and
- * the proper transmission. See more in the Errata document or
- * Anomaly 109 Addendum located at https://infocenter.nordicsemi.com/
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_TWIM_NRF52_ANOMALY_109_WORKAROUND_ENABLED
-
 
 /** @} */

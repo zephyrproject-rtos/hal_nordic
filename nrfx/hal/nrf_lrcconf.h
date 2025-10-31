@@ -46,12 +46,6 @@ extern "C" {
  * @brief   Hardware access layer for managing the Local Resource Controller Configuration (LRCCONF) peripheral.
  */
 
-/** @brief Number of clocks supported by LRCCONF. */
-#define NRF_LRCCONF_CLK_COUNT LRCCONF_CLKSTAT_MaxCount
-
-/** @brief Size of AXI bridge waitstates array. */
-#define NRF_LRCCONF_AXI_WAITSTATES_ARRAY_SIZE LRCCONF_AX2XWAITSTATES_MaxCount
-
 #if defined(LRCCONF_TASKS_REQHFXO_TASKS_REQHFXO_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether HFXO requesting is present. */
 #define NRF_LRCCONF_HAS_HFXO 1
@@ -64,6 +58,21 @@ extern "C" {
 #define NRF_LRCCONF_HAS_BYPASS 1
 #else
 #define NRF_LRCCONF_HAS_BYPASS 0
+#endif
+
+#if defined(LRCCONF_AX2XWAITSTATES_MaxCount) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether AXI waitstates are present. */
+#define NRF_LRCCONF_HAS_AXI_WAITSTATES 1
+#else
+#define NRF_LRCCONF_HAS_AXI_WAITSTATES 0
+#endif
+
+/** @brief Number of clocks supported by LRCCONF. */
+#define NRF_LRCCONF_CLK_COUNT LRCCONF_CLKSTAT_MaxCount
+
+#if NRF_LRCCONF_HAS_AXI_WAITSTATES
+/** @brief Size of AXI bridge waitstates array. */
+#define NRF_LRCCONF_AXI_WAITSTATES_ARRAY_SIZE LRCCONF_AX2XWAITSTATES_MaxCount
 #endif
 
 /** @brief Tasks. */
@@ -342,6 +351,7 @@ NRF_STATIC_INLINE
 bool nrf_lrcconf_retain_check(NRF_LRCCONF_Type const *        p_reg,
                               nrf_lrcconf_power_domain_mask_t domain);
 
+#if NRF_LRCCONF_HAS_AXI_WAITSTATES
 /**
  * @brief Function for setting the waitstates for the AXI bridge connection.
  *
@@ -363,6 +373,8 @@ NRF_STATIC_INLINE void nrf_lrcconf_axi_waitstates_set(NRF_LRCCONF_Type * p_reg,
  */
 NRF_STATIC_INLINE uint8_t nrf_lrcconf_axi_waitstates_get(NRF_LRCCONF_Type const * p_reg,
                                                          uint8_t                  domain);
+#endif
+
 #ifndef NRF_DECLARE_ONLY
 
 NRF_STATIC_INLINE void nrf_lrcconf_task_trigger(NRF_LRCCONF_Type * p_reg, nrf_lrcconf_task_t task)
@@ -506,6 +518,7 @@ bool nrf_lrcconf_retain_check(NRF_LRCCONF_Type const *        p_reg,
     return p_reg->RETAIN & domain;
 }
 
+#if NRF_LRCCONF_HAS_AXI_WAITSTATES
 NRF_STATIC_INLINE void nrf_lrcconf_axi_waitstates_set(NRF_LRCCONF_Type * p_reg,
                                                       uint8_t            domain,
                                                       uint8_t            waitstates_num)
@@ -525,6 +538,7 @@ NRF_STATIC_INLINE uint8_t nrf_lrcconf_axi_waitstates_get(NRF_LRCCONF_Type const 
     return (uint8_t)((p_reg->AX2XWAITSTATES[domain] & LRCCONF_AX2XWAITSTATES_WAITSTATES_Msk) >>
                     LRCCONF_AX2XWAITSTATES_WAITSTATES_Pos);
 }
+#endif
 #endif // NRF_DECLARE_ONLY
 
 /** @} */
@@ -534,4 +548,3 @@ NRF_STATIC_INLINE uint8_t nrf_lrcconf_axi_waitstates_get(NRF_LRCCONF_Type const 
 #endif
 
 #endif // NRF_LRCCONF_H__
-

@@ -55,37 +55,35 @@ bool nrfx_flag32_is_allocated(nrfx_atomic_t mask, uint8_t bitpos)
     return (mask & NRFX_BIT(bitpos)) ? false : true;
 }
 
-nrfx_err_t nrfx_flag32_alloc(nrfx_atomic_t * p_mask, uint8_t *p_flag)
+int nrfx_flag32_alloc(nrfx_atomic_t * p_mask)
 {
-    uint8_t idx;
+    int idx;
     uint32_t new_mask, prev_mask;
 
     do {
         prev_mask = *p_mask;
         if (prev_mask == 0)
         {
-            return NRFX_ERROR_NO_MEM;
+            return -ENOMEM;
         }
         else
         {
-            idx = (uint8_t)(31UL - NRF_CLZ(prev_mask));
+            idx = (int)(31UL - NRF_CLZ(prev_mask));
         }
 
         new_mask = prev_mask & ~NRFX_BIT(idx);
     } while (!NRFX_ATOMIC_CAS(p_mask, prev_mask, new_mask));
 
-    *p_flag = idx;
-
-    return NRFX_SUCCESS;
+    return idx;
 }
 
-nrfx_err_t nrfx_flag32_free(nrfx_atomic_t * p_mask, uint8_t flag)
+int nrfx_flag32_free(nrfx_atomic_t * p_mask, uint8_t flag)
 {
     uint32_t new_mask, prev_mask;
 
     if ((NRFX_BIT(flag) & *p_mask))
     {
-        return NRFX_ERROR_INVALID_PARAM;
+        return -EINVAL;
     }
 
     do {
@@ -93,5 +91,5 @@ nrfx_err_t nrfx_flag32_free(nrfx_atomic_t * p_mask, uint8_t flag)
         new_mask = prev_mask | NRFX_BIT(flag);
     } while (!NRFX_ATOMIC_CAS(p_mask, prev_mask, new_mask));
 
-    return NRFX_SUCCESS;
+    return 0;
 }

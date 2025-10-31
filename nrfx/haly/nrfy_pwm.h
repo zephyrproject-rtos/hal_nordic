@@ -57,6 +57,7 @@ NRFY_STATIC_INLINE void __nrfy_internal_pwm_event_enabled_clear(NRF_PWM_Type *  
  * @{
  * @ingroup nrf_pwm
  * @brief   Hardware access layer with cache and barrier support for managing the PWM peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 /** @brief PWM configuration structure. */

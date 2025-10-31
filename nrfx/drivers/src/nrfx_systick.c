@@ -31,8 +31,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_SYSTICK_ENABLED)
 #include <nrfx_systick.h>
 
 /**
@@ -159,5 +157,3 @@ void nrfx_systick_delay_ms(uint32_t ms)
     }
     nrfx_systick_delay_ticks(nrfx_systick_ms_tick(r));
 }
-
-#endif // NRFX_CHECK(NRFX_SYSTICK_ENABLED)

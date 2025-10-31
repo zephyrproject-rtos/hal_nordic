@@ -32,23 +32,13 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_CRACEN_ENABLED)
-
 #include <hal/nrf_cracen.h>
 #include <hal/nrf_cracen_rng.h>
 #if NRF_CRACEN_HAS_CRYPTOMASTER
 #include <hal/nrf_cracen_cm.h>
 #include <helpers/nrf_cracen_cm_dma.h>
 #endif
-#include <soc/nrfx_coredep.h>
 
-/* TRNG HW chosen configuration options */
-#if defined(NRF54L15_XXAA) || defined(NRF54L10_XXAA) || defined(NRF54L05_XXAA)
-#define TRNG_CLK_DIV                0
-#else
-#define TRNG_CLK_DIV                1
-#endif
 #define TRNG_OFF_TIMER_VAL          0
 #define TRNG_INIT_WAIT_VAL        512
 #define TRNG_NUMBER_128BIT_BLOCKS   4
@@ -248,9 +238,6 @@ static cracen_ret_t trng_entropy_get(uint8_t * p_buf, size_t size)
         {
             break;
         }
-#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
-        nrfx_coredep_delay_us(1);
-#endif
     }
 
     nrf_cracen_module_disable(NRF_CRACEN, NRF_CRACEN_MODULE_RNG_MASK);
@@ -370,9 +357,6 @@ static cracen_ret_t cm_aes_ecb(uint8_t * p_key, size_t key_size, uint8_t * p_inp
         /* The HW is so fast that it is better to "busy wait" here than program an
          * interrupt. This will normally already succeed in the first try
          */
-#if defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
-        nrfx_coredep_delay_us(1);
-#endif
         ret = cm_done_check();
     } while (ret == HW_PROCESSING);
 
@@ -478,11 +462,11 @@ static cracen_ret_t ctr_drbg_reseed(void)
 }
 #endif
 
-nrfx_err_t nrfx_cracen_ctr_drbg_init(void)
+int nrfx_cracen_ctr_drbg_init(void)
 {
     if (m_cb.initialized == NRFX_DRV_STATE_INITIALIZED)
     {
-        return NRFX_ERROR_ALREADY;
+        return -EALREADY;
     }
 
     memset(&m_cb, 0, sizeof(m_cb));
@@ -493,12 +477,12 @@ nrfx_err_t nrfx_cracen_ctr_drbg_init(void)
     r = ctr_drbg_reseed();
     if (r != OK)
     {
-        return NRFX_ERROR_INTERNAL;
+        return -ECANCELED;
     }
 #endif
 
     m_cb.initialized = NRFX_DRV_STATE_INITIALIZED;
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 void nrfx_cracen_ctr_drbg_uninit(void)
@@ -508,7 +492,7 @@ void nrfx_cracen_ctr_drbg_uninit(void)
     m_cb.initialized = NRFX_DRV_STATE_UNINITIALIZED;
 }
 
-nrfx_err_t nrfx_cracen_ctr_drbg_random_get(uint8_t * p_buf, size_t size)
+int nrfx_cracen_ctr_drbg_random_get(uint8_t * p_buf, size_t size)
 {
     NRFX_ASSERT(m_cb.initialized != NRFX_DRV_STATE_UNINITIALIZED);
 
@@ -516,12 +500,12 @@ nrfx_err_t nrfx_cracen_ctr_drbg_random_get(uint8_t * p_buf, size_t size)
 
     if (size > 0 && p_buf == NULL)
     {
-        return NRFX_ERROR_INVALID_PARAM;
+        return -EINVAL;
     }
 
     if (size > CTR_DRBG_MAX_BYTES_PER_REQUEST )
     {
-        return NRFX_ERROR_INVALID_PARAM;
+        return -EINVAL;
     }
 
 #if NRF_CRACEN_HAS_CRYPTOMASTER
@@ -530,7 +514,7 @@ nrfx_err_t nrfx_cracen_ctr_drbg_random_get(uint8_t * p_buf, size_t size)
         r = ctr_drbg_reseed();
         if (r != OK)
         {
-            return NRFX_ERROR_INTERNAL;
+            return -ECANCELED;
         }
     }
 
@@ -544,7 +528,7 @@ nrfx_err_t nrfx_cracen_ctr_drbg_random_get(uint8_t * p_buf, size_t size)
         r = cm_aes_ecb(m_cb.key, sizeof(m_cb.key), m_cb.value, temp);
         if (r != OK)
         {
-            return NRFX_ERROR_INTERNAL;
+            return -ECANCELED;
         }
 
         memcpy(p_buf, temp, cur_len);
@@ -556,7 +540,7 @@ nrfx_err_t nrfx_cracen_ctr_drbg_random_get(uint8_t * p_buf, size_t size)
     r = ctr_drbg_update(NULL);
     if (r != OK)
     {
-        return NRFX_ERROR_INTERNAL;
+        return -ECANCELED;
     }
 
     m_cb.reseed_counter += 1;
@@ -565,10 +549,8 @@ nrfx_err_t nrfx_cracen_ctr_drbg_random_get(uint8_t * p_buf, size_t size)
 
     if (r != OK)
     {
-        return NRFX_ERROR_INTERNAL;
+        return -ECANCELED;
     }
 #endif
-    return NRFX_SUCCESS;
+    return 0;
 }
-
-#endif // NRFX_CHECK(NRFX_CRACEN_ENABLED)

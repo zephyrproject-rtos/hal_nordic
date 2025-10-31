@@ -58,6 +58,7 @@ NRFY_STATIC_INLINE uint32_t __nrfy_internal_timer_events_process(NRF_TIMER_Type 
  * @{
  * @ingroup nrf_timer
  * @brief   Hardware access layer with cache and barrier support for managing the TIMER peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
  #if NRF_TIMER_HAS_ONE_SHOT || defined(__NRFX_DOXYGEN__)

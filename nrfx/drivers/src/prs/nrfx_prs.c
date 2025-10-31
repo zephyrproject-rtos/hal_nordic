@@ -32,8 +32,6 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_PRS_ENABLED)
 #include "nrfx_prs.h"
 
 #define NRFX_LOG_MODULE PRS
@@ -44,104 +42,42 @@
         __func__,                                     \
         NRFX_LOG_ERROR_STRING_GET(ret_code))
 
-
+#define NRF_PRS_ELSE_IF(periph_name, prefix, i, p_reg) \
+    else if (p_reg == NRFX_CONCAT(NRFX_PRS_BOX_, i, _ADDR))                   \
+    {                                                                              \
+        return &NRFX_CONCAT(m_prs_box_, i);                         \
+    }
 typedef struct {
-    nrfx_irq_handler_t handler;
-    bool               acquired;
+    nrfx_irq_handler_t     handler;
+    bool                   acquired;
+    void *                 p_instance;
 } prs_box_t;
 
-#define PRS_BOX_DEFINE(n)                                                    \
-    static prs_box_t m_prs_box_##n = { .handler = NULL, .acquired = false }; \
-    void nrfx_prs_box_##n##_irq_handler(void)                                \
-    {                                                                        \
-        NRFX_ASSERT(m_prs_box_##n.handler);                                  \
-        m_prs_box_##n.handler();                                             \
+#define PRS_BOX_DEFINE(periph_name, prefix, n, _)                \
+    static prs_box_t m_prs_box_##n = { .handler = NULL,          \
+                                       .acquired = false,        \
+                                       .p_instance = NULL };     \
+    void nrfx_prs_box_##n##_irq_handler(void)                    \
+    {                                                            \
+        NRFX_ASSERT(m_prs_box_##n.handler);                      \
+        m_prs_box_##n.handler(m_prs_box_##n.p_instance);         \
     }
 
-#if defined(NRFX_PRS_BOX_0_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_0_ENABLED)
-PRS_BOX_DEFINE(0)
-#endif
-#if defined(NRFX_PRS_BOX_1_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_1_ENABLED)
-PRS_BOX_DEFINE(1)
-#endif
-#if defined(NRFX_PRS_BOX_2_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_2_ENABLED)
-PRS_BOX_DEFINE(2)
-#endif
-#if defined(NRFX_PRS_BOX_3_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_3_ENABLED)
-PRS_BOX_DEFINE(3)
-#endif
-#if defined(NRFX_PRS_BOX_4_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_4_ENABLED)
-PRS_BOX_DEFINE(4)
-#endif
-#if defined(NRFX_PRS_BOX_5_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_5_ENABLED)
-PRS_BOX_DEFINE(5)
-#endif
-#if defined(NRFX_PRS_BOX_6_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_6_ENABLED)
-PRS_BOX_DEFINE(6)
-#endif
-#if defined(NRFX_PRS_BOX_7_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_7_ENABLED)
-PRS_BOX_DEFINE(7)
-#endif
-#if defined(NRFX_PRS_BOX_8_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_8_ENABLED)
-PRS_BOX_DEFINE(8)
-#endif
-#if defined(NRFX_PRS_BOX_9_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_9_ENABLED)
-PRS_BOX_DEFINE(9)
-#endif
+NRFX_FOREACH_ENABLED(PRS_BOX_, PRS_BOX_DEFINE, (), (), _)
 
 static prs_box_t * prs_box_get(void const * p_base_addr)
 {
-#if !defined(IS_PRS_BOX)
-#define IS_PRS_BOX(n, p_base_addr)  ((p_base_addr) == NRFX_PRS_BOX_##n##_ADDR)
-#endif
-
-#if defined(NRFX_PRS_BOX_0_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_0_ENABLED)
-    if (IS_PRS_BOX(0, p_base_addr)) { return &m_prs_box_0; }
+    if (0) {}
+    NRFX_FOREACH_ENABLED(PRS_BOX_, NRF_PRS_ELSE_IF, (), (), p_base_addr)
     else
-#endif
-#if defined(NRFX_PRS_BOX_1_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_1_ENABLED)
-    if (IS_PRS_BOX(1, p_base_addr)) { return &m_prs_box_1; }
-    else
-#endif
-#if defined(NRFX_PRS_BOX_2_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_2_ENABLED)
-    if (IS_PRS_BOX(2, p_base_addr)) { return &m_prs_box_2; }
-    else
-#endif
-#if defined(NRFX_PRS_BOX_3_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_3_ENABLED)
-    if (IS_PRS_BOX(3, p_base_addr)) { return &m_prs_box_3; }
-    else
-#endif
-#if defined(NRFX_PRS_BOX_4_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_4_ENABLED)
-    if (IS_PRS_BOX(4, p_base_addr)) { return &m_prs_box_4; }
-    else
-#endif
-#if defined(NRFX_PRS_BOX_5_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_5_ENABLED)
-    if (IS_PRS_BOX(5, p_base_addr)) { return &m_prs_box_5; }
-    else
-#endif
-#if defined(NRFX_PRS_BOX_6_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_6_ENABLED)
-    if (IS_PRS_BOX(6, p_base_addr)) { return &m_prs_box_6; }
-    else
-#endif
-#if defined(NRFX_PRS_BOX_7_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_7_ENABLED)
-    if (IS_PRS_BOX(7, p_base_addr)) { return &m_prs_box_7; }
-    else
-#endif
-#if defined(NRFX_PRS_BOX_8_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_8_ENABLED)
-    if (IS_PRS_BOX(8, p_base_addr)) { return &m_prs_box_8; }
-    else
-#endif
-#if defined(NRFX_PRS_BOX_9_ADDR) && NRFX_CHECK(NRFX_PRS_BOX_9_ENABLED)
-    if (IS_PRS_BOX(9, p_base_addr)) { return &m_prs_box_9; }
-    else
-#endif
     {
         return NULL;
     }
 }
 
-nrfx_err_t nrfx_prs_acquire(void       const * p_base_addr,
-                            nrfx_irq_handler_t irq_handler)
+nrfx_err_t nrfx_prs_acquire(void const *       p_base_addr,
+                            nrfx_irq_handler_t irq_handler,
+                            void *             p_instance)
 {
     NRFX_ASSERT(p_base_addr);
 
@@ -159,8 +95,9 @@ nrfx_err_t nrfx_prs_acquire(void       const * p_base_addr,
         }
         else
         {
-            p_box->handler  = irq_handler;
-            p_box->acquired = true;
+            p_box->acquired   = true;
+            p_box->handler    = irq_handler;
+            p_box->p_instance = p_instance;
         }
         NRFX_CRITICAL_SECTION_EXIT();
 
@@ -186,8 +123,6 @@ void nrfx_prs_release(void const * p_base_addr)
     {
         p_box->handler  = NULL;
         p_box->acquired = false;
+        p_box->p_instance = NULL;
     }
 }
-
-
-#endif // NRFX_CHECK(NRFX_PRS_ENABLED)

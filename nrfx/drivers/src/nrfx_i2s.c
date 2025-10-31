@@ -32,9 +32,6 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_I2S_ENABLED)
-
 #include <nrfx_i2s.h>
 #include <haly/nrfy_gpio.h>
 
@@ -46,50 +43,6 @@
     (event == NRF_I2S_EVENT_TXPTRUPD ? "NRF_I2S_EVENT_TXPTRUPD" : \
     (event == NRF_I2S_EVENT_STOPPED  ? "NRF_I2S_EVENT_STOPPED"  : \
                                        "UNKNOWN EVENT")))
-
-#if !defined(USE_WORKAROUND_FOR_I2S_STOP_ANOMALY) && \
-    (defined(NRF52_SERIES) || defined(NRF91_SERIES))
-// Enable workaround for nRF52 Series anomaly 194 / nRF9160 anomaly 1
-// (STOP task does not switch off all resources).
-#define USE_WORKAROUND_FOR_I2S_STOP_ANOMALY 1
-#endif
-
-#if !defined(USE_WORKAROUND_FOR_ANOMALY_170) && defined(NRF52_SERIES)
-// Enable workaround for nRF52 Series anomaly 170
-// (when reading the value of PSEL registers, the CONNECT field might not
-//  return the same value that has been written to it).
-#define USE_WORKAROUND_FOR_ANOMALY_170 1
-#endif
-
-#if !defined(USE_WORKAROUND_FOR_ANOMALY_196) && defined(NRF52_SERIES)
-// Enable workaround for nRF52 Series anomaly 196
-// (PSEL acquires GPIO regardless of ENABLE).
-#define USE_WORKAROUND_FOR_ANOMALY_196 1
-#endif
-
-// Control block - driver instance local data.
-typedef struct
-{
-    nrfx_i2s_data_handler_t handler;
-    nrfx_drv_state_t        state;
-
-    bool use_rx         : 1;
-    bool use_tx         : 1;
-    bool rx_ready       : 1;
-    bool tx_ready       : 1;
-    bool buffers_needed : 1;
-    bool buffers_reused : 1;
-    bool skip_gpio_cfg  : 1;
-    bool skip_psel_cfg  : 1;
-
-#if !NRFX_API_VER_AT_LEAST(3, 3, 0)
-    uint16_t            buffer_size;
-#endif
-    nrfx_i2s_buffers_t  next_buffers;
-    nrfx_i2s_buffers_t  current_buffers;
-} nrfx_i2s_cb_t;
-
-static nrfx_i2s_cb_t m_cb[NRFX_I2S_ENABLED_COUNT];
 
 static void configure_pins(nrfx_i2s_config_t const * p_config)
 {
@@ -137,22 +90,26 @@ static void configure_pins(nrfx_i2s_config_t const * p_config)
     }
 }
 
-static void deconfigure_pins(nrfx_i2s_t const * p_instance)
+static void deconfigure_pins(nrfx_i2s_t * p_instance)
 {
     nrf_i2s_pins_t pins;
+    uint32_t pin_mask;
 
     nrfy_i2s_pins_get(p_instance->p_reg, &pins);
 
-#if NRFX_CHECK(USE_WORKAROUND_FOR_ANOMALY_170)
-    // Create bitmask for extracting pin number from PSEL register.
-    uint32_t pin_mask = NRF_I2S_PSEL_SCK_PIN_MASK;
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 170))
+    {
+        // Create bitmask for extracting pin number from PSEL register.
+        pin_mask = NRF_I2S_PSEL_SCK_PIN_MASK;
 #if NRF_I2S_HAS_GPIO_PORT_SELECTION
-    // If device supports more than one GPIO port, take port number into account as well.
-    pin_mask |= NRF_I2S_PSEL_SCK_PORT_MASK;
+        // If device supports more than one GPIO port, take port number into account as well.
+        pin_mask |= NRF_I2S_PSEL_SCK_PORT_MASK;
 #endif
-#else
-    uint32_t pin_mask = 0xFFFFFFFF;
-#endif // USE_WORKAROUND_FOR_ANOMALY_170
+    }
+    else
+    {
+        pin_mask = 0xFFFFFFFF;
+    }
 
     nrfy_gpio_cfg_default(pins.sck_pin & pin_mask);
     nrfy_gpio_cfg_default(pins.lrck_pin & pin_mask);
@@ -217,23 +174,20 @@ static inline bool validate_config(nrf_i2s_mode_t   mode,
     return true;
 }
 
-nrfx_err_t nrfx_i2s_init(nrfx_i2s_t const *        p_instance,
-                         nrfx_i2s_config_t const * p_config,
-                         nrfx_i2s_data_handler_t   handler)
+int nrfx_i2s_init(nrfx_i2s_t *              p_instance,
+                  nrfx_i2s_config_t const * p_config,
+                  nrfx_i2s_data_handler_t   handler)
 {
+    NRFX_ASSERT(p_instance);
     NRFX_ASSERT(p_config);
     NRFX_ASSERT(handler);
 
-    nrfx_err_t err_code;
-    nrfx_i2s_cb_t * p_cb = &m_cb[p_instance->drv_inst_idx];
+    int err_code;
+    nrfx_i2s_control_block_t * p_cb = &p_instance->cb;
 
     if (p_cb->state != NRFX_DRV_STATE_UNINITIALIZED)
     {
-#if NRFX_API_VER_AT_LEAST(3, 2, 0)
-        err_code = NRFX_ERROR_ALREADY;
-#else
-        err_code = NRFX_ERROR_INVALID_STATE;
-#endif
+        err_code = -EALREADY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -242,10 +196,10 @@ nrfx_err_t nrfx_i2s_init(nrfx_i2s_t const *        p_instance,
 
 
     if (!validate_config(p_config->mode,
-                         p_config->ratio,
+                         p_config->prescalers.ratio,
                          p_config->sample_width))
     {
-        err_code = NRFX_ERROR_INVALID_PARAM;
+        err_code = -EINVAL;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -262,8 +216,8 @@ nrfx_err_t nrfx_i2s_init(nrfx_i2s_t const *        p_instance,
             .alignment    = p_config->alignment,
             .sample_width = p_config->sample_width,
             .channels     = p_config->channels,
-            .mck_setup    = p_config->mck_setup,
-            .ratio        = p_config->ratio,
+            .mck_setup    = p_config->prescalers.mck_setup,
+            .ratio        = p_config->prescalers.ratio,
         },
         .pins = {
             .sck_pin      = p_config->sck_pin,
@@ -274,7 +228,7 @@ nrfx_err_t nrfx_i2s_init(nrfx_i2s_t const *        p_instance,
         },
 #if NRF_I2S_HAS_CLKCONFIG
         .clksrc        = p_config->clksrc,
-        .enable_bypass = p_config->enable_bypass,
+        .enable_bypass = p_config->prescalers.enable_bypass,
 #endif
         .skip_psel_cfg = p_config->skip_psel_cfg
     };
@@ -295,13 +249,13 @@ nrfx_err_t nrfx_i2s_init(nrfx_i2s_t const *        p_instance,
     p_cb->state = NRFX_DRV_STATE_INITIALIZED;
 
     NRFX_LOG_INFO("Initialized.");
-    return NRFX_SUCCESS;
+    return 0;
 }
 
-void nrfx_i2s_uninit(nrfx_i2s_t const * p_instance)
+void nrfx_i2s_uninit(nrfx_i2s_t * p_instance)
 {
-    nrfx_i2s_cb_t * p_cb = &m_cb[p_instance->drv_inst_idx];
-
+    NRFX_ASSERT(p_instance);
+    nrfx_i2s_control_block_t * p_cb = &p_instance->cb;
     NRFX_ASSERT(p_cb->state != NRFX_DRV_STATE_UNINITIALIZED);
 
     nrfx_i2s_stop(p_instance);
@@ -314,8 +268,7 @@ void nrfx_i2s_uninit(nrfx_i2s_t const * p_instance)
         deconfigure_pins(p_instance);
     }
 
-#if NRFX_CHECK(USE_WORKAROUND_FOR_ANOMALY_196)
-    if (!p_cb->skip_psel_cfg)
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 196) && !p_cb->skip_psel_cfg)
     {
         // Disabling I2S is insufficient to release pins acquired by the peripheral.
         // Explicit disconnect is needed.
@@ -328,7 +281,6 @@ void nrfx_i2s_uninit(nrfx_i2s_t const * p_instance)
         };
         nrfy_i2s_pins_set(p_instance->p_reg, &pins);
     }
-#endif
 
     p_cb->state = NRFX_DRV_STATE_UNINITIALIZED;
     NRFX_LOG_INFO("Uninitialized.");
@@ -336,18 +288,17 @@ void nrfx_i2s_uninit(nrfx_i2s_t const * p_instance)
 
 bool nrfx_i2s_init_check(nrfx_i2s_t const * p_instance)
 {
-    nrfx_i2s_cb_t * p_cb = &m_cb[p_instance->drv_inst_idx];
+    NRFX_ASSERT(p_instance);
+    nrfx_i2s_control_block_t const * p_cb = &p_instance->cb;
 
     return (p_cb->state != NRFX_DRV_STATE_UNINITIALIZED);
 }
 
-nrfx_err_t nrfx_i2s_start(nrfx_i2s_t const *         p_instance,
-                          nrfx_i2s_buffers_t const * p_initial_buffers,
-#if !NRFX_API_VER_AT_LEAST(3, 3, 0)
-                          uint16_t                   buffer_size,
-#endif
-                          uint8_t                    flags)
+int nrfx_i2s_start(nrfx_i2s_t *               p_instance,
+                   nrfx_i2s_buffers_t const * p_initial_buffers,
+                   uint8_t                    flags)
 {
+    NRFX_ASSERT(p_instance);
     NRFX_ASSERT(p_initial_buffers != NULL);
     NRFX_ASSERT(p_initial_buffers->p_rx_buffer != NULL ||
                 p_initial_buffers->p_tx_buffer != NULL);
@@ -357,19 +308,15 @@ nrfx_err_t nrfx_i2s_start(nrfx_i2s_t const *         p_instance,
     NRFX_ASSERT((p_initial_buffers->p_tx_buffer == NULL) ||
                 (nrfx_is_in_ram(p_initial_buffers->p_tx_buffer) &&
                  nrfx_is_word_aligned(p_initial_buffers->p_tx_buffer)));
-#if NRFX_API_VER_AT_LEAST(3, 3, 0)
     NRFX_ASSERT(p_initial_buffers->buffer_size != 0);
-#else
-    NRFX_ASSERT(buffer_size != 0);
-#endif
     (void)(flags);
 
-    nrfx_err_t err_code;
-    nrfx_i2s_cb_t * p_cb = &m_cb[p_instance->drv_inst_idx];
+    int err_code;
+    nrfx_i2s_control_block_t * p_cb = &p_instance->cb;
 
     if (p_cb->state != NRFX_DRV_STATE_INITIALIZED)
     {
-        err_code = NRFX_ERROR_INVALID_STATE;
+        err_code = -EINPROGRESS;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -382,7 +329,7 @@ nrfx_err_t nrfx_i2s_start(nrfx_i2s_t const *         p_instance,
         ((p_initial_buffers->p_tx_buffer != NULL)
          && !nrfx_is_in_ram(p_initial_buffers->p_tx_buffer)))
     {
-        err_code = NRFX_ERROR_INVALID_ADDR;
+        err_code = -EACCES;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -394,9 +341,6 @@ nrfx_err_t nrfx_i2s_start(nrfx_i2s_t const *         p_instance,
     p_cb->rx_ready       = false;
     p_cb->tx_ready       = false;
     p_cb->buffers_needed = false;
-#if !NRFX_API_VER_AT_LEAST(3, 3, 0)
-    p_cb->buffer_size    = buffer_size;
-#endif
 
     // Set the provided initial buffers as next, they will become the current
     // ones after the IRQ handler is called for the first time, what will occur
@@ -410,37 +354,32 @@ nrfx_err_t nrfx_i2s_start(nrfx_i2s_t const *         p_instance,
 
     p_cb->state = NRFX_DRV_STATE_POWERED_ON;
 
-    /* Clear spurious RXPTRUPD and TXPTRUPD events (see nRF52 anomaly 55). */
-    nrfy_i2s_event_clear(p_instance->p_reg, NRF_I2S_EVENT_RXPTRUPD);
-    nrfy_i2s_event_clear(p_instance->p_reg, NRF_I2S_EVENT_TXPTRUPD);
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 55))
+    {
+        /* Clear spurious RXPTRUPD and TXPTRUPD events */
+        nrfy_i2s_event_clear(p_instance->p_reg, NRF_I2S_EVENT_RXPTRUPD);
+        nrfy_i2s_event_clear(p_instance->p_reg, NRF_I2S_EVENT_TXPTRUPD);
+    }
 
     nrfy_i2s_int_enable(p_instance->p_reg,
                         (p_cb->use_rx ? NRF_I2S_INT_RXPTRUPD_MASK : 0UL) |
                         (p_cb->use_tx ? NRF_I2S_INT_TXPTRUPD_MASK : 0UL) |
                         NRF_I2S_INT_STOPPED_MASK);
 
-#if NRFX_API_VER_AT_LEAST(3, 3, 0)
     nrfy_i2s_buffers_set(p_instance->p_reg, &p_cb->next_buffers);
-#else
-    const nrfy_i2s_xfer_desc_t xfer = {
-        .p_rx_buffer = p_cb->next_buffers.p_rx_buffer,
-        .p_tx_buffer = p_cb->next_buffers.p_tx_buffer,
-        .buffer_size = p_cb->buffer_size,
-    };
-
-    nrfy_i2s_buffers_set(p_instance->p_reg, &xfer);
-#endif
     nrfy_i2s_xfer_start(p_instance->p_reg, NULL);
 
     NRFX_LOG_INFO("Started.");
-    return NRFX_SUCCESS;
+    return 0;
 }
 
-nrfx_err_t nrfx_i2s_next_buffers_set(nrfx_i2s_t const *         p_instance,
-                                     nrfx_i2s_buffers_t const * p_buffers)
+int nrfx_i2s_next_buffers_set(nrfx_i2s_t *               p_instance,
+                              nrfx_i2s_buffers_t const * p_buffers)
 {
-    nrfx_err_t err_code;
-    nrfx_i2s_cb_t * p_cb = &m_cb[p_instance->drv_inst_idx];
+    NRFX_ASSERT(p_instance);
+
+    int err_code;
+    nrfx_i2s_control_block_t * p_cb = &p_instance->cb;
 
     NRFX_ASSERT(p_cb->state == NRFX_DRV_STATE_POWERED_ON);
     NRFX_ASSERT(p_buffers);
@@ -450,13 +389,11 @@ nrfx_err_t nrfx_i2s_next_buffers_set(nrfx_i2s_t const *         p_instance,
     NRFX_ASSERT((p_buffers->p_tx_buffer == NULL) ||
                 (nrfx_is_in_ram(p_buffers->p_tx_buffer) &&
                  nrfx_is_word_aligned(p_buffers->p_tx_buffer)));
-#if NRFX_API_VER_AT_LEAST(3, 3, 0)
     NRFX_ASSERT(p_buffers->buffer_size != 0);
-#endif
 
     if (!p_cb->buffers_needed)
     {
-        err_code = NRFX_ERROR_INVALID_STATE;
+        err_code = -EINPROGRESS;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -469,7 +406,7 @@ nrfx_err_t nrfx_i2s_next_buffers_set(nrfx_i2s_t const *         p_instance,
         ((p_buffers->p_tx_buffer != NULL)
          && !nrfx_is_in_ram(p_buffers->p_tx_buffer)))
     {
-        err_code = NRFX_ERROR_INVALID_ADDR;
+        err_code = -EACCES;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -485,60 +422,184 @@ nrfx_err_t nrfx_i2s_next_buffers_set(nrfx_i2s_t const *         p_instance,
         NRFX_ASSERT(p_buffers->p_rx_buffer != NULL);
     }
 
-#if NRFX_API_VER_AT_LEAST(3, 3, 0)
     nrfy_i2s_buffers_set(p_instance->p_reg, p_buffers);
-#else
-    nrfy_i2s_xfer_desc_t xfer = {
-        .p_rx_buffer = p_buffers->p_rx_buffer,
-        .p_tx_buffer = p_buffers->p_tx_buffer,
-        .buffer_size = p_cb->buffer_size,
-    };
-
-    nrfy_i2s_buffers_set(p_instance->p_reg, &xfer);
-#endif
 
     p_cb->next_buffers   = *p_buffers;
     p_cb->buffers_needed = false;
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 
-void nrfx_i2s_stop(nrfx_i2s_t const * p_instance)
+void nrfx_i2s_stop(nrfx_i2s_t * p_instance)
 {
-    nrfx_i2s_cb_t * p_cb = &m_cb[p_instance->drv_inst_idx];
+    NRFX_ASSERT(p_instance);
+
+    nrfx_i2s_control_block_t * p_cb = &p_instance->cb;
 
     NRFX_ASSERT(p_cb->state != NRFX_DRV_STATE_UNINITIALIZED);
 
     p_cb->buffers_needed = false;
 
-    // First disable interrupts, then trigger the STOP task, so no spurious
-    // RXPTRUPD and TXPTRUPD events (see nRF52 anomaly 55) are processed.
-    nrfy_i2s_int_disable(p_instance->p_reg, NRF_I2S_INT_RXPTRUPD_MASK |
-                                            NRF_I2S_INT_TXPTRUPD_MASK);
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 55))
+    {
+        // First disable interrupts, then trigger the STOP task, so no spurious
+        // RXPTRUPD and TXPTRUPD events are processed.
+        nrfy_i2s_int_disable(p_instance->p_reg, NRF_I2S_INT_RXPTRUPD_MASK |
+                                                NRF_I2S_INT_TXPTRUPD_MASK);
+    }
 
     nrfy_i2s_abort(p_instance->p_reg, NULL);
 
-#if NRFX_CHECK(USE_WORKAROUND_FOR_I2S_STOP_ANOMALY)
-    *((volatile uint32_t *)(((uint32_t)p_instance->p_reg) + 0x38)) = 1;
-    *((volatile uint32_t *)(((uint32_t)p_instance->p_reg) + 0x3C)) = 1;
-#endif
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 194) ||
+        NRF_ERRATA_DYNAMIC_CHECK(91, 1))
+    {
+        *((volatile uint32_t *)(((uint32_t)p_instance->p_reg) + 0x38)) = 1;
+        *((volatile uint32_t *)(((uint32_t)p_instance->p_reg) + 0x3C)) = 1;
+    }
 }
 
-static void irq_handler(NRF_I2S_Type * p_reg, nrfx_i2s_cb_t * p_cb)
+int nrfx_i2s_prescalers_calc(nrfx_i2s_clk_params_t const * clk_params,
+                             nrfx_i2s_prescalers_t *       prescalers)
 {
+    NRFX_ASSERT(clk_params);
+    NRFX_ASSERT(prescalers);
+
+    static const struct
+    {
+        uint16_t        ratio_val;
+        nrf_i2s_ratio_t ratio_enum;
+    } ratios[] =
+    {
+        {  32, NRF_I2S_RATIO_32X },
+        {  48, NRF_I2S_RATIO_48X },
+        {  64, NRF_I2S_RATIO_64X },
+        {  96, NRF_I2S_RATIO_96X },
+        { 128, NRF_I2S_RATIO_128X },
+        { 192, NRF_I2S_RATIO_192X },
+        { 256, NRF_I2S_RATIO_256X },
+        { 384, NRF_I2S_RATIO_384X },
+        { 512, NRF_I2S_RATIO_512X }
+	};
+
+    uint32_t best_diff = UINT32_MAX;
+    uint8_t best_r = 0;
+    nrf_i2s_mck_t best_mck_cfg = NRF_I2S_MCK_DISABLED;
+
+    if (clk_params->allow_bypass)
+    {
+#if NRF_I2S_HAS_CLKCONFIG
+        for (uint8_t r = 0; r < NRFX_ARRAY_SIZE(ratios); r++)
+        {
+            if (clk_params->transfer_rate * ratios[r].ratio_val == clk_params->base_clock_freq)
+            {
+                best_r = r;
+                best_diff = 0;
+                best_mck_cfg = NRF_I2S_MCK_32MDIV8;
+
+                prescalers->enable_bypass = true;
+
+                break;
+            }
+        }
+#else
+        NRFX_LOG_ERROR("Bypass mode not supported.");
+        return -ENOTSUP;
+#endif
+    }
+
+    for (uint8_t r = 0; (best_diff != 0) && (r < NRFX_ARRAY_SIZE(ratios)); r++)
+    {
+        if (!validate_config(NRF_I2S_MODE_MASTER, ratios[r].ratio_enum, clk_params->swidth))
+        {
+			continue;
+		}
+#if defined(I2S_MCKFREQ_FACTOR)
+        uint32_t requested_mck = clk_params->transfer_rate * ratios[r].ratio_val;
+
+        uint32_t mck_factor = (uint32_t)(((uint64_t)requested_mck * I2S_MCKFREQ_FACTOR) /
+                                        (clk_params->base_clock_freq + requested_mck / 2));
+
+        if (mck_factor > I2S_MCKFREQ_FACTOR)
+        {
+            continue;
+        }
+
+        uint32_t actual_mck = clk_params->base_clock_freq / (I2S_MCKFREQ_FACTOR / mck_factor);
+
+        uint32_t lrck_freq = actual_mck / ratios[r].ratio_val;
+        uint32_t diff = NRFX_DIFF(lrck_freq, clk_params->transfer_rate);
+
+        if (diff < best_diff)
+        {
+            best_mck_cfg = (nrf_i2s_mck_t)(mck_factor * 4096);
+            best_r = r;
+            best_diff = diff;
+        }
+#else
+        static const struct
+        {
+            uint8_t       divider_val;
+            nrf_i2s_mck_t divider_enum;
+        } dividers[] =
+        {
+            {   8, NRF_I2S_MCK_32MDIV8 },
+            {  10, NRF_I2S_MCK_32MDIV10 },
+            {  11, NRF_I2S_MCK_32MDIV11 },
+            {  15, NRF_I2S_MCK_32MDIV15 },
+            {  16, NRF_I2S_MCK_32MDIV16 },
+            {  21, NRF_I2S_MCK_32MDIV21 },
+            {  23, NRF_I2S_MCK_32MDIV23 },
+            {  30, NRF_I2S_MCK_32MDIV30 },
+            {  31, NRF_I2S_MCK_32MDIV31 },
+            {  32, NRF_I2S_MCK_32MDIV32 },
+            {  42, NRF_I2S_MCK_32MDIV42 },
+            {  63, NRF_I2S_MCK_32MDIV63 },
+            { 125, NRF_I2S_MCK_32MDIV125 }
+        };
+
+        for (uint8_t d = 0; (best_diff != 0) && (d < NRFX_ARRAY_SIZE(dividers)); d++)
+        {
+            uint32_t mck_freq = clk_params->base_clock_freq / dividers[d].divider_val;
+            uint32_t lrck_freq = mck_freq / ratios[r].ratio_val;
+            uint32_t diff = NRFX_DIFF(lrck_freq, clk_params->transfer_rate);
+
+            if (diff < best_diff)
+            {
+                best_mck_cfg = dividers[d].divider_enum;
+                best_r = r;
+                best_diff = diff;
+            }
+
+            if (lrck_freq < clk_params->transfer_rate)
+            {
+                break;
+            }
+        }
+#endif
+	}
+
+    if (best_diff == UINT32_MAX)
+    {
+        return -EINVAL;
+    }
+
+	prescalers->mck_setup = best_mck_cfg;
+	prescalers->ratio = ratios[best_r].ratio_enum;
+
+    return 0;
+}
+
+void nrfx_i2s_irq_handler(nrfx_i2s_t * p_instance)
+{
+    NRFX_ASSERT(p_instance);
+
+    NRF_I2S_Type * p_reg = p_instance->p_reg;
+    nrfx_i2s_control_block_t * p_cb = &p_instance->cb;
+
     uint32_t event_mask;
     nrfy_i2s_xfer_desc_t * p_xfer;
 
-#if NRFX_API_VER_AT_LEAST(3, 3, 0)
     p_xfer = &p_cb->current_buffers;
-#else
-    nrfy_i2s_xfer_desc_t xfer = {
-        .p_rx_buffer = p_cb->current_buffers.p_rx_buffer,
-        .p_tx_buffer = p_cb->current_buffers.p_tx_buffer,
-        .buffer_size = p_cb->buffer_size,
-    };
-    p_xfer = &xfer;
-#endif
 
     event_mask = nrfy_i2s_events_process(p_reg,
                                          NRFY_EVENT_TO_INT_BITMASK(NRF_I2S_EVENT_TXPTRUPD) |
@@ -625,11 +686,6 @@ static void irq_handler(NRF_I2S_Type * p_reg, nrfx_i2s_cb_t * p_cb)
                 p_cb->buffers_needed = true;
                 p_cb->handler(&released_buffers, NRFX_I2S_STATUS_NEXT_BUFFERS_NEEDED);
             }
-
         }
     }
 }
-
-NRFX_INSTANCE_IRQ_HANDLERS(I2S, i2s)
-
-#endif // NRFX_CHECK(NRFX_I2S_ENABLED)

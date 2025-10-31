@@ -71,10 +71,10 @@ typedef struct
  *                     Must not be NULL.
  * @param p_context    Context passed to event handler.
  *
- * @retval NRFX_SUCCESS       Initialization was successful.
- * @retval NRFX_ERROR_ALREADY Driver is already initialized.
+ * @retval 0         Initialization was successful.
+ * @retval -EALREADY Driver is already initialized.
  */
-nrfx_err_t nrfx_ipc_init(uint8_t irq_priority, nrfx_ipc_handler_t handler, void * p_context);
+int nrfx_ipc_init(uint8_t irq_priority, nrfx_ipc_handler_t handler, void * p_context);
 
 /**
  * @brief Function for loading configuration directly into IPC peripheral.

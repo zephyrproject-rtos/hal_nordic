@@ -50,7 +50,7 @@ PROJECT_NAME           = "nrfx"
 
 ### EDIT THIS ###
 
-PROJECT_NUMBER         = "3.14.0"
+PROJECT_NUMBER         = "4.0.0"
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -281,6 +281,7 @@ TAB_SIZE               = 4
 
 ALIASES                = "tagGreenTick=\htmlonly<CENTER><font color=\"green\">✔</font></CENTER>\endhtmlonly \xmlonly<verbatim>embed:rst:inline :green:`✔`</verbatim>\endxmlonly" \
                          "tagRedCross=\htmlonly<CENTER><font color=\"red\">✖</font></CENTER>\endhtmlonly \xmlonly<verbatim>embed:rst:inline :red:`✖`</verbatim>\endxmlonly" \
+                         "tagRedCrossNoCenter=\htmlonly<font color=\"red\">✖</font>\endhtmlonly \xmlonly<verbatim>embed:rst:inline :red:`✖`</verbatim>\endxmlonly" \
                          "nRF5340pinAssignmentsURL=\"https://infocenter.nordicsemi.com/index.jsp?topic=%2Fps_nrf5340%2Fchapters%2Fpin.html\"" \
                          "refhal{1}=\sa \1 \copydoc \1"
 
@@ -923,10 +924,11 @@ INPUT                  = config_dox \
                          ../drivers \
                          ../hal \
                          ../haly \
-                         ../soc \
+                         ../lib \
                          ../templates/nrfx_glue.h \
                          ../templates/nrfx_log.h \
                          ../CHANGELOG.md \
+                         nrfx_4_0_migration_guide.md \
                          .
 
 # This tag can be used to specify the character encoding of the source files

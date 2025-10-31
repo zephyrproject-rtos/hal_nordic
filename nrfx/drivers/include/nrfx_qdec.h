@@ -41,24 +41,12 @@
 extern "C" {
 #endif
 
-/* On devices with single instance (with no id) use instance 0. */
-#if defined(NRF_QDEC) && defined(NRFX_QDEC_ENABLED) && !defined(NRFX_QDEC0_ENABLED)
-#define NRFX_QDEC0_ENABLED 1
-#endif
-
 /**
  * @defgroup nrfx_qdec QDEC driver
  * @{
  * @ingroup nrf_qdec
  * @brief   Quadrature Decoder (QDEC) peripheral driver.
  */
-
-/** @brief Data structure of the Quadrature Decoder (QDEC) driver instance. */
-typedef struct
-{
-    NRF_QDEC_Type * p_reg;        ///< Pointer to a structure with QDEC registers.
-    uint8_t         drv_inst_idx; ///< Index of the driver instance. For internal use only.
-} nrfx_qdec_t;
 
 /** @brief QDEC driver instance configuration structure. */
 typedef struct
@@ -89,21 +77,6 @@ typedef struct
                                               *   fields that specify pins can be omitted,
                                               *   as they are ignored anyway. */
 } nrfx_qdec_config_t;
-
-#ifndef __NRFX_DOXYGEN__
-enum {
-    /* List all enabled driver instances (in the format NRFX_\<instance_name\>_INST_IDX). */
-    NRFX_INSTANCE_ENUM_LIST(QDEC)
-    NRFX_QDEC_ENABLED_COUNT
-};
-#endif
-
-/** @brief Macro for creating an instance of the QDEC driver. */
-#define NRFX_QDEC_INSTANCE(id)                               \
-{                                                            \
-    .p_reg        = NRFX_CONCAT(NRF_, QDEC, id),             \
-    .drv_inst_idx = NRFX_CONCAT(NRFX_QDEC, id, _INST_IDX),   \
-}
 
 /**
  * @brief QDEC driver default configuration.
@@ -167,6 +140,31 @@ typedef struct
  */
 typedef void (*nrfx_qdec_event_handler_t)(nrfx_qdec_event_t event, void * p_context);
 
+/** @cond Driver internal data. */
+typedef struct
+{
+    nrfx_qdec_event_handler_t handler;
+    void *                    p_context;
+    nrfx_drv_state_t volatile state;
+    uint32_t                  flags;
+    bool                      skip_gpio_cfg;
+} nrfx_qdec_control_block_t;
+/** @endcond */
+
+/** @brief PWM driver instance data structure. */
+typedef struct
+{
+    NRF_QDEC_Type *           p_reg; ///< Pointer to the structure of registers of the peripheral.
+    nrfx_qdec_control_block_t cb;    ///< Driver internal data.
+} nrfx_qdec_t;
+
+/** @brief Macro for creating a QDEC driver instance. */
+#define NRFX_QDEC_INSTANCE(reg)    \
+{                                  \
+    .p_reg = (NRF_QDEC_Type *)reg, \
+    .cb = {0},                     \
+}
+
 /**
  * @brief Function for initializing QDEC.
  *
@@ -175,15 +173,13 @@ typedef void (*nrfx_qdec_event_handler_t)(nrfx_qdec_event_t event, void * p_cont
  * @param[in] handler    Event handler provided by the user. Must not be NULL.
  * @param[in] p_context  Context passed to event handler.
  *
- * @retval NRFX_SUCCESS             Initialization was successful.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
+ * @retval 0         Initialization was successful.
+ * @retval -EALREADY The driver is already initialized.
  */
-nrfx_err_t nrfx_qdec_init(nrfx_qdec_t const *        p_instance,
-                          nrfx_qdec_config_t const * p_config,
-                          nrfx_qdec_event_handler_t  handler,
-                          void *                     p_context);
+int nrfx_qdec_init(nrfx_qdec_t *              p_instance,
+                   nrfx_qdec_config_t const * p_config,
+                   nrfx_qdec_event_handler_t  handler,
+                   void *                     p_context);
 
 /**
  * @brief Function for reconfiguring QDEC.
@@ -191,12 +187,12 @@ nrfx_err_t nrfx_qdec_init(nrfx_qdec_t const *        p_instance,
  * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] p_config   Pointer to the structure with the configuration.
  *
- * @retval NRFX_SUCCESS             Reconfiguration was successful.
- * @retval NRFX_ERROR_BUSY          The driver is enabled and cannot be reconfigured.
- * @retval NRFX_ERROR_INVALID_STATE The driver is uninitialized.
+ * @retval 0            Reconfiguration was successful.
+ * @retval -EBUSY       The driver is enabled and cannot be reconfigured.
+ * @retval -EINPROGRESS The driver is uninitialized.
  */
-nrfx_err_t nrfx_qdec_reconfigure(nrfx_qdec_t const *        p_instance,
-                                 nrfx_qdec_config_t const * p_config);
+int nrfx_qdec_reconfigure(nrfx_qdec_t *              p_instance,
+                          nrfx_qdec_config_t const * p_config);
 
 /**
  * @brief Function for uninitializing QDEC.
@@ -205,7 +201,7 @@ nrfx_err_t nrfx_qdec_reconfigure(nrfx_qdec_t const *        p_instance,
  *
  * @param[in]  p_instance Pointer to the driver instance structure.
  */
-void nrfx_qdec_uninit(nrfx_qdec_t const * p_instance);
+void nrfx_qdec_uninit(nrfx_qdec_t * p_instance);
 
 /**
  * @brief Function for checking if the QDEC driver instance is initialized.
@@ -224,7 +220,7 @@ bool nrfx_qdec_init_check(nrfx_qdec_t const * p_instance);
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrfx_qdec_enable(nrfx_qdec_t const * p_instance);
+void nrfx_qdec_enable(nrfx_qdec_t * p_instance);
 
 /**
  * @brief Function for disabling QDEC.
@@ -233,7 +229,7 @@ void nrfx_qdec_enable(nrfx_qdec_t const * p_instance);
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrfx_qdec_disable(nrfx_qdec_t const * p_instance);
+void nrfx_qdec_disable(nrfx_qdec_t * p_instance);
 
 /**
  * @brief Function for reading accumulated transitions from the QDEC peripheral.
@@ -285,22 +281,15 @@ NRFX_STATIC_INLINE uint32_t nrfx_qdec_event_address_get(nrfx_qdec_t const * p_in
 }
 #endif // NRFX_DECLARE_ONLY
 
-/** @} */
-
-/*
- * Declare interrupt handlers for all enabled driver instances in the following format:
- * nrfx_\<periph_name\>_\<idx\>_irq_handler (for example, nrfx_qdec_0_irq_handler).
+/**
+ * @brief Driver interrupt handler.
  *
- * A specific interrupt handler for the driver instance can be retrieved by using
- * the NRFX_QDEC_INST_HANDLER_GET macro.
- *
- * Here is a sample of using the NRFX_QDEC_INST_HANDLER_GET macro to map an interrupt handler
- * in a Zephyr application:
- *
- * IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_QDEC_INST_GET(\<instance_index\>)), \<priority\>,
- *             NRFX_QDEC_INST_HANDLER_GET(\<instance_index\>), 0, 0);
+ * @param[in] p_instance Pointer to the driver instance structure.
  */
-NRFX_INSTANCE_IRQ_HANDLERS_DECLARE(QDEC, qdec)
+
+void nrfx_qdec_irq_handler(nrfx_qdec_t * p_instance);
+
+/** @} */
 
 #ifdef __cplusplus
 }

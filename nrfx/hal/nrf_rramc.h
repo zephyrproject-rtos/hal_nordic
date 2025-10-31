@@ -48,6 +48,27 @@ extern "C" {
  * @brief   Hardware access layer for managing the the Resistive Random Access Memory Controller (RRAMC) peripheral.
  */
 
+#if defined(RRAMC_REGION_CONFIG_SECURE_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether RRAM controller has secure-only access configuration. */
+#define NRF_RRAMC_HAS_SECURE_CONFIG 1
+#else
+#define NRF_RRAMC_HAS_SECURE_CONFIG 0
+#endif
+
+#if defined(RRAMC_POWER_LOWPOWERCONFIG_MODE_NAP) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether RRAM controller has nap mode. */
+#define NRF_RRAMC_HAS_LP_MODE_NAP 1
+#else
+#define NRF_RRAMC_HAS_LP_MODE_NAP 0
+#endif
+
+#if defined(RRAMC_POWER_LOWPOWERCONFIG_MODE_PowerDown) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether RRAM controller has power down mode. */
+#define NRF_RRAMC_HAS_LP_MODE_POWER_DOWN 1
+#else
+#define NRF_RRAMC_HAS_LP_MODE_POWER_DOWN 0
+#endif
+
 /** @brief Maximum size of a write-buffer in number of 128-bit words. */
 #define NRF_RRAMC_CONFIG_WRITE_BUFF_SIZE_MAX RRAMC_CONFIG_WRITEBUFSIZE_Max
 
@@ -55,10 +76,11 @@ extern "C" {
 #define NRF_RRAMC_READYNEXTTIMEOUT_MAX RRAMC_READYNEXTTIMEOUT_VALUE_Max
 
 /** @brief RRAMC region permissions bitmask. */
-#define NRF_RRAMC_REGION_CONFIG_PERM_MASK (RRAMC_REGION_CONFIG_READ_Msk    | \
-                                           RRAMC_REGION_CONFIG_WRITE_Msk   | \
-                                           RRAMC_REGION_CONFIG_EXECUTE_Msk | \
-                                           RRAMC_REGION_CONFIG_SECURE_Msk)
+#define NRF_RRAMC_REGION_CONFIG_PERM_MASK (RRAMC_REGION_CONFIG_READ_Msk    |                        \
+                                           RRAMC_REGION_CONFIG_WRITE_Msk   |                        \
+                                           RRAMC_REGION_CONFIG_EXECUTE_Msk |                        \
+                                           NRFX_COND_CODE_1(NRF_RRAMC_HAS_SECURE_CONFIG,            \
+                                                            (RRAMC_REGION_CONFIG_SECURE_Msk), (0))) \
 
 /** @brief RRAMC tasks. */
 typedef enum
@@ -88,6 +110,20 @@ typedef enum
                                     | NRF_RRAMC_INT_READY_NEXT_MASK
                                     | NRF_RRAMC_INT_ERROR_ACCESS_MASK ///< All RRAMC interrupts.
 } nrf_rramc_int_mask_t;
+
+/** @brief RRAMC low power modes. */
+typedef enum
+{
+#if NRF_RRAMC_HAS_LP_MODE_POWER_DOWN
+    NRF_RRAMC_LP_POWER_DOWN = RRAMC_POWER_LOWPOWERCONFIG_MODE_PowerDown, ///< The RRAM goes into power down mode.
+#endif
+    NRF_RRAMC_LP_STANDBY    = RRAMC_POWER_LOWPOWERCONFIG_MODE_Standby,   /**< The RRAM automatically goes into standby mode while the RRAM is
+                                                                          *   not being accessed. */
+#if NRF_RRAMC_HAS_LP_MODE_NAP
+    NRF_RRAMC_LP_NAP        = RRAMC_POWER_LOWPOWERCONFIG_MODE_NAP,       ///< The RRAM goes into NAP mode.
+#endif
+    NRF_RRAMC_LP_POWER_OFF  = RRAMC_POWER_LOWPOWERCONFIG_MODE_PowerOff,  ///< The RRAM is powered off.
+} nrf_rramc_lp_mode_t;
 
 /** @brief RRAMC configuration structure. */
 typedef struct
@@ -120,7 +156,9 @@ typedef enum
     NRF_RRAMC_REGION_PERM_READ_MASK    = RRAMC_REGION_CONFIG_READ_Msk,    ///< Read access.
     NRF_RRAMC_REGION_PERM_WRITE_MASK   = RRAMC_REGION_CONFIG_WRITE_Msk,   ///< Write access.
     NRF_RRAMC_REGION_PERM_EXECUTE_MASK = RRAMC_REGION_CONFIG_EXECUTE_Msk, ///< Software execute.
+#if NRF_RRAMC_HAS_SECURE_CONFIG
     NRF_RRAMC_REGION_PERM_SECURE_MASK  = RRAMC_REGION_CONFIG_SECURE_Msk,  ///< Secure-only access.
+#endif
 } nrf_rramc_region_perm_mask_t;
 
 /** @brief RRAMC region configuration. */
@@ -545,9 +583,15 @@ NRF_STATIC_INLINE uint32_t nrf_rramc_word_read(uint32_t address);
  * @param[in] dst       Pointer to the buffer to store the data.
  * @param[in] address   Address of the first byte to read.
  * @param[in] num_bytes Number of bytes to read.
- *
  */
 NRF_STATIC_INLINE void nrf_rramc_buffer_read(void * dst, uint32_t address, uint32_t num_bytes);
+
+/**
+ * @brief Function for setting RRAMC low power mode.
+ *
+ * @param[in] mode RRAMC low power mode.
+ */
+NRF_STATIC_INLINE void nrf_rramc_lp_mode_set(nrf_rramc_lp_mode_t mode);
 
 #ifndef NRF_DECLARE_ONLY
 
@@ -813,6 +857,14 @@ NRF_STATIC_INLINE uint32_t nrf_rramc_word_read(uint32_t address)
 NRF_STATIC_INLINE void nrf_rramc_buffer_read(void * dst, uint32_t address, uint32_t num_bytes)
 {
     memcpy(dst, (void *)address, num_bytes);
+}
+
+NRF_STATIC_INLINE void nrf_rramc_lp_mode_set(nrf_rramc_lp_mode_t mode)
+{
+    NRF_RRAMC->POWER.LOWPOWERCONFIG = (NRF_RRAMC->POWER.LOWPOWERCONFIG &
+                                       ~RRAMC_POWER_LOWPOWERCONFIG_MODE_Msk) |
+                                       (((uint32_t)mode << RRAMC_POWER_LOWPOWERCONFIG_MODE_Pos) &
+                                       RRAMC_POWER_LOWPOWERCONFIG_MODE_Msk);
 }
 
 #endif // NRF_DECLARE_ONLY
