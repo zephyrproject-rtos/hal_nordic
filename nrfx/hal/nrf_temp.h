@@ -298,17 +298,7 @@ NRF_STATIC_INLINE bool nrf_temp_event_check(NRF_TEMP_Type const * p_reg, nrf_tem
 
 NRF_STATIC_INLINE int32_t nrf_temp_result_get(NRF_TEMP_Type const * p_reg)
 {
-    int32_t raw_measurement = p_reg->TEMP;
-
-#if defined(NRF51)
-    /* Apply workaround for the nRF51 series anomaly 28 - TEMP: Negative measured values are not represented correctly. */
-    if ((raw_measurement & 0x00000200) != 0)
-    {
-        raw_measurement |= (int32_t)0xFFFFFC00;
-    }
-#endif
-
-    return raw_measurement;
+    return p_reg->TEMP;
 }
 
 #if NRF_TEMP_HAS_CALIBRATION

@@ -35,7 +35,6 @@
 #define NRF_RESET_H__
 
 #include <nrfx.h>
-#include <nrf_erratas.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,18 +47,11 @@ extern "C" {
  * @brief   Hardware access layer for managing the RESET peripheral.
  */
 
-#if defined(NRF5340_XXAA_NETWORK) || defined(__NRFX_DOXYGEN__)
-/** @brief Presence of Network core RESET functionality. */
+#if defined(RESET_NETWORK_FORCEOFF_FORCEOFF_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Presence of Network core resetting functionality. */
 #define NRF_RESET_HAS_NETWORK 1
 #else
 #define NRF_RESET_HAS_NETWORK 0
-#endif
-
-#if defined(NRF5340_XXAA_APPLICATION) || defined(__NRFX_DOXYGEN__)
-/** @brief Presence of Application core RESET functionality. */
-#define NRF_RESET_HAS_APPLICATION 1
-#else
-#define NRF_RESET_HAS_APPLICATION 0
 #endif
 
 #if defined(RESET_RESETREAS_NFC_Msk) || defined(__NRFX_DOXYGEN__)
@@ -109,6 +101,20 @@ extern "C" {
 #define NRF_RESET_HAS_LPCOMP_RESET 1
 #else
 #define NRF_RESET_HAS_LPCOMP_RESET 0
+#endif
+
+#if defined(RESET_RESETREAS_LSREQ_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether LSREQ reset is present. */
+#define NRF_RESET_HAS_LSREQ_RESET 1
+#else
+#define NRF_RESET_HAS_LSREQ_RESET 0
+#endif
+
+#if defined(RESET_RESETREAS_LCTRLAP_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether LCTRLAP reset is present. */
+#define NRF_RESET_HAS_LCTRLAP_RESET 1
+#else
+#define NRF_RESET_HAS_LCTRLAP_RESET 0
 #endif
 
 #if defined(RESET_RESETREAS_LLOCKUP_Msk) || defined(__NRFX_DOXYGEN__)
@@ -174,7 +180,7 @@ typedef enum
 #if NRF_RESET_HAS_LPCOMP_RESET
     NRF_RESET_RESETREAS_LPCOMP_MASK     = RESET_RESETREAS_LPCOMP_Msk,     ///< Bit mask of LPCOMP field.
 #endif
-#if NRF_RESET_HAS_NETWORK
+#if NRF_RESET_HAS_LSREQ_RESET
     NRF_RESET_RESETREAS_LSREQ_MASK      = RESET_RESETREAS_LSREQ_Msk,      ///< Bit mask of LSREQ field.
 #endif
 #if NRF_RESET_HAS_LLOCKUP_RESET
@@ -192,7 +198,7 @@ typedef enum
 #if NRF_RESET_HAS_VBUS_RESET
     NRF_RESET_RESETREAS_VBUS_MASK       = RESET_RESETREAS_VBUS_Msk,       ///< Bit mask of VBUS field.
 #endif
-#if NRF_RESET_HAS_NETWORK
+#if NRF_RESET_HAS_LCTRLAP_RESET
     NRF_RESET_RESETREAS_LCTRLAP_MASK    = RESET_RESETREAS_LCTRLAP_Msk,    ///< Bit mask of LCTRLAP field.
 #endif
 #if NRF_RESET_HAS_SECTAMPER_RESET
@@ -222,7 +228,7 @@ NRF_STATIC_INLINE uint32_t nrf_reset_resetreas_get(NRF_RESET_Type const * p_reg)
  */
 NRF_STATIC_INLINE void nrf_reset_resetreas_clear(NRF_RESET_Type * p_reg, uint32_t mask);
 
-#if NRF_RESET_HAS_APPLICATION
+#if NRF_RESET_HAS_NETWORK
 /**
  * @brief Function for setting the force off signal for the Network core.
  *
@@ -233,7 +239,7 @@ NRF_STATIC_INLINE void nrf_reset_resetreas_clear(NRF_RESET_Type * p_reg, uint32_
  *                  False if the force off signal is to be released.
  */
 NRF_STATIC_INLINE void nrf_reset_network_force_off(NRF_RESET_Type * p_reg, bool hold);
-#endif // NRF_RESET_HAS_APPLICATION
+#endif // NRF_RESET_HAS_NETWORK
 
 #ifndef NRF_DECLARE_ONLY
 
@@ -247,7 +253,7 @@ NRF_STATIC_INLINE void nrf_reset_resetreas_clear(NRF_RESET_Type * p_reg, uint32_
     p_reg->RESETREAS = mask;
 }
 
-#if NRF_RESET_HAS_APPLICATION
+#if NRF_RESET_HAS_NETWORK
 NRF_STATIC_INLINE void nrf_reset_network_force_off(NRF_RESET_Type * p_reg, bool hold)
 {
     if (hold)
@@ -255,8 +261,7 @@ NRF_STATIC_INLINE void nrf_reset_network_force_off(NRF_RESET_Type * p_reg, bool 
         p_reg->NETWORK.FORCEOFF = RESET_NETWORK_FORCEOFF_FORCEOFF_Hold <<
                                   RESET_NETWORK_FORCEOFF_FORCEOFF_Pos;
     }
-#if NRFX_CHECK(NRF53_ERRATA_161_ENABLE_WORKAROUND)
-    else if (nrf53_errata_161())
+    else if (NRF_ERRATA_DYNAMIC_CHECK(53, 161))
     {
         *(volatile uint32_t *)((uint8_t *)p_reg + 0x618UL) = 1UL;
         p_reg->NETWORK.FORCEOFF = RESET_NETWORK_FORCEOFF_FORCEOFF_Release <<
@@ -269,14 +274,13 @@ NRF_STATIC_INLINE void nrf_reset_network_force_off(NRF_RESET_Type * p_reg, bool 
                                   RESET_NETWORK_FORCEOFF_FORCEOFF_Pos;
         *(volatile uint32_t *)((uint8_t *)p_reg + 0x618UL) = 0UL;
     }
-#endif
     else
     {
         p_reg->NETWORK.FORCEOFF = RESET_NETWORK_FORCEOFF_FORCEOFF_Release <<
                                   RESET_NETWORK_FORCEOFF_FORCEOFF_Pos;
     }
 }
-#endif // NRF_RESET_HAS_APPLICATION
+#endif // NRF_RESET_HAS_NETWORK
 
 #endif // NRF_DECLARE_ONLY
 

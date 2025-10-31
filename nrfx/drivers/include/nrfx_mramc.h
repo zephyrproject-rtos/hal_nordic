@@ -61,6 +61,8 @@ typedef struct
     nrf_mramc_config_t              config;          ///< Mode of MRAMC configuration.
     nrf_mramc_readynext_timeout_t   preload_timeout; ///< Ready next timeout value for waiting for a next write.
     nrf_mramc_power_autopowerdown_t powerdown;       ///< MRAMC powerdown configuration.
+    nrf_mramc_lowavgcurr_t          lowavgcurr;      /**< Preload timeout value for low average current
+                                                      *   in case of read, write, and erase. */
     uint8_t                         irq_priority;    ///< Interrupt priority.
 } nrfx_mramc_config_t;
 
@@ -78,11 +80,12 @@ typedef struct
  * - Write mode disabled
  * - Erase mode disabled
  * - ECC enabled (if present)
- * - Preload timeout value: 0x80
+ * - Preload timeout value: 0x0
  * - Write to the MRAM backed-to-backed on the next preload timeout in direct mode enabled
  * - Automatic power-down feature disabled
  * - Entering power-down mode when the timeout happens disabled
- * - Access timeout: 0x100
+ * - Access timeout: 0x0
+ * - Low average current read, write, and erase preload timeout values: 0x0
  */
 #define NRFX_MRAMC_DEFAULT_CONFIG()                                   \
 {                                                                     \
@@ -92,13 +95,18 @@ typedef struct
         NRFX_MRAMC_CONFIG_DISABLEECC                                  \
     },                                                                \
     .preload_timeout        = {                                       \
-        .value              = 0x80,                                   \
+        .value              = NRF_MRAMC_READYNEXTTIMEOUT_DEFAULT,     \
         .direct_write       = true,                                   \
     },                                                                \
     .powerdown              = {                                       \
         .enable             = false,                                  \
         .power_down_cfg     = false,                                  \
-        .timeout_value      = 0x100,                                  \
+        .timeout_value      = NRF_MRAMC_AUTOPOWERDOWN_TIMEOUT_MIN,    \
+    },                                                                \
+    .lowavgcurr            = {                                        \
+        .read               = NRF_MRAMC_LOWAVGCURR_READ_MIN,          \
+        .write              = NRF_MRAMC_LOWAVGCURR_WRITE_MIN,         \
+        .erase              = NRF_MRAMC_LOWAVGCURR_ERASE_MIN,         \
     },                                                                \
     .irq_priority           = NRFX_MRAMC_DEFAULT_CONFIG_IRQ_PRIORITY, \
 }
@@ -191,26 +199,39 @@ void nrfx_mramc_config_write_mode_set(nrf_mramc_mode_write_t write_mode);
 void nrfx_mramc_config_erase_mode_set(nrf_mramc_mode_erase_t erase_mode);
 
 /**
+ * @brief Function for setting the MRAMC NVR page write and erase permission,
+ *
+ * @note: Setting enable allows @ref nrf_mramc_readynext_timeout_t diret_write
+ *        and preload_timeout to minimum, @ref nrf_mramc_config_nvr_t PAGE[n] to
+ *        be writtable and erasable.
+ *
+ * @param[in] enable True to enable write and erase permission of
+ *                   CONFIGNVR.PAGE[n], false to disable.
+ * @param[in] page   Page number of CONFIGNVR.PAGE[0...n].
+ */
+void nrfx_mramc_confignvr_perm_set(bool enable, uint8_t page);
+
+/**
  * @brief Function for initializing the MRAMC driver instance.
  *
  * @param[in] p_config Pointer to the structure containing configuration.
  * @param[in] handler  Event handler provided by the user.
  *
- * @retval NRFX_SUCCESS       Initialization was successful.
- * @retval NRFX_ERROR_ALREADY The driver has already been initialized.
+ * @retval 0         Initialization was successful.
+ * @retval -EALREADY The driver has already been initialized.
  */
-nrfx_err_t nrfx_mramc_init(nrfx_mramc_config_t const * p_config,
-                           nrfx_mramc_evt_handler_t    handler);
+int nrfx_mramc_init(nrfx_mramc_config_t const * p_config,
+                    nrfx_mramc_evt_handler_t    handler);
 
 /**
  * @brief Function for reconfiguring the MRAMC driver instance.
  *
  * @param[in] p_config Pointer to the structure containing configuration.
  *
- * @retval NRFX_SUCCESS             Reconfiguration was successful.
- * @retval NRFX_ERROR_INVALID_STATE The driver is uninitialized.
+ * @retval 0            Reconfiguration was successful.
+ * @retval -EINPROGRESS The driver is uninitialized.
  */
-nrfx_err_t nrfx_mramc_reconfigure(nrfx_mramc_config_t const * p_config);
+int nrfx_mramc_reconfigure(nrfx_mramc_config_t const * p_config);
 
 /** @brief Function for uninitializing the MRAMC driver instance. */
 void nrfx_mramc_uninit(void);

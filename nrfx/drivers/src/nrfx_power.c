@@ -32,9 +32,6 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_POWER_ENABLED)
-
 #include <nrfx_power.h>
 
 #if NRFX_CHECK(NRFX_CLOCK_ENABLED)
@@ -112,12 +109,12 @@ nrfx_power_usb_event_handler_t nrfx_power_usb_handler_get(void)
 }
 #endif
 
-nrfx_err_t nrfx_power_init(nrfx_power_config_t const * p_config)
+int nrfx_power_init(nrfx_power_config_t const * p_config)
 {
     NRFX_ASSERT(p_config);
     if (m_initialized)
     {
-        return NRFX_ERROR_ALREADY;
+        return -EALREADY;
     }
 
 #if NRF_POWER_HAS_DCDCEN_VDDH
@@ -130,18 +127,12 @@ nrfx_err_t nrfx_power_init(nrfx_power_config_t const * p_config)
     nrf_power_dcdcen_set(NRF_POWER, p_config->dcdcen);
 #elif defined(REGULATORS_PRESENT)
     nrf_regulators_vreg_enable_set(NRF_REGULATORS, NRF_REGULATORS_VREG_MAIN, p_config->dcdcen);
-#if !defined(NRF_TRUSTZONE_NONSECURE)
-    if (p_config->dcdcen && nrf53_errata_53())
-    {
-        *((volatile uint32_t *)0x50004728ul) = 0x1;
-    }
-#endif
 #endif // defined(REGULATORS_PRESENT)
 
     nrfx_power_clock_irq_init();
 
     m_initialized = true;
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 
@@ -153,7 +144,7 @@ void nrfx_power_uninit(void)
     if (!nrfx_clock_irq_enabled)
 #endif
     {
-#if defined(NRF54L05_XXAA) || defined(NRF54L10_XXAA) || defined(NRF54L15_XXAA)
+#if defined(CLOCK_STATIC_IRQ)
         IRQn_Type irqn = CLOCK_POWER_IRQn;
 #else
         IRQn_Type irqn = nrfx_get_irq_number(NRF_POWER);
@@ -282,11 +273,11 @@ void nrfx_power_sleepevt_uninit(void)
 #endif /* NRF_POWER_HAS_SLEEPEVT */
 
 #if (NRF_POWER_HAS_CONST_LATENCY && NRF_POWER_HAS_LOW_POWER)
-nrfx_err_t nrfx_power_constlat_mode_request(void)
+int nrfx_power_constlat_mode_request(void)
 {
     NRFX_ASSERT(m_power_mode_refs != UINT8_MAX);
 
-    nrfx_err_t err_code = NRFX_ERROR_ALREADY;
+    int err_code = -EALREADY;
     NRFX_CRITICAL_SECTION_ENTER();
 
     m_power_mode_refs++;
@@ -294,18 +285,18 @@ nrfx_err_t nrfx_power_constlat_mode_request(void)
     if (m_power_mode_refs == 1)
     {
         nrf_power_task_trigger(NRF_POWER, NRF_POWER_TASK_CONSTLAT);
-        err_code = NRFX_SUCCESS;
+        err_code = 0;
     }
     NRFX_CRITICAL_SECTION_EXIT();
 
     return err_code;
 }
 
-nrfx_err_t nrfx_power_constlat_mode_free(void)
+int nrfx_power_constlat_mode_free(void)
 {
     NRFX_ASSERT(m_power_mode_refs != 0);
 
-    nrfx_err_t err_code = NRFX_ERROR_BUSY;
+    int err_code = -EBUSY;
     NRFX_CRITICAL_SECTION_ENTER();
 
     m_power_mode_refs--;
@@ -313,7 +304,7 @@ nrfx_err_t nrfx_power_constlat_mode_free(void)
     if (m_power_mode_refs == 0)
     {
         nrf_power_task_trigger(NRF_POWER, NRF_POWER_TASK_LOWPWR);
-        err_code = NRFX_SUCCESS;
+        err_code = 0;
     }
     NRFX_CRITICAL_SECTION_EXIT();
 
@@ -435,5 +426,3 @@ void nrfx_power_clock_irq_handler(void)
     nrfx_clock_irq_handler();
 }
 #endif
-
-#endif // NRFX_CHECK(NRFX_POWER_ENABLED)

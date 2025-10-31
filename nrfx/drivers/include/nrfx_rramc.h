@@ -180,21 +180,21 @@ bool nrfx_rramc_write_enable_check(void);
  * @param[in] p_config Pointer to the structure containing configuration.
  * @param[in] handler  Event handler provided by the user.
  *
- * @retval NRFX_SUCCESS       Initialization was successful.
- * @retval NRFX_ERROR_ALREADY The driver has already been initialized.
+ * @retval 0         Initialization was successful.
+ * @retval -EALREADY The driver has already been initialized.
  */
-nrfx_err_t nrfx_rramc_init(nrfx_rramc_config_t const * p_config,
-                           nrfx_rramc_evt_handler_t    handler);
+int nrfx_rramc_init(nrfx_rramc_config_t const * p_config,
+                    nrfx_rramc_evt_handler_t    handler);
 
 /**
  * @brief Function for reconfiguring the RRAMC driver instance.
  *
  * @param[in] p_config Pointer to the structure containing configuration.
  *
- * @retval NRFX_SUCCESS             Reconfiguration was successful.
- * @retval NRFX_ERROR_INVALID_STATE The driver is uninitialized.
+ * @retval 0            Reconfiguration was successful.
+ * @retval -EINPROGRESS The driver is uninitialized.
  */
-nrfx_err_t nrfx_rramc_reconfigure(nrfx_rramc_config_t const * p_config);
+int nrfx_rramc_reconfigure(nrfx_rramc_config_t const * p_config);
 
 /** @brief Function for uninitializing the RRAMC driver instance. */
 void nrfx_rramc_uninit(void);
@@ -239,10 +239,9 @@ NRFX_STATIC_INLINE uint32_t nrfx_rramc_otp_word_read(uint32_t index);
 /**
  * @brief Function for writing a 32-bit word at index position to OTP region in UICR.
  *
- * The OTP is only able to write '0' to bits in the UICR that are erased (set to '1').
- * It cannot rewrite a bit back to '1'. This function checks if the value currently
- * residing at the specified index can be transformed to the desired value
- * without any '0' to '1' transitions. If yes, then perform the write operation.
+ * The OTP can only be written once after each Erase All is performed.
+ * This function checks if the value currently residing at the specified index can
+ * be transformed to the desired value. If yes, then performs the write operation.
  *
  * @param[in] index Address (index) in OTP table to which a word it to be written.
  * @param[in] value Value to be written.

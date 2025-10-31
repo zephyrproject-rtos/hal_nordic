@@ -137,21 +137,15 @@ typedef enum
  * @brief Function for configuring the SYSCOUNTER sleep feature.
  *
  * @param[in] p_sleep_cfg Pointer to the configuration sleep structure.
- *
- * @retval NRFX_SUCCESS             The procedure was successful.
- * @retval NRFX_ERROR_NOT_SUPPORTED The sleep feature is not supported.
-*/
-nrfx_err_t nrfx_grtc_sleep_configure(nrfx_grtc_sleep_config_t const * p_sleep_cfg);
+ */
+void nrfx_grtc_sleep_configure(nrfx_grtc_sleep_config_t const * p_sleep_cfg);
 
 /**
  * @brief Function for getting the SYSCOUNTER sleep configuration.
  *
  * @param[out] p_sleep_cfg Pointer to the structure to be filled with sleep configuration.
- *
- * @retval NRFX_SUCCESS             The procedure was successful.
- * @retval NRFX_ERROR_NOT_SUPPORTED The sleep feature is not supported.
-*/
-nrfx_err_t nrfx_grtc_sleep_configuration_get(nrfx_grtc_sleep_config_t * p_sleep_cfg);
+ */
+void nrfx_grtc_sleep_configuration_get(nrfx_grtc_sleep_config_t * p_sleep_cfg);
 #endif // NRFY_GRTC_HAS_EXTENDED || defined(__NRFX_DOXYGEN__)
 
 /**
@@ -164,10 +158,10 @@ nrfx_err_t nrfx_grtc_sleep_configuration_get(nrfx_grtc_sleep_config_t * p_sleep_
  *
  * @param[out] p_channel Pointer to the capture/compare channel.
  *
- * @retval NRFX_SUCCESS      Allocation was successful.
- * @retval NRFX_ERROR_NO_MEM No resource available.
+ * @retval 0       Allocation was successful.
+ * @retval -ENOMEM No resource available.
  */
-nrfx_err_t nrfx_grtc_channel_alloc(uint8_t * p_channel);
+int nrfx_grtc_channel_alloc(uint8_t * p_channel);
 
 /**
  * @brief Function for setting a callback to a channel.
@@ -193,11 +187,11 @@ void nrfx_grtc_channel_callback_set(uint8_t                channel,
  *
  * @param[in] channel Allocated channel to be freed.
  *
- * @retval NRFX_SUCCESS             Allocation was successful.
- * @retval NRFX_ERROR_FORBIDDEN     The domain is not allowed to use specified @p channel.
- * @retval NRFX_ERROR_INVALID_PARAM Channel is not allocated.
+ * @retval 0       Allocation was successful.
+ * @retval -EPERM  The domain is not allowed to use specified @p channel.
+ * @retval -EINVAL Channel is not allocated.
  */
-nrfx_err_t nrfx_grtc_channel_free(uint8_t channel);
+int nrfx_grtc_channel_free(uint8_t channel);
 
 /**
  * @brief Function for checking whether the specified channel is used by the driver.
@@ -216,23 +210,21 @@ bool nrfx_grtc_is_channel_used(uint8_t channel);
  *
  * @param[in] interrupt_priority Interrupt priority.
  *
- * @retval NRFX_SUCCESS             Initialization was successful.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
- * @retval NRFX_ERROR_INTERNAL      No valid channel configuration provided.
+ * @retval 0          Initialization was successful.
+ * @retval -EALREADY  The driver is already initialized.
+ * @retval -ECANCELED No valid channel configuration provided.
  */
-nrfx_err_t nrfx_grtc_init(uint8_t interrupt_priority);
+int nrfx_grtc_init(uint8_t interrupt_priority);
 
 #if NRF_GRTC_HAS_RTCOUNTER || defined(__NRFX_DOXYGEN__)
 /**
  * @brief Function for disabling the RTCOUNTER CC channel.
  *
- * @retval NRFX_SUCCESS        The procedure was successful.
- * @retval NRFX_ERROR_INTERNAL The SYSCOUNTER (1 MHz) is running and the operation is not allowed.
- * @retval NRFX_ERROR_TIMEOUT  RTCOUNTER compare interrupt is pending.
+ * @retval 0          The procedure was successful.
+ * @retval -ECANCELED The SYSCOUNTER (1 MHz) is running and the operation is not allowed.
+ * @retval -ETIMEDOUT RTCOUNTER compare interrupt is pending.
  */
-nrfx_err_t nrfx_grtc_rtcounter_cc_disable(void);
+int nrfx_grtc_rtcounter_cc_disable(void);
 
 /**
  * @brief Function for enabling the RTCOMPARESYNC interrupt.
@@ -255,13 +247,13 @@ void nrfx_grtc_rtcomparesync_int_disable(void);
  * @param[in] sync         True if the internal synchronization mechanism shall be used,
  *                         false otherwise.
  *
- * @retval NRFX_SUCCESS        The procedure was successful.
- * @retval NRFX_ERROR_INTERNAL The SYSCOUNTER (1 MHz) is running and the operation is not allowed.
+ * @retval 0          The procedure was successful.
+ * @retval -ECANCELED The SYSCOUNTER (1 MHz) is running and the operation is not allowed.
  */
-nrfx_err_t nrfx_grtc_rtcounter_cc_absolute_set(nrfx_grtc_rtcounter_handler_data_t * handler_data,
-                                               uint64_t                             val,
-                                               bool                                 enable_irq,
-                                               bool                                 sync);
+int nrfx_grtc_rtcounter_cc_absolute_set(nrfx_grtc_rtcounter_handler_data_t * handler_data,
+                                        uint64_t                             val,
+                                        bool                                 enable_irq,
+                                        bool                                 sync);
 
 /**
  * @brief Function for enabling the RTCOUNTER compare interrupt.
@@ -302,22 +294,22 @@ void nrfx_grtc_syscountervalid_int_disable(void);
  *                               false otherwise.
  * @param[out] p_main_cc_channel Pointer to the main capture/compare channel.
  *
- * @retval NRFX_SUCCESS       Starting was successful.
- * @retval NRFX_ERROR_NO_MEM  No resource available to allocate main channel.
- * @retval NRFX_ERROR_ALREADY The GRTC is already running.
- * @retval NRFX_ERROR_TIMEOUT The SYSCOUNTER failed to start due to a timeout.
+ * @retval 0          Starting was successful.
+ * @retval -ENOMEM    No resource available to allocate main channel.
+ * @retval -EALREADY  The GRTC is already running.
+ * @retval -ETIMEDOUT The SYSCOUNTER failed to start due to a timeout.
  */
-nrfx_err_t nrfx_grtc_syscounter_start(bool busy_wait, uint8_t * p_main_cc_channel);
+int nrfx_grtc_syscounter_start(bool busy_wait, uint8_t * p_main_cc_channel);
 
 /**
  * @brief Function for performing an action for the GRTC.
  *
  * @param[in] action Action to be performed.
  *
- * @retval NRFX_SUCCESS        Starting was successful.
- * @retval NRFX_ERROR_INTERNAL The SYSCOUNTER (1 MHz) is running and the operation is not allowed.
+ * @retval 0          Starting was successful.
+ * @retval -ECANCELED The SYSCOUNTER (1 MHz) is running and the operation is not allowed.
  */
-nrfx_err_t nrfx_grtc_action_perform(nrfx_grtc_action_t action);
+int nrfx_grtc_action_perform(nrfx_grtc_action_t action);
 #endif // NRFY_GRTC_HAS_EXTENDED || defined(__NRFX_DOXYGEN__)
 
 /**
@@ -343,15 +335,13 @@ bool nrfx_grtc_init_check(void);
  *
  * @param[in] channel Channel to be disabled.
  *
- * @retval NRFX_SUCCESS             The procedure was successful.
- * @retval NRFX_ERROR_FORBIDDEN     The domain is not allowed to use specified @p channel.
- * @retval NRFX_ERROR_INVALID_PARAM The specified @p channel is either not allocated or
- *                                  marked as unused.
- * @retval NRFX_ERROR_INTERNAL      The SYSCOUNTER (1 MHz) is not running.
- * @retval NRFX_ERROR_TIMEOUT       SYSCOUNTER compare interrupt is pending on the requested
- *                                  channel.
+ * @retval 0          The procedure was successful.
+ * @retval -EPERM     The domain is not allowed to use specified @p channel.
+ * @retval -EINVAL    The specified @p channel is either not allocated or marked as unused.
+ * @retval -ECANCELED The SYSCOUNTER (1 MHz) is not running.
+ * @retval -ETIMEDOUT SYSCOUNTER compare interrupt is pending on the requested channel.
  */
-nrfx_err_t nrfx_grtc_syscounter_cc_disable(uint8_t channel);
+int nrfx_grtc_syscounter_cc_disable(uint8_t channel);
 
 /**
  * @brief Function for setting the absolute compare value for the SYSCOUNTER.
@@ -363,14 +353,14 @@ nrfx_err_t nrfx_grtc_syscounter_cc_disable(uint8_t channel);
  * @param[in] val         Absolute value to be set in the compare register.
  * @param[in] enable_irq  True if interrupt is to be enabled, false otherwise.
  *
- * @retval NRFX_SUCCESS             The procedure was successful.
- * @retval NRFX_ERROR_FORBIDDEN     The domain is not allowed to use specified @p channel.
- * @retval NRFX_ERROR_INVALID_PARAM Channel is not allocated.
- * @retval NRFX_ERROR_INTERNAL      The SYSCOUNTER (1 MHz) is not running.
+ * @retval 0          The procedure was successful.
+ * @retval -EPERM     The domain is not allowed to use specified @p channel.
+ * @retval -EINVAL    Channel is not allocated.
+ * @retval -ECANCELED The SYSCOUNTER (1 MHz) is not running.
  */
-nrfx_err_t nrfx_grtc_syscounter_cc_absolute_set(nrfx_grtc_channel_t * p_chan_data,
-                                                uint64_t              val,
-                                                bool                  enable_irq);
+int nrfx_grtc_syscounter_cc_absolute_set(nrfx_grtc_channel_t * p_chan_data,
+                                         uint64_t              val,
+                                         bool                  enable_irq);
 
 /**
  * @brief Function for setting the absolute compare value for the SYSCOUNTER in an optimized way.
@@ -404,15 +394,15 @@ void nrfx_grtc_syscounter_cc_abs_set(uint8_t channel, uint64_t val, bool safe_se
  * @param[in] enable_irq  True if interrupt is to be enabled, false otherwise.
  * @param[in] reference   Reference type to be used.
  *
- * @retval NRFX_SUCCESS             The procedure was successful.
- * @retval NRFX_ERROR_FORBIDDEN     The domain is not allowed to use specified @p channel.
- * @retval NRFX_ERROR_INVALID_PARAM Channel is not allocated.
- * @retval NRFX_ERROR_INTERNAL      The SYSCOUNTER (1 MHz) is not running.
+ * @retval 0          The procedure was successful.
+ * @retval -EPERM     The domain is not allowed to use specified @p channel.
+ * @retval -EINVAL    Channel is not allocated.
+ * @retval -ECANCELED The SYSCOUNTER (1 MHz) is not running.
  */
-nrfx_err_t nrfx_grtc_syscounter_cc_relative_set(nrfx_grtc_channel_t *             p_chan_data,
-                                                uint32_t                          val,
-                                                bool                              enable_irq,
-                                                nrfx_grtc_cc_relative_reference_t reference);
+int nrfx_grtc_syscounter_cc_relative_set(nrfx_grtc_channel_t *             p_chan_data,
+                                         uint32_t                          val,
+                                         bool                              enable_irq,
+                                         nrfx_grtc_cc_relative_reference_t reference);
 
 /**
  * @brief Function for setting the relative compare value in an optimized way.
@@ -435,13 +425,12 @@ void nrfx_grtc_syscounter_cc_rel_set(uint8_t                           channel,
  *
  * @param[in] channel Compare channel number.
  *
- * @retval NRFX_SUCCESS             The procedure was successful.
- * @retval NRFX_ERROR_FORBIDDEN     The domain is not allowed to use specified @p channel.
- * @retval NRFX_ERROR_INVALID_PARAM The specified @p channel is either not allocated or
- *                                  marked as unused.
- * @retval NRFX_ERROR_INTERNAL      The SYSCOUNTER (1 MHz) is not running.
+ * @retval 0          The procedure was successful.
+ * @retval -EPERM     The domain is not allowed to use specified @p channel.
+ * @retval -EINVAL    The specified @p channel is either not allocated or marked as unused.
+ * @retval -ECANCELED The SYSCOUNTER (1 MHz) is not running.
  */
-nrfx_err_t nrfx_grtc_syscounter_cc_int_disable(uint8_t channel);
+int nrfx_grtc_syscounter_cc_int_disable(uint8_t channel);
 
 /**
  * @brief Function for enabling the SYSCOUNTER compare interrupt.
@@ -450,12 +439,12 @@ nrfx_err_t nrfx_grtc_syscounter_cc_int_disable(uint8_t channel);
  *
  * @param[in] channel Compare channel number.
  *
- * @retval NRFX_SUCCESS             The procedure was successful.
- * @retval NRFX_ERROR_FORBIDDEN     The domain is not allowed to use specified @p channel.
- * @retval NRFX_ERROR_INVALID_PARAM Channel is not allocated.
- * @retval NRFX_ERROR_INTERNAL      The SYSCOUNTER (1 MHz) is not running.
+ * @retval 0          The procedure was successful.
+ * @retval -EPERM     The domain is not allowed to use specified @p channel.
+ * @retval -EINVAL    Channel is not allocated.
+ * @retval -ECANCELED The SYSCOUNTER (1 MHz) is not running.
  */
-nrfx_err_t nrfx_grtc_syscounter_cc_int_enable(uint8_t channel);
+int nrfx_grtc_syscounter_cc_int_enable(uint8_t channel);
 
 /**
  * @brief Function for checking whether the SYSCOUNTER compare interrupt is enabled for
@@ -475,12 +464,12 @@ bool nrfx_grtc_syscounter_cc_int_enable_check(uint8_t channel);
  *
  * @param[in] channel Capture channel number.
  *
- * @retval NRFX_SUCCESS             The procedure was successful.
- * @retval NRFX_ERROR_FORBIDDEN     The domain is not allowed to use specified @p channel.
- * @retval NRFX_ERROR_INVALID_PARAM Channel is not allocated.
- * @retval NRFX_ERROR_INTERNAL      The SYSCOUNTER (1 MHz) is not running.
+ * @retval 0          The procedure was successful.
+ * @retval -EPERM     The domain is not allowed to use specified @p channel.
+ * @retval -EINVAL    Channel is not allocated.
+ * @retval -ECANCELED The SYSCOUNTER (1 MHz) is not running.
  */
-nrfx_err_t nrfx_grtc_syscounter_capture(uint8_t channel);
+int nrfx_grtc_syscounter_capture(uint8_t channel);
 
 /**
  * @brief Function for reading the GRTC capture/compare register for the specified @p channel.
@@ -488,13 +477,12 @@ nrfx_err_t nrfx_grtc_syscounter_capture(uint8_t channel);
  * @param[in]  channel Capture channel number.
  * @param[out] p_val   Pointer to the variable where the result is to be stored.
  *
- * @retval NRFX_SUCCESS             The procedure was successful.
- * @retval NRFX_ERROR_FORBIDDEN     The domain is not allowed to use specified @p channel.
- * @retval NRFX_ERROR_INVALID_PARAM The specified @p channel is either not allocated or
- *                                  marked as unused.
- * @retval NRFX_ERROR_INTERNAL      The SYSCOUNTER (1 MHz) is not running.
+ * @retval 0          The procedure was successful.
+ * @retval -EPERM     The domain is not allowed to use specified @p channel.
+ * @retval -EINVAL    The specified @p channel is either not allocated or marked as unused.
+ * @retval -ECANCELED The SYSCOUNTER (1 MHz) is not running.
  */
-nrfx_err_t nrfx_grtc_syscounter_cc_value_read(uint8_t channel, uint64_t * p_val);
+int nrfx_grtc_syscounter_cc_value_read(uint8_t channel, uint64_t * p_val);
 
 
 /**
@@ -527,11 +515,9 @@ void nrfx_grtc_active_request_set(bool active);
 /**
  * @brief Function for reading the GRTC SYSCOUNTER value.
  *
- * @param[out] p_counter p_counter Pointer to the variable to be filled with the SYSCOUNTER value.
- *
- * @retval NRFX_SUCCESS        The procedure was successful.
+ * @return SYSCOUNTER value.
  */
-nrfx_err_t nrfx_grtc_syscounter_get(uint64_t * p_counter);
+uint64_t nrfx_grtc_syscounter_get(void);
 
 /**
  * @brief Function for retrieving the address of the specified GRTC task.

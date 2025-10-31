@@ -61,6 +61,7 @@ NRFY_STATIC_INLINE void __nrfy_internal_pdm_event_enabled_clear(NRF_PDM_Type *  
  * @{
  * @ingroup nrf_pdm
  * @brief   Hardware access layer with cache and barrier support for managing the PDM peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 /** @brief Structure describing reception buffer.*/

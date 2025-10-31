@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 - 2025, Nordic Semiconductor ASA
+ * Copyright (c) 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -31,8 +31,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef NRFX_GPPI_H
-#define NRFX_GPPI_H
+#ifndef NRFX_GPPI_H__
+#define NRFX_GPPI_H__
 
 #include <nrfx.h>
 
@@ -47,423 +47,625 @@ extern "C" {
  * @ingroup nrf_dppi
  * @ingroup nrf_ppi
  *
- * @brief Helper layer that provides the common functionality of PPI and DPPI drivers.
+ * @brief Helper layer that provides the common functionality of PPI system.
  *
- * Use PPI and DPPI drivers directly.
- * This layer is provided only to help create generic code that can be built
- * for SoCs equipped with either of these peripherals. When using this layer,
- * take into account that there are significant differences between the PPI and DPPI
- * interfaces that affect the behavior of this layer.
- *
- * One difference is that PPI allows associating of one task or event with
- * more than one channel, whereas DPPI does not allow this. In DPPI, the second
- * association overwrites the first one. Consequently, this helper layer cannot
- * be used in applications that need to connect a task or event to multiple
- * channels.
- *
- * Another difference is that in DPPI one channel can be associated with
- * multiple tasks and multiple events, while in PPI this is not possible (with
- * the exception of the association of a second task as a fork). Because of
- * this difference, it is important to clear the previous endpoints of the channel that
- * is to be reused with some different ones. Otherwise, the behavior of this
- * helper layer will be different, depending on the actual interface used:
- * in DPPI the channel configuration will be extended with the new endpoints, and
- * in PPI the new endpoints will replace the previous ones.
+ * This is the only place where PPI system resources are managed.
  */
 
-#if defined(PPI_PRESENT)
-#include <nrfx_ppi.h>
-
-#define NRFX_GPPI_GROUP_NUM              PPI_GROUP_NUM
-#define NRFX_GPPI_GROUPS_USED            NRFX_PPI_GROUPS_USED
-#define NRFX_GPPI_ALL_APP_GROUPS_MASK    (((1uL << PPI_GROUP_NUM) - 1) & ~(NRFX_PPI_GROUPS_USED))
-#define NRFX_GPPI_ALL_APP_CHANNELS_MASK  NRFX_PPI_ALL_APP_CHANNELS_MASK
-#define NRFX_GPPI_PROG_APP_CHANNELS_MASK NRFX_PPI_PROG_APP_CHANNELS_MASK
-
-typedef enum
-{
-    NRFX_GPPI_CHANNEL_GROUP0 = NRF_PPI_CHANNEL_GROUP0,
-    NRFX_GPPI_CHANNEL_GROUP1 = NRF_PPI_CHANNEL_GROUP1,
-    NRFX_GPPI_CHANNEL_GROUP2 = NRF_PPI_CHANNEL_GROUP2,
-    NRFX_GPPI_CHANNEL_GROUP3 = NRF_PPI_CHANNEL_GROUP3,
-#if (PPI_GROUP_NUM > 4)
-    NRFX_GPPI_CHANNEL_GROUP4 = NRF_PPI_CHANNEL_GROUP4,
-    NRFX_GPPI_CHANNEL_GROUP5 = NRF_PPI_CHANNEL_GROUP5,
+#if defined(DPPI_TYPE_IPCT) || defined(DPPI_TYPE_PPIB) || defined(__NRFX_DOXYGEN__)
+/** @brief Flag indicating that DPPI system consists of multiple domains (instances). */
+#define NRFX_GPPI_MULTI_DOMAIN 1
 #endif
-} nrfx_gppi_channel_group_t;
 
-typedef enum
-{
-    NRFX_GPPI_TASK_CHG0_EN  = NRF_PPI_TASK_CHG0_EN,
-    NRFX_GPPI_TASK_CHG0_DIS = NRF_PPI_TASK_CHG0_DIS,
-    NRFX_GPPI_TASK_CHG1_EN  = NRF_PPI_TASK_CHG1_EN,
-    NRFX_GPPI_TASK_CHG1_DIS = NRF_PPI_TASK_CHG1_DIS,
-    NRFX_GPPI_TASK_CHG2_EN  = NRF_PPI_TASK_CHG2_EN,
-    NRFX_GPPI_TASK_CHG2_DIS = NRF_PPI_TASK_CHG2_DIS,
-    NRFX_GPPI_TASK_CHG3_EN  = NRF_PPI_TASK_CHG3_EN,
-    NRFX_GPPI_TASK_CHG3_DIS = NRF_PPI_TASK_CHG3_DIS,
-#if (PPI_GROUP_NUM > 4)
-    NRFX_GPPI_TASK_CHG4_EN  = NRF_PPI_TASK_CHG4_EN,
-    NRFX_GPPI_TASK_CHG4_DIS = NRF_PPI_TASK_CHG4_DIS,
-    NRFX_GPPI_TASK_CHG5_EN  = NRF_PPI_TASK_CHG5_EN,
-    NRFX_GPPI_TASK_CHG5_DIS = NRF_PPI_TASK_CHG5_DIS
+#if defined(DPPI_TYPE_IPCT) || defined(__NRFX_DOXYGEN__)
+/** @brief Flag indicating that there are fixed connections between PPIB and DPPI channels. */
+#define NRFX_GPPI_FIXED_CONNECTIONS 1
 #endif
-} nrfx_gppi_task_t;
 
-#elif defined(DPPI_PRESENT)
-#include <nrfx_dppi.h>
-
-#define NRFX_GPPI_GROUP_NUM              NRF_DPPI_GROUP_NUM_MAX
-#define NRFX_GPPI_GROUPS_USED            NRFX_DPPI_GROUPS_USED
-#define NRFX_GPPI_ALL_APP_GROUPS_MASK    (NRFX_BIT_MASK(NRF_DPPI_GROUP_NUM_MAX) & \
-                                         ~NRFX_DPPI_GROUPS_USED)
-#define NRFX_GPPI_ALL_APP_CHANNELS_MASK  (NRFX_BIT_MASK(NRF_DPPI_CH_NUM_MAX) & \
-                                         ~NRFX_DPPI_CHANNELS_USED)
-#if defined(HALTIUM_XXAA)
-#define NRFX_GPPI_PROG_APP_CHANNELS_NUM  NRFX_BIT_SIZE(sizeof(uint32_t))
-#define NRFX_GPPI_PROG_APP_CHANNELS_MASK NRFX_BIT_MASK(NRFX_GPPI_PROG_APP_CHANNELS_NUM)
+#if NRFX_CHECK(NRFX_GPPI_MULTI_DOMAIN) || defined(__NRFX_DOXYGEN__)
+#include "nrfx_gppi_routes.h"
+/** @brief Handle used for PPI connection. */
+typedef uint32_t nrfx_gppi_handle_t;
+/** @brief Handle used for PPI group resource. */
+typedef uint32_t nrfx_gppi_group_handle_t;
 #else
-#define NRFX_GPPI_PROG_APP_CHANNELS_MASK NRFX_GPPI_ALL_APP_CHANNELS_MASK
+typedef uint8_t nrfx_gppi_handle_t;
+typedef uint8_t nrfx_gppi_group_handle_t;
 #endif
 
-typedef enum
-{
-    NRFX_GPPI_CHANNEL_GROUP0 = NRF_DPPI_CHANNEL_GROUP0,
-    NRFX_GPPI_CHANNEL_GROUP1 = NRF_DPPI_CHANNEL_GROUP1,
-#if NRFX_GPPI_GROUP_NUM > 2
-    NRFX_GPPI_CHANNEL_GROUP2 = NRF_DPPI_CHANNEL_GROUP2,
-    NRFX_GPPI_CHANNEL_GROUP3 = NRF_DPPI_CHANNEL_GROUP3,
+/** @brief Structure which holds resources for PPI system. */
+typedef struct {
+#if NRFX_CHECK(NRFX_GPPI_MULTI_DOMAIN)
+    /** Array with routes in the system. */
+    const nrfx_gppi_route_t *routes;
+    /** Pointer to two dimensional array with map of routes. */
+    const nrfx_gppi_route_t ***route_map;
+    /** Array with nodes in the system. */
+    const nrfx_gppi_node_t *nodes;
+#else
+    /** Mask of available PPI channels in a single instance (D)PPI system. */
+    nrfx_atomic_t ch_mask;
+    /** Mask of available PPI groups in a single instance (D)PPI system. */
+    nrfx_atomic_t group_mask;
 #endif
-#if NRFX_GPPI_GROUP_NUM > 4
-    NRFX_GPPI_CHANNEL_GROUP4 = NRF_DPPI_CHANNEL_GROUP4,
-    NRFX_GPPI_CHANNEL_GROUP5 = NRF_DPPI_CHANNEL_GROUP5,
+} nrfx_gppi_t;
+
+/**
+ * @brief Function for initializing GPPI with a structure with resources.
+ *
+ * @param[in] p_instance Instance.
+ */
+void nrfx_gppi_init(nrfx_gppi_t * p_instance);
+
+/**
+ * @brief Function for getting the domain ID from the group handle.
+ *
+ * @param[in] handle Group handle.
+ *
+ * @return Domain ID.
+ */
+#if NRFX_CHECK(NRFX_GPPI_MULTI_DOMAIN)
+uint32_t nrfx_gppi_group_domain_id_get(nrfx_gppi_group_handle_t handle);
+#else
+NRFX_STATIC_INLINE uint32_t nrfx_gppi_group_domain_id_get(nrfx_gppi_group_handle_t handle);
 #endif
-} nrfx_gppi_channel_group_t;
 
-typedef enum
-{
-    NRFX_GPPI_TASK_CHG0_EN  = NRF_DPPI_TASK_CHG0_EN,
-    NRFX_GPPI_TASK_CHG0_DIS = NRF_DPPI_TASK_CHG0_DIS,
-    NRFX_GPPI_TASK_CHG1_EN  = NRF_DPPI_TASK_CHG1_EN,
-    NRFX_GPPI_TASK_CHG1_DIS = NRF_DPPI_TASK_CHG1_DIS,
-#if NRFX_GPPI_GROUP_NUM > 2
-    NRFX_GPPI_TASK_CHG2_EN  = NRF_DPPI_TASK_CHG2_EN,
-    NRFX_GPPI_TASK_CHG2_DIS = NRF_DPPI_TASK_CHG2_DIS,
-    NRFX_GPPI_TASK_CHG3_EN  = NRF_DPPI_TASK_CHG3_EN,
-    NRFX_GPPI_TASK_CHG3_DIS = NRF_DPPI_TASK_CHG3_DIS,
+/**
+ * @brief Function for getting the domain ID from the peripheral register address.
+ *
+ * @param[in] addr Address.
+ *
+ * @return Domain ID.
+ */
+#if NRFX_CHECK(NRFX_GPPI_MULTI_DOMAIN)
+uint32_t nrfx_gppi_domain_id_get(uint32_t addr);
+#else
+NRFX_STATIC_INLINE uint32_t nrfx_gppi_domain_id_get(uint32_t addr);
 #endif
-#if NRFX_GPPI_GROUP_NUM > 4
-    NRFX_GPPI_TASK_CHG4_EN  = NRF_DPPI_TASK_CHG4_EN,
-    NRFX_GPPI_TASK_CHG4_DIS = NRF_DPPI_TASK_CHG4_DIS,
-    NRFX_GPPI_TASK_CHG5_EN  = NRF_DPPI_TASK_CHG5_EN,
-    NRFX_GPPI_TASK_CHG5_DIS = NRF_DPPI_TASK_CHG5_DIS
+
+/**
+ * @brief Function for getting the channel that is used for an endpoint.
+ *
+ * @param[in] ep Endpoint address (task, event, publish or subscribe register).
+ *
+ * @retval non-negative Configured channel.
+ * @retval -EINVAL      Endpoint does not have channel.
+ */
+#ifdef PPI_PRESENT
+int nrfx_gppi_ep_channel_get(uint32_t ep);
+#else
+NRFX_STATIC_INLINE int nrfx_gppi_ep_channel_get(uint32_t ep);
 #endif
-} nrfx_gppi_task_t;
-
-#elif defined(__NRFX_DOXYGEN__)
-
-/** @brief Generic PPI channel groups. */
-typedef enum
-{
-    NRFX_GPPI_CHANNEL_GROUP0, /**< Channel group 0.*/
-    NRFX_GPPI_CHANNEL_GROUP1, /**< Channel group 1.*/
-    NRFX_GPPI_CHANNEL_GROUP2, /**< Channel group 2.*/
-    NRFX_GPPI_CHANNEL_GROUP3, /**< Channel group 3.*/
-    NRFX_GPPI_CHANNEL_GROUP4, /**< Channel group 4.*/
-    NRFX_GPPI_CHANNEL_GROUP5, /**< Channel group 5.*/
-} nrfx_gppi_channel_group_t;
-
-/** @brief Generic PPI tasks. */
-typedef enum
-{
-    NRFX_GPPI_TASK_CHG0_EN,  /**< Task for enabling channel group 0 */
-    NRFX_GPPI_TASK_CHG0_DIS, /**< Task for disabling channel group 0 */
-    NRFX_GPPI_TASK_CHG1_EN,  /**< Task for enabling channel group 1 */
-    NRFX_GPPI_TASK_CHG1_DIS, /**< Task for disabling channel group 1 */
-    NRFX_GPPI_TASK_CHG2_EN,  /**< Task for enabling channel group 2 */
-    NRFX_GPPI_TASK_CHG2_DIS, /**< Task for disabling channel group 2 */
-    NRFX_GPPI_TASK_CHG3_EN,  /**< Task for enabling channel group 3 */
-    NRFX_GPPI_TASK_CHG3_DIS, /**< Task for disabling channel group 3 */
-    NRFX_GPPI_TASK_CHG4_EN,  /**< Task for enabling channel group 4 */
-    NRFX_GPPI_TASK_CHG4_DIS, /**< Task for disabling channel group 4 */
-    NRFX_GPPI_TASK_CHG5_EN,  /**< Task for enabling channel group 5 */
-    NRFX_GPPI_TASK_CHG5_DIS, /**< Task for disabling channel group 5 */
-} nrfx_gppi_task_t;
-#endif // defined(__NRFX_DOXYGEN__)
 
 /**
- * @brief Function for checking if a given channel is enabled.
+ * @brief Function for getting the channel that is used in a connection for a given domain.
  *
- * @param[in] channel Channel to check.
+ * @param[in] handle    Connection handle.
+ * @param[in] domain_id Domain ID.
  *
- * @retval true  The channel is enabled.
- * @retval false The channel is not enabled.
+ * @retval non-negative Configured channel.
+ * @retval -EINVAL      Invalid input arguments.
  */
-bool nrfx_gppi_channel_check(uint8_t channel);
-
-/** @brief Function for disabling all channels. */
-void nrfx_gppi_channels_disable_all(void);
+int nrfx_gppi_domain_channel_get(nrfx_gppi_handle_t handle, uint32_t domain_id);
 
 /**
- * @brief Function for enabling multiple channels.
+ * @brief Function for allocating and setup a connection between two domains.
  *
- * The bits in @c mask value correspond to particular channels. This means that
- * writing 1 to bit 0 enables channel 0, writing 1 to bit 1 enables channel 1, etc.
+ * In case of a multi domain DPPI, function is allocating all needed resources and configures
+ * PPIB bridges. For single domain cases (PPI or DPPI) only a channel is allocated.
  *
- * @param[in] mask Channel mask.
+ * @param[in]  producer Domain that will produce (publish) events. Not used in single domain case.
+ * @param[in]  consumer Domain that will consume (subsribe to) events. Not used in single domain case.
+ * @param[out] p_handle Handle used to control the connection.
+ *
+ * @retval 0       On successful connection allocation.
+ * @retval -ENOMEM There is not enough resources to allocate the connection.
  */
-void nrfx_gppi_channels_enable(uint32_t mask);
+int nrfx_gppi_domain_conn_alloc(uint32_t producer, uint32_t consumer,
+                                nrfx_gppi_handle_t * p_handle);
 
 /**
- * @brief Function for disabling multiple channels.
+ * @brief Function for attaching an endpoint to the connection.
  *
- * The bits in @c mask value correspond to particular channels. This means that
- * writing 1 to bit 0 disables channel 0, writing 1 to bit 1 disables channel 1, etc.
+ * Endpoint can be task, event, publish or subscribe register address. In order to allow attaching
+ * the endpoint it must belong to the route that connection is using. On SoC with PPI there are
+ * limitations regarding how many endpoints can be attached to a handle (channel) - 1 event and
+ * 2 tasks (1 if FORK is not present).
  *
- * @param[in] mask Channel mask.
+ * @param[in] ep     Endpoint.
+ * @param[in] handle Connection handle.
+ *
+ * @retval 0       Endpoint attached.
+ * @retval -EINVAL Endpoint cannot be attached, i.e. it does not belong to the route.
  */
-void nrfx_gppi_channels_disable(uint32_t mask);
+int nrfx_gppi_ep_attach(uint32_t ep, nrfx_gppi_handle_t handle);
 
 /**
- * @brief Function for associating a given channel with the specified event register.
+ * @brief Function for attaching an endpoint to the channel.
  *
- * This function sets the DPPI publish configuration for a given event
- * or sets the PPI event endpoint register.
+ * Endpoint can be task, event, publish or subscribe register address.
  *
- * @param[in] channel Channel to which to assign the event.
- * @param[in] eep     Address of the event register.
+ * @param[in] ep      Endpoint address.
+ * @param[in] channel Channel.
+ *
+ * @retval 0       Endpoint attached.
+ * @retval -EINVAL Endpoint cannot be attached, i.e. endpoints already configured in case of PPI.
  */
-void nrfx_gppi_event_endpoint_setup(uint8_t channel, uint32_t eep);
+int nrfx_gppi_ep_to_ch_attach(uint32_t ep, uint8_t channel);
 
 /**
- * @brief Function for associating a given channel with the specified task register.
+ * @brief Function for allocating a connection between Task and Event.
  *
- * This function sets the DPPI subscribe configuration for a given task
- * or sets the PPI task endpoint register.
+ * Function performs @ref nrfx_gppi_domain_conn_alloc followed by configuration of endpoints.
  *
- * @param[in] channel Channel to which to assign the task.
- * @param[in] tep     Address of the task register.
+ * @param[in]  eep      Event endpoint.
+ * @param[in]  tep      Task endpoint.
+ * @param[out] p_handle Handle used to control the connection.
+ *
+ * @retval 0       Successful connection allocation.
+ * @retval -ENOMEM There is not enough resources to allocate the connection.
  */
-void nrfx_gppi_task_endpoint_setup(uint8_t channel, uint32_t tep);
+int nrfx_gppi_conn_alloc(uint32_t eep, uint32_t tep, nrfx_gppi_handle_t * p_handle);
 
 /**
- * @brief Function for setting up the event and task endpoints for a given channel.
+ * @brief Function for freeing a connection between domains.
  *
- * @param[in] channel Channel to which the given endpoints are assigned.
- * @param[in] eep     Address of the event register.
- * @param[in] tep     Address of the task register.
+ * For connection within a single domain a channel is freed. For cross-domain connection
+ * channels in bridges (PPIB) are cleared and all used resources are freed.. Connection shall be
+ * disabled prior to clearing.
+ *
+ * @param[in] handle Connection handle.
  */
-void nrfx_gppi_channel_endpoints_setup(uint8_t channel, uint32_t eep, uint32_t tep);
+void nrfx_gppi_domain_conn_free(nrfx_gppi_handle_t handle);
 
 /**
- * @brief Function for clearing the event and task endpoints for a given channel.
+ * @brief Function for clearing an endpoint.
  *
- * @param[in] channel Channel to which the given endpoints are assigned.
- * @param[in] eep     Address of the event register.
- * @param[in] tep     Address of the task register.
+ * Remove endpoint from DPPI channel. For PPI it searches all channel configurations and clears
+ * the first configuration where the endpoint was used. For PPI it is more time consuming so in
+ * PPI specific code @ref nrfx_gppi_ep_ch_clear can be used.
+ *
+ * @param[in] ep Endpoint.
  */
-void nrfx_gppi_channel_endpoints_clear(uint8_t  channel, uint32_t eep, uint32_t tep);
+void nrfx_gppi_ep_clear(uint32_t ep);
 
 /**
- * @brief Function for clearing the DPPI publish configuration for a given event
- * register or for clearing the PPI event endpoint register.
+ * @brief Function for clearing an endpoint.
  *
- * @param[in] channel Channel for which to clear the event endpoint. Not used in DPPI.
- * @param[in] eep     Address of the event register. Not used in PPI.
+ * For DPPI it is the same as @ref nrfx_gppi_ep_clear. For PPI it clears @p channel configuration.
+ *
+ * @param[in] ep      Endpoint.
+ * @param[in] channel Channel.
  */
-void nrfx_gppi_event_endpoint_clear(uint8_t channel, uint32_t eep);
+void nrfx_gppi_ep_ch_clear(uint32_t ep, uint8_t channel);
 
 /**
- * @brief Function for clearing the DPPI subscribe configuration for a given task
- * register or for clearing the PPI task endpoint register.
+ * @brief Function for enabling an endpoint.
  *
- * @param[in] channel Channel from which to disconnect the task enpoint. Not used in DPPI.
- * @param[in] tep     Address of the task register. Not used in PPI.
- */
-void nrfx_gppi_task_endpoint_clear(uint8_t channel, uint32_t tep);
-
-#if defined(PPI_FEATURE_FORKS_PRESENT) || defined(DPPI_PRESENT) || defined(__NRFX_DOXYGEN__)
-/**
- * @brief Function for setting up the task endpoint for a given PPI fork or for
- * associating the DPPI channel with an additional task register.
+ * In case of PPI function enables the channel which is used by the endpoint. In case of DPPI,
+ * function is only enabling an endpoint and does not control the channel to which the endpoint is
+ * attached.
  *
- * @param[in] channel  Channel to which the given fork endpoint is assigned.
- * @param[in] fork_tep Address of the task register.
+ * @param[in] ep Endpoint.
  */
-void nrfx_gppi_fork_endpoint_setup(uint8_t channel, uint32_t fork_tep);
+void nrfx_gppi_ep_enable(uint32_t ep);
 
 /**
- * @brief Function for clearing the task endpoint for a given PPI fork or for clearing
- * the DPPI subscribe register.
+ * @brief Function for disabling an endpoint.
  *
- * @param[in] channel  Channel for which to clear the fork endpoint. Not used in DPPI.
- * @param[in] fork_tep Address of the task register. Not used in PPI.
+ * In case of PPI function disables the channel which is used by the endpoint. In case of DPPI,
+ * function is only disabling the endpoint and does not control the channel to which the endpoint is
+ * attached.
+ *
+ * @param[in] ep Endpoint.
  */
-void nrfx_gppi_fork_endpoint_clear(uint8_t channel, uint32_t fork_tep);
-#endif // defined(PPI_FEATURE_FORKS_PRESENT) || defined(DPPI_PRESENT) || defined(__NRFX_DOXYGEN__)
+void nrfx_gppi_ep_disable(uint32_t ep);
 
 /**
- * @brief Function for setting multiple channels in a channel group.
+ * @brief Function for clearing and freeing a connection.
  *
- * @param[in] channel_mask  Channels to be set in the group.
- * @param[in] channel_group Channel group.
+ * Function performs @ref nrfx_gppi_domain_conn_free followed by clearing of endpoints.
+ *
+ * @param[in] eep    Event endpoint.
+ * @param[in] tep    Task endpoint.
+ * @param[in] handle Connection handle.
  */
-void nrfx_gppi_channels_group_set(uint32_t                  channel_mask,
-                                  nrfx_gppi_channel_group_t channel_group);
+void nrfx_gppi_conn_free(uint32_t eep, uint32_t tep, nrfx_gppi_handle_t handle);
 
 /**
- * @brief Function for including multiple channels in a channel group.
+ * @brief Function for enabling a connection.
  *
- * @param[in] channel_mask  Channels to be included in the group.
- * @param[in] channel_group Channel group.
+ * Function enables channels in every DPPI instance which belongs to the connection.
+ *
+ * @param[in] handle Connection handle.
  */
-void nrfx_gppi_channels_include_in_group(uint32_t                  channel_mask,
-                                         nrfx_gppi_channel_group_t channel_group);
+void nrfx_gppi_conn_enable(nrfx_gppi_handle_t handle);
 
 /**
- * @brief Function for removing multiple channels from a channel group.
+ * @brief Function for disabling a connection.
  *
- * @param[in] channel_mask  Channels to be removed from the group.
- * @param[in] channel_group Channel group.
+ * Function disables channels in every DPPI instance which belongs to the connection.
+ *
+ * @param[in] handle Connection handle.
  */
-void nrfx_gppi_channels_remove_from_group(uint32_t                  channel_mask,
-                                          nrfx_gppi_channel_group_t channel_group);
+void nrfx_gppi_conn_disable(nrfx_gppi_handle_t handle);
 
 /**
- * @brief Function for removing all channels from a channel group.
+ * @brief Function for enabling channels in a domain.
  *
- * @param[in] channel_group Channel group.
+ * @param[in] domain_id Domain ID.
+ * @param[in] ch_mask   Channel mask.
  */
-void nrfx_gppi_group_clear(nrfx_gppi_channel_group_t channel_group);
+void nrfx_gppi_channels_enable(uint32_t domain_id, uint32_t ch_mask);
 
 /**
- * @brief Function for enabling a channel group.
+ * @brief Function for disabling channels in a domain.
  *
- * @param[in] channel_group Channel group.
+ * @param[in] domain_id Domain ID.
+ * @param[in] ch_mask   Channel mask.
  */
-void nrfx_gppi_group_enable(nrfx_gppi_channel_group_t channel_group);
+void nrfx_gppi_channels_disable(uint32_t domain_id, uint32_t ch_mask);
+
+/**
+ * @brief Function for checking if a channel is enabled.
+ *
+ * @param[in] domain_id Domain ID.
+ * @param[in] ch        Channel.
+ *
+ * @retval true  Channel is enabled.
+ * @retval false Channel is disabled.
+ */
+bool nrfx_gppi_chan_is_enabled(uint32_t domain_id, uint32_t ch);
+
+/**
+ * @brief Function for enabling a channel used by the endpoint.
+ *
+ * @param[in] ep Endpoint.
+ *
+ * @retval 0       Successful operation.
+ * @retval -EINVAL Endpoint has no channel.
+ */
+NRFX_STATIC_INLINE int nrfx_gppi_ep_chan_enable(uint32_t ep);
+
+/**
+ * @brief Function for checking if a channel assigned to the endpoint is enabled.
+ *
+ * @param[in] ep Endpoint address.
+ *
+ * @retval 0       Channel is enabled.
+ * @retval -EINVAL Endpoint has no channel.
+ * @retval -EAGAIN Channel is disabled.
+ */
+NRFX_STATIC_INLINE int nrfx_gppi_ep_is_enabled(uint32_t ep);
+
+/**
+ * @brief Function for disabling a channel used by the endpoint.
+ *
+ * @param[in] ep Endpoint.
+ *
+ * @retval 0       Successful operation.
+ * @retval -EINVAL Endpoint has no channel.
+ */
+NRFX_STATIC_INLINE int nrfx_gppi_ep_chan_disable(uint32_t ep);
+
+/**
+ * @brief Function for allocating a group for given set of endpoints.
+ *
+ * Group can only enable or disable channels in a single DPPI so all endpoints must
+ * belong to a single domain. Provided endpoints must be set up prior to the group allocation
+ * as channel numbers are retrieved from endpoints.
+ *
+ * @param[in] domain_id Domain ID for the group.
+ * @param[out] p_handle Location where handle is written.
+ *
+ * @retval 0       Successful allocation of a group. @p handle can be used.
+ * @retval -EINVAL Endpoints are not from the same domain.
+ * @retval -ENOMEM Failed to allocate a free group channel.
+ */
+int nrfx_gppi_group_alloc(uint32_t domain_id, nrfx_gppi_group_handle_t * p_handle);
+
+/**
+ * @brief Function for freeing a group.
+ *
+ * @param[in] handle Group handle.
+ */
+void nrfx_gppi_group_free(nrfx_gppi_group_handle_t handle);
+
+/**
+ * @brief Function for adding a channel to a group.
+ *
+ * @param[in] handle  Group handle.
+ * @param[in] channel Channel.
+ */
+void nrfx_gppi_group_ch_add(nrfx_gppi_group_handle_t handle, uint32_t channel);
+
+/**
+ * @brief Function for removing a channel from a group.
+ *
+ * @param[in] handle  Group handle.
+ * @param[in] channel Channel.
+ */
+void nrfx_gppi_group_ch_remove(nrfx_gppi_group_handle_t handle, uint32_t channel);
+
+/**
+ * @brief Function for adding a configured endpoint to a group.
+ *
+ * Endpoint must be from the same domain as group and it must already be configured to use
+ * a channel.
+ *
+ * @param[in] handle Group handle.
+ * @param[in] ep     Endpoint.
+ *
+ * @retval 0       Successful operation.
+ * @retval -EINVAL Failed to extend the group.
+ */
+NRFX_STATIC_INLINE int nrfx_gppi_group_ep_add(nrfx_gppi_group_handle_t handle, uint32_t ep);
+
+/**
+ * @brief Function for removing a configured endpoint from a group.
+ *
+ * Endpoint must be added to the group and it must be configured to use a channel.
+ *
+ * @param[in] handle Group handle.
+ * @param[in] ep     Endpoint.
+ *
+ * @retval 0       Successful operation.
+ * @retval -EINVAL Failed to remove from the group.
+ */
+NRFX_STATIC_INLINE int nrfx_gppi_group_ep_remove(nrfx_gppi_group_handle_t handle, uint32_t ep);
+
+/**
+ * @brief Function for getting a mask with channels which are assigned to the group.
+ *
+ * @param[in] handle Group handle.
+ *
+ * @return Mask with bits set for channels that belong to a group.
+ */
+uint32_t nrfx_gppi_group_channels_get(nrfx_gppi_group_handle_t handle);
+
+/**
+ * @brief Function for enabling a group.
+ *
+ * @param[in] handle Group handle.
+ */
+void nrfx_gppi_group_enable(nrfx_gppi_group_handle_t handle);
 
 /**
  * @brief Function for disabling a group.
  *
- * @param[in] channel_group Channel group.
+ * @param[in] handle Group handle.
  */
-void nrfx_gppi_group_disable(nrfx_gppi_channel_group_t channel_group);
+void nrfx_gppi_group_disable(nrfx_gppi_group_handle_t handle);
 
 /**
- * @brief Function for activating a task.
+ * @brief Function for getting the enable group task address.
  *
- * @param[in] task Task to be activated.
+ * @param[in] handle Group handle.
+ *
+ * @retval Address of the task register.
  */
-void nrfx_gppi_task_trigger(nrfx_gppi_task_t task);
+uint32_t nrfx_gppi_group_task_en_addr(nrfx_gppi_group_handle_t handle);
+
+/** @brief Function for getting the disable group task address.
+ *
+ * @param[in] handle Group handle.
+ *
+ * @retval Address of the task register.
+ */
+uint32_t nrfx_gppi_group_task_dis_addr(nrfx_gppi_group_handle_t handle);
 
 /**
- * @brief Function for returning the address of a specific task register.
+ * @brief Function for allocating a group channel in a specific node of the DPPI system.
  *
- * @param[in] task PPI or DPPI task.
+ * Function can be used to allocate a resource and use it outside of this driver.
  *
- * @return Address of the requested task register.
+ * @param[in] node_id SoC specific identifier of the DPPI system node (DPPIC or PPIB).
+ *
+ * @retval non-negative Allocated channel.
+ * @retval -ENOMEM      Failed to allocate a channel.
  */
-uint32_t nrfx_gppi_task_address_get(nrfx_gppi_task_t task);
+int nrfx_gppi_channel_alloc(uint32_t node_id);
 
 /**
- * @brief Function for returning the address of a channel group disable task.
+ * @brief Function for freeing a channel in a specific node of the DPPI system.
  *
- * @param[in] group Channel group.
+ * Channel must be allocated earlier using @ref nrfx_gppi_channel_alloc.
  *
- * @return Disable task address of the specified group.
+ * @param[in] node_id SoC specific identifier of the DPPI system node (DPPIC or PPIB).
+ * @param[in] channel Channel.
  */
-nrfx_gppi_task_t nrfx_gppi_group_disable_task_get(nrfx_gppi_channel_group_t group);
+void nrfx_gppi_channel_free(uint32_t node_id, uint8_t channel);
 
 /**
- * @brief Function for returning the address of a channel group enable task.
+ * @brief Function for allocating a group channel in a specific node of the DPPI system.
  *
- * @param[in] group Channel group.
+ * Function can be used to allocate a resource and use it outside of this driver.
  *
- * @return Enable task address of the specified group.
+ * @param[in] node_id SoC specific identifier of the DPPI system node (DPPIC or PPIB).
+ *
+ * @retval non-negative Allocated channel.
+ * @retval -ENOMEM      Failed to allocate a channel.
  */
-nrfx_gppi_task_t nrfx_gppi_group_enable_task_get(nrfx_gppi_channel_group_t group);
+int nrfx_gppi_group_channel_alloc(uint32_t node_id);
 
 /**
- * @brief Function for allocating a channel.
+ * @brief Function for freeing a group channel in a specific node of the DPPI system.
  *
- * @param[out] p_channel After successful allocation, index of the allocated channel.
+ * Channel must be allocated earlier using @ref nrfx_gppi_group_channel_alloc.
  *
- * @retval NRFX_SUCCESS             Channel was successfully allocated.
- * @retval NRFX_ERROR_NO_MEM        There is no available channel to be used.
- * @retval NRFX_ERROR_NOT_SUPPORTED Driver is not enabled.
+ * @param[in] node_id SoC specific identifier of the DPPI system node (DPPIC or PPIB).
+ * @param[in] channel Channel.
  */
-nrfx_err_t nrfx_gppi_channel_alloc(uint8_t * p_channel);
+void nrfx_gppi_group_channel_free(uint32_t node_id, uint8_t channel);
+
+
+#if NRFX_CHECK(NRFX_GPPI_MULTI_DOMAIN) || !NRFX_CHECK(NRFX_GPPI_FIXED_CONNECTIONS) || \
+    defined(__NRFX_DOXYGEN__)
+
+/** @brief A structure describing a DPPI resource in multi domain system. */
+typedef struct {
+    /** Domain ID. */
+    uint16_t domain_id;
+    /** Channel. */
+    uint8_t  channel;
+} nrfx_gppi_resource_t;
 
 /**
- * @brief Function for freeing a channel.
+ * @brief Function for allocating and setting up a connection using an external resource.
  *
- * @param[in] channel (D)PPI channel to be freed.
+ * If DPPI resource is provided then it is used in the connection and additional channel in
+ * that domain is not allocated. If connection was set up with an external resource then
+ * functions for enabling and disabling the connection are only changing state of channels that
+ * were allocated for that connection. If %p is null then function is equivalent of
+ * @ref nrfx_gppi_domain_conn_alloc.
  *
- * @retval NRFX_SUCCESS             The channel was successfully freed.
- * @retval NRFX_ERROR_INVALID_PARAM The specified channel is not allocated or
- *                                  is not user-configurable.
- * @retval NRFX_ERROR_NOT_SUPPORTED Driver is not enabled.
+ * @param[in]  producer   Domain that will produce (publish) events.
+ * @param[in]  consumer   Domain that will consume (subsribe to) events.
+ * @param[out] p_handle   Handle used to control the connection.
+ * @param[in]  p_resource Optional external DPPI resource.
+ *
+ * @retval 0       Successful connection allocation.
+ * @retval -ENOMEM There is not enough resources to allocate the connection.
  */
-nrfx_err_t nrfx_gppi_channel_free(uint8_t channel);
-
-/**
- * @brief Function for allocating a channel group.
- *
- * @param[out] p_group Pointer to the (D)PPI channel group that has been allocated.
- *
- * @retval NRFX_SUCCESS             The channel group was successfully allocated.
- * @retval NRFX_ERROR_NO_MEM        There is no available channel group to be used.
- * @retval NRFX_ERROR_NOT_SUPPORTED Driver is not enabled.
- */
-nrfx_err_t nrfx_gppi_group_alloc(nrfx_gppi_channel_group_t * p_group);
-
-/**
- * @brief Function for freeing a channel group.
- *
- * @param[in] group (D)PPI channel group to be freed.
- *
- * @retval NRFX_SUCCESS             The channel was successfully freed.
- * @retval NRFX_ERROR_INVALID_PARAM The specified channel is not allocated or
- *                                  is not user-configurable.
- * @retval NRFX_ERROR_NOT_SUPPORTED Driver is not enabled.
- */
-nrfx_err_t nrfx_gppi_group_free(nrfx_gppi_channel_group_t group);
-/** @} */
-
-#if defined DPPI_PRESENT
-
-/**
- * @brief Function for creating a connection between two edge DPPIs.
- *
- * This function takes a pair of edge DPPIs and creates an interconnect
- * between them using a provided GPPI channel. The GPPI channel must be
- * allocated with @ref nrfx_gppi_channel_alloc.
- * The configuration of the edge DPPIs is not affected by this function
- * or when the GPPI channel is freed with @ref nrfx_gppi_channel_free.
- *
- * @param[in] channel     GPPI channel used to make the connection.
- * @param[in] p_src_dppi  Instance of the source DPPI.
- * @param[in] src_channel Source DPPI channel.
- * @param[in] p_dst_dppi  Instance of the destination DPPI.
- * @param[in] dst_channel Destination DPPI channel.
- *
- * @retval NRFX_SUCCESS             The channel was successfully freed.
- * @retval NRFX_ERROR_INVALID_PARAM The specified channel is not allocated or
- *                                  is not user-configurable.
- * @retval NRFX_ERROR_NOT_SUPPORTED Driver is not enabled.
- * @retval NRFX_ERROR_NO_MEM        Necessary DPPI resources could not be acquired.
- */
-nrfx_err_t nrfx_gppi_edge_connection_setup(uint8_t             channel,
-                                           nrfx_dppi_t const * p_src_dppi,
-                                           uint8_t             src_channel,
-                                           nrfx_dppi_t const * p_dst_dppi,
-                                           uint8_t             dst_channel);
-
+int nrfx_gppi_ext_conn_alloc(uint32_t producer, uint32_t consumer, nrfx_gppi_handle_t * p_handle,
+                             nrfx_gppi_resource_t * p_resource);
 #endif
+
+#if NRFX_CHECK(NRFX_GPPI_CONFIG_DPPI_PPIB_EXT_FUNC)
+/**
+ * @brief Function for writing to a PPIB register.
+ *
+ * On some platforms driver may not have a direct access to a PPIB register. It is done through
+ * a function implemented outside of the driver.
+ *
+ * @param[in] p_addr Register address.
+ * @param[in] value  Value to be written to the register.
+ *
+ * @retval 0       Successful write.
+ * @retval -EINVAL Writing failed.
+ */
+int nrfx_gppi_ext_ppib_write(volatile uint32_t *p_addr, uint32_t value);
+#endif
+
+#ifndef NRFX_DECLARE_ONLY
+#if !NRFX_CHECK(NRFX_GPPI_MULTI_DOMAIN)
+NRFX_STATIC_INLINE uint32_t nrfx_gppi_group_domain_id_get(nrfx_gppi_group_handle_t handle)
+{
+    (void)handle;
+    return 0;
+}
+
+NRFX_STATIC_INLINE uint32_t nrfx_gppi_domain_id_get(uint32_t addr) {
+    (void)addr;
+    return 0;
+}
+#endif // !NRFX_GPPI_MULTI_DOMAIN
+
+#ifndef PPI_PRESENT
+NRFX_STATIC_INLINE int nrfx_gppi_ep_channel_get(uint32_t ep)
+{
+    volatile uint32_t * sub_pub;
+#if defined(NRF_RADIO) && defined(RADIO_SUBSCRIBE_TXEN_ResetValue)
+    if ((NRFX_OFFSETOF(NRF_RADIO_Type, SUBSCRIBE_TXEN) != 0x80) &&
+        NRFX_IN_RANGE(ep, (uint32_t)NRF_RADIO, (uint32_t)NRF_RADIO + sizeof(NRF_RADIO_Type)))
+    {
+        sub_pub = (volatile uint32_t *)
+                ((ep & NRFX_BIT(8)) ? ep : (ep + offsetof(NRF_RADIO_Type, SUBSCRIBE_TXEN)));
+    }
+    else
+    {
+        sub_pub = (volatile uint32_t *)((ep & 0x80) ? ep : (ep + 0x80));
+    }
+#else
+    sub_pub = (volatile uint32_t *)(((ep >> 4) & (0xF >= 8)) ? ep : (ep + 0x80));
+#endif
+    uint32_t val = *sub_pub;
+
+    return (val & NRFX_BIT(31)) ? (int)(val & 0xFF) : -EINVAL;
+}
+
+#endif // !PPI_PRESENT
+
+NRFX_STATIC_INLINE int nrfx_gppi_ep_chan_enable(uint32_t ep)
+{
+    int ch = nrfx_gppi_ep_channel_get(ep);
+
+    if (ch < 0)
+    {
+        return -EINVAL;
+    }
+    nrfx_gppi_channels_enable(nrfx_gppi_domain_id_get(ep), NRFX_BIT((uint32_t)ch));
+    return 0;
+}
+
+NRFX_STATIC_INLINE int nrfx_gppi_ep_is_enabled(uint32_t ep)
+{
+    int ch = nrfx_gppi_ep_channel_get(ep);
+
+    if (ch < 0)
+    {
+        return -EINVAL;
+    }
+    if (nrfx_gppi_chan_is_enabled(nrfx_gppi_domain_id_get(ep), (uint32_t)ch))
+    {
+        return 0;
+    }
+    else
+    {
+        return -EAGAIN;
+    }
+}
+
+NRFX_STATIC_INLINE int nrfx_gppi_ep_chan_disable(uint32_t ep)
+{
+    int ch = nrfx_gppi_ep_channel_get(ep);
+
+    if (ch < 0)
+    {
+        return -EINVAL;
+    }
+    nrfx_gppi_channels_disable(nrfx_gppi_domain_id_get(ep), NRFX_BIT((uint32_t)ch));
+    return 0;
+}
+
+NRFX_STATIC_INLINE int nrfx_gppi_group_ep_add(nrfx_gppi_group_handle_t handle, uint32_t ep)
+{
+    if (nrfx_gppi_group_domain_id_get(handle) != nrfx_gppi_domain_id_get(ep))
+    {
+        return -EINVAL;
+    }
+
+    int ch = nrfx_gppi_ep_channel_get(ep);
+    if (ch < 0)
+    {
+        return -EINVAL;
+    }
+
+    nrfx_gppi_group_ch_add(handle, (uint32_t)ch);
+    return 0;
+}
+
+NRFX_STATIC_INLINE int nrfx_gppi_group_ep_remove(nrfx_gppi_group_handle_t handle, uint32_t ep)
+{
+    if (nrfx_gppi_group_domain_id_get(handle) != nrfx_gppi_domain_id_get(ep))
+    {
+        return -EINVAL;
+    }
+
+    int ch = nrfx_gppi_ep_channel_get(ep);
+    if (ch < 0)
+    {
+        return -EINVAL;
+    }
+
+    nrfx_gppi_group_ch_remove(handle, (uint32_t)ch);
+    return 0;
+}
+#endif // NRFX_DECLARE_ONLY
+/** @} */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // NRFX_GPPI_H
+#endif /* NRFX_GPPI_H__ */

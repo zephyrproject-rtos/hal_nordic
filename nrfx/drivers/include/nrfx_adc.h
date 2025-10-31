@@ -147,13 +147,11 @@ typedef void (*nrfx_adc_event_handler_t)(nrfx_adc_evt_t const * p_event);
  * @param[in] p_config      Pointer to the structure with the initial configuration.
  * @param[in] event_handler Event handler provided by the user.
  *
- * @retval NRFX_SUCCESS             Initialization was successful.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
+ * @retval 0         Initialization was successful.
+ * @retval -EALREADY The driver is already initialized.
  */
-nrfx_err_t nrfx_adc_init(nrfx_adc_config_t const * p_config,
-                         nrfx_adc_event_handler_t  event_handler);
+int nrfx_adc_init(nrfx_adc_config_t const * p_config,
+                  nrfx_adc_event_handler_t  event_handler);
 
 /**
  * @brief Function for uninitializing the ADC.
@@ -225,11 +223,11 @@ void nrfx_adc_sample(void);
  * @param[out] p_value   Pointer to the location where the result is to be placed. Unless NULL is
  *                       provided, the function is blocking.
  *
- * @retval NRFX_SUCCESS    Conversion was successful.
- * @retval NRFX_ERROR_BUSY The ADC driver is busy.
+ * @retval 0      Conversion was successful.
+ * @retval -EBUSY The ADC driver is busy.
  */
-nrfx_err_t nrfx_adc_sample_convert(nrfx_adc_channel_t const * p_channel,
-                                   nrf_adc_value_t *          p_value);
+int nrfx_adc_sample_convert(nrfx_adc_channel_t const * p_channel,
+                            nrf_adc_value_t *          p_value);
 
 /**
  * @brief Function for converting data to the buffer.
@@ -257,10 +255,10 @@ nrfx_err_t nrfx_adc_sample_convert(nrfx_adc_channel_t const * p_channel,
  * @param[in] buffer Result buffer.
  * @param[in] size   Buffer size in samples.
  *
- * @retval NRFX_SUCCESS    Conversion was successful.
- * @retval NRFX_ERROR_BUSY The driver is busy.
+ * @retval 0      Conversion was successful.
+ * @retval -EBUSY The driver is busy.
  */
-nrfx_err_t nrfx_adc_buffer_convert(nrf_adc_value_t * buffer, uint16_t size);
+int nrfx_adc_buffer_convert(nrf_adc_value_t * buffer, uint16_t size);
 
 /**
  * @brief Function for retrieving the ADC state.

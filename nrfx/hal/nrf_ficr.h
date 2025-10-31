@@ -48,7 +48,7 @@ extern "C" {
  *          the Factory Information Configuration Registers (FICR).
  */
 
-#if defined(FICR_CODEPAGESIZE_CODEPAGESIZE_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(FICR_CODEPAGESIZE_CODEPAGESIZE_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether FICR CODEPAGESIZE register is present. */
 #define NRF_FICR_HAS_CODE_PAGE_SIZE 1
 #else
@@ -62,7 +62,7 @@ extern "C" {
 #define NRF_FICR_HAS_INFO_CODE_PAGE_SIZE 0
 #endif
 
-#if defined(FICR_CODESIZE_CODESIZE_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(FICR_CODESIZE_CODESIZE_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether FICR CODESIZE register is present. */
 #define NRF_FICR_HAS_CODE_SIZE 1
 #else
@@ -76,7 +76,7 @@ extern "C" {
 #define NRF_FICR_HAS_INFO_CODE_SIZE 0
 #endif
 
-#if defined(FICR_DEVICEID_DEVICEID_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(FICR_DEVICEID_DEVICEID_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether FICR DEVICEID[n] registers are present. */
 #define NRF_FICR_HAS_DEVICE_ID 1
 #else
@@ -104,7 +104,7 @@ extern "C" {
 #define NRF_FICR_HAS_NFC_TAGHEADER_ARRAY 0
 #endif
 
-#if defined(FICR_DEVICEADDR_DEVICEADDR_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(FICR_DEVICEADDR_DEVICEADDR_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether FICR DEVICEADDR[n] registers are present. */
 #define NRF_FICR_HAS_DEVICE_ADDR 1
 #else
@@ -118,7 +118,7 @@ extern "C" {
 #define NRF_FICR_HAS_BLE_ADDR 0
 #endif
 
-#if defined(FICR_ER_ER_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(FICR_ER_ER_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether FICR ER[n] registers are present. */
 #define NRF_FICR_HAS_ER 1
 #else
@@ -132,7 +132,7 @@ extern "C" {
 #define NRF_FICR_HAS_BLE_ER 0
 #endif
 
-#if defined(FICR_IR_IR_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(FICR_IR_IR_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether FICR IR[n] registers are present. */
 #define NRF_FICR_HAS_IR 1
 #else

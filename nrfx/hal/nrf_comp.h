@@ -68,6 +68,76 @@ extern "C" {
 #define NRF_COMP_HAS_REFTRIM 0
 #endif
 
+#if defined(COMP_PSEL_PSEL_VddDiv2) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether VDD/2 can be selected as analog input of COMP. */
+#define NRF_COMP_HAS_VDD_DIV2 1
+#else
+#define NRF_COMP_HAS_VDD_DIV2 0
+#endif
+
+#if defined(COMP_PSEL_PSEL_VddhDiv5) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether VDDH/5 can be selected as analog input of COMP. */
+#define NRF_COMP_HAS_VDDH_DIV5 1
+#else
+#define NRF_COMP_HAS_VDDH_DIV5 0
+#endif
+
+#if defined(COMP_REFSEL_REFSEL_Int1V8) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether COMP has an internal 1.8 V reference. */
+#define NRF_COMP_HAS_REF_INT_1V8 1
+#else
+#define NRF_COMP_HAS_REF_INT_1V8 0
+#endif
+
+#if defined(COMP_REFSEL_REFSEL_Int2V4) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether COMP has an internal 2.4 V reference. */
+#define NRF_COMP_HAS_REF_INT_2V4 1
+#else
+#define NRF_COMP_HAS_REF_INT_2V4 0
+#endif
+
+#if defined(COMP_REFSEL_REFSEL_AVDDAO1V8) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether COMP has an AVDDAO 1.8 V reference. */
+#define NRF_COMP_HAS_REF_AVDDAO1V8 1
+#else
+#define NRF_COMP_HAS_REF_AVDDAO1V8 0
+#endif
+
+#if defined(COMP_REFSEL_REFSEL_VDD) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether COMP has a VDD reference. */
+#define NRF_COMP_HAS_REF_VDD 1
+#else
+#define NRF_COMP_HAS_REF_VDD 0
+#endif
+
+#if defined(COMP_MODE_SP_Normal) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether COMP supports normal SP mode. */
+#define NRF_COMP_HAS_SP_MODE_NORMAL 1
+#else
+#define NRF_COMP_HAS_SP_MODE_NORMAL 0
+#endif
+
+#if defined(COMP_HYST_HYST_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether COMP has hysteresis functionality. */
+#define NRF_COMP_HAS_HYST 1
+#else
+#define NRF_COMP_HAS_HYST 0
+#endif
+
+#if defined(COMP_HYST_HYST_Hyst40mV) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether COMP supports 40 mV hysteresis. */
+#define NRF_COMP_HAS_HYST_40MV 1
+#else
+#define NRF_COMP_HAS_HYST_40MV 0
+#endif
+
+#if defined(COMP_HYST_HYST_Hyst50mV) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether COMP supports 50 mV hysteresis. */
+#define NRF_COMP_HAS_HYST_50MV 1
+#else
+#define NRF_COMP_HAS_HYST_50MV 0
+#endif
+
 /** @brief COMP analog pin selection. */
 #if NRF_COMP_HAS_AIN_AS_PIN
 typedef uint32_t nrf_comp_input_t;
@@ -90,10 +160,10 @@ typedef enum
 #if defined (COMP_PSEL_PSEL_AnalogInput7) || defined (__NRFX_DOXYGEN__)
     NRF_COMP_INPUT_7   = COMP_PSEL_PSEL_AnalogInput7, /*!< AIN7 selected as analog input. */
 #endif
-#if defined (COMP_PSEL_PSEL_VddDiv2) || defined (__NRFX_DOXYGEN__)
+#if NRF_COMP_HAS_VDD_DIV2
     NRF_COMP_VDD_DIV2  = COMP_PSEL_PSEL_VddDiv2,      /*!< VDD/2 selected as analog input. */
 #endif
-#if defined (COMP_PSEL_PSEL_VddhDiv5) || defined (__NRFX_DOXYGEN__)
+#if NRF_COMP_HAS_VDDH_DIV5
     NRF_COMP_VDDH_DIV5 = COMP_PSEL_PSEL_VddhDiv5,     /*!< VDDH/5 selected as analog input. */
 #endif
 } nrf_comp_input_t;
@@ -103,16 +173,16 @@ typedef enum
 typedef enum
 {
     NRF_COMP_REF_INT_1V2   = COMP_REFSEL_REFSEL_Int1V2,    /*!< VREF = internal 1.2 V reference (VDD >= 1.7 V). */
-#if defined(COMP_REFSEL_REFSEL_Int1V8) || defined(__NRFX_DOXYGEN__)
+#if NRF_COMP_HAS_REF_INT_1V8
     NRF_COMP_REF_INT_1V8   = COMP_REFSEL_REFSEL_Int1V8,    /*!< VREF = internal 1.8 V reference (VDD >= VREF + 0.2 V). */
 #endif
-#if defined(COMP_REFSEL_REFSEL_Int2V4) || defined(__NRFX_DOXYGEN__)
+#if NRF_COMP_HAS_REF_INT_2V4
     NRF_COMP_REF_INT_2V4   = COMP_REFSEL_REFSEL_Int2V4,    /*!< VREF = internal 2.4 V reference (VDD >= VREF + 0.2 V). */
 #endif
-#if defined(COMP_REFSEL_REFSEL_AVDDAO1V8) || defined(__NRFX_DOXYGEN__)
+#if NRF_COMP_HAS_REF_AVDDAO1V8
     NRF_COMP_REF_AVDDAO1V8 = COMP_REFSEL_REFSEL_AVDDAO1V8, /*!< VREF = AVDD_AO_1V8. */
 #endif
-#if defined(COMP_REFSEL_REFSEL_VDD) || defined(__NRFX_DOXYGEN__)
+#if NRF_COMP_HAS_REF_VDD
     NRF_COMP_REF_VDD       = COMP_REFSEL_REFSEL_VDD,       /*!< VREF = VDD. */
 #endif
     NRF_COMP_REF_AREF      = COMP_REFSEL_REFSEL_ARef       /*!< VREF = AREF (VDD >= VREF >= AREFMIN). */
@@ -161,7 +231,7 @@ typedef enum
 typedef enum
 {
     NRF_COMP_SP_MODE_LOW    = COMP_MODE_SP_Low,    /*!< Low power mode. */
-#if defined (COMP_MODE_SP_Normal) || defined (__NRFX_DOXYGEN__)
+#if NRF_COMP_HAS_SP_MODE_NORMAL
     NRF_COMP_SP_MODE_NORMAL = COMP_MODE_SP_Normal, /*!< Normal mode. */
 #endif
     NRF_COMP_SP_MODE_HIGH   = COMP_MODE_SP_High    /*!< High-speed mode. */
@@ -171,11 +241,14 @@ typedef enum
 typedef enum
 {
     NRF_COMP_HYST_NO_HYST = COMP_HYST_HYST_NoHyst,   /*!< Comparator hysteresis disabled. */
-#if defined (COMP_HYST_HYST_Hyst40mV) || defined (__NRFX_DOXYGEN__)
+    NRF_COMP_HYST_DISABLED = NRF_COMP_HYST_NO_HYST,  /*!< Comparator hysteresis disabled. */
+#if NRF_COMP_HAS_HYST_40MV
     NRF_COMP_HYST_40MV    = COMP_HYST_HYST_Hyst40mV, /*!< Comparator hysteresis enabled at 40 mV level. */
+    NRF_COMP_HYST_ENABLED = NRF_COMP_HYST_40MV,      /*!< Comparator hysteresis enabled. */
 #endif
-#if defined (COMP_HYST_HYST_Hyst50mV) || defined (__NRFX_DOXYGEN__)
-    NRF_COMP_HYST_50MV    = COMP_HYST_HYST_Hyst50mV  /*!< Comparator hysteresis enabled at 50 mV level. */
+#if NRF_COMP_HAS_HYST_50MV
+    NRF_COMP_HYST_50MV    = COMP_HYST_HYST_Hyst50mV, /*!< Comparator hysteresis enabled at 50 mV level. */
+    NRF_COMP_HYST_ENABLED = NRF_COMP_HYST_50MV,      /*!< Comparator hysteresis enabled. */
 #endif
 } nrf_comp_hyst_t;
 
@@ -199,7 +272,7 @@ typedef enum
 #else
     NRF_COMP_ISOURCE_IEN_10UA = COMP_ISOURCE_ISOURCE_Ien10mA, /*!< Current source enabled (+/- 10 uA). */
 #endif
-} nrf_isource_t;
+} nrf_comp_isource_t;
 #endif // NRF_COMP_HAS_ISOURCE
 
 /** @brief COMP tasks. */
@@ -324,7 +397,7 @@ NRF_STATIC_INLINE void nrf_comp_hysteresis_set(NRF_COMP_Type * p_reg, nrf_comp_h
  * @param[in] p_reg   Pointer to the structure of registers of the peripheral.
  * @param[in] isource COMP current source selection on analog input.
  */
-NRF_STATIC_INLINE void nrf_comp_isource_set(NRF_COMP_Type * p_reg, nrf_isource_t isource);
+NRF_STATIC_INLINE void nrf_comp_isource_set(NRF_COMP_Type * p_reg, nrf_comp_isource_t isource);
 #endif
 
 /**
@@ -522,7 +595,7 @@ NRF_STATIC_INLINE void nrf_comp_hysteresis_set(NRF_COMP_Type * p_reg, nrf_comp_h
 }
 
 #if defined (COMP_ISOURCE_ISOURCE_Msk)
-NRF_STATIC_INLINE void nrf_comp_isource_set(NRF_COMP_Type * p_reg, nrf_isource_t isource)
+NRF_STATIC_INLINE void nrf_comp_isource_set(NRF_COMP_Type * p_reg, nrf_comp_isource_t isource)
 {
     p_reg->ISOURCE = (isource << COMP_ISOURCE_ISOURCE_Pos) & COMP_ISOURCE_ISOURCE_Msk;
 }

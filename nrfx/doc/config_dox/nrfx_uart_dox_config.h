@@ -12,13 +12,6 @@
  */
 #define NRFX_UART_ENABLED
 
-/** @brief Enable UART0 instance
- *
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_UART0_ENABLED
-
 /** @brief Interrupt priority
  *
  *  Following options are available:
@@ -26,10 +19,10 @@
  * - 1 - 1
  * - 2 - 2
  * - 3 - 3
- * - 4 - 4 (Not applicable for nRF51)
- * - 5 - 5 (Not applicable for nRF51)
- * - 6 - 6 (Not applicable for nRF51)
- * - 7 - 7 (Not applicable for nRF51)
+ * - 4 - 4
+ * - 5 - 5
+ * - 6 - 6
+ * - 7 - 7
  *
  * @note This is an NRF_CONFIG macro.
  */

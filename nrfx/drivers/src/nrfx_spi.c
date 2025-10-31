@@ -33,8 +33,6 @@
 
 #include <nrfx.h>
 
-#if NRFX_CHECK(NRFX_SPI_ENABLED)
-
 #if !NRFX_FEATURE_PRESENT(NRFX_SPI, _ENABLED)
 #error "No enabled SPI instances. Check <nrfx_config.h>."
 #endif
@@ -134,23 +132,19 @@ static void spi_configure(nrfx_spi_t const *        p_instance,
     }
 }
 
-nrfx_err_t nrfx_spi_init(nrfx_spi_t const *        p_instance,
-                         nrfx_spi_config_t const * p_config,
-                         nrfx_spi_evt_handler_t    handler,
-                         void *                    p_context)
+int nrfx_spi_init(nrfx_spi_t const *        p_instance,
+                  nrfx_spi_config_t const * p_config,
+                  nrfx_spi_evt_handler_t    handler,
+                  void *                    p_context)
 {
     NRFX_ASSERT(p_config);
 
     spi_control_block_t * p_cb  = &m_cb[p_instance->drv_inst_idx];
-    nrfx_err_t err_code;
+    int err_code;
 
     if (p_cb->state != NRFX_DRV_STATE_UNINITIALIZED)
     {
-#if NRFX_API_VER_AT_LEAST(3, 2, 0)
-        err_code = NRFX_ERROR_ALREADY;
-#else
-        err_code = NRFX_ERROR_INVALID_STATE;
-#endif
+        err_code = -EALREADY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -162,9 +156,9 @@ nrfx_err_t nrfx_spi_init(nrfx_spi_t const *        p_instance,
         NRFX_INSTANCE_IRQ_HANDLERS_LIST(SPI, spi)
     };
     if (nrfx_prs_acquire(p_instance->p_reg,
-            irq_handlers[p_instance->drv_inst_idx]) != NRFX_SUCCESS)
+            irq_handlers[p_instance->drv_inst_idx], NULL) != NRFX_SUCCESS)
     {
-        err_code = NRFX_ERROR_BUSY;
+        err_code = -EBUSY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -188,13 +182,15 @@ nrfx_err_t nrfx_spi_init(nrfx_spi_t const *        p_instance,
     p_cb->transfer_in_progress = false;
     p_cb->state = NRFX_DRV_STATE_INITIALIZED;
 
-    err_code = NRFX_SUCCESS;
-    NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
+    err_code = 0;
+    NRFX_LOG_INFO("Function: %s, error code: %s.",
+                  __func__,
+                  NRFX_LOG_ERROR_STRING_GET(err_code));
     return err_code;
 }
 
-nrfx_err_t nrfx_spi_reconfigure(nrfx_spi_t const *        p_instance,
-                                nrfx_spi_config_t const * p_config)
+int nrfx_spi_reconfigure(nrfx_spi_t const *        p_instance,
+                         nrfx_spi_config_t const * p_config)
 {
     NRFX_ASSERT(p_config);
 
@@ -202,16 +198,16 @@ nrfx_err_t nrfx_spi_reconfigure(nrfx_spi_t const *        p_instance,
 
     if (p_cb->state == NRFX_DRV_STATE_UNINITIALIZED)
     {
-        return NRFX_ERROR_INVALID_STATE;
+        return -EINPROGRESS;
     }
     if (p_cb->transfer_in_progress)
     {
-        return NRFX_ERROR_BUSY;
+        return -EBUSY;
     }
     nrf_spi_disable(p_instance->p_reg);
     spi_configure(p_instance, p_config);
     nrf_spi_enable(p_instance->p_reg);
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 void nrfx_spi_uninit(nrfx_spi_t const * p_instance)
@@ -386,9 +382,9 @@ static void spi_xfer(NRF_SPI_Type               * p_spi,
     }
 }
 
-nrfx_err_t nrfx_spi_xfer(nrfx_spi_t const *           p_instance,
-                         nrfx_spi_xfer_desc_t const * p_xfer_desc,
-                         uint32_t                     flags)
+int nrfx_spi_xfer(nrfx_spi_t const *           p_instance,
+                  nrfx_spi_xfer_desc_t const * p_xfer_desc,
+                  uint32_t                     flags)
 {
     spi_control_block_t * p_cb  = &m_cb[p_instance->drv_inst_idx];
 
@@ -396,11 +392,11 @@ nrfx_err_t nrfx_spi_xfer(nrfx_spi_t const *           p_instance,
     NRFX_ASSERT(p_xfer_desc->p_tx_buffer != NULL || p_xfer_desc->tx_length == 0);
     NRFX_ASSERT(p_xfer_desc->p_rx_buffer != NULL || p_xfer_desc->rx_length == 0);
 
-    nrfx_err_t err_code = NRFX_SUCCESS;
+    int err_code = 0;
 
     if (p_cb->transfer_in_progress)
     {
-        err_code = NRFX_ERROR_BUSY;
+        err_code = -EBUSY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -424,7 +420,7 @@ nrfx_err_t nrfx_spi_xfer(nrfx_spi_t const *           p_instance,
     if (flags)
     {
         p_cb->transfer_in_progress = false;
-        err_code = NRFX_ERROR_NOT_SUPPORTED;
+        err_code = -ENOTSUP;
     }
     else
     {
@@ -459,5 +455,3 @@ static void irq_handler(NRF_SPI_Type * p_spi, spi_control_block_t * p_cb)
 }
 
 NRFX_INSTANCE_IRQ_HANDLERS(SPI, spi)
-
-#endif // NRFX_CHECK(NRFX_SPI_ENABLED)

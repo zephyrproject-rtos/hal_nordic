@@ -58,12 +58,12 @@ NRFY_STATIC_INLINE uint32_t __nrfy_internal_lpcomp_events_process(NRF_LPCOMP_Typ
  * @{
  * @ingroup nrf_lpcomp
  * @brief   Hardware access layer with cache and barrier support for managing the LPCOMP peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 /** @brief LPCOMP configuration structure. */
 typedef struct
 {
-    nrf_lpcomp_config_t  config;    ///< Peripheral configuration. @deprecated Use other fields instead.
     nrf_lpcomp_ref_t     reference; ///< Reference selection.
     nrf_lpcomp_ext_ref_t ext_ref;   ///< External analog reference selection.
     nrf_lpcomp_detect_t  detection; ///< Detection type.
@@ -214,14 +214,6 @@ NRFY_STATIC_INLINE void nrfy_lpcomp_hysteresis_set(NRF_LPCOMP_Type * p_reg,
     nrf_barrier_w();
 }
 #endif
-
-/** @refhal{nrf_lpcomp_configure} */
-NRFY_STATIC_INLINE void nrfy_lpcomp_configure(NRF_LPCOMP_Type *           p_reg,
-                                              nrf_lpcomp_config_t const * p_config)
-{
-    nrf_lpcomp_configure(p_reg, p_config);
-    nrf_barrier_w();
-}
 
 /** @refhal{nrf_lpcomp_input_select} */
 NRFY_STATIC_INLINE void nrfy_lpcomp_input_select(NRF_LPCOMP_Type * p_reg, nrf_lpcomp_input_t input)

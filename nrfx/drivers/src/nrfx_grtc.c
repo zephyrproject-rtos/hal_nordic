@@ -32,11 +32,7 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_GRTC_ENABLED)
-
 #include <nrfx_grtc.h>
-#include <soc/nrfx_coredep.h>
 #include <helpers/nrfx_flag32_allocator.h>
 
 #define NRFX_LOG_MODULE GRTC
@@ -176,17 +172,17 @@ static bool is_channel_available(uint8_t channel)
     return (GRTC_CHANNEL_TO_BITMASK(channel) & NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK);
 }
 
-static nrfx_err_t syscounter_check(uint8_t channel)
+static int syscounter_check(uint8_t channel)
 {
     if (!is_channel_available(channel))
     {
-        return NRFX_ERROR_FORBIDDEN;
+        return -EPERM;
     }
     if (!is_channel_allocated(channel))
     {
-        return NRFX_ERROR_INVALID_PARAM;
+        return -EINVAL;
     }
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 static uint8_t get_channel_for_ch_data_idx(uint8_t idx)
@@ -273,16 +269,21 @@ bool nrfx_grtc_ready_check(void)
     return ready_check();
 }
 
-nrfx_err_t nrfx_grtc_syscounter_get(uint64_t * p_counter)
+uint64_t nrfx_grtc_syscounter_get(void)
 {
     NRFX_ASSERT(m_cb.state == NRFX_DRV_STATE_INITIALIZED);
-    NRFX_ASSERT(p_counter);
+    uint64_t val;
 
+#if !(NRFX_CHECK(ISA_ARM) && (__CORTEX_M == 33U))
+    /* On ARM Cortex-M33 there is a double word read instruction so no need for locking. */
     NRFX_CRITICAL_SECTION_ENTER();
-    *p_counter = nrfy_grtc_sys_counter_get(NRF_GRTC);
+#endif
+    val = nrfy_grtc_sys_counter_get(NRF_GRTC);
+#if !(NRFX_CHECK(ISA_ARM) && (__CORTEX_M == 33U))
     NRFX_CRITICAL_SECTION_EXIT();
+#endif
 
-    return NRFX_SUCCESS;
+    return val;
 }
 
 void nrfx_grtc_channel_callback_set(uint8_t                channel,
@@ -297,31 +298,27 @@ void nrfx_grtc_channel_callback_set(uint8_t                channel,
     nrfy_grtc_int_enable(NRF_GRTC, GRTC_CHANNEL_TO_BITMASK(channel));
 }
 
-nrfx_err_t nrfx_grtc_channel_alloc(uint8_t * p_channel)
+int nrfx_grtc_channel_alloc(uint8_t * p_channel)
 {
-    NRFX_ASSERT(p_channel);
-    nrfx_err_t err_code = nrfx_flag32_alloc(&m_cb.available_channels, p_channel);
-
-    if (err_code != NRFX_SUCCESS)
+    int rv = nrfx_flag32_alloc(&m_cb.available_channels);
+    if (rv < 0)
     {
-        NRFX_LOG_WARNING("Function: %s, error code: %s.",
-                         __func__,
-                         NRFX_LOG_ERROR_STRING_GET(err_code));
+        return rv;
     }
 
-    NRFX_LOG_INFO("GRTC channel %u allocated.", *p_channel);
-    return err_code;
+    *p_channel = (uint8_t)rv;
+    return 0;
 }
 
-nrfx_err_t nrfx_grtc_channel_free(uint8_t channel)
+int nrfx_grtc_channel_free(uint8_t channel)
 {
     NRFX_ASSERT(channel < NRF_GRTC_SYSCOUNTER_CC_COUNT);
-    nrfx_err_t err_code;
+    int err_code;
 
     channel_used_unmark(channel);
     if (!is_channel_available(channel))
     {
-        err_code = NRFX_ERROR_FORBIDDEN;
+        err_code = -EPERM;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -329,7 +326,7 @@ nrfx_err_t nrfx_grtc_channel_free(uint8_t channel)
     }
 
     err_code = nrfx_flag32_free(&m_cb.available_channels, channel);
-    if (err_code != NRFX_SUCCESS)
+    if (err_code != 0)
     {
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
@@ -346,17 +343,13 @@ bool nrfx_grtc_is_channel_used(uint8_t channel)
     return is_channel_used(channel);
 }
 
-nrfx_err_t nrfx_grtc_init(uint8_t interrupt_priority)
+int nrfx_grtc_init(uint8_t interrupt_priority)
 {
-    nrfx_err_t err_code = NRFX_SUCCESS;
+    int err_code = 0;
 
     if (m_cb.state != NRFX_DRV_STATE_UNINITIALIZED)
     {
-#if NRFX_API_VER_AT_LEAST(3, 2, 0)
-        err_code = NRFX_ERROR_ALREADY;
-#else
-        err_code = NRFX_ERROR_INVALID_STATE;
-#endif
+        err_code = -EALREADY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -376,7 +369,7 @@ nrfx_err_t nrfx_grtc_init(uint8_t interrupt_priority)
     if ((num_of_channels_get(NRFX_GRTC_CONFIG_ALLOWED_CC_CHANNELS_MASK) !=
          NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS) || (NRFX_GRTC_CONFIG_NUM_OF_CC_CHANNELS == 0))
     {
-        err_code = NRFX_ERROR_INTERNAL;
+        err_code = -ECANCELED;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -404,7 +397,7 @@ nrfx_err_t nrfx_grtc_init(uint8_t interrupt_priority)
 }
 
 #if NRFY_GRTC_HAS_EXTENDED
-nrfx_err_t nrfx_grtc_sleep_configure(nrfx_grtc_sleep_config_t const * p_sleep_cfg)
+void nrfx_grtc_sleep_configure(nrfx_grtc_sleep_config_t const * p_sleep_cfg)
 {
     NRFX_ASSERT(p_sleep_cfg);
     bool is_active;
@@ -419,27 +412,25 @@ nrfx_err_t nrfx_grtc_sleep_configure(nrfx_grtc_sleep_config_t const * p_sleep_cf
     {
         nrfy_grtc_sys_counter_set(NRF_GRTC, true);
     }
-    return NRFX_SUCCESS;
 }
 
-nrfx_err_t nrfx_grtc_sleep_configuration_get(nrfx_grtc_sleep_config_t * p_sleep_cfg)
+void nrfx_grtc_sleep_configuration_get(nrfx_grtc_sleep_config_t * p_sleep_cfg)
 {
     NRFX_ASSERT(p_sleep_cfg);
     sleep_configuration_get(p_sleep_cfg);
-    return NRFX_SUCCESS;
 }
 #endif // NRFY_GRTC_HAS_EXTENDED
 
 #if NRF_GRTC_HAS_RTCOUNTER
-nrfx_err_t nrfx_grtc_rtcounter_cc_disable(void)
+int nrfx_grtc_rtcounter_cc_disable(void)
 {
     NRFX_ASSERT(m_cb.state != NRFX_DRV_STATE_UNINITIALIZED);
-    nrfx_err_t err_code = NRFX_SUCCESS;
+    int err_code = 0;
     uint32_t   int_mask = NRF_GRTC_INT_RTCOMPARE_MASK | NRF_GRTC_INT_RTCOMPARESYNC_MASK;
 
     if (is_syscounter_running())
     {
-        err_code = NRFX_ERROR_INTERNAL;
+        err_code = -ECANCELED;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -454,7 +445,7 @@ nrfx_err_t nrfx_grtc_rtcounter_cc_disable(void)
         {
             nrfy_grtc_event_clear(NRF_GRTC, NRF_GRTC_EVENT_RTCOMPARE);
             nrfy_grtc_event_clear(NRF_GRTC, NRF_GRTC_EVENT_RTCOMPARESYNC);
-            err_code = NRFX_ERROR_TIMEOUT;
+            err_code = -ETIMEDOUT;
             NRFX_LOG_WARNING("Function: %s, error code: %s.",
                              __func__,
                              NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -485,18 +476,18 @@ void nrfx_grtc_rtcomparesync_int_disable(void)
     NRFX_LOG_INFO("GRTC RTCOMPARESYNC interrupt disabled.");
 }
 
-nrfx_err_t nrfx_grtc_rtcounter_cc_absolute_set(nrfx_grtc_rtcounter_handler_data_t * p_handler_data,
-                                               uint64_t                             val,
-                                               bool                                 enable_irq,
-                                               bool                                 sync)
+int nrfx_grtc_rtcounter_cc_absolute_set(nrfx_grtc_rtcounter_handler_data_t * p_handler_data,
+                                        uint64_t                             val,
+                                        bool                                 enable_irq,
+                                        bool                                 sync)
 {
     NRFX_ASSERT(m_cb.state != NRFX_DRV_STATE_UNINITIALIZED);
     NRFX_ASSERT(p_handler_data);
-    nrfx_err_t err_code = NRFX_SUCCESS;
+    int err_code = 0;
 
     if (is_syscounter_running())
     {
-        err_code = NRFX_ERROR_INTERNAL;
+        err_code = -ECANCELED;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -526,24 +517,25 @@ nrfx_err_t nrfx_grtc_rtcounter_cc_absolute_set(nrfx_grtc_rtcounter_handler_data_
 #endif // NRF_GRTC_HAS_RTCOUNTER
 
 #if NRFY_GRTC_HAS_EXTENDED
-nrfx_err_t nrfx_grtc_syscounter_start(bool busy_wait, uint8_t * p_main_cc_channel)
+int nrfx_grtc_syscounter_start(bool busy_wait, uint8_t * p_main_cc_channel)
 {
     NRFX_ASSERT(m_cb.state == NRFX_DRV_STATE_INITIALIZED);
     NRFX_ASSERT(p_main_cc_channel);
     NRFX_ASSERT(m_cb.channel_data[0].channel == MAIN_GRTC_CC_CHANNEL);
-    nrfx_err_t    err_code  = NRFX_SUCCESS;
+    int rv;
     nrfx_atomic_t init_mask = GRTC_CHANNEL_TO_BITMASK(MAIN_GRTC_CC_CHANNEL) &
                               m_cb.available_channels;
 
-    err_code = nrfx_flag32_alloc(&init_mask, &m_cb.channel_data[0].channel);
-    if (err_code != NRFX_SUCCESS)
+    rv = nrfx_flag32_alloc(&init_mask);
+    if (rv < 0)
     {
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
-                         NRFX_LOG_ERROR_STRING_GET(err_code));
-        return err_code;
+                         NRFX_LOG_ERROR_STRING_GET(rv));
+        return rv;
     }
 
+    m_cb.channel_data[0].channel = (uint8_t)rv;
     *p_main_cc_channel       = MAIN_GRTC_CC_CHANNEL;
     m_cb.available_channels &= ~GRTC_CHANNEL_TO_BITMASK(MAIN_GRTC_CC_CHANNEL);
     channel_used_mark(MAIN_GRTC_CC_CHANNEL);
@@ -551,11 +543,11 @@ nrfx_err_t nrfx_grtc_syscounter_start(bool busy_wait, uint8_t * p_main_cc_channe
 
     if (is_syscounter_running())
     {
-        err_code = NRFX_ERROR_ALREADY;
+        rv = -EALREADY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
-                         NRFX_LOG_ERROR_STRING_GET(err_code));
-        return err_code;
+                         NRFX_LOG_ERROR_STRING_GET(rv));
+        return rv;
     }
     nrfy_grtc_sys_counter_start(NRF_GRTC, busy_wait);
 #if NRFX_IS_ENABLED(NRFX_GRTC_CONFIG_AUTOEN)
@@ -567,21 +559,21 @@ nrfx_err_t nrfx_grtc_syscounter_start(bool busy_wait, uint8_t * p_main_cc_channe
     }
     if (startup_timeout == 0)
     {
-        return NRFX_ERROR_TIMEOUT;
+        return -ETIMEDOUT;
     }
 #endif /* NRFX_IS_ENABLED(NRFX_GRTC_CONFIG_AUTOEN) */
     NRFX_LOG_INFO("GRTC SYSCOUNTER started.");
-    return err_code;
+    return 0;
 }
 
-nrfx_err_t nrfx_grtc_action_perform(nrfx_grtc_action_t action)
+int nrfx_grtc_action_perform(nrfx_grtc_action_t action)
 {
     NRFX_ASSERT(m_cb.state == NRFX_DRV_STATE_INITIALIZED);
-    nrfx_err_t err_code = NRFX_SUCCESS;
+    int err_code = 0;
 
     if (is_syscounter_running())
     {
-        err_code = NRFX_ERROR_INTERNAL;
+        err_code = -ECANCELED;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -685,12 +677,12 @@ void nrfx_grtc_syscountervalid_int_disable(void)
 }
 #endif // NRFY_GRTC_HAS_EXTENDED && NRFY_GRTC_HAS_SYSCOUNTERVALID
 
-nrfx_err_t nrfx_grtc_syscounter_cc_disable(uint8_t channel)
+int nrfx_grtc_syscounter_cc_disable(uint8_t channel)
 {
     NRFX_ASSERT(m_cb.state != NRFX_DRV_STATE_UNINITIALIZED);
     uint32_t   int_mask = NRF_GRTC_CHANNEL_INT_MASK(channel);
-    nrfx_err_t err_code = syscounter_check(channel);
-    if (err_code != NRFX_SUCCESS)
+    int err_code = syscounter_check(channel);
+    if (err_code != 0)
     {
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
@@ -699,7 +691,7 @@ nrfx_err_t nrfx_grtc_syscounter_cc_disable(uint8_t channel)
     }
     if (!is_channel_used(channel))
     {
-        err_code = NRFX_ERROR_INVALID_PARAM;
+        err_code = -EINVAL;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -715,7 +707,7 @@ nrfx_err_t nrfx_grtc_syscounter_cc_disable(uint8_t channel)
         if (nrfy_grtc_sys_counter_compare_event_check(NRF_GRTC, channel))
         {
             nrfy_grtc_sys_counter_compare_event_clear(NRF_GRTC, channel);
-            err_code = NRFX_ERROR_TIMEOUT;
+            err_code = -ETIMEDOUT;
             NRFX_LOG_WARNING("Function: %s, error code: %s.",
                              __func__,
                              NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -728,7 +720,7 @@ nrfx_err_t nrfx_grtc_syscounter_cc_disable(uint8_t channel)
 
 void nrfx_grtc_syscounter_cc_abs_set(uint8_t channel, uint64_t val, bool safe_setting)
 {
-    NRFX_ASSERT(syscounter_check(channel) == NRFX_SUCCESS);
+    NRFX_ASSERT(syscounter_check(channel) == 0);
 
     m_cb.cc_value[m_cb.ch_to_data[channel]] = val;
     if (safe_setting)
@@ -738,7 +730,7 @@ void nrfx_grtc_syscounter_cc_abs_set(uint8_t channel, uint64_t val, bool safe_se
         {
             uint64_t now;
 
-            nrfx_grtc_syscounter_get(&now);
+            now = nrfx_grtc_syscounter_get();
             if (val > now)
             {
                 nrfy_grtc_sys_counter_compare_event_clear(NRF_GRTC, channel);
@@ -751,14 +743,14 @@ void nrfx_grtc_syscounter_cc_abs_set(uint8_t channel, uint64_t val, bool safe_se
     }
 }
 
-nrfx_err_t nrfx_grtc_syscounter_cc_absolute_set(nrfx_grtc_channel_t * p_chan_data,
-                                                uint64_t              val,
-                                                bool                  enable_irq)
+int nrfx_grtc_syscounter_cc_absolute_set(nrfx_grtc_channel_t * p_chan_data,
+                                         uint64_t              val,
+                                         bool                  enable_irq)
 {
     NRFX_ASSERT(m_cb.state != NRFX_DRV_STATE_UNINITIALIZED);
     NRFX_ASSERT(p_chan_data);
-    nrfx_err_t err_code = syscounter_check(p_chan_data->channel);
-    if (err_code != NRFX_SUCCESS)
+    int err_code = syscounter_check(p_chan_data->channel);
+    if (err_code != 0)
     {
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
@@ -788,7 +780,7 @@ void nrfx_grtc_syscounter_cc_rel_set(uint8_t channel,
                                      uint32_t val,
                                      nrfx_grtc_cc_relative_reference_t reference)
 {
-    NRFX_ASSERT(syscounter_check(channel) == NRFX_SUCCESS);
+    NRFX_ASSERT(syscounter_check(channel) == 0);
 
     m_cb.cc_value[m_cb.ch_to_data[channel]] += val;
     nrfy_grtc_sys_counter_cc_add_set(NRF_GRTC,
@@ -797,15 +789,15 @@ void nrfx_grtc_syscounter_cc_rel_set(uint8_t channel,
                                      (nrf_grtc_cc_add_reference_t)reference);
 }
 
-nrfx_err_t nrfx_grtc_syscounter_cc_relative_set(nrfx_grtc_channel_t *             p_chan_data,
-                                                uint32_t                          val,
-                                                bool                              enable_irq,
-                                                nrfx_grtc_cc_relative_reference_t reference)
+int nrfx_grtc_syscounter_cc_relative_set(nrfx_grtc_channel_t *             p_chan_data,
+                                         uint32_t                          val,
+                                         bool                              enable_irq,
+                                         nrfx_grtc_cc_relative_reference_t reference)
 {
     NRFX_ASSERT(m_cb.state != NRFX_DRV_STATE_UNINITIALIZED);
     NRFX_ASSERT(p_chan_data);
-    nrfx_err_t err_code = syscounter_check(p_chan_data->channel);
-    if (err_code != NRFX_SUCCESS)
+    int err_code = syscounter_check(p_chan_data->channel);
+    if (err_code != 0)
     {
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
@@ -836,11 +828,11 @@ nrfx_err_t nrfx_grtc_syscounter_cc_relative_set(nrfx_grtc_channel_t *           
     return err_code;
 }
 
-nrfx_err_t nrfx_grtc_syscounter_cc_int_disable(uint8_t channel)
+int nrfx_grtc_syscounter_cc_int_disable(uint8_t channel)
 {
     NRFX_ASSERT(m_cb.state != NRFX_DRV_STATE_UNINITIALIZED);
-    nrfx_err_t err_code = syscounter_check(channel);
-    if (err_code != NRFX_SUCCESS)
+    int err_code = syscounter_check(channel);
+    if (err_code != 0)
     {
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
@@ -849,7 +841,7 @@ nrfx_err_t nrfx_grtc_syscounter_cc_int_disable(uint8_t channel)
     }
     if (!is_channel_used(channel))
     {
-        err_code = NRFX_ERROR_INVALID_PARAM;
+        err_code = -EINVAL;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -861,11 +853,11 @@ nrfx_err_t nrfx_grtc_syscounter_cc_int_disable(uint8_t channel)
     return err_code;
 }
 
-nrfx_err_t nrfx_grtc_syscounter_cc_int_enable(uint8_t channel)
+int nrfx_grtc_syscounter_cc_int_enable(uint8_t channel)
 {
     NRFX_ASSERT(m_cb.state != NRFX_DRV_STATE_UNINITIALIZED);
-    nrfx_err_t err_code = syscounter_check(channel);
-    if (err_code != NRFX_SUCCESS)
+    int err_code = syscounter_check(channel);
+    if (err_code != 0)
     {
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
@@ -885,11 +877,11 @@ bool nrfx_grtc_syscounter_cc_int_enable_check(uint8_t channel)
     return nrfy_grtc_int_enable_check(NRF_GRTC, GRTC_CHANNEL_TO_BITMASK(channel));
 }
 
-nrfx_err_t nrfx_grtc_syscounter_capture(uint8_t channel)
+int nrfx_grtc_syscounter_capture(uint8_t channel)
 {
     NRFX_ASSERT(m_cb.state != NRFX_DRV_STATE_UNINITIALIZED);
-    nrfx_err_t err_code = syscounter_check(channel);
-    if (err_code != NRFX_SUCCESS)
+    int err_code = syscounter_check(channel);
+    if (err_code != 0)
     {
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
@@ -903,12 +895,12 @@ nrfx_err_t nrfx_grtc_syscounter_capture(uint8_t channel)
     return err_code;
 }
 
-nrfx_err_t nrfx_grtc_syscounter_cc_value_read(uint8_t channel, uint64_t * p_val)
+int nrfx_grtc_syscounter_cc_value_read(uint8_t channel, uint64_t * p_val)
 {
     NRFX_ASSERT(m_cb.state != NRFX_DRV_STATE_UNINITIALIZED);
     NRFX_ASSERT(p_val);
-    nrfx_err_t err_code = syscounter_check(channel);
-    if (err_code != NRFX_SUCCESS)
+    int err_code = syscounter_check(channel);
+    if (err_code != 0)
     {
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
@@ -917,7 +909,7 @@ nrfx_err_t nrfx_grtc_syscounter_cc_value_read(uint8_t channel, uint64_t * p_val)
     }
     if (!is_channel_used(channel))
     {
-        err_code = NRFX_ERROR_INVALID_PARAM;
+        err_code = -EINVAL;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -1023,5 +1015,3 @@ void nrfx_grtc_irq_handler(void)
 {
     grtc_irq_handler();
 }
-
-#endif // NRFX_CHECK(NRFX_GRTC_ENABLED)

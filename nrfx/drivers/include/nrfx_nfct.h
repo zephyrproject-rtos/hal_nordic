@@ -187,13 +187,14 @@ typedef struct
  *
  * @param[in] p_config  Pointer to the NFCT driver configuration structure.
  *
- * @retval NRFX_SUCCESS             The NFCT driver was initialized successfully.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
- * @retval NRFX_ERROR_FORBIDDEN     The NFCT antenna pads are not configured as antenna pins.
+ * @retval 0          The NFCT driver was initialized successfully.
+ * @retval -EALREADY  The driver is already initialized.
+ * @retval -EPERM     The NFCT antenna pads are not configured as antenna pins.
+ * @retval -ECANCELED The NFCT field timer was not configured successfully.
+ *                    This is possible only if workarounds for nRF52 errata 79,
+ *                    nRF52 errata 190 or nRF53 errata 70 are enabled.
  */
-nrfx_err_t nrfx_nfct_init(nrfx_nfct_config_t const * p_config);
+int nrfx_nfct_init(nrfx_nfct_config_t const * p_config);
 
 /**
  * @brief Function for uninitializing the NFCT driver.
@@ -238,10 +239,10 @@ bool nrfx_nfct_field_check(void);
  *
  * @param[in] p_rx_data  Pointer to the RX buffer.
  *
- * @retval NRFX_SUCCESS            The operation was successful.
- * @retval NRFX_ERROR_INVALID_ADDR Data buffer does not point to memory region reachable by EasyDMA.
+ * @retval 0       The operation was successful.
+ * @retval -EACCES Data buffer does not point to memory region reachable by EasyDMA.
  */
-nrfx_err_t nrfx_nfct_rx(nrfx_nfct_data_desc_t const * p_rx_data);
+int nrfx_nfct_rx(nrfx_nfct_data_desc_t const * p_rx_data);
 
 /**
  * @brief Function for transmitting an NFC frame.
@@ -249,14 +250,13 @@ nrfx_err_t nrfx_nfct_rx(nrfx_nfct_data_desc_t const * p_rx_data);
  * @param[in] p_tx_data   Pointer to the TX buffer.
  * @param[in] delay_mode  Delay mode of the NFCT frame timer.
  *
- * @retval NRFX_SUCCESS              The operation was successful.
- * @retval NRFX_ERROR_INVALID_LENGTH The TX buffer size is invalid.
- * @retval NRFX_ERROR_BUSY           Driver is already transferring.
- * @retval NRFX_ERROR_INVALID_ADDR   Data buffer does not point to memory region reachable by
- *                                   EasyDMA.
+ * @retval 0       The operation was successful.
+ * @retval -E2BIG  The TX buffer size is invalid.
+ * @retval -EBUSY  Driver is already transferring.
+ * @retval -EACCES Data buffer does not point to memory region reachable by EasyDMA.
  */
-nrfx_err_t nrfx_nfct_tx(nrfx_nfct_data_desc_t const * p_tx_data,
-                        nrf_nfct_frame_delay_mode_t   delay_mode);
+int nrfx_nfct_tx(nrfx_nfct_data_desc_t const * p_tx_data,
+                 nrf_nfct_frame_delay_mode_t   delay_mode);
 
 /**
  * @brief Function for transmitting an NFC frame with a specified number of bits.
@@ -265,14 +265,13 @@ nrfx_err_t nrfx_nfct_tx(nrfx_nfct_data_desc_t const * p_tx_data,
  *                        used as the number of bits to transmit, rather than bytes.
  * @param[in] delay_mode  Delay mode of the NFCT frame timer.
  *
- * @retval NRFX_SUCCESS              The operation was successful.
- * @retval NRFX_ERROR_INVALID_LENGTH The TX buffer size is invalid.
- * @retval NRFX_ERROR_BUSY           Driver is already transferring.
- * @retval NRFX_ERROR_INVALID_ADDR   Data buffer does not point to memory region reachable by
- *                                   EasyDMA.
+ * @retval 0       The operation was successful.
+ * @retval -E2BIG  The TX buffer size is invalid.
+ * @retval -EBUSY  Driver is already transferring.
+ * @retval -EACCES Data buffer does not point to memory region reachable by EasyDMA.
  */
-nrfx_err_t nrfx_nfct_bits_tx(nrfx_nfct_data_desc_t const * p_tx_data,
-                             nrf_nfct_frame_delay_mode_t   delay_mode);
+int nrfx_nfct_bits_tx(nrfx_nfct_data_desc_t const * p_tx_data,
+                      nrf_nfct_frame_delay_mode_t   delay_mode);
 
 /**
  * @brief Function for moving the NFCT to a new state.
@@ -298,10 +297,10 @@ void nrfx_nfct_init_substate_force(nrfx_nfct_active_state_t sub_state);
  *
  * @param[in] p_param  Pointer to parameter descriptor.
  *
- * @retval NRFX_SUCCESS             The operation was successful.
- * @retval NRFX_ERROR_INVALID_PARAM The parameter data is invalid.
+ * @retval 0       The operation was successful.
+ * @retval -EINVAL The parameter data is invalid.
  */
-nrfx_err_t nrfx_nfct_parameter_set(nrfx_nfct_param_t const * p_param);
+int nrfx_nfct_parameter_set(nrfx_nfct_param_t const * p_param);
 
 /**
  * @brief Function for getting default bytes for NFCID1.
@@ -314,14 +313,12 @@ nrfx_err_t nrfx_nfct_parameter_set(nrfx_nfct_param_t const * p_param);
  *                                      can be used to fill the Type 2 Tag Internal Bytes.
  * @param[in]     nfcid1_buff_len  Length of the NFCID1 buffer.
  *
- * @retval NRFX_SUCCESS              The operation was successful.
- * @retval NRFX_ERROR_INVALID_LENGTH Length of the NFCID buffer is different than
- *                                   @ref NRFX_NFCT_NFCID1_SINGLE_SIZE,
- *                                   @ref NRFX_NFCT_NFCID1_DOUBLE_SIZE, or
- *                                   @ref NRFX_NFCT_NFCID1_TRIPLE_SIZE.
+ * @retval 0      The operation was successful.
+ * @retval -E2BIG Length of the NFCID buffer is different than @ref NRFX_NFCT_NFCID1_SINGLE_SIZE,
+ *                @ref NRFX_NFCT_NFCID1_DOUBLE_SIZE, or @ref NRFX_NFCT_NFCID1_TRIPLE_SIZE.
  */
-nrfx_err_t nrfx_nfct_nfcid1_default_bytes_get(uint8_t * const p_nfcid1_buff,
-                                              uint32_t        nfcid1_buff_len);
+int nrfx_nfct_nfcid1_default_bytes_get(uint8_t * const p_nfcid1_buff,
+                                       uint32_t        nfcid1_buff_len);
 
 /**
  * @brief Function for enabling the automatic collision resolution.
@@ -338,6 +335,18 @@ void nrfx_nfct_autocolres_enable(void);
  * @details See also details in @ref nrfx_nfct_autocolres_enable.
  */
 void nrfx_nfct_autocolres_disable(void);
+
+#if NRF_ERRATA_STATIC_CHECK(52, 79) || NRF_ERRATA_STATIC_CHECK(52, 190) || \
+    NRF_ERRATA_STATIC_CHECK(53, 70)
+/**
+ * @brief Function for handling workarounds for nRF52 Anomaly 79, nRF52 Anomaly 190 and
+ *        nRF53 Anomaly 70.
+ *
+ * @note The function should be called from an interrupt handler for the TIMER
+ *       instance specified by @ref NRFX_NFCT_CONFIG_TIMER_INSTANCE_ID.
+ */
+void nrfx_nfct_workaround_timer_handler(void);
+#endif
 
 /** @} */
 

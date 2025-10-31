@@ -68,21 +68,85 @@ extern "C" {
 #define NRF_HSFLL_HAS_TCOEF_TRIM 0
 #endif
 
+#if defined(HSFLL_TASKS_FREQMEAS_TASKS_FREQMEAS_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether HSFLL has TASKS_FREQMEAS. */
+#define NRF_HSFLL_HAS_TASKS_FREQMEAS 1
+#else
+#define NRF_HSFLL_HAS_TASKS_FREQMEAS 0
+#endif
+
+#if defined(HSFLL_TASKS_START_TASKS_START_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether HSFLL has START and STOP tasks. */
+#define NRF_HSFLL_HAS_TASK_START_STOP 1
+#else
+#define NRF_HSFLL_HAS_TASK_START_STOP 0
+#endif
+
+#if defined(HSFLL_CLOCKCTRL_MODE_OVERRIDE_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether HSFLL has CLOCKCTRL_MODE_OVERRIDE. */
+#define NRF_HSFLL_HAS_CLOCKCTRL_MODE_OVERRIDE 1
+#else
+#define NRF_HSFLL_HAS_CLOCKCTRL_MODE_OVERRIDE 0
+#endif
+
+#if defined(HSFLL_CLOCKSTATUS_OVERRIDE_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether HSFLL has CLOCKSTATUS_OVERRIDE. */
+#define NRF_HSFLL_HAS_CLOCKSTATUS_OVERRIDE 1
+#else
+#define NRF_HSFLL_HAS_CLOCKSTATUS_OVERRIDE 0
+#endif
+
+#if defined(HSFLL_CLOCKCTRL_SLEEP_MODE_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether HSFLL has CLOCKCTRL_SLEEP_MODE. */
+#define NRF_HSFLL_HAS_CLOCKCTRL_SLEEP_MODE 1
+#else
+#define NRF_HSFLL_HAS_CLOCKCTRL_SLEEP_MODE 0
+#endif
+
+#if defined(HSFLL_CLOCKCTRL_RETAINFINETRIM_RETAIN_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether HSFLL has CLOCKCTRL_RETAINFINETRIM. */
+#define NRF_HSFLL_HAS_CLOCKCTRL_RETAINFINETRIM 1
+#else
+#define NRF_HSFLL_HAS_CLOCKCTRL_RETAINFINETRIM 0
+#endif
+
+#if defined(HSFLL_CLOCKCTRL_OVERRIDELOCKED_OVERRIDE_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether HSFLL has CLOCKCTRL_OVERRIDELOCKED. */
+#define NRF_HSFLL_HAS_CLOCKCTRL_OVERRIDELOCKED 1
+#else
+#define NRF_HSFLL_HAS_CLOCKCTRL_OVERRIDELOCKED 0
+#endif
+
+#if defined(HSFLL_CLOCKSTATUS_MODE_Bypass) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether HSFLL has CLOCKSTATUS_MODE_BYPASS. */
+#define NRF_HSFLL_HAS_CLOCKSTATUS_MODE_BYPASS 1
+#else
+#define NRF_HSFLL_HAS_CLOCKSTATUS_MODE_BYPASS 0
+#endif
+
 /** @brief HSFLL tasks. */
 typedef enum
 {
+#if NRF_HSFLL_HAS_TASK_START_STOP
     NRF_HSFLL_TASK_START       = offsetof(NRF_HSFLL_Type, TASKS_START),      ///< Start the HSFLL.
     NRF_HSFLL_TASK_STOP        = offsetof(NRF_HSFLL_Type, TASKS_STOP),       ///< Stop the HSFLL.
+#endif
+#if NRF_HSFLL_HAS_TASKS_FREQMEAS
     NRF_HSFLL_TASK_FREQ_MEAS   = offsetof(NRF_HSFLL_Type, TASKS_FREQMEAS),   ///< Start frequency measurement in software-controlled mode.
+#endif
     NRF_HSFLL_TASK_FREQ_CHANGE = offsetof(NRF_HSFLL_Type, TASKS_FREQCHANGE), ///< Trigger frequency change.
 } nrf_hsfll_task_t;
 
 /** @brief HSFLL events. */
 typedef enum
 {
+#if NRF_HSFLL_HAS_TASK_START_STOP
     NRF_HSFLL_EVENT_STARTED      = offsetof(NRF_HSFLL_Type, EVENTS_STARTED),     ///< HSFLL started.
     NRF_HSFLL_EVENT_STOPPED      = offsetof(NRF_HSFLL_Type, EVENTS_STOPPED),     ///< HSFLL stopped.
+#endif
+#if NRF_HSFLL_HAS_TASKS_FREQMEAS
     NRF_HSFLL_EVENT_FREQM_DONE   = offsetof(NRF_HSFLL_Type, EVENTS_FREQMDONE),   ///< HSFLL frequency measurement done.
+#endif
     NRF_HSFLL_EVENT_FREQ_CHANGED = offsetof(NRF_HSFLL_Type, EVENTS_FREQCHANGED), ///< HSFLL frequency change done.
 } nrf_hsfll_event_t;
 
@@ -91,7 +155,9 @@ typedef enum
 {
     NRF_HSFLL_MODE_STATUS_OPEN_LOOP   = HSFLL_CLOCKSTATUS_MODE_OpenLoop,   ///< Open loop mode.
     NRF_HSFLL_MODE_STATUS_CLOSED_LOOP = HSFLL_CLOCKSTATUS_MODE_ClosedLoop, ///< Closed loop mode.
+#if NRF_HSFLL_HAS_CLOCKSTATUS_MODE_BYPASS
     NRF_HSFLL_MODE_STATUS_BYPASS      = HSFLL_CLOCKSTATUS_MODE_Bypass,     ///< Bypass mode.
+#endif
 } nrf_hsfll_mode_status_t;
 
 /** @brief HSFLL clock status. */
@@ -117,7 +183,9 @@ typedef enum
     NRF_HSFLL_MODE_CTRL_AUTO        = HSFLL_CLOCKCTRL_MODE_MODE_Auto,       ///< The PCGC controls the mode automatically.
     NRF_HSFLL_MODE_CTRL_OPEN_LOOP   = HSFLL_CLOCKCTRL_MODE_MODE_OpenLoop,   ///< Open loop mode.
     NRF_HSFLL_MODE_CTRL_CLOSED_LOOP = HSFLL_CLOCKCTRL_MODE_MODE_ClosedLoop, ///< Closed loop mode.
+#if NRF_HSFLL_HAS_CLOCKSTATUS_MODE_BYPASS
     NRF_HSFLL_MODE_CTRL_BYPASS      = HSFLL_CLOCKCTRL_MODE_MODE_Bypass,     ///< Bypass mode.
+#endif
 } nrf_hsfll_mode_ctrl_t;
 
 /** @brief HSFLL clock control. */
@@ -215,6 +283,7 @@ NRF_STATIC_INLINE bool nrf_hsfll_event_check(NRF_HSFLL_Type const * p_reg,
 NRF_STATIC_INLINE void nrf_hsfll_status_clk_get(NRF_HSFLL_Type const *   p_reg,
                                                 nrf_hsfll_status_clk_t * p_status);
 
+#if NRF_HSFLL_HAS_TASKS_FREQMEAS
 /**
  * @brief Function for checking whether the HSFLL frequency measurement is completed.
  *
@@ -243,7 +312,9 @@ NRF_STATIC_INLINE void nrf_hsfll_freqm_error_get(NRF_HSFLL_Type const *    p_reg
  * @return The last frequency measurement value. Measures the number of reference clock cycles.
  */
 NRF_STATIC_INLINE uint32_t nrf_hsfll_freqm_meas_get(NRF_HSFLL_Type const * p_reg);
+#endif
 
+#if NRF_HSFLL_HAS_CLOCKCTRL_MODE_OVERRIDE
 /**
  * @brief Function for setting HSFLL clock control mode settings.
  *
@@ -261,7 +332,7 @@ NRF_STATIC_INLINE void nrf_hsfll_clkctrl_mode_set(NRF_HSFLL_Type *            p_
  */
 NRF_STATIC_INLINE void nrf_hsfll_clkctrl_mode_get(NRF_HSFLL_Type const * p_reg,
                                                   nrf_hsfll_clkctrl_t *  p_clkctrl);
-
+#endif
 /**
  * @brief Function for setting HSFLL clock dithering configuration.
  *
@@ -298,6 +369,7 @@ NRF_STATIC_INLINE void nrf_hsfll_clkctrl_mult_set(NRF_HSFLL_Type * p_reg, uint32
  */
 NRF_STATIC_INLINE uint32_t nrf_hsfll_clkctrl_mult_get(NRF_HSFLL_Type const * p_reg);
 
+#if NRF_HSFLL_HAS_CLOCKCTRL_SLEEP_MODE
 /**
  * @brief Function for setting HSFLL clock sleep configuration.
  *
@@ -315,7 +387,9 @@ NRF_STATIC_INLINE void nrf_hsfll_clkctrl_sleep_set(NRF_HSFLL_Type *          p_r
  */
 NRF_STATIC_INLINE void nrf_hsfll_clkctrl_sleep_get(NRF_HSFLL_Type const * p_reg,
                                                    nrf_hsfll_sleep_t *    p_config);
+#endif
 
+#if NRF_HSFLL_HAS_CLOCKCTRL_RETAINFINETRIM
 /**
  * @brief Function for enabling or disabling the retention of HSFLL fine trim control.
  *
@@ -325,7 +399,9 @@ NRF_STATIC_INLINE void nrf_hsfll_clkctrl_sleep_get(NRF_HSFLL_Type const * p_reg,
  */
 NRF_STATIC_INLINE void nrf_hsfll_clkctrl_retainfinetrim_enable_set(NRF_HSFLL_Type * p_reg,
                                                                    bool             retain);
+#endif
 
+#if NRF_HSFLL_HAS_CLOCKCTRL_OVERRIDELOCKED
 /**
  * @brief Function for enabling or disabling the override of the HSFLL LOCKED signal.
  *
@@ -334,6 +410,7 @@ NRF_STATIC_INLINE void nrf_hsfll_clkctrl_retainfinetrim_enable_set(NRF_HSFLL_Typ
  */
 NRF_STATIC_INLINE void nrf_hsfll_clkctrl_overridelocked_enable_set(NRF_HSFLL_Type * p_reg,
                                                                    bool             override);
+#endif
 
 #if NRF_HSFLL_HAS_DITHERINIT
 /**
@@ -410,9 +487,11 @@ NRF_STATIC_INLINE void nrf_hsfll_status_clk_get(NRF_HSFLL_Type const *   p_reg,
 
     p_status->mode =
         (nrf_hsfll_mode_status_t)((reg & HSFLL_CLOCKSTATUS_MODE_Msk) >> HSFLL_CLOCKSTATUS_MODE_Pos);
+#if NRF_HSFLL_HAS_CLOCKSTATUS_OVERRIDE
     p_status->override = ((reg & HSFLL_CLOCKSTATUS_OVERRIDE_Msk)
                           >> HSFLL_CLOCKSTATUS_OVERRIDE_Pos) ==
                          HSFLL_CLOCKSTATUS_OVERRIDE_Enabled;
+#endif
     p_status->accuracy = ((reg & HSFLL_CLOCKSTATUS_ACCURACY_Msk)
                           >> HSFLL_CLOCKSTATUS_ACCURACY_Pos) ==
                          HSFLL_CLOCKSTATUS_ACCURACY_WithinLimit;
@@ -421,6 +500,7 @@ NRF_STATIC_INLINE void nrf_hsfll_status_clk_get(NRF_HSFLL_Type const *   p_reg,
                        HSFLL_CLOCKSTATUS_LOCKED_Locked;
 }
 
+#if NRF_HSFLL_HAS_TASKS_FREQMEAS
 NRF_STATIC_INLINE bool nrf_hsfll_freqm_done_check(NRF_HSFLL_Type const * p_reg)
 {
     return ((p_reg->FREQM.DONE & HSFLL_FREQM_DONE_DONE_Msk) >> HSFLL_FREQM_DONE_DONE_Pos) ==
@@ -446,7 +526,9 @@ NRF_STATIC_INLINE uint32_t nrf_hsfll_freqm_meas_get(NRF_HSFLL_Type const * p_reg
 {
     return (p_reg->FREQM.MEAS & HSFLL_FREQM_MEAS_VALUE_Msk) >> HSFLL_FREQM_MEAS_VALUE_Pos;
 }
+#endif
 
+#if NRF_HSFLL_HAS_CLOCKCTRL_MODE_OVERRIDE
 NRF_STATIC_INLINE void nrf_hsfll_clkctrl_mode_set(NRF_HSFLL_Type *            p_reg,
                                                   nrf_hsfll_clkctrl_t const * p_clkctrl)
 {
@@ -473,6 +555,7 @@ NRF_STATIC_INLINE void nrf_hsfll_clkctrl_mode_get(NRF_HSFLL_Type const * p_reg,
                            >> HSFLL_CLOCKCTRL_MODE_OVERRIDE_Pos) ==
                           HSFLL_CLOCKCTRL_MODE_OVERRIDE_Enabled;
 }
+#endif
 
 NRF_STATIC_INLINE void nrf_hsfll_clkctrl_dithering_set(NRF_HSFLL_Type *              p_reg,
                                                        nrf_hsfll_dithering_t const * p_config)
@@ -522,6 +605,7 @@ NRF_STATIC_INLINE uint32_t nrf_hsfll_clkctrl_mult_get(NRF_HSFLL_Type const * p_r
     return (p_reg->CLOCKCTRL.MULT & HSFLL_CLOCKCTRL_MULT_VAL_Msk) >> HSFLL_CLOCKCTRL_MULT_VAL_Pos;
 }
 
+#if NRF_HSFLL_HAS_CLOCKCTRL_SLEEP_MODE
 NRF_STATIC_INLINE void nrf_hsfll_clkctrl_sleep_set(NRF_HSFLL_Type *          p_reg,
                                                    nrf_hsfll_sleep_t const * p_config)
 {
@@ -548,7 +632,9 @@ NRF_STATIC_INLINE void nrf_hsfll_clkctrl_sleep_get(NRF_HSFLL_Type const * p_reg,
                         >> HSFLL_CLOCKCTRL_SLEEP_RETAIN_Pos) ==
                        HSFLL_CLOCKCTRL_SLEEP_RETAIN_Enabled;
 }
+#endif
 
+#if NRF_HSFLL_HAS_CLOCKCTRL_RETAINFINETRIM
 NRF_STATIC_INLINE void nrf_hsfll_clkctrl_retainfinetrim_enable_set(NRF_HSFLL_Type * p_reg,
                                                                    bool             retain)
 {
@@ -558,7 +644,9 @@ NRF_STATIC_INLINE void nrf_hsfll_clkctrl_retainfinetrim_enable_set(NRF_HSFLL_Typ
                                        << HSFLL_CLOCKCTRL_RETAINFINETRIM_RETAIN_Pos) &
                                       HSFLL_CLOCKCTRL_RETAINFINETRIM_RETAIN_Msk;
 }
+#endif
 
+#if NRF_HSFLL_HAS_CLOCKCTRL_OVERRIDELOCKED
 NRF_STATIC_INLINE void nrf_hsfll_clkctrl_overridelocked_enable_set(NRF_HSFLL_Type * p_reg,
                                                                    bool             override)
 {
@@ -568,6 +656,7 @@ NRF_STATIC_INLINE void nrf_hsfll_clkctrl_overridelocked_enable_set(NRF_HSFLL_Typ
                                        << HSFLL_CLOCKCTRL_OVERRIDELOCKED_OVERRIDE_Pos) &
                                       HSFLL_CLOCKCTRL_OVERRIDELOCKED_OVERRIDE_Msk;
 }
+#endif
 
 #if NRF_HSFLL_HAS_DITHERINIT
 NRF_STATIC_INLINE void nrf_hsfll_clkctrl_dither_init_set(NRF_HSFLL_Type * p_reg, uint32_t seed)

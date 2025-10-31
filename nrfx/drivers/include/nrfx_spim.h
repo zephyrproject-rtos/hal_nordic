@@ -37,6 +37,10 @@
 #include <nrfx.h>
 #include <haly/nrfy_spim.h>
 #include <haly/nrfy_gpio.h>
+#if NRF_ERRATA_STATIC_CHECK(52, 58)
+#include <helpers/nrfx_gppi.h>
+#include <nrfx_gpiote.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,26 +53,68 @@ extern "C" {
  * @brief   Serial Peripheral Interface Master with EasyDMA (SPIM) driver.
  */
 
+/**
+ * @brief SPIM master driver event types, passed to the handler routine provided
+ *        during initialization.
+ */
+typedef enum
+{
+    NRFX_SPIM_EVENT_DONE, ///< Transfer done.
+} nrfx_spim_event_type_t;
+
+/** @brief Single transfer descriptor structure. */
+typedef nrfy_spim_xfer_desc_t nrfx_spim_xfer_desc_t;
+
+/** @brief SPIM event description with transmission details. */
+typedef struct
+{
+    nrfx_spim_event_type_t type;      ///< Event type.
+    nrfx_spim_xfer_desc_t  xfer_desc; ///< Transfer details.
+} nrfx_spim_event_t;
+
+/** @brief SPIM event handler type for user-defined callback function. */
+typedef void (* nrfx_spim_event_handler_t)(nrfx_spim_event_t const * p_event,
+                                           void *                    p_context);
+
+/** @cond Driver internal data. */
+typedef struct
+{
+    nrfx_spim_event_handler_t handler;
+    void *                    p_context;
+    nrfx_spim_event_t         evt;
+    nrfx_drv_state_t          state;
+    volatile bool             transfer_in_progress;
+    bool                      skip_gpio_cfg          : 1;
+    bool                      ss_active_high         : 1;
+    bool                      disable_on_xfer_end    : 1;
+#if NRF_ERRATA_STATIC_CHECK(54L, 8) || NRF_ERRATA_STATIC_CHECK(54H, 212)
+    bool                      apply_errata_8_212     : 1;
+#endif
+#if NRF_ERRATA_STATIC_CHECK(54L, 55)
+    bool                      apply_nrf54l_errata_55 : 1;
+#endif
+#if NRF_ERRATA_STATIC_CHECK(52, 58)
+    bool                      apply_nrf52_errata_58  : 1;
+    nrfx_gpiote_t *           p_gpiote_inst;
+    uint8_t                   gpiote_ch;
+    nrfx_gppi_handle_t        gppi_handle;
+#endif
+    uint32_t                  ss_pin;
+} nrfx_spim_control_block_t;
+/** @endcond */
+
 /** @brief Data structure of the Serial Peripheral Interface Master with EasyDMA (SPIM) driver instance. */
 typedef struct
 {
-    NRF_SPIM_Type * p_reg;        ///< Pointer to a structure with SPIM registers.
-    uint8_t         drv_inst_idx; ///< Index of the driver instance. For internal use only.
+    NRF_SPIM_Type *           p_reg; ///< Pointer to the structure of registers of the peripheral.
+    nrfx_spim_control_block_t cb;    ///< Driver internal data.
 } nrfx_spim_t;
 
-#ifndef __NRFX_DOXYGEN__
-enum {
-    /* List all enabled driver instances (in the format NRFX_\<instance_name\>_INST_IDX). */
-    NRFX_INSTANCE_ENUM_LIST(SPIM)
-    NRFX_SPIM_ENABLED_COUNT
-};
-#endif
-
 /** @brief Macro for creating an instance of the SPIM driver. */
-#define NRFX_SPIM_INSTANCE(id)                               \
-{                                                            \
-    .p_reg        = NRFX_CONCAT(NRF_, SPIM, id),             \
-    .drv_inst_idx = NRFX_CONCAT(NRFX_SPIM, id, _INST_IDX),   \
+#define NRFX_SPIM_INSTANCE(reg)    \
+{                                  \
+    .p_reg = (NRF_SPIM_Type *)reg, \
+    .cb    = {0},                  \
 }
 
 /** @brief Configuration structure of the SPIM driver instance. */
@@ -99,13 +145,17 @@ typedef struct
     nrf_spim_mode_t      mode;           ///< SPIM mode.
     nrf_spim_bit_order_t bit_order;      ///< SPIM bit order.
     nrf_gpio_pin_pull_t  miso_pull;      ///< MISO pull up configuration.
-#if NRFX_CHECK(NRFX_SPIM_EXTENDED_ENABLED) || defined(__NRFX_DOXYGEN__)
+#if NRF_SPIM_HAS_DCX
     uint32_t             dcx_pin;        ///< D/CX pin number (optional).
+#endif
+#if NRF_SPIM_HAS_RXDELAY
     uint8_t              rx_delay;       ///< Sample delay for input serial data on MISO.
                                          /**< The value specifies the delay, in number of 64 MHz clock cycles
                                           *   (15.625 ns), from the the sampling edge of SCK (leading edge for
                                           *   CONFIG.CPHA = 0, trailing edge for CONFIG.CPHA = 1) until
                                           *   the input serial data is sampled. */
+#endif
+#if NRF_SPIM_HAS_HW_CSN
     bool                 use_hw_ss;      ///< Indication to use software or hardware controlled Slave Select pin.
     uint8_t              ss_duration;    ///< Slave Select duration before and after transmission.
                                          /**< Minimum duration between the edge of CSN and the edge of SCK.
@@ -147,23 +197,23 @@ typedef struct
  * @param[in] _pin_miso MISO pin.
  * @param[in] _pin_ss   Slave select pin.
  */
-#define NRFX_SPIM_DEFAULT_CONFIG(_pin_sck, _pin_mosi, _pin_miso, _pin_ss)                        \
-{                                                                                                \
-    .sck_pin        = _pin_sck,                                                                  \
-    .mosi_pin       = _pin_mosi,                                                                 \
-    .miso_pin       = _pin_miso,                                                                 \
-    .ss_pin         = _pin_ss,                                                                   \
-    .ss_active_high = false,                                                                     \
-    .irq_priority   = NRFX_SPIM_DEFAULT_CONFIG_IRQ_PRIORITY,                                     \
-    .orc            = 0xFF,                                                                      \
-    .frequency      = NRFX_MHZ_TO_HZ(4),                                                         \
-    .mode           = NRF_SPIM_MODE_0,                                                           \
-    .bit_order      = NRF_SPIM_BIT_ORDER_MSB_FIRST,                                              \
-    .miso_pull      = NRF_GPIO_PIN_NOPULL,                                                       \
-    NRFX_COND_CODE_1(NRFX_SPIM_EXTENDED_ENABLED, (.dcx_pin = NRF_SPIM_PIN_NOT_CONNECTED,), ())   \
-    NRFX_COND_CODE_1(NRFX_SPIM_EXTENDED_ENABLED, (.rx_delay = NRF_SPIM_RXDELAY_DEFAULT,), ())    \
-    NRFX_COND_CODE_1(NRFX_SPIM_EXTENDED_ENABLED, (.use_hw_ss = false,), ())                      \
-    NRFX_COND_CODE_1(NRFX_SPIM_EXTENDED_ENABLED, (.ss_duration = NRF_SPIM_CSNDUR_DEFAULT,), ())  \
+#define NRFX_SPIM_DEFAULT_CONFIG(_pin_sck, _pin_mosi, _pin_miso, _pin_ss)                \
+{                                                                                        \
+    .sck_pin        = _pin_sck,                                                          \
+    .mosi_pin       = _pin_mosi,                                                         \
+    .miso_pin       = _pin_miso,                                                         \
+    .ss_pin         = _pin_ss,                                                           \
+    .ss_active_high = false,                                                             \
+    .irq_priority   = NRFX_SPIM_DEFAULT_CONFIG_IRQ_PRIORITY,                             \
+    .orc            = 0xFF,                                                              \
+    .frequency      = NRFX_MHZ_TO_HZ(4),                                                 \
+    .mode           = NRF_SPIM_MODE_0,                                                   \
+    .bit_order      = NRF_SPIM_BIT_ORDER_MSB_FIRST,                                      \
+    .miso_pull      = NRF_GPIO_PIN_NOPULL,                                               \
+    NRFX_COND_CODE_1(NRF_SPIM_HAS_DCX, (.dcx_pin = NRF_SPIM_DCX_DEFAULT,), ())           \
+    NRFX_COND_CODE_1(NRF_SPIM_HAS_RXDELAY, (.rx_delay = NRF_SPIM_RXDELAY_DEFAULT,), ())  \
+    NRFX_COND_CODE_1(NRF_SPIM_HAS_HW_CSN, (.use_hw_ss = false,                           \
+                                           .ss_duration = NRF_SPIM_CSNDUR_DEFAULT,), ()) \
 }
 
 /**
@@ -200,9 +250,6 @@ typedef struct
 /** @brief Flag indicating that the transfer will be executed multiple times. */
 #define NRFX_SPIM_FLAG_REPEATED_XFER       (1UL << 4)
 
-/** @brief Single transfer descriptor structure. */
-typedef nrfy_spim_xfer_desc_t nrfx_spim_xfer_desc_t;
-
 /**
  * @brief Macro for setting up single transfer descriptor.
  *
@@ -229,26 +276,6 @@ typedef nrfy_spim_xfer_desc_t nrfx_spim_xfer_desc_t;
         NRFX_SPIM_SINGLE_XFER(NULL, 0, p_buf, length)
 
 /**
- * @brief SPIM master driver event types, passed to the handler routine provided
- *        during initialization.
- */
-typedef enum
-{
-    NRFX_SPIM_EVENT_DONE, ///< Transfer done.
-} nrfx_spim_evt_type_t;
-
-/** @brief SPIM event description with transmission details. */
-typedef struct
-{
-    nrfx_spim_evt_type_t  type;      ///< Event type.
-    nrfx_spim_xfer_desc_t xfer_desc; ///< Transfer details.
-} nrfx_spim_evt_t;
-
-/** @brief SPIM driver event handler type. */
-typedef void (* nrfx_spim_evt_handler_t)(nrfx_spim_evt_t const * p_event,
-                                         void *                  p_context);
-
-/**
  * @brief Function for initializing the SPIM driver instance.
  *
  * This function configures and enables the specified peripheral.
@@ -265,22 +292,17 @@ typedef void (* nrfx_spim_evt_handler_t)(nrfx_spim_evt_t const * p_event,
  *          only on the dedicated pins with @ref NRF_GPIO_PIN_SEL_PERIPHERAL configuration.
  *          See the chapter <a href=@nRF5340pinAssignmentsURL>Pin assignments</a> in the Product Specification.
  *
- * @retval NRFX_SUCCESS             Initialization was successful.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
- * @retval NRFX_ERROR_BUSY          Some other peripheral with the same
- *                                  instance ID is already in use. This is
- *                                  possible only if @ref nrfx_prs module
- *                                  is enabled.
- * @retval NRFX_ERROR_NOT_SUPPORTED Requested configuration is not supported
- *                                  by the SPIM instance.
- * @retval NRFX_ERROR_INVALID_PARAM Requested frequency is not available on the specified driver instance or pins.
+ * @retval 0         Initialization was successful.
+ * @retval -EALREADY The driver is already initialized.
+ * @retval -EBUSY    Some other peripheral with the same instance ID is already in use.
+ *                   This is possible only if @ref nrfx_prs module is enabled.
+ * @retval -ENOTSUP  Requested configuration is not supported by the SPIM instance.
+ * @retval -EINVAL   Requested frequency is not available on the specified driver instance or pins.
  */
-nrfx_err_t nrfx_spim_init(nrfx_spim_t const *        p_instance,
-                          nrfx_spim_config_t const * p_config,
-                          nrfx_spim_evt_handler_t    handler,
-                          void *                     p_context);
+int nrfx_spim_init(nrfx_spim_t *              p_instance,
+                   nrfx_spim_config_t const * p_config,
+                   nrfx_spim_event_handler_t  handler,
+                   void *                     p_context);
 
 /**
  * @brief Function for reconfiguring the SPIM driver instance.
@@ -290,24 +312,23 @@ nrfx_err_t nrfx_spim_init(nrfx_spim_t const *        p_instance,
  * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] p_config   Pointer to the structure with the configuration.
  *
- * @retval NRFX_SUCCESS             Reconfiguration was successful.
- * @retval NRFX_ERROR_BUSY          The driver is during transfer.
- * @retval NRFX_ERROR_INVALID_STATE The driver is uninitialized.
- * @retval NRFX_ERROR_NOT_SUPPORTED Requested configuration is not supported
- *                                  by the SPIM instance.
- * @retval NRFX_ERROR_INVALID_PARAM Requested frequency is not available on the specified driver instance or pins.
- * @retval NRFX_ERROR_FORBIDDEN     Software-controlled Slave Select and hardware-controlled Slave Select
-                                    cannot be active at the same time.
+ * @retval 0            Reconfiguration was successful.
+ * @retval -EBUSY       The driver is during transfer.
+ * @retval -EINPROGRESS The driver is uninitialized.
+ * @retval -ENOTSUP     Requested configuration is not supported by the SPIM instance.
+ * @retval -EINVAL      Requested frequency is not available on the specified driver instance or pins.
+ * @retval -EPERM       Software-controlled Slave Select and hardware-controlled Slave Select
+                        cannot be active at the same time.
  */
-nrfx_err_t nrfx_spim_reconfigure(nrfx_spim_t const *        p_instance,
-                                 nrfx_spim_config_t const * p_config);
+int nrfx_spim_reconfigure(nrfx_spim_t *              p_instance,
+                          nrfx_spim_config_t const * p_config);
 
 /**
  * @brief Function for uninitializing the SPIM driver instance.
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrfx_spim_uninit(nrfx_spim_t const * p_instance);
+void nrfx_spim_uninit(nrfx_spim_t * p_instance);
 
 /**
  * @brief Function for checking if the SPIM driver instance is initialized.
@@ -355,23 +376,22 @@ bool nrfx_spim_init_check(nrfx_spim_t const * p_instance);
  *
  * @note Peripherals using EasyDMA (including SPIM) require the transfer buffers
  *       to be placed in the Data RAM region. If this condition is not met,
- *       this function will fail with the error code NRFX_ERROR_INVALID_ADDR.
+ *       this function will fail with the error code -EACCES.
  *
  * @param p_instance  Pointer to the driver instance structure.
  * @param p_xfer_desc Pointer to the transfer descriptor.
  * @param flags       Transfer options (0 for default settings).
  *
- * @retval NRFX_SUCCESS             The procedure is successful.
- * @retval NRFX_ERROR_BUSY          The driver is not ready for a new transfer.
- * @retval NRFX_ERROR_NOT_SUPPORTED The provided parameters are not supported.
- * @retval NRFX_ERROR_INVALID_ADDR  The provided buffers are not placed in the Data
- *                                  RAM region.
+ * @retval 0        The procedure is successful.
+ * @retval -EBUSY   The driver is not ready for a new transfer.
+ * @retval -ENOTSUP The provided parameters are not supported.
+ * @retval -EACCES  The provided buffers are not placed in the Data RAM region.
  */
-nrfx_err_t nrfx_spim_xfer(nrfx_spim_t const *           p_instance,
-                          nrfx_spim_xfer_desc_t const * p_xfer_desc,
-                          uint32_t                      flags);
+int nrfx_spim_xfer(nrfx_spim_t *                 p_instance,
+                   nrfx_spim_xfer_desc_t const * p_xfer_desc,
+                   uint32_t                      flags);
 
-#if NRFX_CHECK(NRFX_SPIM_EXTENDED_ENABLED) || defined(__NRFX_DOXYGEN__)
+#if NRF_SPIM_HAS_DCX
 /**
  * @brief Function for starting the SPIM data transfer with DCX control.
  *
@@ -380,7 +400,7 @@ nrfx_err_t nrfx_spim_xfer(nrfx_spim_t const *           p_instance,
  *
  * @note Peripherals that use EasyDMA (including SPIM) require the transfer buffers
  *       to be placed in the Data RAM region. If this condition is not met,
- *       this function will fail with the error code NRFX_ERROR_INVALID_ADDR.
+ *       this function will fail with the error code -EACCES.
  *
  * @param p_instance  Pointer to the driver instance structure.
  * @param p_xfer_desc Pointer to the transfer descriptor.
@@ -394,16 +414,15 @@ nrfx_err_t nrfx_spim_xfer(nrfx_spim_t const *           p_instance,
  *                    @c cmd_length parameter causes all transmitted bytes
  *                    to be marked as command bytes.
  *
- * @retval NRFX_SUCCESS             The procedure is successful.
- * @retval NRFX_ERROR_BUSY          The driver is not ready for a new transfer.
- * @retval NRFX_ERROR_NOT_SUPPORTED The provided parameters are not supported.
- * @retval NRFX_ERROR_INVALID_ADDR  The provided buffers are not placed in the Data
- *                                  RAM region.
+ * @retval 0        The procedure is successful.
+ * @retval -EBUSY   The driver is not ready for a new transfer.
+ * @retval -ENOTSUP The provided parameters are not supported.
+ * @retval -EACCES  The provided buffers are not placed in the Data RAM region.
  */
-nrfx_err_t nrfx_spim_xfer_dcx(nrfx_spim_t const *           p_instance,
-                              nrfx_spim_xfer_desc_t const * p_xfer_desc,
-                              uint32_t                      flags,
-                              uint8_t                       cmd_length);
+int nrfx_spim_xfer_dcx(nrfx_spim_t *                 p_instance,
+                       nrfx_spim_xfer_desc_t const * p_xfer_desc,
+                       uint32_t                      flags,
+                       uint8_t                       cmd_length);
 #endif
 
 /**
@@ -441,16 +460,26 @@ NRFX_STATIC_INLINE uint32_t nrfx_spim_end_event_address_get(nrfx_spim_t const * 
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrfx_spim_abort(nrfx_spim_t const * p_instance);
+void nrfx_spim_abort(nrfx_spim_t * p_instance);
 
 /**
- * @brief Macro returning SPIM interrupt handler.
+ * @brief Driver interrupt handler.
  *
- * param[in] idx SPIM index.
- *
- * @return Interrupt handler.
+ * @param[in] p_instance Pointer to the driver instance structure.
  */
-#define NRFX_SPIM_INST_HANDLER_GET(idx) NRFX_CONCAT_3(nrfx_spim_, idx, _irq_handler)
+void nrfx_spim_irq_handler(nrfx_spim_t * p_instance);
+
+#if NRF_ERRATA_STATIC_CHECK(52, 58) || defined(__NRFX_DOXYGEN__)
+/**
+ * @brief Function for providing GPIOTE driver instance for the nRF52 Anomaly 58 workaround.
+ *
+ * @warning Must be called before @ref nrfx_spim_xfer.
+ *
+ * @param[in] p_instance    Pointer to the driver instance structure.
+ * @param[in] p_gpiote_inst Pointer to the GPIOTE driver instance structure.
+ */
+void nrfx_spim_nrf52_anomaly_58_init(nrfx_spim_t * p_instance, nrfx_gpiote_t * p_gpiote_inst);
+#endif
 
 #ifndef NRFX_DECLARE_ONLY
 NRFX_STATIC_INLINE uint32_t nrfx_spim_start_task_address_get(nrfx_spim_t const * p_instance)
@@ -463,23 +492,8 @@ NRFX_STATIC_INLINE uint32_t nrfx_spim_end_event_address_get(nrfx_spim_t const * 
     return nrfy_spim_event_address_get(p_instance->p_reg, NRF_SPIM_EVENT_END);
 }
 #endif // NRFX_DECLARE_ONLY
+
 /** @} */
-
-/*
- * Declare interrupt handlers for all enabled driver instances in the following format:
- * nrfx_\<periph_name\>_\<idx\>_irq_handler (for example, nrfx_spim_0_irq_handler).
- *
- * A specific interrupt handler for the driver instance can be retrieved by using
- * the NRFX_SPIM_INST_HANDLER_GET macro.
- *
- * Here is a sample of using the NRFX_SPIM_INST_HANDLER_GET macro to map an interrupt handler
- * in a Zephyr application:
- *
- * IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIM_INST_GET(\<instance_index\>)), \<priority\>,
- *             NRFX_SPIM_INST_HANDLER_GET(\<instance_index\>), 0, 0);
- */
-NRFX_INSTANCE_IRQ_HANDLERS_DECLARE(SPIM, spim)
-
 
 #ifdef __cplusplus
 }

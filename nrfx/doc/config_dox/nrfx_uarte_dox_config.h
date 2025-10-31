@@ -12,20 +12,6 @@
  */
 #define NRFX_UARTE_ENABLED
 
-/** @brief Enable UARTE0 instance
- *
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_UARTE0_ENABLED
-
-/** @brief Enable UARTE1 instance
- *
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_UARTE1_ENABLED
-
 /** @brief Interrupt priority
  *
  *  Following options are available:

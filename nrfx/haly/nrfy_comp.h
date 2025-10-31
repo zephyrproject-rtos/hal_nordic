@@ -58,6 +58,7 @@ NRFY_STATIC_INLINE uint32_t __nrfy_internal_comp_events_process(NRF_COMP_Type * 
  * @{
  * @ingroup nrf_comp
  * @brief   Hardware access layer with cache and barrier support for managing the COMP peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 #if NRF_COMP_HAS_ISOURCE || defined(__NRFX_DOXYGEN__)
@@ -84,7 +85,7 @@ typedef struct
     nrf_comp_sp_mode_t   speed_mode; ///< Speed and power mode.
     nrf_comp_hyst_t      hyst;       ///< Comparator hysteresis.
 #if NRFY_COMP_HAS_ISOURCE
-    nrf_isource_t        isource;    ///< Current source selected on analog input.
+    nrf_comp_isource_t   isource;    ///< Current source selected on analog input.
 #endif
     nrf_comp_input_t     input;      ///< Input to be monitored.
 } nrfy_comp_config_t;
@@ -257,7 +258,7 @@ NRFY_STATIC_INLINE void nrfy_comp_hysteresis_set(NRF_COMP_Type * p_reg, nrf_comp
 
 #if NRFY_COMP_HAS_ISOURCE
 /** @refhal{nrf_comp_isource_set} */
-NRFY_STATIC_INLINE void nrfy_comp_isource_set(NRF_COMP_Type * p_reg, nrf_isource_t isource)
+NRFY_STATIC_INLINE void nrfy_comp_isource_set(NRF_COMP_Type * p_reg, nrf_comp_isource_t isource)
 {
     nrf_comp_isource_set(p_reg, isource);
     nrf_barrier_w();

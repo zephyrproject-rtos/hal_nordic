@@ -61,7 +61,7 @@ extern "C" {
  *        function to specify that a given SPI signal (SCK, MOSI, or MISO)
  *        shall not be connected to a physical pin.
  */
-#define NRF_SPI_PIN_NOT_CONNECTED  0xFFFFFFFF
+#define NRF_SPI_PIN_NOT_CONNECTED UINT32_MAX 
 
 
 /** @brief SPI events. */

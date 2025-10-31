@@ -48,32 +48,6 @@ extern "C" {
  * @brief   TIMER peripheral driver.
  */
 
-/**
- * @brief Timer driver instance data structure.
- */
-typedef struct
-{
-    NRF_TIMER_Type * p_reg;            ///< Pointer to the structure with TIMER peripheral instance registers.
-    uint8_t          instance_id;      ///< Index of the driver instance. For internal use only.
-    uint8_t          cc_channel_count; ///< Number of capture/compare channels.
-} nrfx_timer_t;
-
-/** @brief Macro for creating a timer driver instance. */
-#define NRFX_TIMER_INSTANCE(id)                                   \
-{                                                                 \
-    .p_reg            = NRFX_CONCAT(NRF_, TIMER, id),             \
-    .instance_id      = NRFX_CONCAT(NRFX_TIMER, id, _INST_IDX),   \
-    .cc_channel_count = NRF_TIMER_CC_CHANNEL_COUNT(id),           \
-}
-
-#ifndef __NRFX_DOXYGEN__
-enum {
-    /* List all enabled driver instances (in the format NRFX_\<instance_name\>_INST_IDX). */
-    NRFX_INSTANCE_ENUM_LIST(TIMER)
-    NRFX_TIMER_ENABLED_COUNT
-};
-#endif
-
 /** @brief The configuration structure of the timer driver instance. */
 typedef struct
 {
@@ -132,6 +106,29 @@ typedef struct
  */
 typedef void (* nrfx_timer_event_handler_t)(nrf_timer_event_t event_type, void * p_context);
 
+/** @cond Driver internal data. */
+typedef struct
+{
+    nrfx_timer_event_handler_t handler;
+    void *                     context;
+    nrfx_drv_state_t           state;
+} nrfx_timer_control_block_t;
+/** @endcond */
+
+/** @brief Timer driver instance data structure. */
+typedef struct
+{
+    NRF_TIMER_Type *           p_reg; ///< Pointer to the structure with TIMER peripheral instance registers.
+    nrfx_timer_control_block_t cb;    ///< Driver internal data.
+} nrfx_timer_t;
+
+/** @brief Macro for creating a timer driver instance. */
+#define NRFX_TIMER_INSTANCE(reg)    \
+{                                   \
+    .p_reg = (NRF_TIMER_Type *)reg, \
+    .cb = {0},                      \
+}
+
 /**
  * @brief Function for initializing the timer.
  *
@@ -139,15 +136,13 @@ typedef void (* nrfx_timer_event_handler_t)(nrf_timer_event_t event_type, void *
  * @param[in] p_config            Pointer to the structure with the initial configuration.
  * @param[in] timer_event_handler Event handler provided by the user. Can be NULL.
  *
- * @retval NRFX_SUCCESS             Initialization was successful.
- * @retval NRFX_ERROR_INVALID_PARAM Specified frequency is not supported by the TIMER instance.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
+ * @retval 0         Initialization was successful.
+ * @retval -EINVAL   Specified frequency is not supported by the TIMER instance.
+ * @retval -EALREADY The driver is already initialized.
  */
-nrfx_err_t nrfx_timer_init(nrfx_timer_t const *        p_instance,
-                           nrfx_timer_config_t const * p_config,
-                           nrfx_timer_event_handler_t  timer_event_handler);
+int nrfx_timer_init(nrfx_timer_t *              p_instance,
+                    nrfx_timer_config_t const * p_config,
+                    nrfx_timer_event_handler_t  timer_event_handler);
 
 /**
  * @brief Function for reconfiguring the timer.
@@ -155,20 +150,20 @@ nrfx_err_t nrfx_timer_init(nrfx_timer_t const *        p_instance,
  * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] p_config   Pointer to the structure with the configuration.
  *
- * @retval NRFX_SUCCESS             Reconfiguration was successful.
- * @retval NRFX_ERROR_INVALID_PARAM Specified frequency is not supported by the TIMER instance.
- * @retval NRFX_ERROR_INVALID_STATE The driver is uninitialized.
- * @retval NRFX_ERROR_BUSY          The driver is enabled and cannot be reconfigured.
+ * @retval 0            Reconfiguration was successful.
+ * @retval -EINVAL      Specified frequency is not supported by the TIMER instance.
+ * @retval -EINPROGRESS The driver is uninitialized.
+ * @retval -EBUSY       The driver is enabled and cannot be reconfigured.
  */
-nrfx_err_t nrfx_timer_reconfigure(nrfx_timer_t const *        p_instance,
-                                  nrfx_timer_config_t const * p_config);
+int nrfx_timer_reconfigure(nrfx_timer_t *              p_instance,
+                           nrfx_timer_config_t const * p_config);
 
 /**
  * @brief Function for uninitializing the timer.
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrfx_timer_uninit(nrfx_timer_t const * p_instance);
+void nrfx_timer_uninit(nrfx_timer_t * p_instance);
 
 /**
  * @brief Function for checking if the TIMER driver instance is initialized.
@@ -185,7 +180,7 @@ bool nrfx_timer_init_check(nrfx_timer_t const * p_instance);
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrfx_timer_enable(nrfx_timer_t const * p_instance);
+void nrfx_timer_enable(nrfx_timer_t * p_instance);
 
 /**
  * @brief Function for turning off the timer.
@@ -195,7 +190,7 @@ void nrfx_timer_enable(nrfx_timer_t const * p_instance);
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrfx_timer_disable(nrfx_timer_t const * p_instance);
+void nrfx_timer_disable(nrfx_timer_t * p_instance);
 
 /**
  * @brief Function for checking the timer state.
@@ -234,6 +229,13 @@ void nrfx_timer_clear(nrfx_timer_t const * p_instance);
  * @param[in] p_instance Pointer to the driver instance structure.
  */
 void nrfx_timer_increment(nrfx_timer_t const * p_instance);
+
+/**
+ * @brief Driver interrupt handler.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ */
+void nrfx_timer_irq_handler(nrfx_timer_t const * p_instance);
 
 /**
  * @brief Function for returning the address of the specified timer task.
@@ -377,7 +379,6 @@ NRFX_STATIC_INLINE uint32_t nrfx_timer_task_address_get(nrfx_timer_t const * p_i
 NRFX_STATIC_INLINE uint32_t nrfx_timer_capture_task_address_get(nrfx_timer_t const * p_instance,
                                                                 uint32_t             channel)
 {
-    NRFX_ASSERT(channel < p_instance->cc_channel_count);
     return nrfy_timer_task_address_get(p_instance->p_reg,
                                        nrfy_timer_capture_task_get((uint8_t)channel));
 }
@@ -391,7 +392,6 @@ NRFX_STATIC_INLINE uint32_t nrfx_timer_event_address_get(nrfx_timer_t const * p_
 NRFX_STATIC_INLINE uint32_t nrfx_timer_compare_event_address_get(nrfx_timer_t const * p_instance,
                                                                  uint32_t             channel)
 {
-    NRFX_ASSERT(channel < p_instance->cc_channel_count);
     return nrfy_timer_event_address_get(p_instance->p_reg,
                                         nrfy_timer_compare_event_get((uint8_t)channel));
 }
@@ -404,35 +404,10 @@ NRFX_STATIC_INLINE uint32_t nrfx_timer_capture_get(nrfx_timer_t const *   p_inst
 
 #endif // NRFX_DECLARE_ONLY
 
-/**
- * @brief Macro returning TIMER interrupt handler.
- *
- * param[in] idx TIMER index.
- *
- * @return Interrupt handler.
- */
-#define NRFX_TIMER_INST_HANDLER_GET(idx) NRFX_CONCAT_3(nrfx_timer_, idx, _irq_handler)
-
 /** @} */
-
-/*
- * Declare interrupt handlers for all enabled driver instances in the following format:
- * nrfx_\<periph_name\>_\<idx\>_irq_handler (for example, nrfx_timer_0_irq_handler).
- *
- * A specific interrupt handler for the driver instance can be retrieved by using
- * the NRFX_TIMER_INST_HANDLER_GET macro.
- *
- * Here is a sample of using the NRFX_TIMER_INST_HANDLER_GET macro to map an interrupt handler
- * in a Zephyr application:
- *
- * IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(\<instance_index\>)), \<priority\>,
- *             NRFX_TIMER_INST_HANDLER_GET(\<instance_index\>), 0, 0);
- */
-NRFX_INSTANCE_IRQ_HANDLERS_DECLARE(TIMER, timer)
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif // NRFX_TIMER_H__
-
