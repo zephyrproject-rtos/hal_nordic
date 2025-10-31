@@ -32,16 +32,14 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_COMP_ENABLED)
-
 #include <nrfx_comp.h>
+#include "nrfx_comp_common.h"
 #include "prs/nrfx_prs.h"
 
 #define NRFX_LOG_MODULE COMP
 #include <nrfx_log.h>
 
-#if defined(NRF54H20_XXAA)
+#if NRFY_COMP_HAS_REFTRIM
 #include <hal/nrf_ficr.h>
 #endif
 
@@ -56,19 +54,69 @@
 static nrfx_comp_event_handler_t    m_comp_event_handler = NULL;
 static nrfx_drv_state_t             m_state = NRFX_DRV_STATE_UNINITIALIZED;
 
-static void comp_configure(nrfx_comp_config_t const * p_config)
+static int comp_input_convert(nrfx_analog_input_t analog_input,
+                              nrf_comp_input_t *  p_comp_input)
 {
+    NRFX_ASSERT(p_comp_input);
+
+    nrf_comp_input_t comp_input = nrfx_comp_ain_get(analog_input);
+
+    if (comp_input == (nrf_comp_input_t)NRFX_COMP_INPUT_NOT_PRESENT)
+    {
+        return -EINVAL;
+    }
+
+    *p_comp_input = comp_input;
+    return 0;
+}
+
+static int comp_ext_ref_input_convert(nrfx_analog_input_t  analog_input,
+                                      nrf_comp_ext_ref_t * p_ext_ref_input)
+{
+    NRFX_ASSERT(p_ext_ref_input);
+
+    nrf_comp_ext_ref_t ext_ref_input = nrfx_comp_ext_ref_get(analog_input);
+
+    if (ext_ref_input == (nrf_comp_ext_ref_t)NRFX_COMP_INPUT_NOT_PRESENT)
+    {
+        return -EINVAL;
+    }
+
+    *p_ext_ref_input = ext_ref_input;
+    return 0;
+}
+
+static int comp_configure(nrfx_comp_config_t const * p_config)
+{
+    int err_code;
+
     nrfy_comp_config_t nrfy_config =
     {
         .reference  = p_config->reference,
-        .ext_ref    = p_config->ext_ref,
         .main_mode  = p_config->main_mode,
         .threshold  = p_config->threshold,
         .speed_mode = p_config->speed_mode,
         .hyst       = p_config->hyst,
         NRFX_COND_CODE_1(NRF_COMP_HAS_ISOURCE, (.isource = p_config->isource,), ())
-        .input      = p_config->input
     };
+
+    err_code = comp_input_convert(p_config->input, &nrfy_config.input);
+    if (err_code != 0)
+    {
+        NRFX_LOG_WARNING("Function: %s, error code: %s.",
+                         __func__,
+                         NRFX_LOG_ERROR_STRING_GET(err_code));
+        return err_code;
+    }
+
+    err_code = comp_ext_ref_input_convert(p_config->ext_ref, &nrfy_config.ext_ref);
+    if (err_code != 0)
+    {
+        NRFX_LOG_WARNING("Function: %s, error code: %s.",
+                         __func__,
+                         NRFX_LOG_ERROR_STRING_GET(err_code));
+        return err_code;
+    }
 
     nrfy_comp_periph_configure(NRF_COMP, &nrfy_config);
     nrfy_comp_int_init(NRF_COMP,
@@ -78,10 +126,12 @@ static void comp_configure(nrfx_comp_config_t const * p_config)
                        NRF_COMP_INT_CROSS_MASK,
                        p_config->interrupt_priority,
                        false);
-#if defined(NRF54H20_XXAA)
+#if NRFY_COMP_HAS_REFTRIM && NRF_FICR_HAS_GLOBAL_COMP_REFTRIM
     uint32_t trim = nrf_ficr_global_comp_reftrim_get(NRF_FICR);
     nrfy_comp_reftrim_set(NRF_COMP, trim);
 #endif
+
+    return 0;
 }
 
 static void comp_execute_handler(nrf_comp_event_t event, uint32_t event_mask)
@@ -108,20 +158,16 @@ void nrfx_comp_irq_handler(void)
 }
 
 
-nrfx_err_t nrfx_comp_init(nrfx_comp_config_t const * p_config,
-                          nrfx_comp_event_handler_t  event_handler)
+int nrfx_comp_init(nrfx_comp_config_t const * p_config,
+                   nrfx_comp_event_handler_t  event_handler)
 {
     NRFX_ASSERT(p_config);
     NRFX_ASSERT(event_handler);
-    nrfx_err_t err_code;
+    int err_code;
 
     if (m_state != NRFX_DRV_STATE_UNINITIALIZED)
     { // COMP driver is already initialized
-#if NRFX_API_VER_AT_LEAST(3, 2, 0)
-        err_code = NRFX_ERROR_ALREADY;
-#else
-        err_code = NRFX_ERROR_INVALID_STATE;
-#endif
+        err_code = -EALREADY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -131,9 +177,10 @@ nrfx_err_t nrfx_comp_init(nrfx_comp_config_t const * p_config,
     m_comp_event_handler = event_handler;
 
 #if NRFX_CHECK(NRFX_PRS_ENABLED)
-    if (nrfx_prs_acquire(NRF_COMP, nrfx_comp_irq_handler) != NRFX_SUCCESS)
+    if (nrfx_prs_acquire(NRF_COMP, (nrfx_irq_handler_t)nrfx_comp_irq_handler, NULL) !=
+        NRFX_SUCCESS)
     {
-        err_code = NRFX_ERROR_BUSY;
+        err_code = -EBUSY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -141,9 +188,9 @@ nrfx_err_t nrfx_comp_init(nrfx_comp_config_t const * p_config,
     }
 #endif
     nrfy_comp_shorts_disable(NRF_COMP,
-                             NRFX_COMP_SHORT_STOP_AFTER_CROSS_EVT |
-                             NRFX_COMP_SHORT_STOP_AFTER_UP_EVT |
-                             NRFX_COMP_SHORT_STOP_AFTER_DOWN_EVT);
+                             NRF_COMP_SHORT_STOP_CROSS_MASK |
+                             NRF_COMP_SHORT_STOP_UP_MASK |
+                             NRF_COMP_SHORT_STOP_DOWN_MASK);
     nrfy_comp_int_disable(NRF_COMP,
                           NRF_COMP_INT_READY_MASK |
                           NRF_COMP_INT_DOWN_MASK |
@@ -152,7 +199,11 @@ nrfx_err_t nrfx_comp_init(nrfx_comp_config_t const * p_config,
 
     if (p_config)
     {
-        comp_configure(p_config);
+        err_code = comp_configure(p_config);
+        if (err_code != 0)
+        {
+            return err_code;
+        }
     }
 
     nrfy_comp_enable(NRF_COMP);
@@ -160,19 +211,21 @@ nrfx_err_t nrfx_comp_init(nrfx_comp_config_t const * p_config,
 
     m_state = NRFX_DRV_STATE_INITIALIZED;
 
-    err_code = NRFX_SUCCESS;
-    NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
+    err_code = 0;
+    NRFX_LOG_INFO("Function: %s, error code: %s.",
+                  __func__,
+                  NRFX_LOG_ERROR_STRING_GET(err_code));
     return err_code;
 }
 
-nrfx_err_t nrfx_comp_reconfigure(nrfx_comp_config_t const * p_config)
+int nrfx_comp_reconfigure(nrfx_comp_config_t const * p_config)
 {
     NRFX_ASSERT(p_config);
-    nrfx_err_t err_code;
+    int err_code;
 
     if (m_state == NRFX_DRV_STATE_UNINITIALIZED)
     {
-        err_code = NRFX_ERROR_INVALID_STATE;
+        err_code = -EINPROGRESS;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -181,16 +234,23 @@ nrfx_err_t nrfx_comp_reconfigure(nrfx_comp_config_t const * p_config)
     }
     else if (m_state == NRFX_DRV_STATE_POWERED_ON)
     {
-        err_code = NRFX_ERROR_BUSY;
+        err_code = -EBUSY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
         return err_code;
     }
     nrfy_comp_disable(NRF_COMP);
-    comp_configure(p_config);
+    err_code = comp_configure(p_config);
+    if (err_code != 0)
+    {
+        NRFX_LOG_WARNING("Function: %s, error code: %s.",
+                         __func__,
+                         NRFX_LOG_ERROR_STRING_GET(err_code));
+        return err_code;
+    }
     nrfy_comp_enable(NRF_COMP);
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 void nrfx_comp_uninit(void)
@@ -215,22 +275,33 @@ bool nrfx_comp_init_check(void)
     return (m_state != NRFX_DRV_STATE_UNINITIALIZED);
 }
 
-void nrfx_comp_pin_select(nrf_comp_input_t psel)
+int nrfx_comp_pin_select(nrfx_analog_input_t psel)
 {
     NRFX_ASSERT(m_state != NRFX_DRV_STATE_UNINITIALIZED);
 
+    int err = 0;
     bool comp_enable_state = nrfy_comp_enable_check(NRF_COMP);
+    nrf_comp_input_t comp_input;
+
     nrfy_comp_task_trigger(NRF_COMP, NRF_COMP_TASK_STOP);
     if (m_state == NRFX_DRV_STATE_POWERED_ON)
     {
         m_state = NRFX_DRV_STATE_INITIALIZED;
     }
     nrfy_comp_disable(NRF_COMP);
-    nrfy_comp_input_select(NRF_COMP, psel);
+
+    err = comp_input_convert(psel, &comp_input);
+    if (err != 0)
+    {
+        return err;
+    }
+    nrfy_comp_input_select(NRF_COMP, comp_input);
     if (comp_enable_state == true)
     {
         nrfy_comp_enable(NRF_COMP);
     }
+
+    return err;
 }
 
 void nrfx_comp_start(uint32_t comp_int_mask, uint32_t comp_shorts_mask)
@@ -262,5 +333,3 @@ uint32_t nrfx_comp_sample()
 
     return nrfy_comp_sample(NRF_COMP);
 }
-
-#endif // NRFX_CHECK(NRFX_COMP_ENABLED)

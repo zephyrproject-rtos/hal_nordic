@@ -36,9 +36,9 @@
 
 #include <nrfx.h>
 
-#if defined(NRF5340_XXAA) || defined(NRF9160_XXAA)
+#if defined(DOMAIN_NET) || defined(DOMAIN_MODEM)
     #include <nrfx_ipc.h>
-#elif defined(HALTIUM_XXAA)
+#elif defined(DOMAIN_FLPR)
     #include <nrfx_vevif.h>
     #include <nrfx_bellboard.h>
     #include <haly/nrfy_vpr.h>
@@ -78,11 +78,11 @@ typedef struct
 
 #ifndef __NRFX_DOXYGEN__
 enum {
-#if defined(NRF5340_XXAA) || defined(NRF9160_XXAA)
+#if defined(DOMAIN_NET) || defined(DOMAIN_MODEM)
 #if NRFX_CHECK(NRFX_IPC_ENABLED)
     NRFX_IDS0_INST_IDX,
 #endif
-#elif defined(HALTIUM_XXAA)
+#elif defined(DOMAIN_FLPR)
 #if defined(ISA_RISCV)
 #if NRFX_CHECK(NRFX_VEVIF_ENABLED)
     NRFX_IDS0_INST_IDX,
@@ -100,7 +100,7 @@ enum {
 #if NRFX_CHECK(NRFX_BELLBOARD3_ENABLED)
     NRFX_IDS3_INST_IDX,
 #endif
-#endif /* HALTIUM_XXAA */
+#endif /* DOMAIN_FLPR */
 #endif
     NRFX_IDS_ENABLED_COUNT
 };
@@ -116,7 +116,7 @@ enum {
 /** @brief Macro for creating channel bitmask associated with specified channel index. */
 #define NRFX_IDS_CHANNEL(channel) (0x1UL << (channel))
 
-#if defined(HALTIUM_XXAA) || defined(__NRFX_DOXYGEN__)
+#if defined(DOMAIN_FLPR) || defined(__NRFX_DOXYGEN__)
 /** @brief IDS domains. */
 typedef enum
 {
@@ -132,13 +132,13 @@ typedef enum
     NRFX_IDS_DOMAIN_ENUM_EXT
 #endif
 } nrfx_ids_domain_t;
-#elif defined(NRF5340_XXAA)
+#elif defined(DOMAIN_NET)
 typedef enum
 {
     NRFX_IDS_DOMAIN_APP, ///< Application domain. */
     NRFX_IDS_DOMAIN_NET, ///< Network domain. */
 } nrfx_ids_domain_t;
-#elif defined(NRF9160_XXAA)
+#elif defined(DOMAIN_MODEM)
 typedef enum
 {
     NRFX_IDS_DOMAIN_APP,   ///< Application domain. */
@@ -148,9 +148,9 @@ typedef enum
 #endif
 
 /** @brief Symbol specifying maximum number of available events triggered. */
-#if defined(NRF5340_XXAA) || defined(NRF9160_XXAA)
+#if defined(DOMAIN_NET) || defined(DOMAIN_MODEM)
 #define NRFX_IDS_EVENTS_TRIGGERED_COUNT IPC_CONF_NUM
-#elif defined(HALTIUM_XXAA)
+#elif defined(DOMAIN_FLPR)
 #if defined(ISA_ARM)
 #define NRFX_IDS_EVENTS_TRIGGERED_COUNT NRF_BELLBOARD_EVENTS_TRIGGERED_COUNT
 #else /* ISA_RISCV */
@@ -167,26 +167,26 @@ typedef enum
  * @param[in] p_context          Context passed to the event handler.
  * @param[in] p_config           Pointer to the structure containing peripheral-specific configuration. Can be NULL.
  *
- * @retval NRFX_SUCCESS       Driver successfully initialized.
- * @retval NRFX_ERROR_ALREADY Driver already initialized.
+ * @retval 0         Driver successfully initialized.
+ * @retval -EALREADY Driver already initialized.
  */
-__STATIC_INLINE nrfx_err_t nrfx_ids_init(nrfx_ids_t const *       p_instance,
-                                         uint8_t                  interrupt_priority,
-                                         nrfx_ids_event_handler_t event_handler,
-                                         void *                   p_context,
-                                         void const *             p_config)
+__STATIC_INLINE int nrfx_ids_init(nrfx_ids_t const *       p_instance,
+                                  uint8_t                  interrupt_priority,
+                                  nrfx_ids_event_handler_t event_handler,
+                                  void *                   p_context,
+                                  void const *             p_config)
 {
-#if defined(NRF5340_XXAA) || defined(NRF9160_XXAA)
+#if defined(DOMAIN_NET) || defined(DOMAIN_MODEM)
     (void)p_instance;
-    nrfx_err_t err_code = nrfx_ipc_init(interrupt_priority,
-                                        (nrfx_ipc_handler_t)event_handler,
-                                        p_context);
-    if (err_code == NRFX_SUCCESS)
+    int err_code = nrfx_ipc_init(interrupt_priority,
+                                 (nrfx_ipc_handler_t)event_handler,
+                                 p_context);
+    if (err_code == 0)
     {
         nrfx_ipc_config_load((nrfx_ipc_config_t const *)p_config);
     }
     return err_code;
-#elif defined(HALTIUM_XXAA)
+#elif defined(DOMAIN_FLPR)
 #if defined(ISA_ARM)
     (void)p_config;
     return nrfx_bellboard_init((nrfx_bellboard_t const *)p_instance,
@@ -200,7 +200,7 @@ __STATIC_INLINE nrfx_err_t nrfx_ids_init(nrfx_ids_t const *       p_instance,
                            (nrfx_vevif_event_handler_t)event_handler,
                            p_context);
 #endif
-#endif /* HALTIUM_XXAA */
+#endif /* DOMAIN_FLPR */
 }
 
 /**
@@ -210,17 +210,17 @@ __STATIC_INLINE nrfx_err_t nrfx_ids_init(nrfx_ids_t const *       p_instance,
  */
 __STATIC_INLINE void nrfx_ids_uninit(nrfx_ids_t const * p_instance)
 {
-#if defined(NRF5340_XXAA) || defined(NRF9160_XXAA)
+#if defined(DOMAIN_NET) || defined(DOMAIN_MODEM)
     (void)p_instance;
     nrfx_ipc_uninit();
-#elif defined(HALTIUM_XXAA)
+#elif defined(DOMAIN_FLPR)
 #if defined(ISA_ARM)
     nrfx_bellboard_uninit((nrfx_bellboard_t const *)p_instance);
 #else /* ISA_RISCV */
     (void)p_instance;
     nrfx_vevif_uninit();
 #endif
-#endif /* HALTIUM_XXAA */
+#endif /* DOMAIN_FLPR */
 }
 
 /**
@@ -231,17 +231,17 @@ __STATIC_INLINE void nrfx_ids_uninit(nrfx_ids_t const * p_instance)
  */
 __STATIC_INLINE void nrfx_ids_int_enable(nrfx_ids_t const * p_instance, uint32_t mask)
 {
-#if defined(NRF5340_XXAA) || defined(NRF9160_XXAA)
+#if defined(DOMAIN_NET) || defined(DOMAIN_MODEM)
     (void)p_instance;
     nrfx_ipc_receive_event_group_enable(mask);
-#elif defined(HALTIUM_XXAA)
+#elif defined(DOMAIN_FLPR)
 #if defined(ISA_ARM)
     nrfx_bellboard_int_enable((nrfx_bellboard_t const *)p_instance, mask);
 #else /* ISA_RISCV */
     (void)p_instance;
     nrfx_vevif_int_enable(mask);
 #endif
-#endif /* HALTIUM_XXAA */
+#endif /* DOMAIN_FLPR */
 }
 
 /**
@@ -252,16 +252,16 @@ __STATIC_INLINE void nrfx_ids_int_enable(nrfx_ids_t const * p_instance, uint32_t
  */
 __STATIC_INLINE void nrfx_ids_int_disable(nrfx_ids_t const * p_instance, uint32_t mask)
 {
-#if defined(NRF5340_XXAA) || defined(NRF9160_XXAA)
+#if defined(DOMAIN_NET) || defined(DOMAIN_MODEM)
     (void)p_instance;
     nrfx_ipc_receive_event_group_disable(mask);
-#elif defined(HALTIUM_XXAA)
+#elif defined(DOMAIN_FLPR)
 #if defined(ISA_ARM)
     nrfx_bellboard_int_disable((nrfx_bellboard_t const *)p_instance, mask);
 #else /* ISA_RISCV */
     (void)p_instance;
     nrfx_vevif_int_disable(mask);
-#endif  /* HALTIUM_XXAA */
+#endif  /* DOMAIN_FLPR */
 #endif
 }
 
@@ -277,11 +277,11 @@ __STATIC_INLINE void nrfx_ids_signal(nrfx_ids_t *      p_instance,
                                      uint8_t           channel)
 {
     NRFX_ASSERT(channel < NRFX_IDS_EVENTS_TRIGGERED_COUNT);
-#if defined(NRF5340_XXAA) || defined(NRF9160_XXAA)
+#if defined(DOMAIN_NET) || defined(DOMAIN_MODEM)
     (void)domain;
     (void)p_instance;
     nrfx_ipc_signal(channel);
-#elif defined(HALTIUM_XXAA)
+#elif defined(DOMAIN_FLPR)
     (void)p_instance;
     NRF_BELLBOARD_Type * p_bell = NULL;
     NRF_VPR_Type       * p_vpr  = NULL;
@@ -333,11 +333,11 @@ __STATIC_INLINE void nrfx_ids_signal(nrfx_ids_t *      p_instance,
 
 /** @} */
 
-#if defined(NRF5340_XXAA) || defined(NRF9160_XXAA)
+#if defined(DOMAIN_NET) || defined(DOMAIN_MODEM)
 #if NRFX_CHECK(NRFX_IPC_ENABLED)
 #define nrfx_ids_0_irq_handler nrfx_ipc_irq_handler
 #endif
-#elif defined(HALTIUM_XXAA)
+#elif defined(DOMAIN_FLPR)
 #if defined(ISA_RISCV)
 #if NRFX_CHECK(NRFX_VEVIF_ENABLED)
 #define nrfx_ids_0_irq_handler nrfx_vevif_0_irq_handler
@@ -387,7 +387,7 @@ __STATIC_INLINE void nrfx_ids_signal(nrfx_ids_t *      p_instance,
 #define nrfx_ids_3_irq_handler nrfx_bellboard_3_irq_handler
 #endif
 #endif
-#endif /* HALTIUM_XXAA */
+#endif /* DOMAIN_FLPR */
 
 #ifdef __cplusplus
 }

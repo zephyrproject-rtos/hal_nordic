@@ -73,6 +73,7 @@ NRFY_STATIC_INLINE bool __nrfy_internal_rramc_is_otp_word_writable(uint32_t inde
  * @{
  * @ingroup nrf_rramc
  * @brief   Hardware access layer with cache and barrier support for managing the RRAMC peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 /**
@@ -371,10 +372,9 @@ NRFY_STATIC_INLINE uint32_t nrfy_rramc_otp_word_read(uint32_t index)
 /**
  * @brief Function for writing a 32-bit word at index position to OTP region in UICR.
  *
- * The OTP is only able to write '0' to bits in the UICR that are erased (set to '1').
- * It cannot rewrite a bit back to '1'. This function checks if the value currently
- * residing at the specified index can be transformed to the desired value
- * without any '0' to '1' transitions. If yes, then perform the write operation.
+ * The OTP can only be written once after each Erase All is performed.
+ * This function checks if the value currently residing at the specified index can
+ * be transformed to the desired value. If yes, then performs the write operation.
  *
  * @param[in] p_reg Pointer to the structure of registers of the peripheral.
  * @param[in] index Address (index) in OTP table to which a word it to be written.

@@ -32,8 +32,8 @@ In addition, the following locations should be specified as include paths
 ([nrfx] stands for the nrfx root folder location):
 @code
 [nrfx]/
+[nrfx]/bsp/stable
 [nrfx]/drivers/include
-[nrfx]/mdk
 @endcode
 
 @note Unless otherwise stated, nrfx API functions do not provide thread safety
@@ -44,17 +44,10 @@ In addition, the following locations should be specified as include paths
 @section nrfx_irq_handlers IRQ handlers
 
 The IRQ handlers in all drivers are implemented as ordinary API functions
-named "nrfx_*_irq_handler". They can be bound to some structures or called in
-a specific way according to the requirements of the host environment.
-To install the handlers in the standard MDK way, you must only add the following
-line to the @ref nrfx_glue file:
-
-@code
-#include <soc/nrfx_irqs.h>
-@endcode
-
-This will cause the preprocessor to properly rename all the IRQ handler
-functions so that the linker could install them in the vector table.
+named "nrfx_{peripheral}_irq_handler". These functions accept pointer
+to the driver instance structure as an argument and must be called upon execution
+of IRQ handler from the interrupt vector table,
+so the driver is made aware of the hardware event occurrence.
 
 @section nrfx_configuration Configuration
 
@@ -65,8 +58,7 @@ structures passed to the drivers during their initialization.
 Refer to the API reference for a given driver to see the members of its
 configuration structure.
 
-Static configuration allows enabling and disabling (excluding their code from
-compilation) particular drivers or in some cases their specific features,
+Static configuration allows enabling and disabling their specific features,
 defining default parameters for dynamic configuration, parametrization of
 logging in particular drivers. It is done by specifying desired values of macros
 in a file named:
@@ -75,7 +67,7 @@ in a file named:
 
 This file, similarly to the integration files mentioned above, can be placed
 in any suitable location within the host environment.
-The <a href="https://github.com/NordicSemiconductor/nrfx/tree/master/templates">nrfx/templates</a> subfolder contains templates of
+The <a href="https://github.com/NordicSemiconductor/nrfx/tree/master/templates">nrfx/bsp/stable/templates</a> subfolder contains templates of
 configuration files for all currently supported Nordic SoCs. These files are
 included through a common nrfx_config.h file, according to the selected SoC.
 Refer to the "driver configuration" section in the API reference for a given
@@ -103,5 +95,10 @@ website:
 @section nrfx_samples nrfx samples
 
 You can refer to the <a href="https://docs.nordicsemi.com/bundle/nrfx_samples_3.8.0/page/index.html">latest release of nrfx samples</a> for the usage examples of nrfx drivers within Zephyr RTOS.
+
+@section HALY
+
+Starting from 4.0 release, Extended Hardware Access Layer API located in <a href="https://github.com/NordicSemiconductor/nrfx/tree/master/haly">nrfx/haly</a> directory is no longer developed.
+API stability, support for new peripherals or extension for existing ones is not guaranteed.
 
 */

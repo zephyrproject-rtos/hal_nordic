@@ -57,6 +57,7 @@ NRFY_STATIC_INLINE void __nrfy_internal_wdt_event_enabled_clear(NRF_WDT_Type *  
  * @{
  * @ingroup nrf_wdt
  * @brief   Hardware access layer with cache and barrier support for managing the WDT peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 #if NRF_WDT_HAS_STOP || defined(__NRFX_DOXYGEN__)

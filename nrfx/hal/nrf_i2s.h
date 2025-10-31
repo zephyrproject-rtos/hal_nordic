@@ -40,9 +40,13 @@
 extern "C" {
 #endif
 
-#if defined(HALTIUM_XXAA)
+#if defined(I2S_CLOCKPIN_SCK_NEEDED)
 #define NRF_I2S_CLOCKPIN_SCK_NEEDED  1
+#endif
+#if defined(I2S_CLOCKPIN_LRCK_NEEDED)
 #define NRF_I2S_CLOCKPIN_LRCK_NEEDED 1
+#endif
+#if defined(I2S_CLOCKPIN_MCK_NEEDED)
 #define NRF_I2S_CLOCKPIN_MCK_NEEDED  1
 #endif
 
@@ -529,6 +533,16 @@ NRF_STATIC_INLINE uint32_t nrf_i2s_sdout_pin_get(NRF_I2S_Type const * p_reg);
 NRF_STATIC_INLINE uint32_t nrf_i2s_sdin_pin_get(NRF_I2S_Type const * p_reg);
 
 /**
+ * @brief Function for checking whether MCK is connected to an output pin.
+ *
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ *
+ * @retval true  MCK signal is connected to an ouput pin.
+ * @retval false MCK signal is not connected to an ouput pin.
+ */
+NRF_STATIC_INLINE bool nrf_i2s_mck_pin_connected_check(NRF_I2S_Type const * p_reg);
+
+/**
  * @brief Function for setting the I2S peripheral configuration.
  *
  * @param[in] p_reg    Pointer to the structure of registers of the peripheral.
@@ -768,6 +782,12 @@ NRF_STATIC_INLINE uint32_t nrf_i2s_sdout_pin_get(NRF_I2S_Type const * p_reg)
 NRF_STATIC_INLINE uint32_t nrf_i2s_sdin_pin_get(NRF_I2S_Type const * p_reg)
 {
     return p_reg->PSEL.SDIN;
+}
+
+NRF_STATIC_INLINE bool nrf_i2s_mck_pin_connected_check(NRF_I2S_Type const * p_reg)
+{
+   return ((nrf_i2s_mck_pin_get(p_reg) & I2S_PSEL_MCK_CONNECT_Msk)
+	        == (I2S_PSEL_MCK_CONNECT_Connected << I2S_PSEL_MCK_CONNECT_Pos));
 }
 
 NRF_STATIC_INLINE void nrf_i2s_configure(NRF_I2S_Type * p_reg, nrf_i2s_config_t const * p_config)

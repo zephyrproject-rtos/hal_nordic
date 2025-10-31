@@ -140,6 +140,13 @@ extern "C" {
 #define NRF_TAMPC_HAS_EXTERNAL_TAMPERSWITCH_DETECTOR 0
 #endif
 
+#if defined(NRF_TAMPC_DETECTOR_CRACEN) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether TAMPC has CRACEN detection features. */
+#define NRF_TAMPC_HAS_CRACEN 1
+#else
+#define NRF_TAMPC_HAS_CRACEN 0
+#endif
+
 #if NRF_TAMPC_HAS_ACTIVE_SHIELD_CHANNELS
 #if defined(NRF_TAMPC_ACTIVESHIELD_CHANNEL_3_MASK) || defined(__NRFX_DOXYGEN__)
 /** @brief Number of active shield channels. */
@@ -204,7 +211,9 @@ typedef enum
     NRF_TAMPC_DETECTOR_TAMPER_SWITCH      = TAMPC_STATUS_TAMPERSWITCH_Msk,       ///< External tamper switch error detector.
 #endif
     NRF_TAMPC_DETECTOR_PROTECTED_SIGNAL   = TAMPC_STATUS_PROTECT_Msk,            ///< Protected signals error detector.
+#if NRF_TAMPC_HAS_CRACEN
     NRF_TAMPC_DETECTOR_CRACEN             = TAMPC_STATUS_CRACENTAMP_Msk,         ///< CRACEN error detector.
+#endif
     NRF_TAMPC_DETECTOR_GLITCH_DOMAIN_SLOW = TAMPC_STATUS_GLITCHSLOWDOMAIN0_Msk,  ///< Slow domain glitch error detector.
     NRF_TAMPC_DETECTOR_GLITCH_DOMAIN_FAST = TAMPC_STATUS_GLITCHFASTDOMAIN0_Msk | ///< Fast domain glitch error detector.
                                             TAMPC_STATUS_GLITCHFASTDOMAIN1_Msk |
@@ -220,7 +229,9 @@ typedef enum
 #if NRF_TAMPC_HAS_EXTERNAL_TAMPERSWITCH_PROTECTOR
     NRF_TAMPC_PROTECT_TAMPER_SWITCH      = offsetof(NRF_TAMPC_Type, PROTECT.TAMPERSWITCH),     ///< Control register for external tamper switch enable signal.
 #endif
+#if NRF_TAMPC_HAS_CRACEN
     NRF_TAMPC_PROTECT_CRACEN             = offsetof(NRF_TAMPC_Type, PROTECT.CRACENTAMP),       ///< Control register for CRACEN tamper detector enable signal.
+#endif
     NRF_TAMPC_PROTECT_GLITCH_DOMAIN_SLOW = offsetof(NRF_TAMPC_Type, PROTECT.GLITCHSLOWDOMAIN), ///< Control register for slow domain glitch detectors enable signal.
     NRF_TAMPC_PROTECT_GLITCH_DOMAIN_FAST = offsetof(NRF_TAMPC_Type, PROTECT.GLITCHFASTDOMAIN), ///< Control register for fast domain glitch detectors enable signal.
     NRF_TAMPC_PROTECT_RESETEN_EXT        = offsetof(NRF_TAMPC_Type, PROTECT.EXTRESETEN),       ///< Control register for external tamper reset enable signal.

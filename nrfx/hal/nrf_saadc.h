@@ -143,6 +143,20 @@ extern "C" {
 #define NRF_SAADC_HAS_CH_CHOPPING 0
 #endif
 
+#if defined(SAADC_CH_PSELP_PSELP_VDDHDIV5) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether VDDH/5 can be selected as SAADC input. */
+#define NRF_SAADC_HAS_INPUT_VDDHDIV5 1
+#else
+#define NRF_SAADC_HAS_INPUT_VDDHDIV5 0
+#endif
+
+#if defined(SAADC_CH_PSELP_PSELP_VDD) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether VDD can be selected as SAADC input. */
+#define NRF_SAADC_HAS_INPUT_VDD 1
+#else
+#define NRF_SAADC_HAS_INPUT_VDD 0
+#endif
+
 #if defined(SAADC_CH_CONFIG_GAIN_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether SAADC channel specific gain configuration is present. */
 #define NRF_SAADC_HAS_CH_GAIN 1
@@ -155,6 +169,93 @@ extern "C" {
 #define NRF_SAADC_HAS_CH_HIGHSPEED 1
 #else
 #define NRF_SAADC_HAS_CH_HIGHSPEED 0
+#endif
+
+#if defined(SAADC_CH_CONFIG_GAIN_Gain1_6) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether SAADC channel specific gain can be configured to 1/6. */
+#define NRF_SAADC_HAS_GAIN_1_6 1
+#else
+#define NRF_SAADC_HAS_GAIN_1_6 0
+#endif
+
+#if defined(SAADC_CH_CONFIG_GAIN_Gain1_5) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether SAADC channel specific gain can be configured to 1/5. */
+#define NRF_SAADC_HAS_GAIN_1_5 1
+#else
+#define NRF_SAADC_HAS_GAIN_1_5 0
+#endif
+
+#if defined(SAADC_CH_CONFIG_GAIN_Gain1_4) || defined(SAADC_CH_CONFIG_GAIN_Gain2_8) || \
+    defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether SAADC channel specific gain can be configured to 1/4. */
+#define NRF_SAADC_HAS_GAIN_1_4 1
+#else
+#define NRF_SAADC_HAS_GAIN_1_4 0
+#endif
+
+#if defined(SAADC_CH_CONFIG_GAIN_Gain2_7) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether SAADC channel specific gain can be configured to 2/7. */
+#define NRF_SAADC_HAS_GAIN_2_7 1
+#else
+#define NRF_SAADC_HAS_GAIN_2_7 0
+#endif
+
+#if defined(SAADC_CH_CONFIG_GAIN_Gain1_3) || defined(SAADC_CH_CONFIG_GAIN_Gain2_6) || \
+    defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether SAADC channel specific gain can be configured to 1/3. */
+#define NRF_SAADC_HAS_GAIN_1_3 1
+#else
+#define NRF_SAADC_HAS_GAIN_1_3 0
+#endif
+
+#if defined(SAADC_CH_CONFIG_GAIN_Gain2_5) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether SAADC channel specific gain can be configured to 2/5. */
+#define NRF_SAADC_HAS_GAIN_2_5 1
+#else
+#define NRF_SAADC_HAS_GAIN_2_5 0
+#endif
+
+#if defined(SAADC_CH_CONFIG_GAIN_Gain1_2) || defined(SAADC_CH_CONFIG_GAIN_Gain2_4) || \
+    defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether SAADC channel specific gain can be configured to 1/2. */
+#define NRF_SAADC_HAS_GAIN_1_2 1
+#else
+#define NRF_SAADC_HAS_GAIN_1_2 0
+#endif
+
+#if defined(SAADC_CH_CONFIG_GAIN_Gain2_3) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether SAADC channel specific gain can be configured to 2/3. */
+#define NRF_SAADC_HAS_GAIN_2_3 1
+#else
+#define NRF_SAADC_HAS_GAIN_2_3 0
+#endif
+
+#if defined(SAADC_CH_CONFIG_GAIN_Gain4) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether SAADC channel specific gain can be configured to 4. */
+#define NRF_SAADC_HAS_GAIN_4 1
+#else
+#define NRF_SAADC_HAS_GAIN_4 0
+#endif
+
+#if defined(SAADC_CH_CONFIG_REFSEL_Internal) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether SAADC channels can be configured to use an internal reference. */
+#define NRF_SAADC_HAS_REFERENCE_INTERNAL 1
+#else
+#define NRF_SAADC_HAS_REFERENCE_INTERNAL 0
+#endif
+
+#if defined(SAADC_CH_CONFIG_REFSEL_VDD1_4) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether SAADC channels can be configured to use VDD/4 as a reference. */
+#define NRF_SAADC_HAS_REFERENCE_VDD4 1
+#else
+#define NRF_SAADC_HAS_REFERENCE_VDD4 0
+#endif
+
+#if defined(SAADC_CH_CONFIG_REFSEL_External) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether SAADC channels can be configured to use an external reference. */
+#define NRF_SAADC_HAS_REFERENCE_EXTERNAL 1
+#else
+#define NRF_SAADC_HAS_REFERENCE_EXTERNAL 0
 #endif
 
 #if !NRF_SAADC_HAS_ACQTIME_ENUM || defined(__NRFX_DOXYGEN__)
@@ -175,21 +276,14 @@ extern "C" {
 #define NRF_SAADC_LIN_CAL_MAX SAADC_TRIM_LINCALCOEFF_VAL_Max
 #endif
 
-/** @brief @deprecated Symbol specifying width of the 8-bit sample in bits. */
-#define NRF_SAADC_8BIT_SAMPLE_WIDTH 16
-
 #if defined(SAADC_SAMPLERATE_CC_Min) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol specifying minimum capture and compare value for sample rate. */
 #define NRF_SAADC_SAMPLERATE_CC_MIN SAADC_SAMPLERATE_CC_Min
-#else
-#define NRF_SAADC_SAMPLERATE_CC_MIN (80UL)
 #endif
 
 #if defined(SAADC_SAMPLERATE_CC_Max) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol specifying maximum capture and compare value for sample rate. */
 #define NRF_SAADC_SAMPLERATE_CC_MAX SAADC_SAMPLERATE_CC_Max
-#else
-#define NRF_SAADC_SAMPLERATE_CC_MAX (2047UL)
 #endif
 
 /** @brief Resolution of the analog-to-digital converter. */
@@ -226,6 +320,21 @@ typedef uint32_t nrf_saadc_input_t;
                                     << SAADC_CH_PSELP_INTERNAL_Pos)
 #endif
 
+#if defined(SAADC_CH_PSELP_INTERNAL_VddL) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying AVDD_AO_1V5 as input. */
+#define NRF_SAADC_INPUT_VDDL ((SAADC_CH_PSELP_INTERNAL_VddL + 1) << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Decb) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying DECB as input. */
+#define NRF_SAADC_INPUT_DECB ((SAADC_CH_PSELP_INTERNAL_Decb + 1) << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Vss) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying VSS as input. */
+#define NRF_SAADC_INPUT_VSS ((SAADC_CH_PSELP_INTERNAL_Vss + 1) << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
 #if defined(SAADC_CH_PSELP_INTERNAL_VDDAO0V8) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol specifying VDD_AO_0V8 as input. */
 #define NRF_SAADC_INPUT_VDDAO0V8 ((SAADC_CH_PSELP_INTERNAL_VDDAO0V8 + 1) \
@@ -240,6 +349,30 @@ typedef uint32_t nrf_saadc_input_t;
 #if defined(SAADC_CH_PSELP_INTERNAL_VBAT) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol specifying VBat as input. */
 #define NRF_SAADC_INPUT_VBAT ((SAADC_CH_PSELP_INTERNAL_VBAT + 1) << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Internal0) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying Internal0 as input. */
+#define NRF_SAADC_INPUT_INTERNAL0 ((SAADC_CH_PSELP_INTERNAL_Internal0 + 1) \
+                                     << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Internal1) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying Internal1 as input. */
+#define NRF_SAADC_INPUT_INTERNAL1 ((SAADC_CH_PSELP_INTERNAL_Internal1 + 1) \
+                                     << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Internal2) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying Internal2 as input. */
+#define NRF_SAADC_INPUT_INTERNAL2 ((SAADC_CH_PSELP_INTERNAL_Internal2 + 1) \
+                                     << SAADC_CH_PSELP_INTERNAL_Pos)
+#endif
+
+#if defined(SAADC_CH_PSELP_INTERNAL_Internal3) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying Internal3 as input. */
+#define NRF_SAADC_INPUT_INTERNAL3 ((SAADC_CH_PSELP_INTERNAL_Internal3 + 1) \
+                                     << SAADC_CH_PSELP_INTERNAL_Pos)
 #endif
 
 /** @brief Symbol specifying disconnected analog input. */
@@ -257,10 +390,10 @@ typedef enum
     NRF_SAADC_INPUT_AIN5     = SAADC_CH_PSELP_PSELP_AnalogInput5,  ///< Analog input 5 (AIN5).
     NRF_SAADC_INPUT_AIN6     = SAADC_CH_PSELP_PSELP_AnalogInput6,  ///< Analog input 6 (AIN6).
     NRF_SAADC_INPUT_AIN7     = SAADC_CH_PSELP_PSELP_AnalogInput7,  ///< Analog input 7 (AIN7).
-#if defined(SAADC_CH_PSELP_PSELP_VDD) || defined(__NRFX_DOXYGEN__)
+#if NRF_SAADC_HAS_INPUT_VDD
     NRF_SAADC_INPUT_VDD      = SAADC_CH_PSELP_PSELP_VDD,           ///< VDD as input.
 #endif
-#if defined(SAADC_CH_PSELP_PSELP_VDDHDIV5) || defined(__NRFX_DOXYGEN__)
+#if NRF_SAADC_HAS_INPUT_VDDHDIV5
     NRF_SAADC_INPUT_VDDHDIV5 = SAADC_CH_PSELP_PSELP_VDDHDIV5       ///< VDDH/5 as input.
 #endif
 #if defined(SAADC_CH_PSELP_PSELP_AnalogInput8) || defined(__NRFX_DOXYGEN__)
@@ -318,10 +451,10 @@ typedef enum
 /** @brief Gain factor of the analog-to-digital converter input. */
 typedef enum
 {
-#if defined(SAADC_CH_CONFIG_GAIN_Gain1_6) || defined(__NRFX_DOXYGEN__)
+#if NRF_SAADC_HAS_GAIN_1_6
     NRF_SAADC_GAIN1_6 = SAADC_CH_CONFIG_GAIN_Gain1_6, ///< Gain factor 1/6.
 #endif
-#if defined(SAADC_CH_CONFIG_GAIN_Gain1_5) || defined(__NRFX_DOXYGEN__)
+#if NRF_SAADC_HAS_GAIN_1_5
     NRF_SAADC_GAIN1_5 = SAADC_CH_CONFIG_GAIN_Gain1_5, ///< Gain factor 1/5.
 #endif
 #if defined(SAADC_CH_CONFIG_GAIN_Gain1_4) || defined(__NRFX_DOXYGEN__)
@@ -329,7 +462,7 @@ typedef enum
 #elif defined(SAADC_CH_CONFIG_GAIN_Gain2_8) || defined(__NRFX_DOXYGEN__)
     NRF_SAADC_GAIN1_4 = SAADC_CH_CONFIG_GAIN_Gain2_8, ///< Gain factor 1/4.
 #endif
-#if defined(SAADC_CH_CONFIG_GAIN_Gain2_7) || defined(__NRFX_DOXYGEN__)
+#if NRF_SAADC_HAS_GAIN_2_7
     NRF_SAADC_GAIN2_7 = SAADC_CH_CONFIG_GAIN_Gain2_7, ///< Gain factor 2/7.
 #endif
 #if defined(SAADC_CH_CONFIG_GAIN_Gain1_3) || defined(__NRFX_DOXYGEN__)
@@ -337,7 +470,7 @@ typedef enum
 #elif defined(SAADC_CH_CONFIG_GAIN_Gain2_6) || defined(__NRFX_DOXYGEN__)
     NRF_SAADC_GAIN1_3 = SAADC_CH_CONFIG_GAIN_Gain2_6, ///< Gain factor 1/3.
 #endif
-#if defined(SAADC_CH_CONFIG_GAIN_Gain2_5) || defined(__NRFX_DOXYGEN__)
+#if NRF_SAADC_HAS_GAIN_2_5
     NRF_SAADC_GAIN2_5 = SAADC_CH_CONFIG_GAIN_Gain2_5, ///< Gain factor 2/5.
 #endif
 #if defined(SAADC_CH_CONFIG_GAIN_Gain1_2) || defined(__NRFX_DOXYGEN__)
@@ -345,12 +478,12 @@ typedef enum
 #elif defined(SAADC_CH_CONFIG_GAIN_Gain2_4) || defined(__NRFX_DOXYGEN__)
     NRF_SAADC_GAIN1_2 = SAADC_CH_CONFIG_GAIN_Gain2_4, ///< Gain factor 1/2.
 #endif
-#if defined(SAADC_CH_CONFIG_GAIN_Gain2_3) || defined(__NRFX_DOXYGEN__)
+#if NRF_SAADC_HAS_GAIN_2_3
     NRF_SAADC_GAIN2_3 = SAADC_CH_CONFIG_GAIN_Gain2_3, ///< Gain factor 2/3.
 #endif
     NRF_SAADC_GAIN1   = SAADC_CH_CONFIG_GAIN_Gain1,   ///< Gain factor 1.
     NRF_SAADC_GAIN2   = SAADC_CH_CONFIG_GAIN_Gain2,   ///< Gain factor 2.
-#if defined(SAADC_CH_CONFIG_GAIN_Gain4) || defined(__NRFX_DOXYGEN__)
+#if NRF_SAADC_HAS_GAIN_4
     NRF_SAADC_GAIN4   = SAADC_CH_CONFIG_GAIN_Gain4,   ///< Gain factor 4.
 #endif
 } nrf_saadc_gain_t;
@@ -359,13 +492,13 @@ typedef enum
 /** @brief Reference selection for the analog-to-digital converter. */
 typedef enum
 {
-#if defined(SAADC_CH_CONFIG_REFSEL_Internal) || defined(__NRFX_DOXYGEN__)
+#if NRF_SAADC_HAS_REFERENCE_INTERNAL
     NRF_SAADC_REFERENCE_INTERNAL = SAADC_CH_CONFIG_REFSEL_Internal, ///< Internal reference.
 #endif
-#if defined(SAADC_CH_CONFIG_REFSEL_VDD1_4) || defined(__NRFX_DOXYGEN__)
+#if NRF_SAADC_HAS_REFERENCE_VDD4
     NRF_SAADC_REFERENCE_VDD4     = SAADC_CH_CONFIG_REFSEL_VDD1_4    ///< VDD/4 as reference.
 #endif
-#if defined(SAADC_CH_CONFIG_REFSEL_External) || defined(__NRFX_DOXYGEN__)
+#if NRF_SAADC_HAS_REFERENCE_EXTERNAL
     NRF_SAADC_REFERENCE_EXTERNAL = SAADC_CH_CONFIG_REFSEL_External, ///< External reference.
 #endif
 } nrf_saadc_reference_t;
@@ -497,12 +630,8 @@ typedef enum
     NRF_SAADC_LIMIT_HIGH = 1  ///< High limit type.
 } nrf_saadc_limit_t;
 
-#if NRFX_API_VER_AT_LEAST(3, 2, 0) || defined(__NRFX_DOXYGEN__)
 /** @brief Type of a single ADC conversion result. */
-typedef void nrf_saadc_value_t;
-#else
-typedef uint16_t nrf_saadc_value_t;
-#endif
+typedef int16_t nrf_saadc_value_t;
 
 /** @brief Analog-to-digital converter configuration structure. */
 typedef struct
@@ -997,7 +1126,7 @@ NRF_STATIC_INLINE void nrf_saadc_burst_set(NRF_SAADC_Type *  p_reg,
  *
  * @return Minimum value of the conversion result.
  */
-NRF_STATIC_INLINE int16_t nrf_saadc_value_min_get(nrf_saadc_resolution_t resolution);
+NRF_STATIC_INLINE nrf_saadc_value_t nrf_saadc_value_min_get(nrf_saadc_resolution_t resolution);
 
 /**
  * @brief Function for getting the maximum value of the conversion result.
@@ -1008,7 +1137,7 @@ NRF_STATIC_INLINE int16_t nrf_saadc_value_min_get(nrf_saadc_resolution_t resolut
  *
  * @return Maximum value of the conversion result.
  */
-NRF_STATIC_INLINE int16_t nrf_saadc_value_max_get(nrf_saadc_resolution_t resolution);
+NRF_STATIC_INLINE nrf_saadc_value_t nrf_saadc_value_max_get(nrf_saadc_resolution_t resolution);
 
 #if NRF_SAADC_HAS_CAL
 /**
@@ -1406,7 +1535,7 @@ NRF_STATIC_INLINE void nrf_saadc_burst_set(NRF_SAADC_Type *  p_reg,
 }
 #endif
 
-NRF_STATIC_INLINE int16_t nrf_saadc_value_min_get(nrf_saadc_resolution_t resolution)
+NRF_STATIC_INLINE nrf_saadc_value_t nrf_saadc_value_min_get(nrf_saadc_resolution_t resolution)
 {
     uint8_t res_bits = 0;
     switch (resolution)
@@ -1426,10 +1555,10 @@ NRF_STATIC_INLINE int16_t nrf_saadc_value_min_get(nrf_saadc_resolution_t resolut
         default:
             NRFX_ASSERT(false);
     }
-    return (int16_t)(-(1 << res_bits));
+    return (nrf_saadc_value_t)(-(1 << res_bits));
 }
 
-NRF_STATIC_INLINE int16_t nrf_saadc_value_max_get(nrf_saadc_resolution_t resolution)
+NRF_STATIC_INLINE nrf_saadc_value_t nrf_saadc_value_max_get(nrf_saadc_resolution_t resolution)
 {
     uint8_t res_bits = 0;
     switch (resolution)
@@ -1449,7 +1578,7 @@ NRF_STATIC_INLINE int16_t nrf_saadc_value_max_get(nrf_saadc_resolution_t resolut
         default:
             NRFX_ASSERT(false);
     }
-    return (int16_t)((1 << res_bits) - 1);
+    return (nrf_saadc_value_t)((1 << res_bits) - 1);
 }
 
 #if NRF_SAADC_HAS_CAL

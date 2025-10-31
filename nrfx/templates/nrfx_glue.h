@@ -53,10 +53,6 @@ extern "C" {
  *        the needs of the host environment into which @em nrfx is integrated.
  */
 
-// Uncomment this line to use the standard MDK way of binding IRQ handlers
-// at linking time.
-//#include <soc/nrfx_irqs.h>
-
 //------------------------------------------------------------------------------
 
 /**

@@ -76,6 +76,7 @@ uint32_t __nrfy_internal_uarte_events_process(NRF_UARTE_Type *            p_reg,
  * @{
  * @ingroup nrf_uarte
  * @brief   Hardware access layer with cache and barrier support for managing the UARTE peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 /** @brief UARTE pins configuration structure. */

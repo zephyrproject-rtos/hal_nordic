@@ -48,26 +48,126 @@ extern "C" {
  * @brief   UARTE peripheral driver.
  */
 
+/** @brief Structure used internally to handle reception through cache buffers. */
+typedef struct
+{
+    nrfy_uarte_buffer_t user[2];   ///< User buffers.
+    nrfy_uarte_buffer_t cache[2];  ///< Cache buffers.
+    size_t              cache_len; ///< Single cache buffer length.
+    size_t              started;   ///< Used for tracking progress of the current user buffer.
+    size_t              received;  ///< Amount of received data in the current user buffer.
+    uint8_t             idx;       ///< Used for determining which cache buffer to use.
+    bool                buf_req;   ///< Flag indicate that next user buffer should be requested.
+} nrfx_uarte_rx_cache_t;
+
+/** @brief Types of UARTE driver events. */
+typedef enum
+{
+    NRFX_UARTE_EVT_TX_DONE,         ///< Requested TX transfer completed.
+    NRFX_UARTE_EVT_RX_DONE,         ///< Requested RX transfer completed.
+    NRFX_UARTE_EVT_ERROR,           ///< Error reported by UART peripheral.
+    NRFX_UARTE_EVT_RX_BUF_REQUEST,  ///< Request for a RX buffer.
+    NRFX_UARTE_EVT_RX_DISABLED,     ///< Receiver is disabled.
+    NRFX_UARTE_EVT_RX_BUF_TOO_LATE, ///< RX buffer request handled too late.
+    NRFX_UARTE_EVT_RX_BYTE,         ///< Byte was received.
+    NRFX_UARTE_EVT_TRIGGER,         ///< Result of @ref nrfx_uarte_int_trigger.
+} nrfx_uarte_event_type_t;
+
+/** @brief Structure for @ref NRFX_UARTE_EVT_RX_DONE event. */
+typedef struct
+{
+    uint8_t * p_buffer; ///< Pointer to the received data.
+    size_t    length;   ///< Amount of received data.
+} nrfx_uarte_rx_evt_t;
+
+/** @brief Structure for the @ref NRFX_UARTE_EVT_TX_DONE event. */
+typedef struct
+{
+    const uint8_t * p_buffer; ///< Pointer to the transferred data.
+    size_t          length;   ///< Amount of transferred data.
+    uint32_t        flags;    ///< Flags. See @ref NRFX_UARTE_TX_DONE_FLAGS.
+} nrfx_uarte_tx_evt_t;
+
+/** @brief Structure for the @ref NRFX_UARTE_EVT_ERROR. */
+typedef struct
+{
+    nrfy_uarte_buffer_t rx;         ///< Transfer details, including number of bytes received.
+    uint32_t            error_mask; ///< Mask of error flags that generated the event.
+} nrfx_uarte_error_evt_t;
+
+/** @brief Structure for the @ref NRFX_UARTE_EVT_RX_DISABLED. */
+typedef struct
+{
+    size_t flush_cnt;  ///< Number of bytes flushed from RX FIFO.
+                       /**< They will be copied to the next provided buffer if
+                        *   @ref NRFX_UARTE_RX_ENABLE_KEEP_FIFO_CONTENT is set. */
+} nrfx_uarte_rx_disabled_evt_t;
+
+/** @brief Structure for UARTE event. */
+typedef struct
+{
+    nrfx_uarte_event_type_t type;                 ///< Event type.
+    union
+    {
+        nrfx_uarte_rx_evt_t          rx;          ///< Data for @ref NRFX_UARTE_EVT_RX_DONE.
+        nrfx_uarte_tx_evt_t          tx;          ///< Data for @ref NRFX_UARTE_EVT_TX_DONE.
+        nrfx_uarte_error_evt_t       error;       ///< Data for @ref NRFX_UARTE_EVT_ERROR.
+        nrfx_uarte_rx_disabled_evt_t rx_disabled; ///< Data for @ref NRFX_UARTE_EVT_RX_DISABLED.
+    } data;                                       ///< Union to store event data.
+} nrfx_uarte_event_t;
+
+/**
+ * @brief UARTE interrupt event handler.
+ *
+ * @param[in] p_event   Pointer to event structure. Event is allocated on the stack so it is
+ *                      available only within the context of the event handler.
+ * @param[in] p_context Context passed to the interrupt handler, set on initialization.
+ */
+typedef void (*nrfx_uarte_event_handler_t)(nrfx_uarte_event_t const * p_event,
+                                           void *                     p_context);
+
+ /** @cond Driver internal data. */
+typedef struct
+{
+    nrfy_uarte_buffer_t     curr;
+    nrfy_uarte_buffer_t     next;
+    nrfy_uarte_buffer_t     flush;
+    nrfx_uarte_rx_cache_t * p_cache;
+    size_t                  off;
+} nrfx_uarte_rx_data_t;
+
+typedef struct
+{
+    nrfy_uarte_buffer_t curr;
+    nrfy_uarte_buffer_t next;
+    nrfy_uarte_buffer_t cache;
+    size_t              off;
+    int                 amount;
+} nrfx_uarte_tx_data_t;
+
+typedef struct
+{
+    void                     * p_context;
+    nrfx_uarte_event_handler_t handler;
+    nrfx_uarte_rx_data_t       rx;
+    nrfx_uarte_tx_data_t       tx;
+    nrfx_drv_state_t           state;
+    nrfx_atomic_t              flags;
+} nrfx_uarte_control_block_t;
+/** @endcond */
+
 /** @brief Structure for the UARTE driver instance. */
 typedef struct
 {
-    NRF_UARTE_Type * p_reg;        ///< Pointer to a structure with UARTE registers.
-    uint8_t          drv_inst_idx; ///< Index of the driver instance. For internal use only.
+    NRF_UARTE_Type *           p_reg; ///< Pointer to a structure with UARTE registers.
+    nrfx_uarte_control_block_t cb;    ///< Driver internal data.
 } nrfx_uarte_t;
 
-#ifndef __NRFX_DOXYGEN__
-enum {
-    /* List all enabled driver instances (in the format NRFX_\<instance_name\>_INST_IDX). */
-    NRFX_INSTANCE_ENUM_LIST(UARTE)
-    NRFX_UARTE_ENABLED_COUNT
-};
-#endif
-
 /** @brief Macro for creating a UARTE driver instance. */
-#define NRFX_UARTE_INSTANCE(id)                               \
-{                                                             \
-    .p_reg        = NRFX_CONCAT(NRF_, UARTE, id),             \
-    .drv_inst_idx = NRFX_CONCAT(NRFX_UARTE, id, _INST_IDX),   \
+#define NRFX_UARTE_INSTANCE(reg)    \
+{                                   \
+    .p_reg = (NRF_UARTE_Type *)reg, \
+    .cb    = {0},                   \
 }
 
 /**@defgroup NRFX_UARTE_RX_ENABLE_FLAGS Flags used for @ref nrfx_uarte_rx_enable.
@@ -124,7 +224,7 @@ enum {
  *
  * When the flag is set, the transfer is synchronous even if the driver is configured
  * to non-blocking operation. If UARTE is transmitting when the user requests blocking transfer,
- * @ref NRFX_ERROR_BUSY is returned. A driver state is determined by hardware, thus it is
+ * -EBUSY is returned. A driver state is determined by hardware, thus it is
  * accepted to poll the driver and continuously request blocking transfer until it
  * is accepted. It can be done from any priority context. Blocking transfer returns
  * when the buffer is transferred or when the user buffer is no longer in use
@@ -185,31 +285,6 @@ enum {
 #define NRFX_UARTE_TX_DONE_ABORTED NRFX_BIT(0)
 
 /**@} */
-
-/** @brief Types of UARTE driver events. */
-typedef enum
-{
-    NRFX_UARTE_EVT_TX_DONE,         ///< Requested TX transfer completed.
-    NRFX_UARTE_EVT_RX_DONE,         ///< Requested RX transfer completed.
-    NRFX_UARTE_EVT_ERROR,           ///< Error reported by UART peripheral.
-    NRFX_UARTE_EVT_RX_BUF_REQUEST,  ///< Request for a RX buffer.
-    NRFX_UARTE_EVT_RX_DISABLED,     ///< Receiver is disabled.
-    NRFX_UARTE_EVT_RX_BUF_TOO_LATE, ///< RX buffer request handled too late.
-    NRFX_UARTE_EVT_RX_BYTE,         ///< Byte was received.
-    NRFX_UARTE_EVT_TRIGGER,         ///< Result of @ref nrfx_uarte_int_trigger.
-} nrfx_uarte_evt_type_t;
-
-/** @brief Structure used internally to handle reception through cache buffers. */
-typedef struct
-{
-    nrfy_uarte_buffer_t user[2];   ///< User buffers.
-    nrfy_uarte_buffer_t cache[2];  ///< Cache buffers.
-    size_t              cache_len; ///< Single cache buffer length.
-    size_t              started;   ///< Used for tracking progress of the current user buffer.
-    size_t              received;  ///< Amount of received data in the current user buffer.
-    uint8_t             idx;       ///< Used for determining which cache buffer to use.
-    bool                buf_req;   ///< Flag indicate that next user buffer should be requested.
-} nrfx_uarte_rx_cache_t;
 
 /** @brief Structure for the UARTE configuration. */
 typedef struct
@@ -303,59 +378,6 @@ typedef struct
     .interrupt_priority = NRFX_UARTE_DEFAULT_CONFIG_IRQ_PRIORITY                \
 }
 
-/** @brief Structure for @ref NRFX_UARTE_EVT_RX_DONE event. */
-typedef struct
-{
-    uint8_t * p_buffer; ///< Pointer to the received data.
-    size_t    length;   ///< Amount of received data.
-} nrfx_uarte_rx_evt_t;
-
-/** @brief Structure for the @ref NRFX_UARTE_EVT_TX_DONE event. */
-typedef struct
-{
-    const uint8_t * p_buffer; ///< Pointer to the transferred data.
-    size_t          length;   ///< Amount of transferred data.
-    uint32_t        flags;    ///< Flags. See @ref NRFX_UARTE_TX_DONE_FLAGS.
-} nrfx_uarte_tx_evt_t;
-
-/** @brief Structure for the @ref NRFX_UARTE_EVT_ERROR. */
-typedef struct
-{
-    nrfy_uarte_buffer_t rx;         ///< Transfer details, including number of bytes received.
-    uint32_t            error_mask; ///< Mask of error flags that generated the event.
-} nrfx_uarte_error_evt_t;
-
-/** @brief Structure for the @ref NRFX_UARTE_EVT_RX_DISABLED. */
-typedef struct
-{
-    size_t flush_cnt;  ///< Number of bytes flushed from RX FIFO.
-                       /**< They will be copied to the next provided buffer if
-                        *   @ref NRFX_UARTE_RX_ENABLE_KEEP_FIFO_CONTENT is set. */
-} nrfx_uarte_rx_disabled_evt_t;
-
-/** @brief Structure for UARTE event. */
-typedef struct
-{
-    nrfx_uarte_evt_type_t type; ///< Event type.
-    union
-    {
-        nrfx_uarte_rx_evt_t          rx;          ///< Data for @ref NRFX_UARTE_EVT_RX_DONE.
-        nrfx_uarte_tx_evt_t          tx;          ///< Data for @ref NRFX_UARTE_EVT_TX_DONE.
-        nrfx_uarte_error_evt_t       error;       ///< Data for @ref NRFX_UARTE_EVT_ERROR.
-        nrfx_uarte_rx_disabled_evt_t rx_disabled; ///< Data for @ref NRFX_UARTE_EVT_RX_DISABLED.
-    } data;                                       ///< Union to store event data.
-} nrfx_uarte_event_t;
-
-/**
- * @brief UARTE interrupt event handler.
- *
- * @param[in] p_event   Pointer to event structure. Event is allocated on the stack so it is
- *                      available only within the context of the event handler.
- * @param[in] p_context Context passed to the interrupt handler, set on initialization.
- */
-typedef void (*nrfx_uarte_event_handler_t)(nrfx_uarte_event_t const * p_event,
-                                           void *                     p_context);
-
 /**
  * @brief Function for initializing the UARTE driver.
  *
@@ -366,19 +388,16 @@ typedef void (*nrfx_uarte_event_handler_t)(nrfx_uarte_event_t const * p_event,
  * @param[in] event_handler Event handler provided by the user. If not provided driver works in
  *                          blocking mode.
  *
- * @retval NRFX_SUCCESS             Initialization was successful.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
- * @retval NRFX_ERROR_INVALID_PARAM Invalid configuration.
- * @retval NRFX_ERROR_BUSY          Some other peripheral with the same
- *                                  instance ID is already in use. This is
- *                                  possible only if @ref nrfx_prs module
- *                                  is enabled.
+ * @retval 0          Initialization was successful.
+ * @retval -EALREADY  The driver is already initialized.
+ * @retval -EINVAL    Invalid configuration.
+ * @retval -EBUSY     Some other peripheral with the same instance ID is already in use.
+ *                    This is possible only if @ref nrfx_prs module is enabled.
+ * @retval -ECANCELED Peripheral was not properly deinitialized after use.
  */
-nrfx_err_t nrfx_uarte_init(nrfx_uarte_t const *        p_instance,
-                           nrfx_uarte_config_t const * p_config,
-                           nrfx_uarte_event_handler_t  event_handler);
+int nrfx_uarte_init(nrfx_uarte_t *              p_instance,
+                    nrfx_uarte_config_t const * p_config,
+                    nrfx_uarte_event_handler_t  event_handler);
 
 /**
  * @brief Function for reconfiguring the UARTE driver.
@@ -386,19 +405,20 @@ nrfx_err_t nrfx_uarte_init(nrfx_uarte_t const *        p_instance,
  * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] p_config   Pointer to the structure with the configuration.
  *
- * @retval NRFX_SUCCESS             Reconfiguration was successful.
- * @retval NRFX_ERROR_BUSY          The driver is during transfer.
- * @retval NRFX_ERROR_INVALID_STATE The driver is uninitialized.
+ * @retval 0            Reconfiguration was successful.
+ * @retval -EBUSY       The driver is during transfer.
+ * @retval -EINPROGRESS The driver is uninitialized.
+ * @retval -ECANCELED   Peripheral was not properly deinitialized after use.
  */
-nrfx_err_t nrfx_uarte_reconfigure(nrfx_uarte_t const *        p_instance,
-                                  nrfx_uarte_config_t const * p_config);
+int nrfx_uarte_reconfigure(nrfx_uarte_t *              p_instance,
+                           nrfx_uarte_config_t const * p_config);
 
 /**
  * @brief Function for uninitializing the UARTE driver.
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrfx_uarte_uninit(nrfx_uarte_t const * p_instance);
+void nrfx_uarte_uninit(nrfx_uarte_t * p_instance);
 
 /**
  * @brief Function for checking if the UARTE driver instance is initialized.
@@ -456,21 +476,22 @@ NRFX_STATIC_INLINE uint32_t nrfx_uarte_event_address_get(nrfx_uarte_t const * p_
  *                       checks it with assertion.
  * @param[in] flags      Option flags. See @ref NRFX_UARTE_TX_FLAGS.
  *
- * @retval NRFX_SUCCESS              Initialization was successful.
- * @retval NRFX_ERROR_BUSY           Driver is busy transferring the data.
- * @retval NRFX_ERROR_FORBIDDEN      The transfer was aborted from a different context
- *                                   (blocking mode only) or transfer cannot be performed due to
- *                                   driver state, configuration or transfer parameters.
- * @retval NRFX_ERROR_INVALID_ADDR   p_data does not point to RAM buffer and cache buffer is not
- *                                   provided or attempted to use non DMA buffer with linked
- *                                   transfer (see @ref NRFX_UARTE_TX_LINK).
- * @retval NRFX_ERROR_INVALID_LENGTH Flag @ref NRFX_UARTE_TX_EARLY_RETURN is used
- *                                   but @p length exceeds internal buffer size.
+ * @retval 0          Initialization was successful.
+ * @retval -EBUSY     Driver is busy transferring the data.
+ * @retval -EPERM     The transfer was aborted from a different context
+                      (blocking mode only) or transfer cannot be performed due to
+ *                    driver state, configuration or transfer parameters.
+ * @retval -EACCES    p_data does not point to RAM buffer and cache buffer is not
+ *                    provided or attempted to use non DMA buffer with linked
+ *                    transfer (see @ref NRFX_UARTE_TX_LINK).
+ * @retval -E2BIG     Flag @ref NRFX_UARTE_TX_EARLY_RETURN is used
+ *                    but @p length exceeds internal buffer size.
+ * @retval -ECANCELED Peripheral was not properly deinitialized after use.
  */
-nrfx_err_t nrfx_uarte_tx(nrfx_uarte_t const * p_instance,
-                         uint8_t const *      p_data,
-                         size_t               length,
-                         uint32_t             flags);
+int nrfx_uarte_tx(nrfx_uarte_t *  p_instance,
+                  uint8_t const * p_data,
+                  size_t          length,
+                  uint32_t        flags);
 
 /**
  * @brief Function for checking if UARTE is currently transmitting.
@@ -495,11 +516,10 @@ bool nrfx_uarte_tx_in_progress(nrfx_uarte_t const * p_instance);
  * @param[in] sync       If true operation is synchronous. Transmitter is stopped upon
  *                       function return and no event is generated.
  *
- * @retval NRFX_SUCCESS             Successfully initiated abort or when transmitter synchronously
- *                                  stopped.
- * @retval NRFX_ERROR_INVALID_STATE Attempt to asynchronously abort when no transfer is active.
+ * @retval 0            Successfully initiated abort or when transmitter synchronously stopped.
+ * @retval -EINPROGRESS Attempt to asynchronously abort when no transfer is active.
  */
-nrfx_err_t nrfx_uarte_tx_abort(nrfx_uarte_t const * p_instance, bool sync);
+int nrfx_uarte_tx_abort(nrfx_uarte_t * p_instance, bool sync);
 
 /**
  * @brief Function for enabling the receiver.
@@ -518,11 +538,11 @@ nrfx_err_t nrfx_uarte_tx_abort(nrfx_uarte_t const * p_instance, bool sync);
  * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] flags      Option flags. See @ref NRFX_UARTE_RX_ENABLE_FLAGS.
  *
- * @retval NRFX_SUCCESS      Receiver successfully enabled.
- * @retval NRFX_ERROR_BUSY   When receiver is already enabled.
- * @retval NRFX_ERROR_NO_MEM When buffer was not provided.
+ * @retval 0       Receiver successfully enabled.
+ * @retval -EBUSY  When receiver is already enabled.
+ * @retval -ENOMEM When buffer was not provided.
  */
-nrfx_err_t nrfx_uarte_rx_enable(nrfx_uarte_t const * p_instance, uint32_t flags);
+int nrfx_uarte_rx_enable(nrfx_uarte_t * p_instance, uint32_t flags);
 
 /**
  * @brief Function for providing reception buffer.
@@ -536,61 +556,16 @@ nrfx_err_t nrfx_uarte_rx_enable(nrfx_uarte_t const * p_instance, uint32_t flags)
  * @param[in] p_data     Pointer to a buffer.
  * @param[in] length     Buffer length.
  *
- * @retval NRFX_SUCCESS             Buffer successfully set.
- * @retval NRFX_ERROR_INVALID_STATE Buffer provided without pending request.
- * @retval NRFX_ERROR_TIMEOUT       Buffer provided too late. Receiver is being disabled.
+ * @retval 0            Buffer successfully set.
+ * @retval -EINPROGRESS Buffer provided without pending request.
+ * @retval -EACCES      No cache buffer provided or blocking mode is used,
+ *                      transfer cannot be handled.
+ * @retval -EBUSY       Previous buffer is still in use.
+ * @retval -EPERM       Provided uncached buffer after providing cached one.
  */
-nrfx_err_t nrfx_uarte_rx_buffer_set(nrfx_uarte_t const * p_instance,
-                                    uint8_t *            p_data,
-                                    size_t               length);
-
-/**
- * @brief Function for receiving data over UARTE.
- *
- * If an event handler is provided in the nrfx_uarte_init() call, this function
- * returns immediately and the handler is called when the transfer is done.
- * Otherwise, the transfer is performed in blocking mode, that is this function
- * returns when the transfer is finished. Blocking mode is not using interrupt so
- * there is no context switching inside the function.
- * The receive buffer pointer is double-buffered in non-blocking mode. The secondary
- * buffer can be set immediately after starting the transfer and will be filled
- * when the primary buffer is full. The double-buffering feature allows
- * receiving data continuously.
- *
- * @note Peripherals using EasyDMA (including UARTE) require the transfer buffers
- *       to be placed in the Data RAM region. If this condition is not met,
- *       this function fails with the error code NRFX_ERROR_INVALID_ADDR.
- *
- * @warning When the double-buffering feature is used and the UARTE interrupt
- *          is processed with a delay (for example, due to a higher priority interrupt)
- *          long enough for both buffers to get filled completely,
- *          the event handler will be invoked only once, to notify that
- *          the first buffer has been filled. This is because from hardware perspective it
- *          is impossible to deduce in such case if the second buffer was also filled completely or not.
- *          To prevent this from happening, keep the UARTE interrupt latency low
- *          or use large enough reception buffers.
- *
- * @deprecated Use @ref nrfx_uarte_rx_enable and @ref nrfx_uarte_rx_buffer_set.
- *
- * @param[in] p_instance Pointer to the driver instance structure.
- * @param[in] p_data     Pointer to data.
- * @param[in] length     Number of bytes to receive. Maximum possible length is
- *                       dependent on the used SoC (see the MAXCNT register
- *                       description in the Product Specification). The driver
- *                       checks it with assertion.
- *
- * @retval NRFX_SUCCESS            Initialization is successful.
- * @retval NRFX_ERROR_BUSY         The driver is already receiving
- *                                 (and the secondary buffer has already been set
- *                                 in non-blocking mode).
- * @retval NRFX_ERROR_FORBIDDEN    The transfer is aborted from a different context
- *                                 (blocking mode only).
- * @retval NRFX_ERROR_INTERNAL     The UARTE peripheral reports an error.
- * @retval NRFX_ERROR_INVALID_ADDR p_data does not point to RAM buffer.
- */
-nrfx_err_t nrfx_uarte_rx(nrfx_uarte_t const * p_instance,
-                         uint8_t *            p_data,
-                         size_t               length);
+int nrfx_uarte_rx_buffer_set(nrfx_uarte_t * p_instance,
+                             uint8_t *      p_data,
+                             size_t         length);
 
 /**
  * @brief Function for testing the receiver state in blocking mode.
@@ -599,12 +574,12 @@ nrfx_err_t nrfx_uarte_rx(nrfx_uarte_t const * p_instance,
  * @param[out] p_rx_amount Pointer to the variable to be filled with the number of received bytes.
  *                         Can be NULL.
  *
- * @retval NRFX_SUCCESS         The receiving operation is completed.
- * @retval NRFX_ERROR_BUSY      The receiver did not complete the operation.
- * @retval NRFX_ERROR_ALREADY   The receiver is disabled.
- * @retval NRFX_ERROR_FORBIDDEN Operation is not supporting in the current configuration.
+ * @retval 0         The receiving operation is completed.
+ * @retval -EBUSY    The receiver did not complete the operation.
+ * @retval -EALREADY The receiver is disabled.
+ * @retval -EPERM    Operation is not supporting in the current configuration.
  */
-nrfx_err_t nrfx_uarte_rx_ready(nrfx_uarte_t const * p_instance, size_t * p_rx_amount);
+int nrfx_uarte_rx_ready(nrfx_uarte_t const * p_instance, size_t * p_rx_amount);
 
 /**
  * @brief Function for aborting any ongoing reception.
@@ -628,10 +603,10 @@ nrfx_err_t nrfx_uarte_rx_ready(nrfx_uarte_t const * p_instance, size_t * p_rx_am
  *                        only the first transfer is stopped.
  * @param[in] sync        If true, receiver is disabled synchronously.
  *
- * @retval NRFX_SUCCESS             Successfully initiate disabling or disabled (synchronous mode).
- * @retval NRFX_ERROR_INVALID_STATE Receiver was not enabled.
+ * @retval 0            Successfully initiate disabling or disabled (synchronous mode).
+ * @retval -EINPROGRESS Receiver was not enabled.
  */
-nrfx_err_t nrfx_uarte_rx_abort(nrfx_uarte_t const * p_instance, bool disable_all, bool sync);
+int nrfx_uarte_rx_abort(nrfx_uarte_t * p_instance, bool disable_all, bool sync);
 
 /**
  * @brief Function for reading error source mask.
@@ -657,7 +632,7 @@ uint32_t nrfx_uarte_errorsrc_get(nrfx_uarte_t const * p_instance);
  * @retval true  At least one byte was received since the last check.
  * @retval false No new data was received since the last check.
  */
-bool nrfx_uarte_rx_new_data_check(nrfx_uarte_t const * p_instance);
+bool nrfx_uarte_rx_new_data_check(nrfx_uarte_t * p_instance);
 
 /**
  * @brief Function for enabling @ref NRFX_UARTE_EVT_RX_BYTE event.
@@ -694,61 +669,52 @@ NRFX_STATIC_INLINE void nrfx_uarte_rxdrdy_disable(nrfx_uarte_t const * p_instanc
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  *
- * @retval NRFX_ERROR_FORBIDDEN Failure. User handler is not configured.
- * @retval NRFX_SUCCESS         If interrupt is successfully triggered.
+ * @retval 0      If interrupt is successfully triggered.
+ * @retval -EPERM Failure. User handler is not configured.
  */
-nrfx_err_t nrfx_uarte_int_trigger(nrfx_uarte_t const * p_instance);
+int nrfx_uarte_int_trigger(nrfx_uarte_t * p_instance);
+
+/**
+ * @brief Driver interrupt handler.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ */
+void nrfx_uarte_irq_handler(nrfx_uarte_t * p_instance);
 
 #ifndef NRFX_DECLARE_ONLY
 NRFX_STATIC_INLINE uint32_t nrfx_uarte_task_address_get(nrfx_uarte_t const * p_instance,
                                                         nrf_uarte_task_t     task)
 {
+    NRFX_ASSERT(p_instance);
+
     return nrfy_uarte_task_address_get(p_instance->p_reg, task);
 }
 
 NRFX_STATIC_INLINE uint32_t nrfx_uarte_event_address_get(nrfx_uarte_t const * p_instance,
                                                          nrf_uarte_event_t    event)
 {
+    NRFX_ASSERT(p_instance);
+
     return nrfy_uarte_event_address_get(p_instance->p_reg, event);
 }
 
 NRFX_STATIC_INLINE void nrfx_uarte_rxdrdy_enable(nrfx_uarte_t const * p_instance)
 {
+    NRFX_ASSERT(p_instance);
+
 	nrfy_uarte_int_enable(p_instance->p_reg, NRF_UARTE_INT_RXDRDY_MASK);
 }
 
 NRFX_STATIC_INLINE void nrfx_uarte_rxdrdy_disable(nrfx_uarte_t const * p_instance)
 {
+    NRFX_ASSERT(p_instance);
+
 	nrfy_uarte_int_disable(p_instance->p_reg, NRF_UARTE_INT_RXDRDY_MASK);
 }
 
 #endif // NRFX_DECLARE_ONLY
 
-/**
- * @brief Macro returning UARTE interrupt handler.
- *
- * param[in] idx UARTE index.
- *
- * @return Interrupt handler.
- */
-#define NRFX_UARTE_INST_HANDLER_GET(idx) NRFX_CONCAT_3(nrfx_uarte_, idx, _irq_handler)
-
 /** @} */
-
-/*
- * Declare interrupt handlers for all enabled driver instances in the following format:
- * nrfx_\<periph_name\>_\<idx\>_irq_handler (for example, nrfx_uarte_0_irq_handler).
- *
- * A specific interrupt handler for the driver instance can be retrieved by using
- * the NRFX_UARTE_INST_HANDLER_GET macro.
- *
- * Here is a sample of using the NRFX_UARTE_INST_HANDLER_GET macro to map an interrupt handler
- * in a Zephyr application:
- *
- * IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_UARTE_INST_GET(\<instance_index\>)), \<priority\>,
- *             NRFX_UARTE_INST_HANDLER_GET(\<instance_index\>), 0, 0);
- */
-NRFX_INSTANCE_IRQ_HANDLERS_DECLARE(UARTE, uarte)
 
 #ifdef __cplusplus
 }

@@ -36,7 +36,7 @@
 
 #include <nrfx.h>
 #include <hal/nrf_grtc.h>
-#include <soc/nrfx_coredep.h>
+#include <lib/nrfx_coredep.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,6 +65,7 @@ NRFY_STATIC_INLINE bool __nrfy_internal_grtc_sys_counter_ready_check(NRF_GRTC_Ty
  * @{
  * @ingroup nrf_grtc
  * @brief   Hardware access layer with cache and barrier support for managing the GRTC peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 #if NRF_GRTC_HAS_EXTENDED || defined(__NRFX_DOXYGEN__)
@@ -93,6 +94,13 @@ NRFY_STATIC_INLINE bool __nrfy_internal_grtc_sys_counter_ready_check(NRF_GRTC_Ty
 #define NRFY_GRTC_HAS_SYSCOUNTERVALID 1
 #else
 #define NRFY_GRTC_HAS_SYSCOUNTERVALID 0
+#endif
+
+#if NRF_GRTC_HAS_SYSCOUNTER_LOADED || defined(__NRFX_DOXYGEN__)
+/** @refhal{NRF_GRTC_HAS_SYSCOUNTER_LOADED} */
+#define NRFY_GRTC_HAS_SYSCOUNTER_LOADED 1
+#else
+#define NRFY_GRTC_HAS_SYSCOUNTER_LOADED 0
 #endif
 
 #if NRF_GRTC_HAS_KEEPRUNNING || defined(__NRFX_DOXYGEN__)
@@ -329,7 +337,11 @@ NRFY_STATIC_INLINE uint64_t nrfy_grtc_sys_counter_get(NRF_GRTC_Type const * p_re
     do {
         counter = nrf_grtc_sys_counter_get(p_reg);
     } while (counter & NRFY_GRTC_SYSCOUNTER_RETRY_MASK);
-    return (counter & NRFY_GRTC_SYSCOUNTER_MASK);
+#if NRFX_CHECK(NRFY_GRTC_HAS_SYSCOUNTER_LOADED)
+    return counter & NRFY_GRTC_SYSCOUNTER_MASK;
+#else
+    return counter;
+#endif
 #else
     uint32_t counter_l, counter_h;
 
@@ -339,7 +351,11 @@ NRFY_STATIC_INLINE uint64_t nrfy_grtc_sys_counter_get(NRF_GRTC_Type const * p_re
         counter_h = nrf_grtc_sys_counter_high_get(p_reg);
         nrf_barrier_r();
     } while (counter_h & NRFY_GRTC_SYSCOUNTER_RETRY_MASK);
+#if NRFX_CHECK(NRFY_GRTC_HAS_SYSCOUNTER_LOADED)
     return (uint64_t)counter_l | ((uint64_t)(counter_h & NRF_GRTC_SYSCOUNTERH_VALUE_MASK) << 32);
+#else
+    return (uint64_t)counter_l | ((uint64_t)counter_h << 32);
+#endif
 #endif // NRFX_CHECK(ISA_ARM) && (__CORTEX_M == 33U)
 }
 

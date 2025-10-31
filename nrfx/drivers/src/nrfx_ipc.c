@@ -32,9 +32,6 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_IPC_ENABLED)
-
 #include <nrfx_ipc.h>
 
 #define NRFX_LOG_MODULE IPC
@@ -50,12 +47,12 @@ typedef struct
 
 static ipc_control_block_t m_cb;
 
-nrfx_err_t nrfx_ipc_init(uint8_t irq_priority, nrfx_ipc_handler_t handler, void * p_context)
+int nrfx_ipc_init(uint8_t irq_priority, nrfx_ipc_handler_t handler, void * p_context)
 {
     NRFX_ASSERT(handler);
     if (m_cb.state != NRFX_DRV_STATE_UNINITIALIZED)
     {
-        return NRFX_ERROR_ALREADY;
+        return -EALREADY;
     }
 
     NRFX_IRQ_PRIORITY_SET(IPC_IRQn, irq_priority);
@@ -66,7 +63,7 @@ nrfx_err_t nrfx_ipc_init(uint8_t irq_priority, nrfx_ipc_handler_t handler, void 
     m_cb.p_context = p_context;
 
     NRFX_LOG_INFO("Initialized.");
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 void nrfx_ipc_config_load(const nrfx_ipc_config_t * p_config)
@@ -191,5 +188,3 @@ void nrfx_ipc_irq_handler(void)
         }
     }
 }
-
-#endif // NRFX_CHECK(NRFX_IPC_ENABLED)

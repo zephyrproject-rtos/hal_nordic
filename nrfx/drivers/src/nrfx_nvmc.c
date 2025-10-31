@@ -32,9 +32,6 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_NVMC_ENABLED)
-
 #include <nrfx_nvmc.h>
 
 /**
@@ -43,56 +40,9 @@
  * It is used in loops iterating over bytes contained in a word
  * or in word-alignment checks.
  */
-#define NVMC_BYTES_IN_WORD  4
-
-/** Value representing non-volatile memory (NVM) base address. */
-#if defined(NRF5340_XXAA_NETWORK)
-    #define NVMC_FLASH_BASE_ADDRESS  0x01000000uL
-#else
-    #define NVMC_FLASH_BASE_ADDRESS  0
-#endif
-
-/**
- * Value representing non-volatile memory (NVM) page count.
- *
- * This symbol is needed to determine NVM page count for chips that cannot
- * always access FICR for this information.
- */
-#if defined(NRF5340_XXAA_APPLICATION) || defined(NRF9120_XXAA) || defined(NRF9160_XXAA)
-    #define NVMC_FLASH_PAGE_COUNT  256
-#elif defined(NRF5340_XXAA_NETWORK)
-    #define NVMC_FLASH_PAGE_COUNT  128
-#endif
-
-/**
- * Value representing non-volatile memory (NVM) page size in bytes.
- *
- * This symbol is needed to determine NVM page size for chips that cannot
- * always access FICR for this information.
- */
-#if defined(NRF5340_XXAA_APPLICATION) || defined(NRF9120_XXAA) || defined(NRF9160_XXAA)
-    #define NVMC_FLASH_PAGE_SIZE  0x1000 ///< 4 kB
-#elif defined(NRF5340_XXAA_NETWORK)
-    #define NVMC_FLASH_PAGE_SIZE  0x800  ///< 2 kB
-#endif
+#define NVMC_BYTES_IN_WORD  sizeof(uint32_t)
 
 #if NRF_NVMC_HAS_PARTIAL_ERASE
-/**
- * Value representing the page erase time.
- *
- * This value is used to determine whether the partial erase is still in progress.
- */
-#if defined(NRF52805_XXAA) || defined(NRF52810_XXAA) || \
-    defined(NRF52811_XXAA) || defined(NRF52840_XXAA)
-    #define NVMC_PAGE_ERASE_DURATION_MS  85
-#elif defined(NRF52820_XXAA) || defined(NRF52833_XXAA) || \
-      defined(NRF5340_XXAA_APPLICATION) || defined(NRF5340_XXAA_NETWORK) || \
-      defined(NRF9120_XXAA) || defined(NRF9160_XXAA)
-    #define NVMC_PAGE_ERASE_DURATION_MS  87
-#else
-    #error "Page partial erase present but could not determine its total duration for given SoC"
-#endif
-
 /**
  * Value representing the invalid page partial erase address.
  *
@@ -100,7 +50,7 @@
  * partial erase, as that address 0 can be a valid
  * memory address in flash.
  */
-#define NVMC_PARTIAL_ERASE_INVALID_ADDR  0xFFFFFFFF
+#define NVMC_PARTIAL_ERASE_INVALID_ADDR UINT32_MAX
 
 /** Internal counter for page partial erase. */
 static uint32_t m_partial_erase_time_elapsed;
@@ -114,12 +64,10 @@ static uint32_t flash_page_size_get(void)
 {
     uint32_t flash_page_size = 0;
 
-#if defined(NRF51) || defined(NRF52_SERIES)
-    flash_page_size = nrf_ficr_codepagesize_get(NRF_FICR);
-#elif defined(NVMC_FLASH_PAGE_SIZE)
+#if defined(NVMC_FLASH_PAGE_SIZE)
     flash_page_size = NVMC_FLASH_PAGE_SIZE;
 #else
-    #error "Cannot determine flash page size for a given SoC."
+    flash_page_size = nrf_ficr_codepagesize_get(NRF_FICR);
 #endif
 
     return flash_page_size;
@@ -129,12 +77,10 @@ static uint32_t flash_page_count_get(void)
 {
     uint32_t page_count = 0;
 
-#if defined(NRF51) || defined(NRF52_SERIES)
-    page_count = nrf_ficr_codesize_get(NRF_FICR);
-#elif defined(NVMC_FLASH_PAGE_COUNT)
+#if defined(NVMC_FLASH_PAGE_COUNT)
     page_count = NVMC_FLASH_PAGE_COUNT;
 #else
-    #error "Cannot determine flash page count for a given SoC."
+    page_count = nrf_ficr_codesize_get(NRF_FICR);
 #endif
 
     return page_count;
@@ -184,7 +130,7 @@ static uint32_t partial_word_create(uint32_t addr, uint8_t const * bytes, uint32
 
     NRFX_ASSERT(bytes_count <= (NVMC_BYTES_IN_WORD - byte_shift));
 
-    value32 = 0xFFFFFFFF;
+    value32 = UINT32_MAX;
     for (uint32_t i = 0; i < bytes_count; i++)
     {
         ((uint8_t *)&value32)[byte_shift] = bytes[i];
@@ -238,7 +184,7 @@ static void nvmc_erase_mode_set(void)
 
 static void nvmc_word_write(uint32_t addr, uint32_t value)
 {
-#if defined(NRF91_SERIES)
+#if NRF_NVMC_HAS_WRITE_READY_CHECK && (!NRF_ERRATA_STATIC_CHECK(52, 233))
     while (!nrf_nvmc_write_ready_check(NRF_NVMC))
     {}
 #else
@@ -258,13 +204,13 @@ static void nvmc_words_write(uint32_t addr, void const * src, uint32_t num_words
     }
 }
 
-nrfx_err_t nrfx_nvmc_page_erase(uint32_t addr)
+int nrfx_nvmc_page_erase(uint32_t addr)
 {
     NRFX_ASSERT(is_valid_address(addr, false));
 
     if (!is_page_aligned_check(addr))
     {
-        return NRFX_ERROR_INVALID_ADDR;
+        return -EACCES;
     }
 
     nvmc_erase_mode_set();
@@ -273,10 +219,10 @@ nrfx_err_t nrfx_nvmc_page_erase(uint32_t addr)
     {}
     nvmc_readonly_mode_set();
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 
-nrfx_err_t nrfx_nvmc_uicr_erase(void)
+int nrfx_nvmc_uicr_erase(void)
 {
 #if NRF_NVMC_HAS_UICR_ERASE
     nvmc_erase_mode_set();
@@ -284,9 +230,9 @@ nrfx_err_t nrfx_nvmc_uicr_erase(void)
     while (!nrf_nvmc_ready_check(NRF_NVMC))
     {}
     nvmc_readonly_mode_set();
-    return NRFX_SUCCESS;
+    return 0;
 #else
-    return NRFX_ERROR_NOT_SUPPORTED;
+    return -ENOTSUP;
 #endif
 }
 
@@ -300,20 +246,20 @@ void nrfx_nvmc_all_erase(void)
 }
 
 #if NRF_NVMC_HAS_PARTIAL_ERASE
-nrfx_err_t nrfx_nvmc_page_partial_erase_init(uint32_t addr, uint32_t duration_ms)
+int nrfx_nvmc_page_partial_erase_init(uint32_t addr, uint32_t duration_ms)
 {
     NRFX_ASSERT(is_valid_address(addr, false));
 
     if (!is_page_aligned_check(addr))
     {
-        return NRFX_ERROR_INVALID_ADDR;
+        return -EACCES;
     }
 
     m_partial_erase_time_elapsed = 0;
     m_partial_erase_page_addr = addr;
     nrf_nvmc_partial_erase_duration_set(NRF_NVMC, duration_ms);
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 bool nrfx_nvmc_page_partial_erase_continue(void)
@@ -322,7 +268,7 @@ bool nrfx_nvmc_page_partial_erase_continue(void)
 
     uint32_t duration_ms = nrf_nvmc_partial_erase_duration_get(NRF_NVMC);
 
-#if defined(NVMC_CONFIG_WEN_PEen)
+#if NRF_NVMC_HAS_PARTIAL_ERASE_MODE
     nrf_nvmc_mode_set(NRF_NVMC, NRF_NVMC_MODE_PARTIAL_ERASE);
 #else
     nrf_nvmc_mode_set(NRF_NVMC, NRF_NVMC_MODE_ERASE);
@@ -345,6 +291,38 @@ bool nrfx_nvmc_page_partial_erase_continue(void)
     }
 }
 #endif // NRF_NVMC_HAS_PARTIAL_ERASE
+
+bool nrfx_nvmc_fits_memory_check(uint32_t addr, bool uicr_allowed, uint32_t len_bytes)
+{
+    uint32_t flash_size = flash_total_size_get();
+    if (((addr - (uint32_t)NVMC_FLASH_BASE_ADDRESS) < flash_size) &&
+        (len_bytes <= ((uint32_t)NVMC_FLASH_BASE_ADDRESS + flash_size - addr)))
+    {
+        return true;
+    }
+#if !defined(NRF_TRUSTZONE_NONSECURE)
+    if (uicr_allowed && nrfx_nvmc_fits_uicr_check(addr, len_bytes))
+    {
+        return true;
+    }
+#else
+    (void)uicr_allowed;
+#endif
+
+    return false;
+}
+
+bool nrfx_nvmc_fits_uicr_check(uint32_t addr, uint32_t len_bytes)
+{
+#if !defined(NRF_TRUSTZONE_NONSECURE)
+    return ((addr - (uint32_t)NRF_UICR) < sizeof(NRF_UICR_Type))
+        && (len_bytes <= ((uint32_t)NRF_UICR + sizeof(NRF_UICR_Type) - addr));
+#else
+    (void)addr;
+    (void)len_bytes;
+    return false;
+#endif
+}
 
 bool nrfx_nvmc_byte_writable_check(uint32_t addr, uint8_t val_to_check)
 {
@@ -492,7 +470,7 @@ uint16_t nrfx_nvmc_otp_halfword_read(uint32_t addr)
     NRFX_ASSERT(is_halfword_aligned(addr));
 
     uint32_t aligned_addr = addr & ~(0x03UL);
-    uint32_t val32 = nrf_nvmc_word_read(aligned_addr);
+    uint32_t val32 = nrfx_nvmc_uicr_word_read((uint32_t *)aligned_addr);
 
     return (nrfx_is_word_aligned((void const *)addr) ? (uint16_t)(val32)
                                                      : (uint16_t)(val32 >> 16));
@@ -512,5 +490,3 @@ uint32_t nrfx_nvmc_flash_page_count_get(void)
 {
     return flash_page_count_get();
 }
-
-#endif // NRFX_CHECK(NRFX_NVMC_ENABLED)

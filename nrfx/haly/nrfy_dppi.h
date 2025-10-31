@@ -46,6 +46,7 @@ extern "C" {
  * @{
  * @ingroup nrf_dppi
  * @brief   Hardware access layer with cache and barrier support for managing the DPPI peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 /**

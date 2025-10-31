@@ -124,14 +124,12 @@ typedef void (*nrfx_rtc_handler_t)(nrfx_rtc_int_type_t int_type);
  * @param[in] handler    Event handler provided by the user.
  *                       Must not be NULL.
  *
- * @retval NRFX_SUCCESS             Successfully initialized.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
+ * @retval 0         Successfully initialized.
+ * @retval -EALREADY The driver is already initialized.
  */
-nrfx_err_t nrfx_rtc_init(nrfx_rtc_t const *        p_instance,
-                         nrfx_rtc_config_t const * p_config,
-                         nrfx_rtc_handler_t        handler);
+int nrfx_rtc_init(nrfx_rtc_t const *        p_instance,
+                  nrfx_rtc_config_t const * p_config,
+                  nrfx_rtc_handler_t        handler);
 
 /**
  * @brief Function for uninitializing the RTC driver instance.
@@ -191,12 +189,12 @@ void nrfx_rtc_disable(nrfx_rtc_t const * p_instance);
  * @param[in] val        Absolute value to be set in the compare register.
  * @param[in] enable_irq True to enable the interrupt. False to disable the interrupt.
  *
- * @retval NRFX_SUCCESS       The procedure is successful.
- * @retval NRFX_ERROR_TIMEOUT The compare is not set because the request value is behind the
- *                            current counter value. This error can only be reported
- *                            if the reliable mode is enabled.
+ * @retval 0          The procedure is successful.
+ * @retval -ETIMEDOUT The compare is not set because the request value is behind the
+ *                    current counter value. This error can only be reported
+ *                    if the reliable mode is enabled.
  */
-nrfx_err_t nrfx_rtc_cc_set(nrfx_rtc_t const * p_instance,
+int nrfx_rtc_cc_set(nrfx_rtc_t const * p_instance,
                            uint32_t           channel,
                            uint32_t           val,
                            bool               enable_irq);
@@ -209,10 +207,10 @@ nrfx_err_t nrfx_rtc_cc_set(nrfx_rtc_t const * p_instance,
  * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] channel    One of the channels of the instance.
  *
- * @retval NRFX_SUCCESS       The procedure is successful.
- * @retval NRFX_ERROR_TIMEOUT Interrupt is pending on the requested channel.
+ * @retval 0          The procedure is successful.
+ * @retval -ETIMEDOUT Interrupt is pending on the requested channel.
  */
-nrfx_err_t nrfx_rtc_cc_disable(nrfx_rtc_t const * p_instance, uint32_t channel);
+int nrfx_rtc_cc_disable(nrfx_rtc_t const * p_instance, uint32_t channel);
 
 /**
  * @brief Function for enabling the TICK event.

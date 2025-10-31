@@ -194,7 +194,7 @@ typedef void (*nrfx_qspi_handler_t)(nrfx_qspi_evt_t event, void * p_context);
  *       The activation process starts the internal clocks, and the QSPI peripheral tries to read
  *       the status byte to check the busy bit. Reading the status byte is done in a simple poll
  *       and wait mechanism. If the busy bit is set, this indicates issues with the external memory
- *       device. As a result, transfer functions return @ref NRFX_ERROR_TIMEOUT.
+ *       device. As a result, transfer functions return -ETIMEDOUT.
  *
  * In case of issues:
  * - Check the connection.
@@ -210,15 +210,13 @@ typedef void (*nrfx_qspi_handler_t)(nrfx_qspi_evt_t event, void * p_context);
  *          are supported. See the chapter <a href=@nRF5340pinAssignmentsURL>Pin assignments</a>
  *          in the Product Specification.
  *
- * @retval NRFX_SUCCESS             Initialization was successful.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
- * @retval NRFX_ERROR_INVALID_PARAM The pin configuration was incorrect.
+ * @retval 0         Initialization was successful.
+ * @retval -EALREADY The driver is already initialized.
+ * @retval -EINVAL   The pin configuration was incorrect.
  */
-nrfx_err_t nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
-                          nrfx_qspi_handler_t        handler,
-                          void *                     p_context);
+int nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
+                   nrfx_qspi_handler_t        handler,
+                   void *                     p_context);
 
 /**
  * @brief Function for reconfiguring the QSPI driver instance.
@@ -228,13 +226,13 @@ nrfx_err_t nrfx_qspi_init(nrfx_qspi_config_t const * p_config,
  * @warning The function deactivates the peripheral instance. The activation is done during the first
  *          transfer after reconfiguration or when calling @ref nrfx_qspi_activate function.
  *
- * @retval NRFX_SUCCESS             Reconfiguration was successful.
- * @retval NRFX_ERROR_BUSY          The driver is during transaction.
- * @retval NRFX_ERROR_TIMEOUT       External memory is busy or there are connection issues.
- * @retval NRFX_ERROR_INVALID_STATE The driver is uninitialized.
- * @retval NRFX_ERROR_INVALID_PARAM The pin configuration was incorrect.
+ * @retval 0            Reconfiguration was successful.
+ * @retval -EBUSY       The driver is during transaction.
+ * @retval -ETIMEDOUT   External memory is busy or there are connection issues.
+ * @retval -EINPROGRESS The driver is uninitialized.
+ * @retval -EINVAL      The pin configuration was incorrect.
  */
-nrfx_err_t nrfx_qspi_reconfigure(nrfx_qspi_config_t const * p_config);
+int nrfx_qspi_reconfigure(nrfx_qspi_config_t const * p_config);
 
 /**
  * @brief Function for uninitializing the QSPI driver instance.
@@ -249,11 +247,11 @@ void nrfx_qspi_uninit(void);
  *
  * @param[in] wait True if activation is to be in blocking mode, false otherwise.
  *
- * @retval NRFX_SUCCESS       The driver instance has been activated.
- * @retval NRFX_ERROR_ALREADY The driver is already activated.
- * @retval NRFX_ERROR_TIMEOUT External memory is busy, or there are connection issues.
+ * @retval 0          The driver instance has been activated.
+ * @retval -EALREADY  The driver is already activated.
+ * @retval -ETIMEDOUT External memory is busy, or there are connection issues.
  */
-nrfx_err_t nrfx_qspi_activate(bool wait);
+int nrfx_qspi_activate(bool wait);
 
 /**
  * @brief Function for deactivating the QSPI driver instance.
@@ -261,10 +259,10 @@ nrfx_err_t nrfx_qspi_activate(bool wait);
  * @note If a custom instruction long transfer is ongoing when the function is called,
  *       the transfer will be interrupted.
  *
- * @retval NRFX_SUCCESS    The driver instance has been activated.
- * @retval NRFX_ERROR_BUSY The driver is during transaction.
+ * @retval 0      The driver instance has been activated.
+ * @retval -EBUSY The driver is during transaction.
  */
-nrfx_err_t nrfx_qspi_deactivate(void);
+int nrfx_qspi_deactivate(void);
 
 /**
  * @brief Function for checking if the QSPI driver is initialized.
@@ -281,7 +279,7 @@ bool nrfx_qspi_init_check(void);
  *       the activation process starts the internal clocks and the QSPI peripheral tries to read
  *       the status byte to check the busy bit. Reading the status byte is done in a simple poll
  *       and wait mechanism. If the busy bit is set, this indicates that the memory may not be ready yet.
- *       As a result, the function returns @ref NRFX_ERROR_TIMEOUT.
+ *       As a result, the function returns -ETIMEDOUT.
  *
  * Write, read, and erase operations check memory device busy state before starting the operation.
  * If the memory is busy, the resulting action depends on the mode in which the read operation is used:
@@ -297,19 +295,17 @@ bool nrfx_qspi_init_check(void);
  * @param[in]  rx_buffer_length Size of the data to read.
  * @param[in]  src_address      Address in memory to read from.
  *
- * @retval NRFX_SUCCESS            The operation was successful (blocking mode) or operation
- *                                 was commissioned (handler mode).
- * @retval NRFX_ERROR_BUSY         The driver currently handles another operation.
- * @retval NRFX_ERROR_TIMEOUT      The external memory is busy, or there are connection issues.
- * @retval NRFX_ERROR_INVALID_ADDR The provided buffer is not placed in the Data RAM region
- *                                 or its address is not aligned to a 32-bit word.
- * @retval NRFX_ERROR_FORBIDDEN    The operation could trigger nRF5340 anomaly 159
- *                                 due to the current configuration of clocks.
- *                                 Refer to the errata document for more information.
+ * @retval 0          The operation was successful (blocking mode) or commissioned (handler mode).
+ * @retval -EBUSY     The driver currently handles another operation.
+ * @retval -ETIMEDOUT The external memory is busy, or there are connection issues.
+ * @retval -EACCES    The provided buffer is not placed in the Data RAM region
+ *                    or its address is not aligned to a 32-bit word.
+ * @retval -EPERM     The operation could trigger nRF5340 anomaly 159 due to the current
+ *                    configuration of clocks. Refer to the errata document for more information.
  */
-nrfx_err_t nrfx_qspi_read(void *   p_rx_buffer,
-                          size_t   rx_buffer_length,
-                          uint32_t src_address);
+int nrfx_qspi_read(void *   p_rx_buffer,
+                   size_t   rx_buffer_length,
+                   uint32_t src_address);
 
 /**
  * @brief Function for writing data to QSPI memory.
@@ -334,19 +330,17 @@ nrfx_err_t nrfx_qspi_read(void *   p_rx_buffer,
  * @param[in] tx_buffer_length Size of the data to write.
  * @param[in] dst_address      Address in memory to write to.
  *
- * @retval NRFX_SUCCESS            The operation was successful (blocking mode) or operation
- *                                 was commissioned (handler mode).
- * @retval NRFX_ERROR_BUSY         The driver currently handles other operation.
- * @retval NRFX_ERROR_TIMEOUT      The external memory is busy, or there are connection issues.
- * @retval NRFX_ERROR_INVALID_ADDR The provided buffer is not placed in the Data RAM region
- *                                 or its address is not aligned to a 32-bit word.
- * @retval NRFX_ERROR_FORBIDDEN    The operation could trigger nRF5340 anomaly 159
- *                                 due to the current configuration of clocks.
- *                                 Refer to the errata document for more information.
+ * @retval 0          The operation was successful (blocking mode) or commissioned (handler mode).
+ * @retval -EBUSY     The driver currently handles other operation.
+ * @retval -ETIMEDOUT The external memory is busy, or there are connection issues.
+ * @retval -EACCES    The provided buffer is not placed in the Data RAM region
+ *                    or its address is not aligned to a 32-bit word.
+ * @retval -EPERM     The operation could trigger nRF5340 anomaly 159 due to the current
+ *                    configuration of clocks. Refer to the errata document for more information.
  */
-nrfx_err_t nrfx_qspi_write(void const * p_tx_buffer,
-                           size_t       tx_buffer_length,
-                           uint32_t     dst_address);
+int nrfx_qspi_write(void const * p_tx_buffer,
+                    size_t       tx_buffer_length,
+                    uint32_t     dst_address);
 
 /**
  * @brief Function for starting erasing of one memory block - 4KB, 64KB, or the whole chip.
@@ -368,32 +362,28 @@ nrfx_err_t nrfx_qspi_write(void const * p_tx_buffer,
  * @param[in] start_address Memory address to start erasing. If chip erase is performed, address
  *                          field is ommited.
  *
- * @retval NRFX_SUCCESS            The operation was successful (blocking mode) or operation
- *                                 was commissioned (handler mode).
- * @retval NRFX_ERROR_BUSY         The driver currently handles another operation.
- * @retval NRFX_ERROR_TIMEOUT      The external memory is busy, or there are connection issues.
- * @retval NRFX_ERROR_INVALID_ADDR The provided start address is not aligned to a 32-bit word.
- * @retval NRFX_ERROR_FORBIDDEN    The operation could trigger nRF5340 anomaly 159
- *                                 due to the current configuration of clocks.
- *                                 Refer to the errata document for more information.
+ * @retval 0          The operation was successful (blocking mode) or commissioned (handler mode).
+ * @retval -EBUSY     The driver currently handles another operation.
+ * @retval -ETIMEDOUT The external memory is busy, or there are connection issues.
+ * @retval -EACCES    The provided start address is not aligned to a 32-bit word.
+ * @retval -EPERM     The operation could trigger nRF5340 anomaly 159 due to the current
+ *                    configuration of clocks. Refer to the errata document for more information.
  */
-nrfx_err_t nrfx_qspi_erase(nrf_qspi_erase_len_t length,
-                           uint32_t             start_address);
+int nrfx_qspi_erase(nrf_qspi_erase_len_t length,
+                    uint32_t             start_address);
 
 /**
  * @brief Function for starting an erase operation of the whole chip.
  *
  * @note Refer to the note for @ref nrfx_qspi_read.
  *
- * @retval NRFX_SUCCESS         The operation was successful (blocking mode) or
- *                              commissioned (handler mode).
- * @retval NRFX_ERROR_BUSY      The driver currently is handling another operation.
- * @retval NRFX_ERROR_TIMEOUT   The external memory is busy, or there are connection issues.
- * @retval NRFX_ERROR_FORBIDDEN The operation could trigger nRF5340 anomaly 159
- *                              due to the current configuration of clocks.
- *                              Refer to the errata document for more information.
+ * @retval 0          The operation was successful (blocking mode) or commissioned (handler mode).
+ * @retval -EBUSY     The driver currently is handling another operation.
+ * @retval -ETIMEDOUT The external memory is busy, or there are connection issues.
+ * @retval -EPERM     The operation could trigger nRF5340 anomaly 159 due to the current
+ *                    configuration of clocks. Refer to the errata document for more information.
  */
-nrfx_err_t nrfx_qspi_chip_erase(void);
+int nrfx_qspi_chip_erase(void);
 
 /**
  * @brief Function for getting the extended event associated with finished operation.
@@ -413,13 +403,12 @@ bool nrfx_qspi_xfer_buffered_check(void);
  * @brief Function for getting the current driver status and status byte of memory device with
  *        testing WIP (write in progress) bit.
  *
- * @retval NRFX_SUCCESS         The driver and memory are ready to handle a new operation.
- * @retval NRFX_ERROR_BUSY      The driver currently is handling another operation.
- * @retval NRFX_ERROR_FORBIDDEN The operation could trigger nRF5340 anomaly 159
- *                              due to the current configuration of clocks.
- *                              Refer to the errata document for more information.
+ * @retval 0      The driver and memory are ready to handle a new operation.
+ * @retval -EBUSY The driver currently is handling another operation.
+ * @retval -EPERM The operation could trigger nRF5340 anomaly 159 due to the current
+ *                configuration of clocks. Refer to the errata document for more information.
  */
-nrfx_err_t nrfx_qspi_mem_busy_check(void);
+int nrfx_qspi_mem_busy_check(void);
 
 /**
  * @brief Function for signaling premature operation timeout.
@@ -450,16 +439,15 @@ void nrfx_qspi_timeout_signal(void);
  * @param[in]  p_tx_buffer Pointer to the array with data to send. Can be NULL if only opcode is transmitted.
  * @param[out] p_rx_buffer Pointer to the array for data to receive. Can be NULL if there is nothing to receive.
  *
- * @retval NRFX_SUCCESS         The operation was successful.
- * @retval NRFX_ERROR_TIMEOUT   The external memory is busy, or there are connection issues.
- * @retval NRFX_ERROR_BUSY      The driver currently handles other operation.
- * @retval NRFX_ERROR_FORBIDDEN The operation could trigger nRF5340 anomaly 159
- *                              due to the current configuration of clocks.
- *                              Refer to the errata document for more information.
+ * @retval 0          The operation was successful.
+ * @retval -ETIMEDOUT The external memory is busy, or there are connection issues.
+ * @retval -EBUSY     The driver currently handles other operation.
+ * @retval -EPERM     The operation could trigger nRF5340 anomaly 159 due to the current
+ *                    configuration of clocks. Refer to the errata document for more information.
  */
-nrfx_err_t nrfx_qspi_cinstr_xfer(nrf_qspi_cinstr_conf_t const * p_config,
-                                 void const *                   p_tx_buffer,
-                                 void *                         p_rx_buffer);
+int nrfx_qspi_cinstr_xfer(nrf_qspi_cinstr_conf_t const * p_config,
+                          void const *                   p_tx_buffer,
+                          void *                         p_rx_buffer);
 
 /**
  * @brief Function for sending operation code and data to the memory device with simpler configuration.
@@ -473,16 +461,15 @@ nrfx_err_t nrfx_qspi_cinstr_xfer(nrf_qspi_cinstr_conf_t const * p_config,
  * @param[in] length      Length of the data to send and opcode. See @ref nrf_qspi_cinstr_len_t.
  * @param[in] p_tx_buffer Pointer to input data array.
  *
- * @retval NRFX_SUCCESS         The operation was successful.
- * @retval NRFX_ERROR_BUSY      The driver currently handles another operation.
- * @retval NRFX_ERROR_TIMEOUT   The external memory is busy, or there are connection issues.
- * @retval NRFX_ERROR_FORBIDDEN The operation could trigger nRF5340 anomaly 159
- *                              due to the current configuration of clocks.
- *                              Refer to the errata document for more information.
+ * @retval 0          The operation was successful.
+ * @retval -EBUSY     The driver currently handles another operation.
+ * @retval -ETIMEDOUT The external memory is busy, or there are connection issues.
+ * @retval -EPERM     The operation could trigger nRF5340 anomaly 159 due to the current
+ *                    configuration of clocks. Refer to the errata document for more information.
  */
-nrfx_err_t nrfx_qspi_cinstr_quick_send(uint8_t               opcode,
-                                       nrf_qspi_cinstr_len_t length,
-                                       void const *          p_tx_buffer);
+int nrfx_qspi_cinstr_quick_send(uint8_t               opcode,
+                                nrf_qspi_cinstr_len_t length,
+                                void const *          p_tx_buffer);
 
 /**
  * @brief Function for starting the custom instruction long frame mode.
@@ -503,14 +490,13 @@ nrfx_err_t nrfx_qspi_cinstr_quick_send(uint8_t               opcode,
  * @param[in] p_config Pointer to the structure with custom instruction opcode and transfer
  *                     configuration. Transfer length must be set to @ref NRF_QSPI_CINSTR_LEN_1B.
  *
- * @retval NRFX_SUCCESS         Operation was successful.
- * @retval NRFX_ERROR_BUSY      Driver currently handles other operation.
- * @retval NRFX_ERROR_TIMEOUT   The external memory is busy, or there are connection issues.
- * @retval NRFX_ERROR_FORBIDDEN The operation could trigger nRF5340 anomaly 159
- *                              due to the current configuration of clocks.
- *                              Refer to the errata document for more information.
+ * @retval 0          Operation was successful.
+ * @retval -EBUSY     Driver currently handles other operation.
+ * @retval -ETIMEDOUT The external memory is busy, or there are connection issues.
+ * @retval -EPERM     The operation could trigger nRF5340 anomaly 159 due to the current
+ *                    configuration of clocks. Refer to the errata document for more information.
  */
-nrfx_err_t nrfx_qspi_lfm_start(nrf_qspi_cinstr_conf_t const * p_config);
+int nrfx_qspi_lfm_start(nrf_qspi_cinstr_conf_t const * p_config);
 
 /**
  * @brief Function for sending and receiving data in the custom instruction long frame mode.
@@ -527,17 +513,16 @@ nrfx_err_t nrfx_qspi_lfm_start(nrf_qspi_cinstr_conf_t const * p_config);
  * @param[in]  finalize        True if custom instruction long frame mode is to be finalized
  *                             after this transfer.
  *
- * @retval NRFX_SUCCESS         Operation was successful.
- * @retval NRFX_ERROR_TIMEOUT   External memory is busy or there are connection issues.
- *                              Long frame mode becomes deactivated.
- * @retval NRFX_ERROR_FORBIDDEN The operation could trigger nRF5340 anomaly 159
- *                              due to the current configuration of clocks.
- *                              Refer to the errata document for more information.
+ * @retval 0          Operation was successful.
+ * @retval -ETIMEDOUT External memory is busy or there are connection issues.
+ *                    Long frame mode becomes deactivated.
+ * @retval -EPERM     The operation could trigger nRF5340 anomaly 159 due to the current
+ *                    configuration of clocks. Refer to the errata document for more information.
  */
-nrfx_err_t nrfx_qspi_lfm_xfer(void const * p_tx_buffer,
-                              void *       p_rx_buffer,
-                              size_t       transfer_length,
-                              bool         finalize);
+int nrfx_qspi_lfm_xfer(void const * p_tx_buffer,
+                       void *       p_rx_buffer,
+                       size_t       transfer_length,
+                       bool         finalize);
 
 #if NRF_QSPI_HAS_XIP_ENC || defined(__NRFX_DOXYGEN__)
 /**
@@ -546,10 +531,10 @@ nrfx_err_t nrfx_qspi_lfm_xfer(void const * p_tx_buffer,
  * @param[in] p_config XIP encryption configuration structure.
  *                     To disable encryption, pass NULL pointer as argument.
  *
- * @retval NRFX_SUCCESS    Operation was successful.
- * @retval NRFX_ERROR_BUSY Driver currently handles other operation.
+ * @retval 0      Operation was successful.
+ * @retval -EBUSY Driver currently handles other operation.
  */
-nrfx_err_t nrfx_qspi_xip_encrypt(nrf_qspi_encryption_t const * p_config);
+int nrfx_qspi_xip_encrypt(nrf_qspi_encryption_t const * p_config);
 #endif
 
 #if NRF_QSPI_HAS_DMA_ENC || defined(__NRFX_DOXYGEN__)
@@ -559,10 +544,10 @@ nrfx_err_t nrfx_qspi_xip_encrypt(nrf_qspi_encryption_t const * p_config);
  * @param[in] p_config DMA encryption configuration structure.
  *                     To disable encryption, pass NULL pointer as argument.
  *
- * @retval NRFX_SUCCESS    Operation was successful.
- * @retval NRFX_ERROR_BUSY Driver currently handles other operation.
+ * @retval 0      Operation was successful.
+ * @retval -EBUSY Driver currently handles other operation.
  */
-nrfx_err_t nrfx_qspi_dma_encrypt(nrf_qspi_encryption_t const * p_config);
+int nrfx_qspi_dma_encrypt(nrf_qspi_encryption_t const * p_config);
 #endif
 
 /** @} */

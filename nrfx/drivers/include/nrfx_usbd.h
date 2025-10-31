@@ -387,12 +387,10 @@ typedef struct
  *
  * @param[in] event_handler Event handler provided by the user. Cannot be null.
  *
- * @retval NRFX_SUCCESS             Initialization successful.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
+ * @retval 0         Initialization successful.
+ * @retval -EALREADY The driver is already initialized.
  */
-nrfx_err_t nrfx_usbd_init(nrfx_usbd_event_handler_t event_handler);
+int nrfx_usbd_init(nrfx_usbd_event_handler_t event_handler);
 
 /**
  * @brief Driver deinitialization.
@@ -667,12 +665,12 @@ void nrfx_usbd_ep_default_config(void);
  *                       For OUT endpoint receiving would be initiated.
  * @param[in] p_transfer Transfer parameters.
  *
- * @retval NRFX_SUCCESS             Transfer queued or started.
- * @retval NRFX_ERROR_BUSY          Selected endpoint is pending.
- * @retval NRFX_ERROR_INVALID_ADDR  Unexpected transfer on EPIN0 or EPOUT0.
+ * @retval 0       Transfer queued or started.
+ * @retval -EBUSY  Selected endpoint is pending.
+ * @retval -EACCES Unexpected transfer on EPIN0 or EPOUT0.
  */
-nrfx_err_t nrfx_usbd_ep_transfer(nrfx_usbd_ep_t ep,
-                                 nrfx_usbd_transfer_t const * p_transfer);
+int nrfx_usbd_ep_transfer(nrfx_usbd_ep_t ep,
+                          nrfx_usbd_transfer_t const * p_transfer);
 
 /**
  * @brief Start sending data over the endpoint using the transfer handler function.
@@ -687,12 +685,12 @@ nrfx_err_t nrfx_usbd_ep_transfer(nrfx_usbd_ep_t ep,
  * @param[in] p_handler Transfer handler - feeder for IN direction and consumer for
  *                      OUT direction.
  *
- * @retval NRFX_SUCCESS             Transfer queued or started.
- * @retval NRFX_ERROR_BUSY          Selected endpoint is pending.
- * @retval NRFX_ERROR_INVALID_ADDR  Unexpected transfer on EPIN0 or EPOUT0.
+ * @retval 0       Transfer queued or started.
+ * @retval -EBUSY  Selected endpoint is pending.
+ * @retval -EACCES Unexpected transfer on EPIN0 or EPOUT0.
  */
-nrfx_err_t nrfx_usbd_ep_handled_transfer(nrfx_usbd_ep_t ep,
-                                         nrfx_usbd_handler_desc_t const * p_handler);
+int nrfx_usbd_ep_handled_transfer(nrfx_usbd_ep_t ep,
+                                  nrfx_usbd_handler_desc_t const * p_handler);
 
 /**
  * @brief Get the temporary buffer to be used by the feeder.

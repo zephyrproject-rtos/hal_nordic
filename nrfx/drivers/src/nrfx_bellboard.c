@@ -32,9 +32,6 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_BELLBOARD_ENABLED)
-
 #include <nrfx_bellboard.h>
 #include <nrf_bitmask.h>
 
@@ -52,21 +49,17 @@ typedef struct
 
 static nrfx_bellboard_cb_t m_cb[NRFX_BELLBOARD_ENABLED_COUNT];
 
-nrfx_err_t nrfx_bellboard_init(nrfx_bellboard_t const *       p_instance,
-                               uint8_t                        interrupt_priority,
-                               nrfx_bellboard_event_handler_t event_handler,
-                               void *                         p_context)
+int nrfx_bellboard_init(nrfx_bellboard_t const *       p_instance,
+                        uint8_t                        interrupt_priority,
+                        nrfx_bellboard_event_handler_t event_handler,
+                        void *                         p_context)
 {
     nrfx_bellboard_cb_t * p_cb = &m_cb[p_instance->drv_inst_idx];
-    nrfx_err_t err_code = NRFX_SUCCESS;
+    int err_code = 0;
 
     if (p_cb->state == NRFX_DRV_STATE_INITIALIZED)
     {
-#if NRFX_API_VER_AT_LEAST(3, 2, 0)
-        err_code = NRFX_ERROR_ALREADY;
-#else
-        err_code = NRFX_ERROR_INVALID_STATE;
-#endif
+        err_code = -EALREADY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -154,5 +147,3 @@ static void irq_handler(void * unused, nrfx_bellboard_cb_t * p_cb)
 }
 
 NRFX_INSTANCE_IRQ_HANDLERS(BELLBOARD, bellboard)
-
-#endif // NRFX_CHECK(NRFX_BELLBOARD_ENABLED)

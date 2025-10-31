@@ -40,7 +40,7 @@
 extern "C" {
 #endif
 
-nrfx_err_t nrfx_twi_twim_bus_recover(uint32_t scl_pin, uint32_t sda_pin);
+int nrfx_twi_twim_bus_recover(uint32_t scl_pin, uint32_t sda_pin);
 
 #ifdef __cplusplus
 }

@@ -461,7 +461,7 @@ NRF_STATIC_INLINE nrf_ppi_channel_enable_t nrf_ppi_channel_enable_get(NRF_PPI_Ty
 
 NRF_STATIC_INLINE void nrf_ppi_channels_disable_all(NRF_PPI_Type * p_reg)
 {
-    p_reg->CHENCLR = ((uint32_t)0xFFFFFFFFuL);
+    p_reg->CHENCLR = UINT32_MAX;
 }
 
 NRF_STATIC_INLINE void nrf_ppi_channels_enable(NRF_PPI_Type * p_reg, uint32_t mask)
@@ -479,6 +479,23 @@ NRF_STATIC_INLINE void nrf_ppi_channel_endpoint_setup(NRF_PPI_Type *    p_reg,
                                                       uint32_t          eep,
                                                       uint32_t          tep)
 {
+#if NRF_ERRATA_STATIC_CHECK(52, 174)
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 174))
+    {
+        uint32_t spim3_evt_endrx = (uint32_t)&NRF_SPIM3->EVENTS_ENDRX;
+        uint32_t spim3_evt_endtx = (uint32_t)&NRF_SPIM3->EVENTS_ENDTX;
+
+        if (eep == spim3_evt_endrx)
+        {
+            eep = spim3_evt_endtx;
+        }
+        else if (eep == spim3_evt_endtx)
+        {
+            eep = spim3_evt_endrx;
+        }
+    }
+#endif
+
     p_reg->CH[(uint32_t) channel].EEP = eep;
     p_reg->CH[(uint32_t) channel].TEP = tep;
 }

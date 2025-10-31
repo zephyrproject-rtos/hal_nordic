@@ -448,11 +448,6 @@ sup {
     border-color: #0081B7;
 }
 
-.whichSDs.nRF51 span,.whichnRF.nRF51 span {
-    color: #7f7f7f;
-    border-color: #7f7f7f;
-}
-
 div.whichnRF {
     padding-bottom: 5px;
 }
@@ -473,11 +468,6 @@ span.whichnRF.nRF52 {
 span.whichnRF.nRF52840 {
     color: #0081B7;
     border-color: #0081B7;
-}
-
-span.whichnRF.nRF51 {
-    color: #7f7f7f;
-    border-color: #7f7f7f;
 }
 
 .orange {

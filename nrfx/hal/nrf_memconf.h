@@ -80,34 +80,106 @@ extern "C" {
 /** @brief Symbol specifying maximum number of the second bank retention RAM blocks. */
 #define NRF_MEMCONF_POWERBLOCK_RAMBLOCK_RET2_COUNT MEMCONF_POWER_RET2_MEM31_Pos
 
+/**
+ * @brief Macro to generate a mask bit for the memory read/write margin MEMCONF trim.
+ *
+ * @param[in] idx Zero-based memory margin trim index.
+ * @param[in] _ Internal placeholder, to be ignored.
+ */
+#define NRF_MEMCONF_MEMTRIM_MASK_BIT(idx, _) \
+    (NRFX_CONCAT(MEMCONF_BLOCKTYPE_TRIM_MEMTRIM, idx, _Msk))
+
+/**
+ * @brief Macro to generate a mask bit for the memory retention read/write margin MEMCONF trim.
+ *
+ * @param[in] idx Zero based memory margin retention trim index.
+ * @param[in] _ Internal placeholder, to be ignored.
+ */
+#define NRF_MEMCONF_MEMRETTRIM_MASK_BIT(idx, _) \
+    (NRFX_CONCAT(MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM, idx, _Msk))
+
+#if (defined(MEMCONF_WIFI_NMEMTRIM_INTERNAL_SIZE) && \
+     defined(MEMCONF_NMEMTRIM_INTERNAL_SIZE)) || \
+    defined(__NRFX_DOXYGEN__)
+/** @brief Symbol determining the maximum memory read/write margin trim size across all MEMCONF variants. */
+#if MEMCONF_WIFI_NMEMTRIM_INTERNAL_SIZE > MEMCONF_NMEMTRIM_INTERNAL_SIZE
+#define NRF_MEMCONF_MEMTRIM_SIZE_MAX MEMCONF_WIFI_NMEMTRIM_INTERNAL_SIZE
+#else
+#define NRF_MEMCONF_MEMTRIM_SIZE_MAX MEMCONF_NMEMTRIM_INTERNAL_SIZE
+#endif
+#elif defined(MEMCONF_WIFI_NMEMTRIM_INTERNAL_SIZE)
+#define NRF_MEMCONF_MEMTRIM_SIZE_MAX MEMCONF_WIFI_NMEMTRIM_INTERNAL_SIZE
+#elif defined(MEMCONF_NMEMTRIM_INTERNAL_SIZE)
+#define NRF_MEMCONF_MEMTRIM_SIZE_MAX MEMCONF_NMEMTRIM_INTERNAL_SIZE
+#else
+#define NRF_MEMCONF_MEMTRIM_SIZE_MAX 16
+#endif
+
+#if (defined(MEMCONF_WIFI_NMEMRETTRIM_INTERNAL_SIZE) && \
+     defined(MEMCONF_NMEMRETTRIM_INTERNAL_SIZE)) || \
+    defined(__NRFX_DOXYGEN__)
+/** @brief Symbol determining the maximum memory retention read/write margin trim size across all MEMCONF variants. */
+#if MEMCONF_WIFI_NMEMRETTRIM_INTERNAL_SIZE > MEMCONF_NMEMRETTRIM_INTERNAL_SIZE
+#define NRF_MEMCONF_MEMRETTRIM_SIZE_MAX MEMCONF_WIFI_NMEMRETTRIM_INTERNAL_SIZE
+#else
+#define NRF_MEMCONF_MEMRETTRIM_SIZE_MAX MEMCONF_NMEMRETTRIM_INTERNAL_SIZE
+#endif
+#elif defined(MEMCONF_WIFI_NMEMRETTRIM_INTERNAL_SIZE)
+#define NRF_MEMCONF_MEMRETTRIM_SIZE_MAX MEMCONF_WIFI_NMEMRETTRIM_INTERNAL_SIZE
+#elif defined(MEMCONF_NMEMRETTRIM_INTERNAL_SIZE)
+#define NRF_MEMCONF_MEMRETTRIM_SIZE_MAX MEMCONF_NMEMRETTRIM_INTERNAL_SIZE
+#else
+#define NRF_MEMCONF_MEMRETTRIM_SIZE_MAX 16
+#endif
+
 /** @brief Symbol specifying bitmask collecting all memory read and write margin trims. */
-#define NRF_MEMCONF_BLOCKTYPE_TRIM_MEMTRIM_MASK                                    \
-    (MEMCONF_BLOCKTYPE_TRIM_MEMTRIM0_Msk  | MEMCONF_BLOCKTYPE_TRIM_MEMTRIM1_Msk  | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMTRIM2_Msk  | MEMCONF_BLOCKTYPE_TRIM_MEMTRIM3_Msk  | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMTRIM4_Msk  | MEMCONF_BLOCKTYPE_TRIM_MEMTRIM5_Msk  | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMTRIM6_Msk  | MEMCONF_BLOCKTYPE_TRIM_MEMTRIM7_Msk  | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMTRIM8_Msk  | MEMCONF_BLOCKTYPE_TRIM_MEMTRIM9_Msk  | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMTRIM10_Msk | MEMCONF_BLOCKTYPE_TRIM_MEMTRIM11_Msk | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMTRIM12_Msk | MEMCONF_BLOCKTYPE_TRIM_MEMTRIM13_Msk | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMTRIM14_Msk | MEMCONF_BLOCKTYPE_TRIM_MEMTRIM15_Msk)
+#define NRF_MEMCONF_BLOCKTYPE_TRIM_MEMTRIM_MASK \
+    (NRFX_LISTIFY(NRF_MEMCONF_MEMTRIM_SIZE_MAX, NRF_MEMCONF_MEMTRIM_MASK_BIT, (|), _))
 
 /** @brief Symbol specifying bitmask collecting all memory retention trims. */
-#define NRF_MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM_MASK                                       \
-    (MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM0_Msk  | MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM1_Msk  | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM2_Msk  | MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM3_Msk  | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM4_Msk  | MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM5_Msk  | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM6_Msk  | MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM7_Msk  | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM8_Msk  | MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM9_Msk  | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM10_Msk | MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM11_Msk | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM12_Msk | MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM13_Msk | \
-     MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM14_Msk | MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM15_Msk)
+#define NRF_MEMCONF_BLOCKTYPE_TRIM_MEMRETTRIM_MASK \
+    (NRFX_LISTIFY(NRF_MEMCONF_MEMRETTRIM_SIZE_MAX, NRF_MEMCONF_MEMRETTRIM_MASK_BIT, (|), _))
+
+/**
+ * @brief Macro for getting index of specified RAM block.
+ *
+ * @param[in] _ret RAM bank index. Can be empty if specified bank has no index.
+ * @param[in] _mem RAM block number.
+ *
+ * @return RAM block index.
+ */
+#define NRF_MEMCONF_RAMBLOCK_INDEX(_ret, _mem) \
+    NRFX_CONCAT(MEMCONF_POWER_RET, _ret, _MEM, _mem, _Pos)
+
+/**
+ * @brief Macro for getting mask of specified RAM block.
+ *
+ * @param[in] _ret RAM bank index. Can be empty if specified bank has no index.
+ * @param[in] _mem RAM block number.
+ *
+ * @return RAM block mask.
+ */
+#define NRF_MEMCONF_RAMBLOCK_MASK(_ret, _mem) \
+    NRFX_CONCAT(MEMCONF_POWER_RET, _ret, _MEM, _mem, _Msk)
+
+/**
+ * @brief Macro for getting mask of retention enabled for specified RAM block.
+ *
+ * @param[in] _ret RAM bank index. Can be empty if specified bank has no index.
+ * @param[in] _mem RAM block number.
+ *
+ * @return Retention of specified RAM block mask.
+ */
+#define NRF_MEMCONF_RAMBLOCK_RETENTION_ON_MASK(_ret, _mem) \
+    (NRFX_CONCAT(MEMCONF_POWER_RET, _ret, _MEM, _mem, _On) << \
+     NRFX_CONCAT(MEMCONF_POWER_RET, _ret, _MEM, _mem, _Pos))
 
 /**
  * @brief Function for enabling or disabling given RAM block.
  *
  * @param[in] p_reg    Pointer to the structure of registers of the peripheral.
  * @param[in] power_id Power block index.
- * @param[in] ramblock RAM block index.
+ * @param[in] ramblock RAM block index. Use @ref NRF_MEMCONF_RAMBLOCK_INDEX for indexing RAM blocks.
  * @param[in] enable   True if RAM block is to be enabled, false otherwise.
  */
 NRF_STATIC_INLINE void nrf_memconf_ramblock_control_enable_set(NRF_MEMCONF_Type * p_reg,
@@ -120,7 +192,7 @@ NRF_STATIC_INLINE void nrf_memconf_ramblock_control_enable_set(NRF_MEMCONF_Type 
  *
  * @param[in] p_reg         Pointer to the structure of registers of the peripheral.
  * @param[in] power_id      Power block index.
- * @param[in] ramblock_mask Mask of RAM blocks.
+ * @param[in] ramblock_mask Mask of RAM blocks. Use @ref NRF_MEMCONF_RAMBLOCK_MASK for creating RAM block masks.
  * @param[in] enable        True if RAM blocks are to be enabled, false otherwise.
  */
 NRF_STATIC_INLINE
@@ -133,7 +205,7 @@ void nrf_memconf_ramblock_control_mask_enable_set(NRF_MEMCONF_Type * p_reg,
  * @brief Function for setting mask of RAM blocks powered-on in System ON mode.
  *
  * @param[in] p_reg         Pointer to the structure of registers of the peripheral.
- * @param[in] power_id      Power block index.
+ * @param[in] power_id      Power block index. Use @ref NRF_MEMCONF_RAMBLOCK_INDEX for indexing RAM blocks.
  * @param[in] ramblock_mask Mask of RAM blocks.
  */
 NRF_STATIC_INLINE void nrf_memconf_ramblock_control_mask_set(NRF_MEMCONF_Type * p_reg,
@@ -145,7 +217,7 @@ NRF_STATIC_INLINE void nrf_memconf_ramblock_control_mask_set(NRF_MEMCONF_Type * 
  *
  * @param[in] p_reg    Pointer to the structure of registers of the peripheral.
  * @param[in] power_id Power block index.
- * @param[in] ramblock RAM block index.
+ * @param[in] ramblock RAM block index. Use @ref NRF_MEMCONF_RAMBLOCK_INDEX for indexing RAM blocks.
  *
  * @retval true  RAM block is enabled.
  * @retval false RAM block is disabled.
@@ -159,7 +231,7 @@ NRF_STATIC_INLINE bool nrf_memconf_ramblock_control_enable_check(NRF_MEMCONF_Typ
  *
  * @param[in] p_reg    Pointer to the structure of registers of the peripheral.
  * @param[in] power_id Power block index.
- * @param[in] ramblock RAM block index.
+ * @param[in] ramblock RAM block index. Use @ref NRF_MEMCONF_RAMBLOCK_INDEX for indexing RAM blocks.
  * @param[in] enable   True if RAM block retention is to be enabled, false otherwise.
  */
 NRF_STATIC_INLINE void nrf_memconf_ramblock_ret_enable_set(NRF_MEMCONF_Type * p_reg,
@@ -172,7 +244,7 @@ NRF_STATIC_INLINE void nrf_memconf_ramblock_ret_enable_set(NRF_MEMCONF_Type * p_
  *
  * @param[in] p_reg         Pointer to the structure of registers of the peripheral.
  * @param[in] power_id      Power block index.
- * @param[in] ramblock_mask Mask of RAM blocks.
+ * @param[in] ramblock_mask Mask of RAM blocks. Use @ref NRF_MEMCONF_RAMBLOCK_MASK for creating RAM block masks.
  * @param[in] enable        True if retention for RAM blocks is to be enabled, false otherwise.
  */
 NRF_STATIC_INLINE void nrf_memconf_ramblock_ret_mask_enable_set(NRF_MEMCONF_Type * p_reg,
@@ -185,7 +257,7 @@ NRF_STATIC_INLINE void nrf_memconf_ramblock_ret_mask_enable_set(NRF_MEMCONF_Type
  *
  * @param[in] p_reg         Pointer to the structure of registers of the peripheral.
  * @param[in] power_id      Power block index.
- * @param[in] ramblock_mask Mask of RAM blocks.
+ * @param[in] ramblock_mask Mask of RAM blocks. Use @ref NRF_MEMCONF_RAMBLOCK_MASK for creating RAM block masks.
  */
 NRF_STATIC_INLINE void nrf_memconf_ramblock_ret_mask_set(NRF_MEMCONF_Type * p_reg,
                                                          uint8_t            power_id,
@@ -196,7 +268,7 @@ NRF_STATIC_INLINE void nrf_memconf_ramblock_ret_mask_set(NRF_MEMCONF_Type * p_re
  *
  * @param[in] p_reg    Pointer to the structure of registers of the peripheral.
  * @param[in] power_id Power block index.
- * @param[in] ramblock RAM block index.
+ * @param[in] ramblock RAM block index. Use @ref NRF_MEMCONF_RAMBLOCK_INDEX for indexing RAM blocks.
  *
  * @retval true  RAM block is enabled.
  * @retval false RAM block is disabled.
@@ -211,7 +283,7 @@ NRF_STATIC_INLINE bool nrf_memconf_ramblock_ret_enable_check(NRF_MEMCONF_Type co
  *
  * @param[in] p_reg    Pointer to the structure of registers of the peripheral.
  * @param[in] power_id Power block index.
- * @param[in] ramblock RAM block index.
+ * @param[in] ramblock RAM block index. Use @ref NRF_MEMCONF_RAMBLOCK_INDEX for indexing RAM blocks.
  * @param[in] enable   True if RAM block retention is to be enabled, false otherwise.
  */
 NRF_STATIC_INLINE void nrf_memconf_ramblock_ret2_enable_set(NRF_MEMCONF_Type * p_reg,
@@ -224,7 +296,7 @@ NRF_STATIC_INLINE void nrf_memconf_ramblock_ret2_enable_set(NRF_MEMCONF_Type * p
  *
  * @param[in] p_reg    Pointer to the structure of registers of the peripheral.
  * @param[in] power_id Power block index.
- * @param[in] ramblock RAM block index.
+ * @param[in] ramblock RAM block index. Use @ref NRF_MEMCONF_RAMBLOCK_INDEX for indexing RAM blocks.
  *
  * @retval true  RAM block is enabled.
  * @retval false RAM block is disabled.
@@ -238,7 +310,7 @@ NRF_STATIC_INLINE bool nrf_memconf_ramblock_ret2_enable_check(NRF_MEMCONF_Type c
  *
  * @param[in] p_reg         Pointer to the structure of registers of the peripheral.
  * @param[in] power_id      Power block index.
- * @param[in] ramblock_mask Mask of RAM blocks.
+ * @param[in] ramblock_mask Mask of RAM blocks. Use @ref NRF_MEMCONF_RAMBLOCK_MASK for creating RAM block masks.
  * @param[in] enable        True if retention for RAM blocks is to be enabled, false otherwise.
  */
 NRF_STATIC_INLINE void nrf_memconf_ramblock_ret2_mask_enable_set(NRF_MEMCONF_Type * p_reg,
@@ -251,7 +323,7 @@ NRF_STATIC_INLINE void nrf_memconf_ramblock_ret2_mask_enable_set(NRF_MEMCONF_Typ
  *
  * @param[in] p_reg         Pointer to the structure of registers of the peripheral.
  * @param[in] power_id      Power block index.
- * @param[in] ramblock_mask Mask of RAM blocks.
+ * @param[in] ramblock_mask Mask of RAM blocks. Use @ref NRF_MEMCONF_RAMBLOCK_MASK for creating RAM block masks.
  */
 NRF_STATIC_INLINE void nrf_memconf_ramblock_ret2_mask_set(NRF_MEMCONF_Type * p_reg,
                                                           uint8_t            power_id,

@@ -40,10 +40,14 @@
 extern "C" {
 #endif
 
-#if defined(HALTIUM_XXAA)
-#define NRF_TDM_CLOCKPIN_SCK_NEEDED   1
+#if defined(TDM_CLOCKPIN_SCK_NEEDED)
+#define NRF_TDM_CLOCKPIN_SCK_NEEDED 1
+#endif
+#if defined(TDM_CLOCKPIN_FSYNC_NEEDED)
 #define NRF_TDM_CLOCKPIN_FSYNC_NEEDED 1
-#define NRF_TDM_CLOCKPIN_MCK_NEEDED   1
+#endif
+#if defined(TDM_CLOCKPIN_MCK_NEEDED)
+#define NRF_TDM_CLOCKPIN_MCK_NEEDED 1
 #endif
 
 /**
@@ -59,7 +63,7 @@ extern "C" {
  *        function call to specify that the given TDM signal (SDOUT, SDIN, or MCK)
  *        shall not be connected to a physical pin.
  */
-#define NRF_TDM_PIN_NOT_CONNECTED  0xFFFFFFFF
+#define NRF_TDM_PIN_NOT_CONNECTED UINT32_MAX 
 
 /** @brief TDM SCK pin selection mask. */
 #define NRF_TDM_PSEL_SCK_PIN_MASK  TDM_PSEL_SCK_PIN_Msk

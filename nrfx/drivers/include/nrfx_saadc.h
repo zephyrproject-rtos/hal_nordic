@@ -36,6 +36,7 @@
 
 #include <nrfx.h>
 #include <haly/nrfy_saadc.h>
+#include <helpers/nrfx_analog_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,6 +60,12 @@ extern "C" {
 /** @brief Auxiliary symbol specifying default value for the SAADC conversion time. */
 #define NRFX_SAADC_DEFAULT_CONV_TIME 7
 #endif
+
+/** @brief Maximum value of the internal timer interval in microseconds. */
+#define NRFX_SAADC_INTERNAL_TIMER_INTERVAL_MAX_US 128U
+
+/** @brief Symbol specifying internal reference voltage. */
+#define NRFX_SAADC_REF_INTERNAL_VALUE NRFX_ANALOG_REF_INTERNAL_VAL
 
 /**
  * @brief SAADC channel default configuration for the single-ended mode.
@@ -102,8 +109,8 @@ extern "C" {
                          (.conv_time = NRFX_SAADC_DEFAULT_CONV_TIME,), \
                          ())                                           \
     },                                                                 \
-    .pin_p          = (nrf_saadc_input_t)_pin_p,                       \
-    .pin_n          = NRF_SAADC_INPUT_DISABLED,                        \
+    .pin_p          = (nrfx_analog_input_t)_pin_p,                     \
+    .pin_n          = NRFX_ANALOG_INPUT_DISABLED,                      \
     .channel_index  = _index,                                          \
 }
 
@@ -150,12 +157,11 @@ extern "C" {
                          (.conv_time = NRFX_SAADC_DEFAULT_CONV_TIME,),  \
                          ())                                            \
     },                                                                  \
-    .pin_p          = (nrf_saadc_input_t)_pin_p,                        \
-    .pin_n          = (nrf_saadc_input_t)_pin_n,                        \
+    .pin_p          = (nrfx_analog_input_t)_pin_p,                      \
+    .pin_n          = (nrfx_analog_input_t)_pin_n,                      \
     .channel_index  = _index,                                           \
 }
 
-#if NRFX_API_VER_AT_LEAST(3, 12, 0) || defined(__NRFX_DOXYGEN__)
 /**
  * @brief Macro for getting number of bytes needed to store specified number of SAADC samples.
  *
@@ -174,11 +180,6 @@ extern "C" {
  * @return Specified sample.
  */
 #define NRFX_SAADC_SAMPLE_GET(_samples, _index) (((int16_t *)(_samples))[(_index)])
-
-#else
-#define NRFX_SAADC_SAMPLES_TO_BYTES(_resolution, _samples) (_samples * 2)
-#define NRFX_SAADC_SAMPLE_GET(_resolution, _samples, _index) (((int16_t *)(_samples))[(_index)])
-#endif
 
 /**
  * @brief SAADC driver advanced mode default configuration.
@@ -207,8 +208,8 @@ extern "C" {
 typedef struct
 {
     nrf_saadc_channel_config_t channel_config; ///< Channel hardware configuration.
-    nrf_saadc_input_t          pin_p;          ///< Input positive pin selection.
-    nrf_saadc_input_t          pin_n;          ///< Input negative pin selection.
+    nrfx_analog_input_t        pin_p;          ///< Input positive pin selection.
+    nrfx_analog_input_t        pin_n;          ///< Input negative pin selection.
     uint8_t                    channel_index;  ///< Channel index.
 } nrfx_saadc_channel_t;
 
@@ -275,12 +276,10 @@ typedef void (* nrfx_saadc_event_handler_t)(nrfx_saadc_evt_t const * p_event);
  *
  * @param[in] interrupt_priority Interrupt priority.
  *
- * @retval NRFX_SUCCESS             Initialization was successful.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
+ * @retval 0         Initialization was successful.
+ * @retval -EALREADY The driver is already initialized.
  */
-nrfx_err_t nrfx_saadc_init(uint8_t interrupt_priority);
+int nrfx_saadc_init(uint8_t interrupt_priority);
 
 /**
  * @brief Function for uninitializing the SAADC driver.
@@ -298,6 +297,23 @@ void nrfx_saadc_uninit(void);
 bool nrfx_saadc_init_check(void);
 
 /**
+ * @brief Function for getting the internal timer CC value from the interval in microseconds.
+ *
+ * @note The internal timer runs at 16 MHz, so to convert the interval in microseconds
+ *       to the internal timer CC value, we can use the formula:
+ *       interval_cc = interval_us * 16 MHz
+ *       where 16 MHz is the frequency of the internal timer.
+ * @note The maximum value for interval_cc is 2047, which corresponds to
+ *       approximately 7816 Hz ~ 128us.
+ *       The minimum value for interval_cc depends on the SoC.
+ *
+ * @param[in] interval_us The interval in microseconds to be converted.
+ *
+ * @return The internal timer CC value.
+ */
+uint16_t nrfx_saadc_interval_to_cc(uint16_t interval_us);
+
+/**
  * @brief Function for configuring multiple SAADC channels.
  *
  * @note The values of the @ref nrf_saadc_channel_config_t.burst fields in channel configurations
@@ -311,12 +327,13 @@ bool nrfx_saadc_init_check(void);
  * @param[in] p_channels    Pointer to the array of channel configuration structures.
  * @param[in] channel_count Number of channels to be configured.
  *
- * @retval NRFX_SUCCESS             Configuration was successful.
- * @retval NRFX_ERROR_BUSY          There is a conversion or calibration ongoing.
- * @retval NRFX_ERROR_INVALID_PARAM Attempt to configure the same channel more than once.
+ * @retval 0       Configuration was successful.
+ * @retval -EBUSY  There is a conversion or calibration ongoing.
+ * @retval -EINVAL Attempt to configure the same channel more than once or
+ *                 attempt to configure an invalid analog pin.
  */
-nrfx_err_t nrfx_saadc_channels_config(nrfx_saadc_channel_t const * p_channels,
-                                      uint32_t                     channel_count);
+int nrfx_saadc_channels_config(nrfx_saadc_channel_t const * p_channels,
+                               uint32_t                     channel_count);
 
 /**
  * @brief Function for configuring single SAADC channel.
@@ -330,10 +347,11 @@ nrfx_err_t nrfx_saadc_channels_config(nrfx_saadc_channel_t const * p_channels,
  *
  * @param[in] p_channel Pointer to the channel configuration structure.
  *
- * @retval NRFX_SUCCESS    Configuration was successful.
- * @retval NRFX_ERROR_BUSY There is a conversion or calibration ongoing.
+ * @retval 0       Configuration was successful.
+ * @retval -EBUSY  There is a conversion or calibration ongoing.
+ * @retval -EINVAL Attempt to configure an invalid analog pin.
  */
-nrfx_err_t nrfx_saadc_channel_config(nrfx_saadc_channel_t const * p_channel);
+int nrfx_saadc_channel_config(nrfx_saadc_channel_t const * p_channel);
 
 /**
  * @brief Function for getting the currently configured SAADC channels.
@@ -350,10 +368,10 @@ uint32_t nrfx_saadc_channels_configured_get(void);
  *
  * @param[in] channel_mask Bitmask of channels to be deconfigured.
  *
- * @retval NRFX_SUCCESS    Deconfiguration was successful.
- * @retval NRFX_ERROR_BUSY There is a conversion or calibration ongoing.
+ * @retval 0      Deconfiguration was successful.
+ * @retval -EBUSY There is a conversion or calibration ongoing.
  */
-nrfx_err_t nrfx_saadc_channels_deconfig(uint32_t channel_mask);
+int nrfx_saadc_channels_deconfig(uint32_t channel_mask);
 
 /**
  * @brief Function for setting the SAADC driver in the simple mode.
@@ -368,14 +386,14 @@ nrfx_err_t nrfx_saadc_channels_deconfig(uint32_t channel_mask);
  * @param[in] event_handler Event handler provided by the user. In case of providing NULL,
  *                          the conversion will be performed in the blocking manner.
  *
- * @retval NRFX_SUCCESS             Initialization was successful.
- * @retval NRFX_ERROR_BUSY          There is a conversion or calibration ongoing.
- * @retval NRFX_ERROR_INVALID_PARAM Attempt to activate channel that is not configured.
+ * @retval 0       Initialization was successful.
+ * @retval -EBUSY  There is a conversion or calibration ongoing.
+ * @retval -EINVAL Attempt to activate channel that is not configured.
  */
-nrfx_err_t nrfx_saadc_simple_mode_set(uint32_t                   channel_mask,
-                                      nrf_saadc_resolution_t     resolution,
-                                      nrf_saadc_oversample_t     oversampling,
-                                      nrfx_saadc_event_handler_t event_handler);
+int nrfx_saadc_simple_mode_set(uint32_t                   channel_mask,
+                               nrf_saadc_resolution_t     resolution,
+                               nrf_saadc_oversample_t     oversampling,
+                               nrfx_saadc_event_handler_t event_handler);
 
 /**
  * @brief Function for setting the SAADC driver in the advanced mode.
@@ -401,18 +419,18 @@ nrfx_err_t nrfx_saadc_simple_mode_set(uint32_t                   channel_mask,
  * @param[in] event_handler Event handler provided by the user. In case of providing NULL,
  *                          the conversion will be performed in the blocking manner.
  *
- * @retval NRFX_SUCCESS             Initialization was successful.
- * @retval NRFX_ERROR_BUSY          There is a conversion or calibration ongoing.
- * @retval NRFX_ERROR_INVALID_PARAM Attempt to activate channel that is not configured.
- * @retval NRFX_ERROR_NOT_SUPPORTED Attempt to activate either of the following:
- *                                  * internal timer in the blocking mode,
- *                                  * internal timer with multiple channels enabled,
- *                                  * oversampling without burst with multiple channels enabled.
+ * @retval 0        Initialization was successful.
+ * @retval -EBUSY   There is a conversion or calibration ongoing.
+ * @retval -EINVAL  Attempt to activate channel that is not configured.
+ * @retval -ENOTSUP Attempt to activate either of the following:
+ *                      * internal timer in the blocking mode,
+ *                      * internal timer with multiple channels enabled,
+ *                      * oversampling without burst with multiple channels enabled.
  */
-nrfx_err_t nrfx_saadc_advanced_mode_set(uint32_t                        channel_mask,
-                                        nrf_saadc_resolution_t          resolution,
-                                        nrfx_saadc_adv_config_t const * p_config,
-                                        nrfx_saadc_event_handler_t      event_handler);
+int nrfx_saadc_advanced_mode_set(uint32_t                        channel_mask,
+                                 nrf_saadc_resolution_t          resolution,
+                                 nrfx_saadc_adv_config_t const * p_config,
+                                 nrfx_saadc_event_handler_t      event_handler);
 
 /**
  * @brief Function for supplying the buffer to be used in the next part of
@@ -421,28 +439,28 @@ nrfx_err_t nrfx_saadc_advanced_mode_set(uint32_t                        channel_
  * @param[in] p_buffer Pointer to the buffer to be filled with conversion results.
  * @param[in] size     Number of samples in the buffer.
  *
- * @retval NRFX_SUCCESS              Buffer was supplied successfully.
- * @retval NRFX_ERROR_INVALID_ADDR   The provided buffer is not in the Data RAM region.
- * @retval NRFX_ERROR_INVALID_LENGTH The provided buffer is not aligned to the number of activated channels
- *                                   or is too long for the EasyDMA to handle.
- * @retval NRFX_ERROR_INVALID_STATE  The driver is in the idle mode.
- * @retval NRFX_ERROR_ALREADY        Both buffers for double-buffered conversions are already set.
+ * @retval 0            Buffer was supplied successfully.
+ * @retval -EACCES      The provided buffer is not in the Data RAM region.
+ * @retval -E2BIG       The provided buffer is not aligned to the number of activated channels
+ *                      or is too long for the EasyDMA to handle.
+ * @retval -EINPROGRESS The driver is in the idle mode.
+ * @retval -EALREADY    Both buffers for double-buffered conversions are already set.
  */
-nrfx_err_t nrfx_saadc_buffer_set(nrf_saadc_value_t * p_buffer, uint16_t size);
+int nrfx_saadc_buffer_set(nrf_saadc_value_t * p_buffer, uint16_t size);
 
 /**
  * @brief Function for triggering the conversion in the configured mode.
  *
- * @retval NRFX_SUCCESS             Operation finished successfully in the blocking manner or started
- *                                  successfully in the non-blocking manner.
- * @retval NRFX_ERROR_BUSY          The driver is performing the conversion in the advanced blocking mode.
- *                                  Call the function again to continue the conversion.
- * @retval NRFX_ERROR_NO_MEM        There is no buffer provided.
- *                                  Supply the buffer using @ref nrfx_saadc_buffer_set() and try again.
- * @retval NRFX_ERROR_INVALID_STATE There is an ongoing conversion or calibration being performed
- *                                  in the non-blocking manner or the driver is in the idle mode.
+ * @retval 0            Operation finished successfully in the blocking manner or started
+ *                      successfully in the non-blocking manner.
+ * @retval -EBUSY       The driver is performing the conversion in the advanced blocking mode.
+ *                      Call the function again to continue the conversion.
+ * @retval -ENOMEM      There is no buffer provided.
+ *                      Supply the buffer using @ref nrfx_saadc_buffer_set() and try again.
+ * @retval -EINPROGRESS There is an ongoing conversion or calibration being performed
+ *                      in the non-blocking manner or the driver is in the idle mode.
  */
-nrfx_err_t nrfx_saadc_mode_trigger(void);
+int nrfx_saadc_mode_trigger(void);
 
 /**
  * @brief Function for aborting the ongoing and buffered conversions.
@@ -472,12 +490,12 @@ void nrfx_saadc_abort(void);
  * @param[in] limit_high Limit high value to generate interrupt. Use @c INT16_MAX
  *                       to disable interrupt generation.
  *
- * @retval NRFX_SUCCESS             Requested channel limits were set.
- * @retval NRFX_ERROR_INVALID_PARAM Attempt to activate the limits on disabled channel.
- * @retval NRFX_ERROR_FORBIDDEN     Attempt to activate the limits for blocking conversions.
- * @retval NRFX_ERROR_INVALID_STATE Attempt to activate the limits without configured mode.
+ * @retval 0            Requested channel limits were set.
+ * @retval -EINVAL      Attempt to activate the limits on disabled channel.
+ * @retval -EPERM       Attempt to activate the limits for blocking conversions.
+ * @retval -EINPROGRESS Attempt to activate the limits without configured mode.
  */
-nrfx_err_t nrfx_saadc_limits_set(uint8_t channel, int16_t limit_low, int16_t limit_high);
+int nrfx_saadc_limits_set(uint8_t channel, int16_t limit_low, int16_t limit_high);
 
 /**
  * @brief Function for starting the SAADC offset calibration.
@@ -485,11 +503,11 @@ nrfx_err_t nrfx_saadc_limits_set(uint8_t channel, int16_t limit_low, int16_t lim
  * @param[in] calib_event_handler Calibration event handler provided by the user. In case of providing NULL,
  *                                the calibration will be performed in the blocking manner.
  *
- * @retval NRFX_SUCCESS    Calibration finished successfully in the blocking manner
- *                         or started successfully in the non-blocking manner.
- * @retval NRFX_ERROR_BUSY There is a conversion or calibration ongoing.
+ * @retval 0      Calibration finished successfully in the blocking manner
+ *                or started successfully in the non-blocking manner.
+ * @retval -EBUSY There is a conversion or calibration ongoing.
  */
-nrfx_err_t nrfx_saadc_offset_calibrate(nrfx_saadc_event_handler_t calib_event_handler);
+int nrfx_saadc_offset_calibrate(nrfx_saadc_event_handler_t calib_event_handler);
 
 /** @} */
 
