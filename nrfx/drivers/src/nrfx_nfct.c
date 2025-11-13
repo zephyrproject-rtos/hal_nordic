@@ -1102,10 +1102,10 @@ void nrfx_nfct_irq_handler(void)
 }
 
 #if NRF_ERRATA_STATIC_CHECK(52, 79) || NRF_ERRATA_STATIC_CHECK(52, 190) || \
-    NRF_ERRATA_STATIC_CHECK(53, 70)
+    NRF_ERRATA_STATIC_CHECK(53, 70) || NRF_ERRATA_STATIC_CHECK(54L, 60)
 void nrfx_nfct_workaround_timer_handler(void)
 {
     nrfx_timer_irq_handler(&m_timer_workaround.timer);
 }
 #endif // NRF_ERRATA_STATIC_CHECK(52, 79) || NRF_ERRATA_STATIC_CHECK(52, 190) ||
-       // NRF_ERRATA_STATIC_CHECK(53, 70)
+       // NRF_ERRATA_STATIC_CHECK(53, 70) || NRF_ERRATA_STATIC_CHECK(54L, 60)
