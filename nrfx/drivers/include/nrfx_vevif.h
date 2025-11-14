@@ -68,14 +68,12 @@ typedef void (*nrfx_vevif_event_handler_t)(uint8_t event_idx, void * p_context);
  *                               Must not be NULL.
  * @param[in] p_context          Context passed to the event handler.
  *
- * @retval NRFX_SUCCESS             Driver successfully initialized.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
+ * @retval 0         Driver successfully initialized.
+ * @retval -EALREADY The driver is already initialized.
  */
-nrfx_err_t nrfx_vevif_init(uint8_t                    interrupt_priority,
-                           nrfx_vevif_event_handler_t event_handler,
-                           void *                     p_context);
+int nrfx_vevif_init(uint8_t                    interrupt_priority,
+                    nrfx_vevif_event_handler_t event_handler,
+                    void *                     p_context);
 
 /** @brief Function for uninitializing the VEVIF driver. */
 void nrfx_vevif_uninit(void);

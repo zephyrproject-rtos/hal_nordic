@@ -35,7 +35,6 @@
 #define NRFY_TWIM_H__
 
 #include <nrfx.h>
-#include <nrf_erratas.h>
 #include <hal/nrf_twim.h>
 
 #ifdef __cplusplus
@@ -63,6 +62,7 @@ uint32_t __nrfy_internal_twim_events_process(NRF_TWIM_Type *               p_reg
  * @{
  * @ingroup nrf_twim
  * @brief   Hardware access layer with cache and barrier support for managing the TWIM peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 #if NRF_TWIM_HAS_ARRAY_LIST || defined(__NRFX_DOXYGEN__)
@@ -365,12 +365,10 @@ NRFY_STATIC_INLINE void nrfy_twim_stop(NRF_TWIM_Type * p_reg)
 {
     nrf_twim_int_disable(p_reg, NRF_TWIM_ALL_INTS_MASK);
     nrf_twim_shorts_disable(p_reg, NRF_TWIM_ALL_SHORTS_MASK);
-#if NRF52_ERRATA_89_ENABLE_WORKAROUND
-    if (nrf52_errata_89())
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 89))
     {
         *(volatile uint32_t *)((uint8_t *)p_reg + 0x500UL) = 9;
     }
-#endif
     nrf_twim_disable(p_reg);
     nrf_barrier_w();
 }

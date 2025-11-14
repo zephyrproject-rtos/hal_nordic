@@ -33,8 +33,6 @@
 
 #include <nrfx.h>
 
-#if NRFX_CHECK(NRFX_RTC_ENABLED)
-
 #if !NRFX_FEATURE_PRESENT(NRFX_RTC, _ENABLED)
 #error "No enabled RTC instances. Check <nrfx_config.h>."
 #endif
@@ -65,23 +63,19 @@ typedef struct
 // User callbacks local storage.
 static nrfx_rtc_cb_t      m_cb[NRFX_RTC_ENABLED_COUNT];
 
-nrfx_err_t nrfx_rtc_init(nrfx_rtc_t const *        p_instance,
-                         nrfx_rtc_config_t const * p_config,
-                         nrfx_rtc_handler_t        handler)
+int nrfx_rtc_init(nrfx_rtc_t const *        p_instance,
+                  nrfx_rtc_config_t const * p_config,
+                  nrfx_rtc_handler_t        handler)
 {
     NRFX_ASSERT(p_config);
     NRFX_ASSERT(handler);
-    nrfx_err_t err_code;
+    int err_code;
 
     m_cb[p_instance->instance_id].handler = handler;
 
     if (m_cb[p_instance->instance_id].state != NRFX_DRV_STATE_UNINITIALIZED)
     {
-#if NRFX_API_VER_AT_LEAST(3, 2, 0)
-        err_code = NRFX_ERROR_ALREADY;
-#else
-        err_code = NRFX_ERROR_INVALID_STATE;
-#endif
+        err_code = -EALREADY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -100,8 +94,10 @@ nrfx_err_t nrfx_rtc_init(nrfx_rtc_t const *        p_instance,
     m_cb[p_instance->instance_id].tick_latency = p_config->tick_latency;
     m_cb[p_instance->instance_id].state        = NRFX_DRV_STATE_INITIALIZED;
 
-    err_code = NRFX_SUCCESS;
-    NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
+    err_code = 0;
+    NRFX_LOG_INFO("Function: %s, error code: %s.",
+                  __func__,
+                  NRFX_LOG_ERROR_STRING_GET(err_code));
     return err_code;
 }
 
@@ -143,12 +139,12 @@ void nrfx_rtc_disable(nrfx_rtc_t const * p_instance)
     NRFX_LOG_INFO("Disabled.");
 }
 
-nrfx_err_t nrfx_rtc_cc_disable(nrfx_rtc_t const * p_instance, uint32_t channel)
+int nrfx_rtc_cc_disable(nrfx_rtc_t const * p_instance, uint32_t channel)
 {
     NRFX_ASSERT(m_cb[p_instance->instance_id].state != NRFX_DRV_STATE_UNINITIALIZED);
     NRFX_ASSERT(channel < p_instance->cc_channel_count);
 
-    nrfx_err_t err_code;
+    int err_code;
     uint32_t int_mask = NRF_RTC_CHANNEL_INT_MASK(channel);
     nrf_rtc_event_t event = NRF_RTC_CHANNEL_EVENT_ADDR(channel);
 
@@ -159,7 +155,7 @@ nrfx_err_t nrfx_rtc_cc_disable(nrfx_rtc_t const * p_instance, uint32_t channel)
         if (nrfy_rtc_event_check(p_instance->p_reg, event))
         {
             nrfy_rtc_event_clear(p_instance->p_reg, event);
-            err_code = NRFX_ERROR_TIMEOUT;
+            err_code = -ETIMEDOUT;
             NRFX_LOG_WARNING("Function: %s, error code: %s.",
                              __func__,
                              NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -169,20 +165,22 @@ nrfx_err_t nrfx_rtc_cc_disable(nrfx_rtc_t const * p_instance, uint32_t channel)
     NRFX_LOG_INFO("RTC id: %d, channel disabled: %lu.",
                   p_instance->instance_id,
                   (unsigned long)channel);
-    err_code = NRFX_SUCCESS;
-    NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
+    err_code = 0;
+    NRFX_LOG_INFO("Function: %s, error code: %s.",
+                  __func__,
+                  NRFX_LOG_ERROR_STRING_GET(err_code));
     return err_code;
 }
 
-nrfx_err_t nrfx_rtc_cc_set(nrfx_rtc_t const * p_instance,
-                           uint32_t           channel,
-                           uint32_t           val,
-                           bool               enable_irq)
+int nrfx_rtc_cc_set(nrfx_rtc_t const * p_instance,
+                    uint32_t           channel,
+                    uint32_t           val,
+                    bool               enable_irq)
 {
     NRFX_ASSERT(m_cb[p_instance->instance_id].state != NRFX_DRV_STATE_UNINITIALIZED);
     NRFX_ASSERT(channel < p_instance->cc_channel_count);
 
-    nrfx_err_t err_code;
+    int err_code;
     uint32_t int_mask = NRF_RTC_CHANNEL_INT_MASK(channel);
     nrf_rtc_event_t event = NRF_RTC_CHANNEL_EVENT_ADDR(channel);
 
@@ -200,7 +198,7 @@ nrfx_err_t nrfx_rtc_cc_set(nrfx_rtc_t const * p_instance,
         }
         if (diff < m_cb[p_instance->instance_id].tick_latency)
         {
-            err_code = NRFX_ERROR_TIMEOUT;
+            err_code = -ETIMEDOUT;
             NRFX_LOG_WARNING("Function: %s, error code: %s.",
                              __func__,
                              NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -218,8 +216,10 @@ nrfx_err_t nrfx_rtc_cc_set(nrfx_rtc_t const * p_instance,
                   p_instance->instance_id,
                   (unsigned long)channel,
                   (unsigned long)val);
-    err_code = NRFX_SUCCESS;
-    NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
+    err_code = 0;
+    NRFX_LOG_INFO("Function: %s, error code: %s.",
+                  __func__,
+                  NRFX_LOG_ERROR_STRING_GET(err_code));
     return err_code;
 }
 
@@ -313,5 +313,3 @@ static void irq_handler(NRF_RTC_Type  * p_reg,
 }
 
 NRFX_INSTANCE_IRQ_HANDLERS_EXT(RTC, rtc, NRF_RTC_CC_CHANNEL_COUNT)
-
-#endif // NRFX_CHECK(NRFX_RTC_ENABLED)

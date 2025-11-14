@@ -32,9 +32,6 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_USBREG_ENABLED)
-
 #include <nrfx_usbreg.h>
 
 static nrfx_usbreg_event_handler_t m_usbevt_handler;
@@ -101,5 +98,3 @@ void nrfx_usbreg_irq_handler(void)
         m_usbevt_handler(NRFX_USBREG_EVT_READY);
     }
 }
-
-#endif // NRFX_CHECK(NRFX_USBREG_ENABLED)

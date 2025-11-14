@@ -80,11 +80,39 @@ extern "C" {
 #define NRFX_RESET_REASON_HAS_CTRLAP 0
 #endif
 
-#if (defined(NRF_RESET) && NRF_RESET_HAS_NETWORK) || defined(__NRFX_DOXYGEN__)
-/** @brief Symbol indicating whether network reset reasons are present. */
-#define NRFX_RESET_REASON_HAS_NETWORK 1
+#if (defined(NRF_RESET) && NRF_RESET_HAS_LSREQ_RESET) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether LSREQ reset reason is present. */
+#define NRFX_RESET_REASON_HAS_LSREQ 1
 #else
-#define NRFX_RESET_REASON_HAS_NETWORK 0
+#define NRFX_RESET_REASON_HAS_LSREQ 0
+#endif
+
+#if (defined(NRF_RESET) && NRF_RESET_HAS_LCTRLAP_RESET) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether LCTRLAP reset reason is present. */
+#define NRFX_RESET_REASON_HAS_LCTRLAP 1
+#else
+#define NRFX_RESET_REASON_HAS_LCTRLAP 0
+#endif
+
+#if (defined(NRF_RESET) && NRF_RESET_HAS_LDOG_RESET) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether LDOG reset reason is present. */
+#define NRFX_RESET_REASON_HAS_LDOG 1
+#else
+#define NRFX_RESET_REASON_HAS_LDOG 0
+#endif
+
+#if (defined(NRF_RESET) && NRF_RESET_HAS_LLOCKUP_RESET) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether LLOCKUP reset reason is present. */
+#define NRFX_RESET_REASON_HAS_LLOCKUP 1
+#else
+#define NRFX_RESET_REASON_HAS_LLOCKUP 0
+#endif
+
+#if (defined(NRF_RESET) && NRF_RESET_HAS_MFORCEOFF_RESET) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether MFORCEOFF reset reason is present. */
+#define NRFX_RESET_REASON_HAS_MFORCEOFF 1
+#else
+#define NRFX_RESET_REASON_HAS_MFORCEOFF 0
 #endif
 
 #if (defined(NRF_POWER) && NRF_POWER_HAS_RESETREAS_LPCOMP) ||      \
@@ -178,13 +206,19 @@ typedef enum
     /**< Reset due to wakeup from System OFF mode when wakeup is triggered by entering the debug
      *   interface mode. */
     NRFX_RESET_REASON_DIF_MASK          = NRF_RESET_RESETREAS_DIF_MASK,
-#if NRFX_RESET_REASON_HAS_NETWORK
+#if NRFX_RESET_REASON_HAS_LSREQ
     /**< Reset from network soft reset detected. */
     NRFX_RESET_REASON_LSREQ_MASK        = NRF_RESET_RESETREAS_LSREQ_MASK,
+#endif
+#if NRFX_RESET_REASON_HAS_LLOCKUP
     /**< Reset from network CPU lockup detected. */
     NRFX_RESET_REASON_LLOCKUP_MASK      = NRF_RESET_RESETREAS_LLOCKUP_MASK,
+#endif
+#if NRFX_RESET_REASON_HAS_LDOG
     /**< Reset from network watchdog timer detected. */
     NRFX_RESET_REASON_LDOG_MASK         = NRF_RESET_RESETREAS_LDOG_MASK,
+#endif
+#if NRFX_RESET_REASON_HAS_MFORCEOFF
     /**< Force off reset from application core detected. */
     NRFX_RESET_REASON_MFORCEOFF_MASK    = NRF_RESET_RESETREAS_MFORCEOFF_MASK,
 #endif
@@ -198,7 +232,7 @@ typedef enum
     /**< Reset after wakeup from System OFF mode due to VBUS rising into valid range. */
     NRFX_RESET_REASON_VBUS_MASK         = NRF_RESET_RESETREAS_VBUS_MASK,
 #endif
-#if NRFX_RESET_REASON_HAS_NETWORK
+#if NRFX_RESET_REASON_HAS_LCTRLAP
     /**< Reset from network CTRL-AP detected. */
     NRFX_RESET_REASON_LCTRLAP_MASK      = NRF_RESET_RESETREAS_LCTRLAP_MASK,
 #endif

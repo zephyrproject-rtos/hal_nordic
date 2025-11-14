@@ -58,6 +58,7 @@ NRFY_STATIC_INLINE uint32_t __nrfy_internal_nfct_events_process(NRF_NFCT_Type * 
  * @{
  * @ingroup nrf_nfct
  * @brief   Hardware access layer with cache and barrier support for managing the NFCT peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 #if NRF_NFCT_HAS_MODULATION_PSEL_REG || defined(__NRFX_DOXYGEN__)
@@ -537,7 +538,7 @@ NRFY_STATIC_INLINE uint8_t nrfy_nfct_tx_frame_config_get(NRF_NFCT_Type const * p
 /** @refhal{nrf_nfct_tx_frame_config_set} */
 NRFY_STATIC_INLINE void nrfy_nfct_tx_frame_config_set(NRF_NFCT_Type * p_reg, uint8_t flags)
 {
-    nrf_nfct_rx_frame_config_set(p_reg, flags);
+    nrf_nfct_tx_frame_config_set(p_reg, flags);
     nrf_barrier_w();
 }
 

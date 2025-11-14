@@ -55,6 +55,13 @@ extern "C" {
 #define NRF_NVMC_HAS_PARTIAL_ERASE 0
 #endif
 
+#if defined(NVMC_CONFIG_WEN_PEen) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether page partial erase mode is present. */
+#define NRF_NVMC_HAS_PARTIAL_ERASE_MODE 1
+#else
+#define NRF_NVMC_HAS_PARTIAL_ERASE_MODE 0
+#endif
+
 #if defined(NVMC_CONFIGNS_WEN_Msk) || defined (__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether NVMC has non-secure operations available. */
 #define NRF_NVMC_HAS_NON_SECURE_OPERATIONS 1
@@ -69,13 +76,20 @@ extern "C" {
 #define NRF_NVMC_HAS_UICR_ERASE 0
 #endif
 
+#if defined(NVMC_READYNEXT_READYNEXT_Msk) || defined (__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether write ready check is available */
+#define NRF_NVMC_HAS_WRITE_READY_CHECK 1
+#else
+#define NRF_NVMC_HAS_WRITE_READY_CHECK 0
+#endif
+
 /** @brief NVMC modes. */
 typedef enum
 {
     NRF_NVMC_MODE_READONLY      = NVMC_CONFIG_WEN_Ren, ///< NVMC in read-only mode.
     NRF_NVMC_MODE_WRITE         = NVMC_CONFIG_WEN_Wen, ///< NVMC in read and write mode.
     NRF_NVMC_MODE_ERASE         = NVMC_CONFIG_WEN_Een, ///< NVMC in read and erase mode.
-#if defined(NVMC_CONFIG_WEN_PEen)
+#if NRF_NVMC_HAS_PARTIAL_ERASE_MODE
     NRF_NVMC_MODE_PARTIAL_ERASE = NVMC_CONFIG_WEN_PEen ///< NVMC in read and partial erase mode.
 #endif
 } nrf_nvmc_mode_t;
@@ -90,7 +104,7 @@ typedef enum
 } nrf_nvmc_ns_mode_t;
 #endif
 
-#if defined(NVMC_FEATURE_CACHE_PRESENT)
+#if defined(NVMC_FEATURE_CACHE_PRESENT) || defined(__NRFX_DOXYGEN__)
 /** @brief NVMC ICache configuration. */
 typedef enum
 {
@@ -99,7 +113,7 @@ typedef enum
     NRF_NVMC_ICACHE_ENABLE_WITH_PROFILING = NVMC_ICACHECNF_CACHEEN_Enabled | ///< Instruction Cache with cache profiling enabled.
                                             NVMC_ICACHECNF_CACHEPROFEN_Msk
 } nrf_nvmc_icache_config_t;
-#endif // defined(NVMC_FEATURE_CACHE_PRESENT)
+#endif // defined(NVMC_FEATURE_CACHE_PRESENT) || defined(__NRFX_DOXYGEN__)
 
 /**
  * @brief Function for checking if NVMC is ready to perform write or erase operation.
@@ -111,7 +125,7 @@ typedef enum
  */
 NRF_STATIC_INLINE bool nrf_nvmc_ready_check(NRF_NVMC_Type const * p_reg);
 
-#if defined(NVMC_READYNEXT_READYNEXT_Msk) || defined(__NRFX_DOXYGEN__)
+#if NRF_NVMC_HAS_WRITE_READY_CHECK
 /**
  * @brief Function for checking if NVMC is ready to accept the next write operation.
  *
@@ -124,7 +138,7 @@ NRF_STATIC_INLINE bool nrf_nvmc_ready_check(NRF_NVMC_Type const * p_reg);
  * @retval false NVMC is busy and cannot accept the next write yet.
  */
 NRF_STATIC_INLINE bool nrf_nvmc_write_ready_check(NRF_NVMC_Type const * p_reg);
-#endif // defined(NVMC_READYNEXT_READYNEXT_Msk) || defined(__NRFX_DOXYGEN__)
+#endif // NRF_NVMC_HAS_WRITE_READY_CHECK
 
 /**
  * @brief Function for setting the NVMC mode.
@@ -284,7 +298,7 @@ NRF_STATIC_INLINE void nrf_nvmc_page_partial_erase_start(NRF_NVMC_Type * p_reg,
                                                          uint32_t        page_addr);
 #endif // NRF_NVMC_HAS_PARTIAL_ERASE
 
-#if defined(NVMC_FEATURE_CACHE_PRESENT)
+#if defined(NVMC_FEATURE_CACHE_PRESENT) || defined(__NRFX_DOXYGEN__)
 /**
  * @brief Function for applying the Instruction Cache (ICache) configuration.
  *
@@ -342,7 +356,7 @@ NRF_STATIC_INLINE uint32_t nrf_nvmc_icache_miss_get(NRF_NVMC_Type const * p_reg)
  * @param[in] p_reg Pointer to the structure of registers of the peripheral.
  */
  NRF_STATIC_INLINE void nrf_nvmc_icache_hit_miss_reset(NRF_NVMC_Type * p_reg);
-#endif // defined(NVMC_FEATURE_CACHE_PRESENT)
+#endif // defined(NVMC_FEATURE_CACHE_PRESENT) || defined(__NRFX_DOXYGEN__)
 
 #ifndef NRF_DECLARE_ONLY
 
@@ -351,7 +365,7 @@ NRF_STATIC_INLINE bool nrf_nvmc_ready_check(NRF_NVMC_Type const * p_reg)
     return (bool)(p_reg->READY & NVMC_READY_READY_Msk);
 }
 
-#if defined(NVMC_READYNEXT_READYNEXT_Msk)
+#if NRF_NVMC_HAS_WRITE_READY_CHECK
 NRF_STATIC_INLINE bool nrf_nvmc_write_ready_check(NRF_NVMC_Type const * p_reg)
 {
     return (bool)(p_reg->READYNEXT & NVMC_READYNEXT_READYNEXT_Msk);
@@ -403,8 +417,8 @@ NRF_STATIC_INLINE void nrf_nvmc_buffer_read(void *   dst,
 NRF_STATIC_INLINE void nrf_nvmc_page_erase_start(NRF_NVMC_Type * p_reg,
                                                  uint32_t        page_addr)
 {
-#if defined(NRF51)
-    /* On nRF51, the code area can be divided into two regions: CR0 and CR1.
+#if defined(UICR_CLENR0_CLENR0_Msk)
+    /* On certain targets, the code area can be divided into two regions: CR0 and CR1.
      * The length of CR0 is specified in the CLENR0 register of UICR.
      * If CLENR0 contains the 0xFFFFFFFF value,  CR0 is not set.
      * Moreover, the page from CR0 can be written or erased only from code
@@ -418,13 +432,11 @@ NRF_STATIC_INLINE void nrf_nvmc_page_erase_start(NRF_NVMC_Type * p_reg,
     {
         p_reg->ERASEPCR1 = page_addr;
     }
-#elif defined(NRF52_SERIES)
+#elif defined(NVMC_ERASEPAGE_ERASEPAGE_Msk)
     p_reg->ERASEPAGE = page_addr;
-#elif defined(NRF53_SERIES) || defined(NRF91_SERIES)
+#else
     *(volatile uint32_t *)page_addr = 0xFFFFFFFF;
     (void)p_reg;
-#else
-    #error "Unknown device."
 #endif
 }
 
@@ -457,10 +469,8 @@ NRF_STATIC_INLINE void nrf_nvmc_page_partial_erase_start(NRF_NVMC_Type * p_reg,
 {
 #if defined(NVMC_ERASEPAGEPARTIAL_ERASEPAGEPARTIAL_Msk)
     p_reg->ERASEPAGEPARTIAL = page_addr;
-#elif defined(NRF53_SERIES) || defined(NRF91_SERIES)
-    nrf_nvmc_page_erase_start(p_reg, page_addr);
 #else
-    #error "Unknown device."
+    nrf_nvmc_page_erase_start(p_reg, page_addr);
 #endif
 }
 #endif // NRF_NVMC_HAS_PARTIAL_ERASE
@@ -469,11 +479,8 @@ NRF_STATIC_INLINE void nrf_nvmc_page_partial_erase_start(NRF_NVMC_Type * p_reg,
 NRF_STATIC_INLINE void nrf_nvmc_icache_config_set(NRF_NVMC_Type *          p_reg,
                                                   nrf_nvmc_icache_config_t config)
 {
-#if defined(NRF5340_XXAA_NETWORK) || defined(NRF91_SERIES)
-    // Apply workaround for the anomalies:
-    // - 6 for the nRF53.
-    // - 21 for the nRF91.
-    if (config == NRF_NVMC_ICACHE_DISABLE)
+    if ((NRF_ERRATA_DYNAMIC_CHECK(53, 6) || NRF_ERRATA_DYNAMIC_CHECK(91, 21)) &&
+        (config == NRF_NVMC_ICACHE_DISABLE))
     {
         NRFX_CRITICAL_SECTION_ENTER();
         __ISB();
@@ -482,7 +489,6 @@ NRF_STATIC_INLINE void nrf_nvmc_icache_config_set(NRF_NVMC_Type *          p_reg
         NRFX_CRITICAL_SECTION_EXIT();
     }
     else
-#endif
     {
         p_reg->ICACHECNF = (uint32_t)config;
     }

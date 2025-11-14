@@ -40,29 +40,6 @@
 extern "C" {
 #endif
 
-#if defined(NRF54LS05B_ENGA_XXAA) || (defined(LUMOS_XXAA) && defined(NRF_FLPR))
-#define GRTC_IRQn       GRTC_0_IRQn
-#define GRTC_IRQHandler GRTC_0_IRQHandler
-#elif defined(LUMOS_XXAA)
-#if defined(NRF_APPLICATION) && defined(NRF_TRUSTZONE_NONSECURE)
-#define GRTC_IRQn       GRTC_1_IRQn
-#define GRTC_IRQHandler GRTC_1_IRQHandler
-#elif defined(NRF_APPLICATION) && !defined(NRF_TRUSTZONE_NONSECURE)
-#define GRTC_IRQn       GRTC_2_IRQn
-#define GRTC_IRQHandler GRTC_2_IRQHandler
-#endif // defined(LUMOS_XXAA)
-#endif // defined(NRF54LS05B_ENGA_XXAA) || defined(LUMOS_XXAA) && defined(NRF_FLPR)
-
-#if defined(HALTIUM_XXAA)
-#if (defined(ISA_ARM) && defined(NRF_TRUSTZONE_NONSECURE)) || defined(ISA_RISCV)
-#define GRTC_IRQn       GRTC_0_IRQn
-#define GRTC_IRQHandler GRTC_0_IRQHandler
-#else
-#define GRTC_IRQn       GRTC_1_IRQn
-#define GRTC_IRQHandler GRTC_1_IRQHandler
-#endif
-#endif
-
 /**
  * @defgroup nrf_grtc_hal GRTC HAL
  * @{
@@ -119,6 +96,13 @@ extern "C" {
 #define NRF_GRTC_HAS_SYSCOUNTERVALID 0
 #endif
 
+#if defined(GRTC_SYSCOUNTER_SYSCOUNTERH_LOADED_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether SYSCOUNTERH LOADED bit is present. */
+#define NRF_GRTC_HAS_SYSCOUNTER_LOADED 1
+#else
+#define NRF_GRTC_HAS_SYSCOUNTER_LOADED 0
+#endif
+
 #if defined(GRTC_KEEPRUNNING_DOMAIN0_Msk) || defined(GRTC_KEEPRUNNING_REQUEST0_Msk) || \
     defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether KEEPRUNNING register is present. */
@@ -135,7 +119,7 @@ extern "C" {
 #endif
 
 #if !defined(NRF_GRTC_HAS_EXTENDED)
-#if defined(LUMOS_XXAA) || defined(__NRFX_DOXYGEN__)
+#if defined(GRTC_FORCE_EXTENDED) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether GRTC has extended functionality. */
 #define NRF_GRTC_HAS_EXTENDED 1
 #else
@@ -228,15 +212,7 @@ extern "C" {
 #define NRF_GRTC_CHANNEL_INT_MASK(ch) ((uint32_t)(NRF_GRTC_INT_COMPARE0_MASK) << (ch))
 
 /** @brief Main channel that can be used only by the owner of GRTC. */
-#if defined(LUMOS_XXAA)
-#if defined(ISA_RISCV)
-#define NRF_GRTC_MAIN_CC_CHANNEL 4
-#else
-#define NRF_GRTC_MAIN_CC_CHANNEL 0
-#endif
-#else
-#define NRF_GRTC_MAIN_CC_CHANNEL 1
-#endif
+#define NRF_GRTC_MAIN_CC_CHANNEL GRTC_MAIN_CC_CHANNEL
 
 /** @brief Bitmask of interrupt enable. */
 #define NRF_GRTC_INTEN_MASK NRFX_BIT_MASK(GRTC_CC_MaxCount)
@@ -1735,10 +1711,11 @@ NRF_STATIC_INLINE uint32_t nrf_grtc_sys_counter_high_get(NRF_GRTC_Type const * p
 NRF_STATIC_INLINE uint64_t nrf_grtc_sys_counter_get(NRF_GRTC_Type const * p_reg)
 {
 #if NRF_GRTC_HAS_SYSCOUNTER_ARRAY
-    return *((const uint64_t volatile *)&p_reg->GRTC_SYSCOUNTER.SYSCOUNTERL);
+    uintptr_t ptr = (uintptr_t)&p_reg->GRTC_SYSCOUNTER.SYSCOUNTERL;
 #else
-    return *((const uint64_t volatile *)&p_reg->SYSCOUNTERL);
+    uintptr_t ptr = (uintptr_t)&p_reg->SYSCOUNTERL;
 #endif // NRF_GRTC_HAS_SYSCOUNTER_ARRAY
+    return *(const uint64_t volatile *)ptr;
 }
 
 NRF_STATIC_INLINE bool nrf_grtc_sys_counter_overflow_check(NRF_GRTC_Type const * p_reg)
@@ -1770,7 +1747,8 @@ NRF_STATIC_INLINE uint64_t nrf_grtc_sys_counter_indexed_get(NRF_GRTC_Type const 
                                                             uint8_t               index)
 {
     NRFX_ASSERT(index < NRF_GRTC_SYSCOUNTER_COUNT);
-    return *((const uint64_t volatile *)&p_reg->SYSCOUNTER[index]);
+    uintptr_t ptr = (uintptr_t)&p_reg->SYSCOUNTER[index];
+    return *(const uint64_t volatile *)ptr;
 }
 
 NRF_STATIC_INLINE bool nrf_grtc_sys_counter_overflow_indexed_check(NRF_GRTC_Type const * p_reg,

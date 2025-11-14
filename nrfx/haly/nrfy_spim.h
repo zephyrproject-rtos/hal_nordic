@@ -62,6 +62,7 @@ NRFY_STATIC_INLINE void __nrfy_internal_spim_event_enabled_clear(NRF_SPIM_Type *
  * @{
  * @ingroup nrf_spim
  * @brief   Hardware access layer with cache and barrier support for managing the SPIM peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 #if NRF_SPIM_HAS_HW_CSN || defined(__NRFX_DOXYGEN__)

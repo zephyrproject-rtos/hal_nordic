@@ -65,14 +65,14 @@ extern "C" {
 #define NRF_AAR_HAS_OUT_AMOUNT 0
 #endif
 
-#if defined(AAR_NIRK_NIRK_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(AAR_NIRK_NIRK_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Presence of the NIRK register. */
 #define NRF_AAR_HAS_NIRK 1
 #else
 #define NRF_AAR_HAS_NIRK 0
 #endif
 
-#if defined(AAR_IRKPTR_IRKPTR_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(AAR_IRKPTR_IRKPTR_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Presence of the IRKPTR register. */
 #define NRF_AAR_HAS_IRKPTR 1
 #else
@@ -93,14 +93,14 @@ extern "C" {
 #define NRF_AAR_HAS_OUT_PTR 0
 #endif
 
-#if defined(AAR_ADDRPTR_ADDRPTR_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(AAR_ADDRPTR_ADDRPTR_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Presence of the ADDRPTR register. */
 #define NRF_AAR_HAS_ADDRPTR 1
 #else
 #define NRF_AAR_HAS_ADDRPTR 0
 #endif
 
-#if defined(AAR_SCRATCHPTR_SCRATCHPTR_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(AAR_SCRATCHPTR_SCRATCHPTR_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Presence of the SCRATCHPTR register. */
 #define NRF_AAR_HAS_SCRATCHPTR 1
 #else

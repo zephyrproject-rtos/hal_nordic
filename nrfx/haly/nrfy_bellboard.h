@@ -58,6 +58,7 @@ NRFY_STATIC_INLINE uint32_t __nrfy_internal_bellboard_events_process(NRF_BELLBOA
  * @{
  * @ingroup nrf_bellboard
  * @brief   Hardware access layer with cache and barrier support for managing the BELLBOARD peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 /* BELLBOARD0_IRQn is not defined for RISC-V targets, so the interrupt (un)init functions need to be excluded from compilation.

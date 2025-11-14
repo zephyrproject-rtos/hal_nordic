@@ -76,10 +76,10 @@ typedef void (* nrfx_tbm_event_handler_t)(nrf_tbm_event_t event);
  * @param[in] handler   data handler provided by the user. if not provided,
  *                      the driver is initialized in blocking mode.
  *
- * @retval NRFX_SUCCESS       Driver was successfully initialized.
- * @retval NRFX_ERROR_ALREADY Driver was already initialized.
+ * @retval 0         Driver was successfully initialized.
+ * @retval -EALREADY Driver was already initialized.
  */
-nrfx_err_t nrfx_tbm_init(nrfx_tbm_config_t const * p_config, nrfx_tbm_event_handler_t handler);
+int nrfx_tbm_init(nrfx_tbm_config_t const * p_config, nrfx_tbm_event_handler_t handler);
 
 /** @brief Function for starting the TBM. */
 void nrfx_tbm_start(void);

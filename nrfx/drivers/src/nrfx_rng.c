@@ -32,9 +32,6 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_RNG_ENABLED)
-
 #include <nrfx_rng.h>
 
 #define NRFX_LOG_MODULE RNG
@@ -50,13 +47,13 @@ static nrfx_drv_state_t m_rng_state;
  */
 static nrfx_rng_evt_handler_t m_rng_hndl;
 
-nrfx_err_t nrfx_rng_init(nrfx_rng_config_t const * p_config, nrfx_rng_evt_handler_t handler)
+int nrfx_rng_init(nrfx_rng_config_t const * p_config, nrfx_rng_evt_handler_t handler)
 {
     NRFX_ASSERT(p_config);
     NRFX_ASSERT(handler);
     if (m_rng_state != NRFX_DRV_STATE_UNINITIALIZED)
     {
-        return NRFX_ERROR_ALREADY;
+        return -EALREADY;
     }
 
     m_rng_hndl = handler;
@@ -71,7 +68,7 @@ nrfx_err_t nrfx_rng_init(nrfx_rng_config_t const * p_config, nrfx_rng_evt_handle
 
     m_rng_state = NRFX_DRV_STATE_INITIALIZED;
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 void nrfx_rng_start(void)
@@ -116,5 +113,3 @@ void nrfx_rng_irq_handler(void)
 
     NRFX_LOG_DEBUG("Event: NRF_RNG_EVENT_VALRDY.");
 }
-
-#endif // NRFX_CHECK(NRFX_RNG_ENABLED)

@@ -4,37 +4,13 @@
  * @{
  * @ingroup nrfx_spis
  */
-/** @brief 
+/** @brief
  *
  *  Set to 1 to activate.
  *
  * @note This is an NRF_CONFIG macro.
  */
 #define NRFX_SPIS_ENABLED
-
-/** @brief Enable SPIS0 instance
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_SPIS0_ENABLED
-
-/** @brief Enable SPIS1 instance
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_SPIS1_ENABLED
-
-/** @brief Enable SPIS2 instance
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_SPIS2_ENABLED
 
 /** @brief Interrupt priority
  *
@@ -43,10 +19,10 @@
  * - 1 - 1
  * - 2 - 2
  * - 3 - 3
- * - 4 - 4 (Not applicable for nRF51)
- * - 5 - 5 (Not applicable for nRF51)
- * - 6 - 6 (Not applicable for nRF51)
- * - 7 - 7 (Not applicable for nRF51)
+ * - 4 - 4
+ * - 5 - 5
+ * - 6 - 6
+ * - 7 - 7
  *
  * @note This is an NRF_CONFIG macro.
  */
@@ -106,22 +82,5 @@
  * @note This is an NRF_CONFIG macro.
  */
 #define NRFX_SPIS_CONFIG_DEBUG_COLOR
-
-
-/** @brief Enables nRF52 Anomaly 109 workaround for SPIS.
- *
- * The workaround uses a GPIOTE channel to generate interrupts
- * on falling edges detected on the CSN line. This will make
- * the CPU active for the moment when SPIS starts DMA transfers,
- * and this way the transfers will be protected.
- * This workaround uses GPIOTE driver, so this driver must be
- * enabled as well.
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_SPIS_NRF52_ANOMALY_109_WORKAROUND_ENABLED
-
 
 /** @} */

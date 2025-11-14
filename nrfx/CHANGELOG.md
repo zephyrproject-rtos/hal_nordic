@@ -1,6 +1,55 @@
 # Changelog
 All notable changes to this project are documented in this file.
 
+## [4.0.0] - 2025-11-07
+
+### Added
+- Added migration guide for breaking changes. See [migration guide document](https://github.com/NordicSemiconductor/nrfx/tree/master/doc/nrfx_4_0_migration_guide.md) for reference.
+- Added Board Support Package (BSP) that combines all SoC-specific configuration in a single directory.
+- Added errata handling Doxygen page, specifying erratas that are implemented in nrfx.
+- Added support for COMPLETED events in the MVDMA HAL.
+- Added clock prescaler calculation API to PDM and I2S drivers.
+- Added HAL for the LFXO peripheral.
+- Added function to convert microseconds value to internal timer compare value in the SAADC driver.
+- Added address range checking functions in the NVMC driver.
+- Added support for the HIBERNATOR feature in the REGULATORS HAL.
+- Added support for new POF threshold values in the REGULATORS HAL and POWER driver.
+- Added functions for managing NVR page write and erase permissions in the MRAMC driver.
+- Added function for writing a buffer of 32-bit words to the UICR in the NVMC driver.
+- Added support for nRF52 Series anomaly 58 in the SPIM driver.
+- Added support for nRF52 Series anomaly 173 in the GPIO HAL.
+- Added support for nRF52 Series anomaly 174 in the SAADC driver.
+- Added support for nRF52 Series anomaly 214 in the SPIS driver.
+- Added support for nRF53 Series anomaly 65 in the SAADC driver.
+- Added support for nRF53 Series anomaly 119 in the GPIO HAL.
+- Added support for nRF91 Series anomaly 7 in the NVMC HAL.
+- Added support for multiple cache types in the CACHE HAL.
+
+### Changed
+- Moved control blocks from driver context into driver instance structure. It is no longer allowed to have several driver instance structures associated with same hardware peripheral instance in the system.
+- Moved SoC-specific data into dedicated BSP sub-component.
+- Unified errata handling across drivers and HALs to use standardized methods from MDK.
+- Deprecated Extended Hardware Access Layer (HALY).
+- Reworked nrfx_gppi helper layer to better align with nRF54 Series.
+- Redesigned clock handling in the CLOCK driver.
+- Changed all error codes to errno values.
+- Updated MDK to version 8.73.0.
+- Changed analog input type in the COMP, LPCOMP and SAADC drivers. Now, generic analog inputs from nrfx_analog_common helper layer shall be used.
+- Optimized counter reading procedure in the GRTC driver.
+- Changed nrf_saadc_value_t type to int16_t type in the SAADC HAL.
+
+### Fixed
+- Fixed incorrect DCX register readback value for peripheral instances that do not support this feature in the SPIM driver.
+- Fixed handling of nRF52 Series anomaly 74 in the SAADC driver.
+- Fixed channel limits not being cleared on channel uninitialization in the SAADC driver.
+
+### Removed
+- Removed previously deprecated functions, enumerations and structures.
+- Removed PPI, DPPI, and PPIB drivers. Use the nrfx_gppi helper layer instead.
+- Removed nRF51 from supported targets. Support for nRF51 will soon be dropped.
+- Removed instance-specific symbols from nrfx_config header files for affected drivers.
+- Removed implicit IRQ management for the drivers. Now, the driver-specific ISR handler must be called explicitly with the pointer to the driver instance structure as an argument within IRQ context.
+
 ## [3.14.0] - 2025-08-22
 ### Added
 - Added support for nRF54LS05B Eng A.

@@ -55,11 +55,11 @@ extern "C" {
  * @note This function assumes exclusive access to the CRACEN TRNG and CryptoMaster, and may
  *       not be used while any other component is using those peripherals.
  *
- * @retval NRFX_SUCCESS        Initialization was successful.
- * @retval NRFX_ERROR_INTERNAL Unexpected error.
- * @retval NRFX_ERROR_ALREADY  If it was was already initialized.
+ * @retval 0          Initialization was successful.
+ * @retval -ECANCELED Unexpected error.
+ * @retval -EALREADY  If it was was already initialized.
  */
-nrfx_err_t nrfx_cracen_ctr_drbg_init(void);
+int nrfx_cracen_ctr_drbg_init(void);
 
 /** @brief Function for uninitializing the CRACEN CTR_DRBG random generator. */
 void nrfx_cracen_ctr_drbg_uninit(void);
@@ -73,11 +73,11 @@ void nrfx_cracen_ctr_drbg_uninit(void);
  * @param[out] p_buf Buffer into which to copy \p size bytes of entropy.
  * @param[in]  size  Number of bytes to copy.
  *
- * @retval NRFX_SUCCESS             Success.
- * @retval NRFX_ERROR_INVALID_PARAM Invalid inputs.
- * @retval NRFX_ERROR_INTERNAL      Unexpected error.
+ * @retval 0          Success.
+ * @retval -EINVAL    Invalid inputs.
+ * @retval -ECANCELED Unexpected error.
  */
-nrfx_err_t nrfx_cracen_ctr_drbg_random_get(uint8_t * p_buf, size_t size);
+int nrfx_cracen_ctr_drbg_random_get(uint8_t * p_buf, size_t size);
 
 /** @} */
 

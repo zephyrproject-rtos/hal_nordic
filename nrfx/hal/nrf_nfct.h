@@ -49,14 +49,20 @@ extern "C" {
  */
 
 #define NRF_NFCT_CRC_SIZE 2                 /**< CRC size in bytes. */
-#define NRF_NFCT_DISABLE_ALL_INT 0xFFFFFFFF /**< Value to disable all interrupts. */
+#define NRF_NFCT_DISABLE_ALL_INT UINT32_MAX /**< Value to disable all interrupts. */
 
 /**
  * @brief This value can be used as a parameter for the @ref nrf_nfct_mod_ctrl_pin_set
  *        function to specify that a given NFCT signal (MODULATION CONTROL)
  *        must not be connected to a physical pin.
  */
-#define NRF_NFCT_MOD_CTRL_PIN_NOT_CONNECTED  0xFFFFFFFF
+#define NRF_NFCT_MOD_CTRL_PIN_NOT_CONNECTED  UINT32_MAX
+
+/** @brief Default value of NFCT max frame delay. */
+#define NRF_NFCT_FAME_DELAY_MAX_DEFAULT NFCT_FRAMEDELAYMAX_ResetValue
+
+/** @brief Default value of NFCT min frame delay. */
+#define NRF_NFCT_FAME_DELAY_MIN_DEFAULT NFCT_FRAMEDELAYMIN_ResetValue
 
 /** @brief Maximum possible value of NFCT max frame delay. */
 #define NRF_NFCT_FRAME_DELAY_MAX_MAX_VALUE  NFCT_FRAMEDELAYMAX_FRAMEDELAYMAX_Msk
@@ -125,6 +131,21 @@ extern "C" {
 #else
 #define NRF_NFCT_HAS_BIAS_CONFIG_TRIM_REG 0
 #endif
+
+#if defined(NFCT_ERRORSTATUS_NFCFIELDTOOSTRONG_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether NFC field too strong error is present. */
+#define NRF_NFCT_HAS_ERROR_FIELD_TOO_STRONG 1
+#else
+#define NRF_NFCT_HAS_ERROR_FIELD_TOO_STRONG 0
+#endif
+
+#if defined(NFCT_ERRORSTATUS_NFCFIELDTOOWEAK_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether NFC field too weak error is present. */
+#define NRF_NFCT_HAS_ERROR_FIELD_TOO_WEAK 1
+#else
+#define NRF_NFCT_HAS_ERROR_FIELD_TOO_WEAK 0
+#endif
+
 /** @brief NFCT tasks. */
 typedef enum
 {
@@ -194,10 +215,10 @@ typedef enum
 typedef enum
 {
     NRF_NFCT_ERROR_FRAMEDELAYTIMEOUT_MASK = NFCT_ERRORSTATUS_FRAMEDELAYTIMEOUT_Msk, /**< Timeout of the Frame Delay Timer (no frame transmission started in the FDT window). */
-#if defined(NFCT_ERRORSTATUS_NFCFIELDTOOSTRONG_Msk) || defined(__NRFX_DOXYGEN__)
+#if NRF_NFCT_HAS_ERROR_FIELD_TOO_STRONG
     NRF_NFCT_ERROR_NFCFIELDTOOSTRONG_MASK = NFCT_ERRORSTATUS_NFCFIELDTOOSTRONG_Msk, /**< Field level is too high at maximum load resistance. */
 #endif
-#if defined(NFCT_ERRORSTATUS_NFCFIELDTOOWEAK_Msk) || defined(__NRFX_DOXYGEN__)
+#if NRF_NFCT_HAS_ERROR_FIELD_TOO_WEAK
     NRF_NFCT_ERROR_NFCFIELDTOOWEAK_MASK = NFCT_ERRORSTATUS_NFCFIELDTOOWEAK_Msk,     /**< Field level is too low at minimum load resistance. */
 #endif
 } nrf_nfct_error_status_t;

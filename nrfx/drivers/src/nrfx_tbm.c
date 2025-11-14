@@ -32,9 +32,6 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_TBM_ENABLED)
-
 #include <nrfx_tbm.h>
 #include <haly/nrfy_tbm.h>
 
@@ -44,11 +41,11 @@ static const uint32_t m_int_flags = NRF_TBM_INT_HALFFULL_MASK |
                                     NRF_TBM_INT_FULL_MASK     |
                                     NRF_TBM_INT_FLUSH_MASK;
 
-nrfx_err_t nrfx_tbm_init(nrfx_tbm_config_t const * p_config, nrfx_tbm_event_handler_t handler)
+int nrfx_tbm_init(nrfx_tbm_config_t const * p_config, nrfx_tbm_event_handler_t handler)
 {
     if (state != NRFX_DRV_STATE_UNINITIALIZED)
     {
-        return NRFX_ERROR_ALREADY;
+        return -EALREADY;
     }
 
     nrfy_tbm_configure(NRF_TBM, p_config->size);
@@ -61,7 +58,7 @@ nrfx_err_t nrfx_tbm_init(nrfx_tbm_config_t const * p_config, nrfx_tbm_event_hand
 
     state = NRFX_DRV_STATE_INITIALIZED;
 
-    return NRFX_SUCCESS;
+    return 0;
 }
 
 void nrfx_tbm_start(void)
@@ -115,5 +112,3 @@ void nrfx_tbm_irq_handler(void)
         evt_handler(NRF_TBM_EVENT_FLUSH);
     }
 }
-
-#endif // NRFX_CHECK(NRFX_TBM_ENABLED)

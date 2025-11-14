@@ -58,14 +58,14 @@ extern "C" {
  * @brief   Hardware access layer for managing the AES CCM peripheral.
  */
 
-#if defined(CCM_TASKS_KSGEN_TASKS_KSGEN_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(CCM_TASKS_KSGEN_TASKS_KSGEN_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Presence of the KSGEN task. */
 #define NRF_CCM_HAS_TASK_KSGEN 1
 #else
 #define NRF_CCM_HAS_TASK_KSGEN 0
 #endif
 
-#if defined(CCM_TASKS_CRYPT_TASKS_CRYPT_Msk) || defined(NRF51) || defined(__NRFX_DOXYGEN__)
+#if defined(CCM_TASKS_CRYPT_TASKS_CRYPT_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Presence of the CRYPT task. */
 #define NRF_CCM_HAS_TASK_CRYPT 1
 #else
@@ -1106,12 +1106,7 @@ NRF_STATIC_INLINE void nrf_ccm_cnfptr_set(NRF_CCM_Type *        p_reg,
 
 NRF_STATIC_INLINE nrf_ccm_cnf_t * nrf_ccm_cnfptr_get(NRF_CCM_Type const * p_reg)
 {
-#if defined(NRF5340_XXAA_NETWORK)
-    // Apply workaround for anomaly 10.
-    return (nrf_ccm_cnf_t *)(p_reg->CNFPTR | 0x01000000);
-#else
     return (nrf_ccm_cnf_t *)(p_reg->CNFPTR);
-#endif // NRF5340_XXAA_NETWORK
 }
 #endif // NRF_CCM_HAS_CNFPTR
 
@@ -1172,12 +1167,7 @@ NRF_STATIC_INLINE void nrf_ccm_inptr_set(NRF_CCM_Type *   p_reg,
 
 NRF_STATIC_INLINE uint32_t * nrf_ccm_inptr_get(NRF_CCM_Type const * p_reg)
 {
-#if defined(NRF5340_XXAA_NETWORK)
-    // Apply workaround for anomaly 10.
-    return (uint32_t *)(p_reg->INPTR | 0x01000000);
-#else
     return (uint32_t *)(p_reg->INPTR);
-#endif // defined(NRF5340_XXAA_NETWORK)
 }
 #endif // NRF_CCM_HAS_INPTR
 
@@ -1203,12 +1193,7 @@ NRF_STATIC_INLINE void nrf_ccm_outptr_set(NRF_CCM_Type *   p_reg,
 
 NRF_STATIC_INLINE uint32_t * nrf_ccm_outptr_get(NRF_CCM_Type const * p_reg)
 {
-#if defined(NRF5340_XXAA_NETWORK)
-    // Apply workaround for anomaly 10.
-    return (uint32_t *)(p_reg->OUTPTR | 0x01000000);
-#else
     return (uint32_t *)(p_reg->OUTPTR);
-#endif
 }
 #endif // NRF_CCM_HAS_OUTPTR
 
@@ -1234,12 +1219,7 @@ NRF_STATIC_INLINE void nrf_ccm_scratchptr_set(NRF_CCM_Type *   p_reg,
 
 NRF_STATIC_INLINE uint32_t * nrf_ccm_scratchptr_get(NRF_CCM_Type const * p_reg)
 {
-#if defined(NRF5340_XXAA_NETWORK)
-    // Apply workaround for anomaly 10.
-    return (uint32_t *)(p_reg->SCRATCHPTR | 0x01000000);
-#else
     return (uint32_t *)(p_reg->SCRATCHPTR);
-#endif // defined(NRF5340_XXAA_NETWORK)
 }
 #endif // NRF_CCM_HAS_SCRATCHPTR
 

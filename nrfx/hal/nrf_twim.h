@@ -40,11 +40,11 @@
 extern "C" {
 #endif
 
-#if defined(NRF54H20_XXAA)
+#if defined(TWIM_CLOCKPIN_SDA_NEEDED)
 #define NRF_TWIM_CLOCKPIN_SDA_NEEDED 1
 #endif
 
-#if defined(HALTIUM_XXAA)
+#if defined(TWIM_CLOCKPIN_SCL_NEEDED)
 #define NRF_TWIM_CLOCKPIN_SCL_NEEDED 1
 #endif
 
@@ -114,6 +114,11 @@ extern "C" {
 #define NRF_TWIM_HAS_BUS_ERROR_EVENTS 1
 #else
 #define NRF_TWIM_HAS_BUS_ERROR_EVENTS 0
+#endif
+
+#if defined(TWIM_1MBPS_NEEDS_E0E1)
+/** @brief 1 Mbps mode requires high-speed pins to be configured with extra high drive. */
+#define NRF_TWIM_1MBPS_NEEDS_E0E1
 #endif
 
 #if NRF_TWIM_HAS_DMA_REG

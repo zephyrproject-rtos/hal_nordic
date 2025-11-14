@@ -88,6 +88,27 @@ extern "C" {
 #define NRF_PDM_HAS_PDMCLKCTRL 0
 #endif
 
+#if defined(PDM_PDMCLKCTRL_FREQ_1231K) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether 1231k PDM clock frequency is available. */
+#define NRF_PDM_HAS_FREQ_1231K 1
+#else
+#define NRF_PDM_HAS_FREQ_1231K 0
+#endif
+
+#if defined(PDM_PDMCLKCTRL_FREQ_1280K) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether 1280k PDM clock frequency is available. */
+#define NRF_PDM_HAS_FREQ_1280K 1
+#else
+#define NRF_PDM_HAS_FREQ_1280K 0
+#endif
+
+#if defined(PDM_PDMCLKCTRL_FREQ_1333K) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether 1333k PDM clock frequency is available. */
+#define NRF_PDM_HAS_FREQ_1333K 1
+#else
+#define NRF_PDM_HAS_FREQ_1333K 0
+#endif
+
 #if defined(PDM_PRESCALER_DIVISOR_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether PDM prescaler register is available. */
 #define NRF_PDM_HAS_PRESCALER 1
@@ -100,6 +121,62 @@ extern "C" {
 #define NRF_PDM_HAS_CLKSELECT 1
 #else
 #define NRF_PDM_HAS_CLKSELECT 0
+#endif
+
+#if defined(PDM_RATIO_RATIO_Ratio32)  || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether PDM ratio of 32 configuration is available. */
+#define NRF_PDM_HAS_RATIO32 1
+#else
+#define NRF_PDM_HAS_RATIO32 0
+#endif
+
+#if defined(PDM_RATIO_RATIO_Ratio48)  || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether PDM ratio of 48 configuration is available. */
+#define NRF_PDM_HAS_RATIO48 1
+#else
+#define NRF_PDM_HAS_RATIO48 0
+#endif
+
+#if defined(PDM_RATIO_RATIO_Ratio50)  || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether PDM ratio of 50 configuration is available. */
+#define NRF_PDM_HAS_RATIO50 1
+#else
+#define NRF_PDM_HAS_RATIO50 0
+#endif
+
+#if defined(PDM_RATIO_RATIO_Ratio96)  || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether PDM ratio of 96 configuration is available. */
+#define NRF_PDM_HAS_RATIO96 1
+#else
+#define NRF_PDM_HAS_RATIO96 0
+#endif
+
+#if defined(PDM_RATIO_RATIO_Ratio100) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether PDM ratio of 100 configuration is available. */
+#define NRF_PDM_HAS_RATIO100 1
+#else
+#define NRF_PDM_HAS_RATIO100 0
+#endif
+
+#if defined(PDM_RATIO_RATIO_Ratio128) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether PDM ratio of 128 configuration is available. */
+#define NRF_PDM_HAS_RATIO128 1
+#else
+#define NRF_PDM_HAS_RATIO128 0
+#endif
+
+#if defined(PDM_RATIO_RATIO_Ratio150) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether PDM ratio of 150 configuration is available. */
+#define NRF_PDM_HAS_RATIO150 1
+#else
+#define NRF_PDM_HAS_RATIO150 0
+#endif
+
+#if defined(PDM_RATIO_RATIO_Ratio192) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether PDM ratio of 192 configuration is available. */
+#define NRF_PDM_HAS_RATIO192 1
+#else
+#define NRF_PDM_HAS_RATIO192 0
 #endif
 
 #if defined(PDM_RATIO_RATIO_Custom) || defined(__NRFX_DOXYGEN__)
@@ -183,13 +260,13 @@ typedef enum
     NRF_PDM_FREQ_1000K = PDM_PDMCLKCTRL_FREQ_1000K,   ///< PDM_CLK = 1.000 MHz.
     NRF_PDM_FREQ_1032K = PDM_PDMCLKCTRL_FREQ_Default, ///< PDM_CLK = 1.032 MHz.
     NRF_PDM_FREQ_1067K = PDM_PDMCLKCTRL_FREQ_1067K,   ///< PDM_CLK = 1.067 MHz.
-#if defined(PDM_PDMCLKCTRL_FREQ_1231K) || defined(__NRFX_DOXYGEN__)
+#if NRF_PDM_HAS_FREQ_1231K || defined(__NRFX_DOXYGEN__)
     NRF_PDM_FREQ_1231K = PDM_PDMCLKCTRL_FREQ_1231K,   ///< PDM_CLK = 1.231 MHz.
 #endif
-#if defined(PDM_PDMCLKCTRL_FREQ_1280K) || defined(__NRFX_DOXYGEN__)
+#if NRF_PDM_HAS_FREQ_1280K || defined(__NRFX_DOXYGEN__)
     NRF_PDM_FREQ_1280K = PDM_PDMCLKCTRL_FREQ_1280K,   ///< PDM_CLK = 1.280 MHz.
 #endif
-#if defined(PDM_PDMCLKCTRL_FREQ_1333K) || defined(__NRFX_DOXYGEN__)
+#if NRF_PDM_HAS_FREQ_1333K || defined(__NRFX_DOXYGEN__)
     NRF_PDM_FREQ_1333K = PDM_PDMCLKCTRL_FREQ_1333K    ///< PDM_CLK = 1.333 MHz.
 #endif
 } nrf_pdm_freq_t;
@@ -199,30 +276,30 @@ typedef enum
 /** @brief PDM ratio between PDM_CLK and output sample rate. */
 typedef enum
 {
-#if defined(PDM_RATIO_RATIO_Ratio32)  || defined(__NRFX_DOXYGEN__)
+#if NRF_PDM_HAS_RATIO32  || defined(__NRFX_DOXYGEN__)
     NRF_PDM_RATIO_32X    = PDM_RATIO_RATIO_Ratio32,  ///< Ratio of 32.
 #endif
-#if defined(PDM_RATIO_RATIO_Ratio48)  || defined(__NRFX_DOXYGEN__)
+#if NRF_PDM_HAS_RATIO48  || defined(__NRFX_DOXYGEN__)
     NRF_PDM_RATIO_48X    = PDM_RATIO_RATIO_Ratio48,  ///< Ratio of 48.
 #endif
-#if defined(PDM_RATIO_RATIO_Ratio50)  || defined(__NRFX_DOXYGEN__)
+#if NRF_PDM_HAS_RATIO50  || defined(__NRFX_DOXYGEN__)
     NRF_PDM_RATIO_50X    = PDM_RATIO_RATIO_Ratio50,  ///< Ratio of 50.
 #endif
     NRF_PDM_RATIO_64X    = PDM_RATIO_RATIO_Ratio64,  ///< Ratio of 64.
     NRF_PDM_RATIO_80X    = PDM_RATIO_RATIO_Ratio80,  ///< Ratio of 80.
-#if defined(PDM_RATIO_RATIO_Ratio96)  || defined(__NRFX_DOXYGEN__)
+#if NRF_PDM_HAS_RATIO96  || defined(__NRFX_DOXYGEN__)
     NRF_PDM_RATIO_96X    = PDM_RATIO_RATIO_Ratio96,  ///< Ratio of 96.
 #endif
-#if defined(PDM_RATIO_RATIO_Ratio100) || defined(__NRFX_DOXYGEN__)
+#if NRF_PDM_HAS_RATIO100 || defined(__NRFX_DOXYGEN__)
     NRF_PDM_RATIO_100X   = PDM_RATIO_RATIO_Ratio100, ///< Ratio of 100.
 #endif
-#if defined(PDM_RATIO_RATIO_Ratio128) || defined(__NRFX_DOXYGEN__)
+#if NRF_PDM_HAS_RATIO128 || defined(__NRFX_DOXYGEN__)
     NRF_PDM_RATIO_128X   = PDM_RATIO_RATIO_Ratio128, ///< Ratio of 128.
 #endif
-#if defined(PDM_RATIO_RATIO_Ratio150) || defined(__NRFX_DOXYGEN__)
+#if NRF_PDM_HAS_RATIO150 || defined(__NRFX_DOXYGEN__)
     NRF_PDM_RATIO_150X   = PDM_RATIO_RATIO_Ratio150, ///< Ratio of 150.
 #endif
-#if defined(PDM_RATIO_RATIO_Ratio192) || defined(__NRFX_DOXYGEN__)
+#if NRF_PDM_HAS_RATIO192 || defined(__NRFX_DOXYGEN__)
     NRF_PDM_RATIO_192X   = PDM_RATIO_RATIO_Ratio192, ///< Ratio of 192.
 #endif
 #if NRF_PDM_HAS_CUSTOM_RATIO

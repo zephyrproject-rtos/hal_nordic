@@ -81,10 +81,10 @@ typedef void (* nrfx_rng_evt_handler_t)(uint8_t rng_data);
  * @param[in] p_config Pointer to the structure with the initial configuration.
  * @param[in] handler  Event handler provided by the user. Must not be NULL.
  *
- * @retval NRFX_SUCCESS       Driver was successfully initialized.
- * @retval NRFX_ERROR_ALREADY Driver was already initialized.
+ * @retval 0         Driver was successfully initialized.
+ * @retval -EALREADY Driver was already initialized.
  */
-nrfx_err_t nrfx_rng_init(nrfx_rng_config_t const * p_config, nrfx_rng_evt_handler_t handler);
+int nrfx_rng_init(nrfx_rng_config_t const * p_config, nrfx_rng_evt_handler_t handler);
 
 /**
  * @brief Function for starting the generation of random values.

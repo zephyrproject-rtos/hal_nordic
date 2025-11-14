@@ -4,53 +4,13 @@
  * @{
  * @ingroup nrfx_timer
  */
-/** @brief 
+/** @brief
  *
  *  Set to 1 to activate.
  *
  * @note This is an NRF_CONFIG macro.
  */
 #define NRFX_TIMER_ENABLED
-
-/** @brief Enable TIMER0 instance
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_TIMER0_ENABLED
-
-/** @brief Enable TIMER1 instance
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_TIMER1_ENABLED
-
-/** @brief Enable TIMER2 instance
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_TIMER2_ENABLED
-
-/** @brief Enable TIMER3 instance
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_TIMER3_ENABLED
-
-/** @brief Enable TIMER4 instance
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_TIMER4_ENABLED
 
 /** @brief Interrupt priority
  *
@@ -59,10 +19,10 @@
  * - 1 - 1
  * - 2 - 2
  * - 3 - 3
- * - 4 - 4 (Not applicable for nRF51)
- * - 5 - 5 (Not applicable for nRF51)
- * - 6 - 6 (Not applicable for nRF51)
- * - 7 - 7 (Not applicable for nRF51)
+ * - 4 - 4
+ * - 5 - 5
+ * - 6 - 6
+ * - 7 - 7
  *
  * @note This is an NRF_CONFIG macro.
  */

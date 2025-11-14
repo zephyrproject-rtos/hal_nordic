@@ -32,9 +32,6 @@
  */
 
 #include <nrfx.h>
-
-#if NRFX_CHECK(NRFX_MRAMC_ENABLED)
-
 #include <nrfx_mramc.h>
 #include <hal/nrf_ficr.h>
 
@@ -144,8 +141,6 @@ void nrfx_mramc_buffer_read(void * dst, uint32_t address, uint32_t num_bytes)
 
 void nrfx_mramc_config_write_mode_set(nrf_mramc_mode_write_t write_mode)
 {
-    NRFX_ASSERT(m_cb.state == NRFX_DRV_STATE_INITIALIZED);
-
     nrf_mramc_config_t config;
     nrfy_mramc_config_get(NRF_MRAMC, &config);
     config.mode_write = write_mode;
@@ -154,15 +149,35 @@ void nrfx_mramc_config_write_mode_set(nrf_mramc_mode_write_t write_mode)
 
 void nrfx_mramc_config_erase_mode_set(nrf_mramc_mode_erase_t erase_mode)
 {
-    NRFX_ASSERT(m_cb.state == NRFX_DRV_STATE_INITIALIZED);
-
     nrf_mramc_config_t config;
     nrfy_mramc_config_get(NRF_MRAMC, &config);
     config.mode_erase = erase_mode;
     nrfy_mramc_config_set(NRF_MRAMC, &config);
 }
 
-static nrfx_err_t mramc_configure(nrfx_mramc_config_t const * p_config)
+void nrfx_mramc_confignvr_perm_set(bool enable, uint8_t page)
+{
+    static nrf_mramc_readynext_timeout_t prev_readynext_timeout;
+
+    if (enable)
+    {
+        /* Save previous readynext timeout value */
+        nrfy_mramc_readynext_timeout_get(NRF_MRAMC, &prev_readynext_timeout);
+        nrf_mramc_readynext_timeout_t readynext_timeout = {
+            .value        = NRF_MRAMC_READYNEXTTIMEOUT_DEFAULT,
+            .direct_write = true,
+        };
+        nrfy_mramc_readynext_timeout_set(NRF_MRAMC, &readynext_timeout);
+    }
+    else
+    {
+        nrfy_mramc_readynext_timeout_set(NRF_MRAMC, &prev_readynext_timeout);
+    }
+
+    nrfy_mramc_confignvr_perm_set(NRF_MRAMC, enable, page);
+}
+
+static void mramc_configure(nrfx_mramc_config_t const * p_config)
 {
     nrfy_mramc_config_t nrfy_config = {
         .config = {
@@ -181,26 +196,29 @@ static nrfx_err_t mramc_configure(nrfx_mramc_config_t const * p_config)
             .power_down_cfg = p_config->powerdown.power_down_cfg,
             .timeout_value  = p_config->powerdown.timeout_value,
         },
+        .lowavgcurr = {
+            .read           = p_config->lowavgcurr.read,
+            .write          = p_config->lowavgcurr.write,
+            .erase          = p_config->lowavgcurr.erase,
+        },
     };
     nrfy_mramc_configure(NRF_MRAMC, &nrfy_config);
     if (m_cb.handler)
     {
         nrfy_mramc_int_init(NRF_MRAMC, NRF_MRAMC_ALL_INTS_MASK, p_config->irq_priority, true);
     }
-
-    return NRFX_SUCCESS;
 }
 
-nrfx_err_t nrfx_mramc_init(nrfx_mramc_config_t const * p_config,
-                           nrfx_mramc_evt_handler_t    handler)
+int nrfx_mramc_init(nrfx_mramc_config_t const * p_config,
+                    nrfx_mramc_evt_handler_t    handler)
 {
     NRFX_ASSERT(p_config);
 
-    nrfx_err_t err_code = NRFX_SUCCESS;
+    int err_code = 0;
 
     if (m_cb.state != NRFX_DRV_STATE_UNINITIALIZED)
     {
-        err_code = NRFX_ERROR_ALREADY;
+        err_code = -EALREADY;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
@@ -209,33 +227,33 @@ nrfx_err_t nrfx_mramc_init(nrfx_mramc_config_t const * p_config,
 
     m_cb.handler = handler;
 
-    err_code = mramc_configure(p_config);
-    if (err_code != NRFX_SUCCESS)
-    {
-        return err_code;
-    }
+    mramc_configure(p_config);
 
     m_cb.state = NRFX_DRV_STATE_INITIALIZED;
 
-    NRFX_LOG_INFO("Function: %s, error code: %s.", __func__, NRFX_LOG_ERROR_STRING_GET(err_code));
+    NRFX_LOG_INFO("Function: %s, error code: %s.",
+                  __func__,
+                  NRFX_LOG_ERROR_STRING_GET(err_code));
     return err_code;
 }
 
-nrfx_err_t nrfx_mramc_reconfigure(nrfx_mramc_config_t const * p_config)
+int nrfx_mramc_reconfigure(nrfx_mramc_config_t const * p_config)
 {
     NRFX_ASSERT(p_config);
-    nrfx_err_t err_code;
+    int err_code;
 
     if (m_cb.state == NRFX_DRV_STATE_UNINITIALIZED)
     {
-        err_code = NRFX_ERROR_INVALID_STATE;
+        err_code = -EINPROGRESS;
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
                          __func__,
                          NRFX_LOG_ERROR_STRING_GET(err_code));
         return err_code;
     }
 
-    return mramc_configure(p_config);
+    mramc_configure(p_config);
+
+    return 0;
 }
 
 void nrfx_mramc_uninit(void)
@@ -311,5 +329,3 @@ void nrfx_mramc_irq_handler(void)
         m_cb.handler(NRF_MRAMC_EVENT_ACCESSERR);
     }
 }
-
-#endif // NRFX_CHECK(NRFX_MRAMC_ENABLED)

@@ -46,6 +46,7 @@ extern "C" {
  * @{
  * @ingroup nrf_vpr
  * @brief   Hardware access layer with cache and barrier support for managing the VPR peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 /** @refhal{nrf_vpr_task_trigger} */

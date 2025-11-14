@@ -35,17 +35,15 @@
 #define NRF_SPIM_H__
 
 #include <nrfx.h>
-#include <nrf_erratas.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if defined(NRF54H20_XXAA) || defined(NRF92_SERIES)
+#if defined(SPIM_CLOCKPIN_MOSI_NEEDED)
 #define NRF_SPIM_CLOCKPIN_MOSI_NEEDED 1
 #endif
-
-#if defined(HALTIUM_XXAA)
+#if defined(SPIM_CLOCKPIN_SCK_NEEDED)
 #define NRF_SPIM_CLOCKPIN_SCK_NEEDED 1
 #endif
 
@@ -186,7 +184,7 @@ extern "C" {
  *        function to specify that a given SPI signal (SCK, MOSI, or MISO)
  *        shall not be connected to a physical pin.
  */
-#define NRF_SPIM_PIN_NOT_CONNECTED  0xFFFFFFFF
+#define NRF_SPIM_PIN_NOT_CONNECTED UINT32_MAX 
 
 #if NRF_SPIM_HAS_DMA_TASKS_EVENTS
 /** @brief Max number of RX patterns. */
@@ -197,8 +195,6 @@ extern "C" {
 #if defined(SPIM_PSEL_DCX_ResetValue) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol specifying default value of DCX pin setting. */
 #define NRF_SPIM_DCX_DEFAULT SPIM_PSEL_DCX_ResetValue
-#else
-#define NRF_SPIM_DCX_DEFAULT 0xFFFFFFFFUL
 #endif
 #endif // NRF_SPIM_HAS_DCX
 
@@ -206,22 +202,16 @@ extern "C" {
 #if defined(SPIM_PSEL_CSN_ResetValue) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol specifying default value of CSN pin setting. */
 #define NRF_SPIM_CSN_DEFAULT SPIM_PSEL_CSN_ResetValue
-#else
-#define NRF_SPIM_CSN_DEFAULT 0xFFFFFFFFUL
 #endif
 
-#if defined(SPIM_CSNDUR_ResetValue) || defined(__NRFX_DOXYGEN__)
+#if defined(SPIM_IFTIMING_CSNDUR_ResetValue) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol specifying default value of CSN duration setting. */
-#define NRF_SPIM_CSNDUR_DEFAULT SPIM_CSNDUR_ResetValue
-#else
-#define NRF_SPIM_CSNDUR_DEFAULT 0x2UL
+#define NRF_SPIM_CSNDUR_DEFAULT SPIM_IFTIMING_CSNDUR_ResetValue
 #endif
 
 #if defined(SPIM_CSNPOL_ResetValue) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol specifying default value of CSN polarity setting. */
 #define NRF_SPIM_CSNPOL_DEFAULT SPIM_CSNPOL_ResetValue
-#else
-#define NRF_SPIM_CSNPOL_DEFAULT 0x0UL
 #endif
 #endif // NRF_SPIM_HAS_HW_CSN
 
@@ -229,10 +219,14 @@ extern "C" {
 #if defined(SPIM_IFTIMING_RXDELAY_ResetValue) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol specifying default value of RX delay setting. */
 #define NRF_SPIM_RXDELAY_DEFAULT SPIM_IFTIMING_RXDELAY_ResetValue
-#else
-#define NRF_SPIM_RXDELAY_DEFAULT 0x2UL
 #endif
 #endif // NRF_SPIM_HAS_RXDELAY
+
+/** @brief SPIM should force H0H1 drive on pins. */
+#define NRF_SPIM_FORCE_H0H1 SPIM_FORCE_H0H1
+
+/** @brief SPIM should check disable on end of transfer. */
+#define NRF_SPIM_CHECK_DISABLE_ON_XFER_END SPIM_CHECK_DISABLE_ON_XFER_END
 
 /** @brief Minimal SPIM frequency in Hz. */
 #define NRF_SPIM_MIN_FREQUENCY (NRFX_KHZ_TO_HZ(125UL))
@@ -1306,8 +1300,7 @@ NRF_STATIC_INLINE void nrf_spim_enable(NRF_SPIM_Type * p_reg)
 
 NRF_STATIC_INLINE void nrf_spim_disable(NRF_SPIM_Type * p_reg)
 {
-#if NRF52_ERRATA_89_ENABLE_WORKAROUND
-    if (nrf52_errata_89())
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 89))
     {
         uint32_t temp1 = *(volatile uint32_t *)((uint8_t *)p_reg + 0x508UL);
         uint32_t temp2 = *(volatile uint32_t *)((uint8_t *)p_reg + 0x50CUL);
@@ -1322,7 +1315,6 @@ NRF_STATIC_INLINE void nrf_spim_disable(NRF_SPIM_Type * p_reg)
         *(volatile uint32_t *)((uint8_t *)p_reg + 0x50C) = temp2;
     }
     else
-#endif
     {
         p_reg->ENABLE = (SPIM_ENABLE_ENABLE_Disabled << SPIM_ENABLE_ENABLE_Pos);
     }

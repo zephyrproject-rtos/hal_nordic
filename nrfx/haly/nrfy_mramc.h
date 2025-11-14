@@ -65,6 +65,7 @@ NRFY_STATIC_INLINE void __nrfy_internal_mramc_word_write(uint32_t addr, uint32_t
  * @{
  * @ingroup nrf_mramc
  * @brief   Hardware access layer with cache and barrier support for managing the MRAMC peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 /** @brief Value representing how many bits in a byte. */
@@ -98,12 +99,28 @@ NRF_MRAMC_BUS_SIZE / (NRFY_MRAMC_BITS_IN_BYTE * NRFY_MRAMC_BYTES_IN_WORD)
 #define NRFY_MRAMC_HAS_POWER_MASK 0
 #endif
 
+#if NRF_MRAMC_HAS_CONFIGNVR_PAGE_UPPER_PROTECT || defined(__NRFX_DOXYGEN__)
+/** @refhal{NRF_MRAMC_HAS_CONFIGNVR_PAGE_UPPER_PROTECT} */
+#define NRFY_MRAMC_HAS_CONFIGNVR_PAGE_UPPER_PROTECT 1
+#else
+#define NRFY_MRAMC_HAS_CONFIGNVR_PAGE_UPPER_PROTECT 0
+#endif
+
+#if NRF_MRAMC_HAS_CONFIGNVR_PAGE_LOWER_PROTECT || defined(__NRFX_DOXYGEN__)
+/** @refhal{NRF_MRAMC_HAS_CONFIGNVR_PAGE_LOWER_PROTECT} */
+#define NRFY_MRAMC_HAS_CONFIGNVR_PAGE_LOWER_PROTECT 1
+#else
+#define NRFY_MRAMC_HAS_CONFIGNVR_PAGE_LOWER_PROTECT 0
+#endif
+
 /** @brief MRAMC configuration structure. */
 typedef struct
 {
     nrf_mramc_config_t              config;          ///< Mode of MRAMC configuration.
     nrf_mramc_readynext_timeout_t   preload_timeout; ///< Ready next timeout value for waiting for a next write.
     nrf_mramc_power_autopowerdown_t powerdown;       ///< MRAMC powerdown configuration.
+    nrf_mramc_lowavgcurr_t          lowavgcurr;      ///< Preload timeout value for low average current
+                                                     ///  in case of read, write, and erase.
 } nrfy_mramc_config_t;
 
 /**
@@ -118,6 +135,7 @@ NRFY_STATIC_INLINE void nrfy_mramc_configure(NRF_MRAMC_Type *            p_reg,
     __nrfy_internal_mramc_config_set(p_reg, &p_config->config);
     nrf_mramc_readynext_timeout_set(p_reg, &p_config->preload_timeout);
     nrf_mramc_power_init_set(p_reg, NRF_MRAMC_POWER_INIT_MODE_UP);
+    nrf_mramc_lowavgcurr_set(p_reg, &p_config->lowavgcurr);
     nrf_barrier_w();
 }
 
@@ -302,6 +320,38 @@ NRFY_STATIC_INLINE uint32_t nrfy_mramc_otp_word_read(uint32_t index)
 #else
     return UINT32_MAX;
 #endif
+}
+
+/**
+ * @brief Function for setting CONFIGNVR read and write permission.
+ *
+ * @param[in] p_reg  Pointer to the structure of registers of the peripheral.
+ * @param[in] enable True to enable write and erase permission of
+ *                   CONFIGNVR.PAGE[n], false to disable.
+ * @param[in] page   Page number [0...n].
+ */
+NRFY_STATIC_INLINE void nrfy_mramc_confignvr_perm_set(NRF_MRAMC_Type * p_reg,
+                                                      bool             enable,
+                                                      uint8_t          page)
+{
+    nrf_mramc_config_nvr_t config_nvr = {
+        .wen    = enable ? NRF_MRAMC_MODE_WRITE_DIRECT : NRF_MRAMC_MODE_WRITE_DISABLE,
+        .een    = enable ? NRF_MRAMC_MODE_ERASE_WORD   : NRF_MRAMC_MODE_ERASE_DISABLE,
+        .lock   = false,
+#if NRFY_MRAMC_HAS_CONFIGNVR_PAGE_UPPER_PROTECT
+        .uren   = enable,
+        .uwen   = enable,
+#endif
+#if NRFY_MRAMC_HAS_CONFIGNVR_PAGE_LOWER_PROTECT
+        .lren   = enable,
+        .lwen   = enable,
+        .lrsize = (uint8_t) (enable ? NRF_MRAMC_CONFIGNVR_PAGE_LRSIZE_MAX :
+                            NRF_MRAMC_CONFIGNVR_PAGE_LRSIZE_MIN),
+        .lwsize = (uint8_t) (enable ? NRF_MRAMC_CONFIGNVR_PAGE_LWSIZE_MAX :
+                            NRF_MRAMC_CONFIGNVR_PAGE_LWSIZE_MIN),
+#endif
+    };
+    nrf_mramc_config_nvr_set(p_reg, &config_nvr, page);
 }
 
 /** @refhal{nrf_mramc_event_clear} */

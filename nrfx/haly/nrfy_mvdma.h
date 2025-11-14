@@ -67,14 +67,8 @@ NRFY_STATIC_INLINE uint32_t __nrfy_internal_mvdma_sink_job_count_get(NRF_MVDMA_T
  * @{
  * @ingroup nrf_mvdma
  * @brief   Hardware access layer with cache and barrier support for managing the MVDMA peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
-
-#if NRF_MVDMA_HAS_NEW_VER || defined(__NRFX_DOXYGEN__)
-/** @refhal{NRF_MVDMA_HAS_NEW_VER} */
-#define NRFY_MVDMA_HAS_NEW_VER 1
-#else
-#define NRFY_MVDMA_HAS_NEW_VER 0
-#endif
 
 #if NRF_MVDMA_HAS_AXIMODE || defined(__NRFX_DOXYGEN__)
 /** @refhal{NRF_MVDMA_HAS_AXIMODE} */
@@ -124,17 +118,11 @@ NRFY_STATIC_INLINE void nrfy_mvdma_int_init(NRF_MVDMA_Type * p_reg,
     __nrfy_internal_mvdma_event_enabled_clear(p_reg, mask, NRF_MVDMA_EVENT_END);
     __nrfy_internal_mvdma_event_enabled_clear(p_reg, mask, NRF_MVDMA_EVENT_RESET);
     __nrfy_internal_mvdma_event_enabled_clear(p_reg, mask, NRF_MVDMA_EVENT_STARTED);
-#if NRFY_MVDMA_HAS_NEW_VER
     __nrfy_internal_mvdma_event_enabled_clear(p_reg, mask, NRF_MVDMA_EVENT_PAUSED);
-#else
-    __nrfy_internal_mvdma_event_enabled_clear(p_reg, mask, NRF_MVDMA_EVENT_STOPPED);
-#endif
     __nrfy_internal_mvdma_event_enabled_clear(p_reg, mask, NRF_MVDMA_EVENT_SINKBUSERROR);
     __nrfy_internal_mvdma_event_enabled_clear(p_reg, mask, NRF_MVDMA_EVENT_SOURCEBUSERROR);
-#if NRFY_MVDMA_HAS_NEW_VER
     __nrfy_internal_mvdma_event_enabled_clear(p_reg, mask, NRF_MVDMA_EVENT_SINKSELECTJOBDONE);
     __nrfy_internal_mvdma_event_enabled_clear(p_reg, mask, NRF_MVDMA_EVENT_SOURCESELECTJOBDONE);
-#endif
     nrf_barrier_w();
 
     NRFX_IRQ_PRIORITY_SET(nrfx_get_irq_number(p_reg), irq_priority);
@@ -310,20 +298,12 @@ NRFY_STATIC_INLINE void nrfy_mvdma_reset(NRF_MVDMA_Type * p_reg,
 NRFY_STATIC_INLINE void nrfy_mvdma_abort(NRF_MVDMA_Type *                  p_reg,
                                          nrfy_mvdma_list_request_t const * p_list_request)
 {
-#if NRF_MVDMA_HAS_NEW_VER
     nrf_mvdma_task_trigger(p_reg, NRF_MVDMA_TASK_PAUSE);
-#else
-    nrf_mvdma_task_trigger(p_reg, NRF_MVDMA_TASK_STOP);
-#endif
 
     if (p_list_request)
     {
         nrf_barrier_w();
-#if NRF_MVDMA_HAS_NEW_VER
         uint32_t evt_mask = NRFY_EVENT_TO_INT_BITMASK(NRF_MVDMA_EVENT_PAUSED);
-#else
-        uint32_t evt_mask = NRFY_EVENT_TO_INT_BITMASK(NRF_MVDMA_EVENT_STOPPED);
-#endif
         while (!__nrfy_internal_mvdma_events_process(p_reg, evt_mask, p_list_request))
         {}
     }
@@ -647,7 +627,6 @@ uint32_t __nrfy_internal_mvdma_events_process(NRF_MVDMA_Type *                  
                                              mask,
                                              NRF_MVDMA_EVENT_SOURCEBUSERROR,
                                              &evt_mask);
-#if NRF_MVDMA_HAS_NEW_VER
     (void)__nrfy_internal_mvdma_event_handle(p_reg,
                                              mask,
                                              NRF_MVDMA_EVENT_SINKSELECTJOBDONE,
@@ -656,15 +635,10 @@ uint32_t __nrfy_internal_mvdma_events_process(NRF_MVDMA_Type *                  
                                              mask,
                                              NRF_MVDMA_EVENT_SOURCESELECTJOBDONE,
                                              &evt_mask);
-#endif
 
     bool invalidated = false;
 
-#if NRF_MVDMA_HAS_NEW_VER
     if (__nrfy_internal_mvdma_event_handle(p_reg, mask, NRF_MVDMA_EVENT_PAUSED, &evt_mask))
-#else
-    if (__nrfy_internal_mvdma_event_handle(p_reg, mask, NRF_MVDMA_EVENT_STOPPED, &evt_mask))
-#endif
     {
         size_t job_count = __nrfy_internal_mvdma_sink_job_count_get(p_reg);
         for (size_t i = 0; i < job_count; i++)

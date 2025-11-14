@@ -46,6 +46,7 @@ extern "C" {
  * @{
  * @ingroup nrf_gpio
  * @brief   Hardware access layer with cache and barrier support for managing the GPIO peripheral.
+ * @note    Extended Hardware Access Layer (HALY) is deprecated.
  */
 
 /** @refhal{nrf_gpio_range_cfg_output} */

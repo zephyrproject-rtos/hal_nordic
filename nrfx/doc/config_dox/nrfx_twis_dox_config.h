@@ -4,29 +4,13 @@
  * @{
  * @ingroup nrfx_twis
  */
-/** @brief 
+/** @brief
  *
  *  Set to 1 to activate.
  *
  * @note This is an NRF_CONFIG macro.
  */
 #define NRFX_TWIS_ENABLED
-
-/** @brief Enable TWIS0 instance
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_TWIS0_ENABLED
-
-/** @brief Enable TWIS1 instance
- *
- *  Set to 1 to activate.
- *
- * @note This is an NRF_CONFIG macro.
- */
-#define NRFX_TWIS1_ENABLED
 
 /** @brief Assume that any instance would be initialized only once
  *

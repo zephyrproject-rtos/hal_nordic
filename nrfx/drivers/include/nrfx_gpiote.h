@@ -42,10 +42,14 @@
 extern "C" {
 #endif
 
-/* On devices with single instance (with no ID) use instance 0. */
-#if defined(NRF_GPIOTE) && defined(NRFX_GPIOTE_ENABLED) && !defined(NRFX_GPIOTE0_ENABLED)
-#define NRFX_GPIOTE0_ENABLED 1
+#ifndef NRFX_GPIOTE_CONFIG_NUM_OF_EVT_HANDLERS
+#define NRFX_GPIOTE_CONFIG_NUM_OF_EVT_HANDLERS 1
 #endif
+
+enum {
+    /* List all potential driver instances (in the format NRFX_\<instance_name\>_INST_IDX). */
+    NRFX_INSTANCE_PRESENT_ENUM_LIST(GPIOTE)
+};
 
 /**
  * @defgroup nrfx_gpiote GPIOTE driver
@@ -53,28 +57,6 @@ extern "C" {
  * @ingroup nrf_gpiote
  * @brief   GPIO Task Event (GPIOTE) peripheral driver.
  */
-
-/** @brief Data structure of the GPIO tasks and events (GPIOTE) driver instance. */
-typedef struct
-{
-    NRF_GPIOTE_Type * p_reg;        ///< Pointer to a structure containing GPIOTE registers.
-    uint8_t           drv_inst_idx; ///< Index of the driver instance. For internal use only.
-} nrfx_gpiote_t;
-
-#ifndef __NRFX_DOXYGEN__
-enum {
-    /* List all enabled driver instances (in the format NRFX_\<instance_name\>_INST_IDX). */
-    NRFX_INSTANCE_ENUM_LIST(GPIOTE)
-    NRFX_GPIOTE_ENABLED_COUNT
-};
-#endif
-
-/** @brief Macro for creating an instance of the GPIOTE driver. */
-#define NRFX_GPIOTE_INSTANCE(id)                             \
-{                                                            \
-    .p_reg        = NRFX_CONCAT(NRF_, GPIOTE, id),           \
-    .drv_inst_idx = NRFX_CONCAT(NRFX_GPIOTE, id, _INST_IDX), \
-}
 
 /** @brief Pin. */
 typedef uint32_t nrfx_gpiote_pin_t;
@@ -101,6 +83,46 @@ typedef enum
 typedef void (*nrfx_gpiote_interrupt_handler_t)(nrfx_gpiote_pin_t     pin,
                                                 nrfx_gpiote_trigger_t trigger,
                                                 void *                p_context);
+
+/** @brief Structure for configuring a pin interrupt handler. */
+typedef struct
+{
+    nrfx_gpiote_interrupt_handler_t handler;   ///< User handler.
+    void *                          p_context; ///< Context passed to the event handler.
+} nrfx_gpiote_handler_config_t;
+
+/** @cond Driver internal data. */
+typedef struct
+{
+    nrfx_gpiote_handler_config_t handlers[NRFX_GPIOTE_CONFIG_NUM_OF_EVT_HANDLERS];
+    nrfx_gpiote_handler_config_t global_handler;
+    uint16_t                     pin_flags[NRF_GPIO_MAX_PIN_NUMBER];
+    uint32_t                     channels_number;
+    nrfx_atomic_t                available_evt_handlers;
+    uint16_t                     ch_pin[GPIOTE_CH_NUM];
+#if !defined(NRF_GPIO_LATCH_PRESENT)
+    uint32_t                     port_pins[GPIO_COUNT];
+#endif
+    nrfx_drv_state_t             state;
+    uint8_t                      drv_inst_idx;
+} nrfx_gpiote_control_block_t;
+/** @endcond */
+
+/** @brief Data structure of the GPIO tasks and events (GPIOTE) driver instance. */
+typedef struct
+{
+    NRF_GPIOTE_Type *           p_reg; ///< Pointer to a structure containing GPIOTE registers.
+    nrfx_gpiote_control_block_t cb;    ///< Driver internal data.
+} nrfx_gpiote_t;
+
+/** @brief Macro for creating an instance of the GPIOTE driver. */
+#define NRFX_GPIOTE_INSTANCE(reg)                         \
+{                                                         \
+    .p_reg = (NRF_GPIOTE_Type *)reg,                      \
+    .cb = {                                               \
+        .drv_inst_idx = NRFX_REG_TO_INSTANCE(GPIOTE, reg) \
+    }                                                     \
+}
 
 /** @brief Structure for configuring a GPIOTE task. */
 typedef struct
@@ -135,19 +157,6 @@ typedef struct
                                          *   only edge triggering can be used. */
 } nrfx_gpiote_trigger_config_t;
 
-/** @brief Structure for configuring a pin interrupt handler. */
-typedef struct
-{
-    nrfx_gpiote_interrupt_handler_t handler;   ///< User handler.
-    void *                          p_context; ///< Context passed to the event handler.
-} nrfx_gpiote_handler_config_t;
-
-/** @brief @deprecated Structure for configuring an input pin. */
-typedef struct
-{
-    nrf_gpio_pin_pull_t pull; ///< Pull configuration.
-} nrfx_gpiote_input_config_t;
-
 /** @brief Structure for configuring an input pin. */
 typedef struct
 {
@@ -174,15 +183,6 @@ typedef struct
              ~(NRFX_CONCAT_3(NRFX_GPIOTE, idx, _CHANNELS_USED)))
 
 /**
- * @brief Macro returning GPIOTE interrupt handler.
- *
- * @param[in] idx GPIOTE index.
- *
- * @return Interrupt handler.
- */
-#define NRFX_GPIOTE_INST_HANDLER_GET(idx) NRFX_CONCAT_3(nrfx_gpiote_, idx, _irq_handler)
-
-/**
  * @brief Function for checking if a GPIOTE input pin is set.
  *
  * @param[in] pin Pin.
@@ -191,8 +191,6 @@ typedef struct
  * @retval false The input pin is not set.
  */
 bool nrfx_gpiote_in_is_set(nrfx_gpiote_pin_t pin);
-
-#if NRFX_API_VER_AT_LEAST(3, 2, 0) || defined(__NRFX_DOXYGEN__)
 
 /** @brief Input pin pull default configuration. */
 #define NRFX_GPIOTE_DEFAULT_PULL_CONFIG NRF_GPIO_PIN_NOPULL
@@ -203,12 +201,10 @@ bool nrfx_gpiote_in_is_set(nrfx_gpiote_pin_t pin);
  * @param[in] p_instance         Pointer to the driver instance structure.
  * @param[in] interrupt_priority Interrupt priority.
  *
- * @retval NRFX_SUCCESS             Initialization was successful.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
+ * @retval 0         Initialization was successful.
+ * @retval -EALREADY The driver is already initialized.
  */
-nrfx_err_t nrfx_gpiote_init(nrfx_gpiote_t const * p_instance, uint8_t interrupt_priority);
+int nrfx_gpiote_init(nrfx_gpiote_t * p_instance, uint8_t interrupt_priority);
 
 /**
  * @brief Function for checking if the GPIOTE driver instance is initialized.
@@ -228,7 +224,7 @@ bool nrfx_gpiote_init_check(nrfx_gpiote_t const * p_instance);
  *
  * @param[in] p_instance Pointer to the driver instance structure.
  */
-void nrfx_gpiote_uninit(nrfx_gpiote_t const * p_instance);
+void nrfx_gpiote_uninit(nrfx_gpiote_t * p_instance);
 
 /**
  * @brief Function for allocating a GPIOTE channel.
@@ -243,10 +239,10 @@ void nrfx_gpiote_uninit(nrfx_gpiote_t const * p_instance);
  * @param[in]  p_instance Pointer to the driver instance structure.
  * @param[out] p_channel  Pointer to the GPIOTE channel that has been allocated.
  *
- * @retval NRFX_SUCCESS      The channel was successfully allocated.
- * @retval NRFX_ERROR_NO_MEM There is no available channel to be used.
+ * @retval 0       The channel was successfully allocated.
+ * @retval -ENOMEM There is no available channel to be used.
  */
-nrfx_err_t nrfx_gpiote_channel_alloc(nrfx_gpiote_t const * p_instance, uint8_t * p_channel);
+int nrfx_gpiote_channel_alloc(nrfx_gpiote_t * p_instance, uint8_t * p_channel);
 
 /**
  * @brief Function for freeing a GPIOTE channel.
@@ -261,10 +257,10 @@ nrfx_err_t nrfx_gpiote_channel_alloc(nrfx_gpiote_t const * p_instance, uint8_t *
  * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] channel    GPIOTE channel to be freed.
  *
- * @retval NRFX_SUCCESS             The channel was successfully freed.
- * @retval NRFX_ERROR_INVALID_PARAM The channel is not user-configurable.
+ * @retval 0       The channel was successfully freed.
+ * @retval -EINVAL The channel is not user-configurable.
  */
-nrfx_err_t nrfx_gpiote_channel_free(nrfx_gpiote_t const * p_instance, uint8_t channel);
+int nrfx_gpiote_channel_free(nrfx_gpiote_t * p_instance, uint8_t channel);
 
 /**
  * @brief Function for configuring the specified input pin and input event/interrupt.
@@ -290,12 +286,12 @@ nrfx_err_t nrfx_gpiote_channel_free(nrfx_gpiote_t const * p_instance, uint8_t ch
  * @param[in] pin        Absolute pin number.
  * @param[in] p_config   Pointer to the structure with input pin configuration.
  *
- * @retval NRFX_SUCCESS             Configuration was successful.
- * @retval NRFX_ERROR_INVALID_PARAM Invalid configuration.
+ * @retval 0       Configuration was successful.
+ * @retval -EINVAL Invalid configuration.
  */
-nrfx_err_t nrfx_gpiote_input_configure(nrfx_gpiote_t const *                  p_instance,
-                                       nrfx_gpiote_pin_t                      pin,
-                                       nrfx_gpiote_input_pin_config_t const * p_config);
+int nrfx_gpiote_input_configure(nrfx_gpiote_t *                        p_instance,
+                                nrfx_gpiote_pin_t                      pin,
+                                nrfx_gpiote_input_pin_config_t const * p_config);
 
 /**
  * @brief Function for configuring the specified output pin to be used by the driver.
@@ -317,13 +313,13 @@ nrfx_err_t nrfx_gpiote_input_configure(nrfx_gpiote_t const *                  p_
  * @param[in] p_config      Pin configuration. If NULL pin configuration is not applied.
  * @param[in] p_task_config GPIOTE task configuration. If NULL task is not used.
  *
- * @retval NRFX_SUCCESS             Configuration was successful.
- * @retval NRFX_ERROR_INVALID_PARAM Invalid configuration.
+ * @retval 0       Configuration was successful.
+ * @retval -EINVAL Invalid configuration.
  */
-nrfx_err_t nrfx_gpiote_output_configure(nrfx_gpiote_t const *               p_instance,
-                                        nrfx_gpiote_pin_t                   pin,
-                                        nrfx_gpiote_output_config_t const * p_config,
-                                        nrfx_gpiote_task_config_t const *   p_task_config);
+int nrfx_gpiote_output_configure(nrfx_gpiote_t *                     p_instance,
+                                 nrfx_gpiote_pin_t                   pin,
+                                 nrfx_gpiote_output_config_t const * p_config,
+                                 nrfx_gpiote_task_config_t const *   p_task_config);
 
 /**
  * @brief Function for deinitializing the specified pin.
@@ -335,10 +331,10 @@ nrfx_err_t nrfx_gpiote_output_configure(nrfx_gpiote_t const *               p_in
  * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] pin        Absolute pin number.
  *
- * @retval NRFX_SUCCESS             Uninitialization was successful.
- * @retval NRFX_ERROR_INVALID_PARAM Pin not used by the driver.
+ * @retval 0       Uninitialization was successful.
+ * @retval -EINVAL Pin not used by the driver.
  */
-nrfx_err_t nrfx_gpiote_pin_uninit(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pin_t pin);
+int nrfx_gpiote_pin_uninit(nrfx_gpiote_t * p_instance, nrfx_gpiote_pin_t pin);
 
 /**
  * @brief Function for enabling trigger for the given pin.
@@ -369,7 +365,7 @@ void nrfx_gpiote_trigger_disable(nrfx_gpiote_t const * p_instance, nrfx_gpiote_p
  * @param[in] handler    Global handler. Can be NULL.
  * @param[in] p_context  Context passed to the handler.
  */
-void nrfx_gpiote_global_callback_set(nrfx_gpiote_t const *           p_instance,
+void nrfx_gpiote_global_callback_set(nrfx_gpiote_t *                 p_instance,
                                      nrfx_gpiote_interrupt_handler_t handler,
                                      void *                          p_context);
 
@@ -380,12 +376,12 @@ void nrfx_gpiote_global_callback_set(nrfx_gpiote_t const *           p_instance,
  * @param[in]  pin        Absolute pin number.
  * @param[out] p_channel  Location to write the channel index.
  *
- * @retval NRFX_SUCCESS             Channel successfully written.
- * @retval NRFX_ERROR_INVALID_PARAM Pin is not configured or not using Task or Event.
+ * @retval 0       Channel successfully written.
+ * @retval -EINVAL Pin is not configured or not using Task or Event.
  */
-nrfx_err_t nrfx_gpiote_channel_get(nrfx_gpiote_t const * p_instance,
-                                   nrfx_gpiote_pin_t     pin,
-                                   uint8_t *             p_channel);
+int nrfx_gpiote_channel_get(nrfx_gpiote_t const * p_instance,
+                            nrfx_gpiote_pin_t     pin,
+                            uint8_t *             p_channel);
 
 /**
  * @brief Function for retrieving number of channels for specified GPIOTE instance.
@@ -598,6 +594,13 @@ NRFX_STATIC_INLINE void nrfx_gpiote_latency_set(nrfx_gpiote_t const * p_instance
 NRFX_STATIC_INLINE nrf_gpiote_latency_t nrfx_gpiote_latency_get(nrfx_gpiote_t const * p_instance);
 #endif
 
+/**
+ * @brief Driver interrupt handler.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ */
+void nrfx_gpiote_irq_handler(nrfx_gpiote_t * p_instance);
+
 #ifndef NRFX_DECLARE_ONLY
 
 #if NRF_GPIOTE_HAS_LATENCY
@@ -615,140 +618,7 @@ NRFX_STATIC_INLINE nrf_gpiote_latency_t nrfx_gpiote_latency_get(nrfx_gpiote_t co
 
 #endif // NRFX_DECLARE_ONLY
 
-#else
-
-#if !defined(NRF_GPIOTE_INDEX)
-/* Choose the instance to use in case of using deprecated single-instance driver variant. */
-#if defined(HALTIUM_XXAA)
-#define NRF_GPIOTE_INDEX 130
-#elif defined(LUMOS_XXAA)
-#define NRF_GPIOTE_INDEX 20
-#elif (defined(NRF5340_XXAA_APPLICATION) || defined(NRF91_SERIES)) && \
-      defined(NRF_TRUSTZONE_NONSECURE)
-#define NRF_GPIOTE_INDEX 1
-#else
-#define NRF_GPIOTE_INDEX 0
-#endif
-#endif
-
-#if !defined(nrfx_gpiote_irq_handler)
-#define nrfx_gpiote_irq_handler NRFX_CONCAT(nrfx_gpiote_, NRF_GPIOTE_INDEX, _irq_handler)
-#endif
-
-#define NRFX_GPIOTE_DEFAULT_INPUT_CONFIG \
-{                                        \
-    .pull = NRF_GPIO_PIN_NOPULL          \
-}
-
-nrfx_err_t nrfx_gpiote_init(uint8_t interrupt_priority);
-
-bool nrfx_gpiote_is_init(void);
-
-void nrfx_gpiote_uninit(void);
-
-nrfx_err_t nrfx_gpiote_channel_alloc(uint8_t * p_channel);
-
-nrfx_err_t nrfx_gpiote_channel_free(uint8_t channel);
-
-nrfx_err_t nrfx_gpiote_input_configure(nrfx_gpiote_pin_t                    pin,
-                                       nrfx_gpiote_input_config_t const *   p_input_config,
-                                       nrfx_gpiote_trigger_config_t const * p_trigger_config,
-                                       nrfx_gpiote_handler_config_t const * p_handler_config);
-
-nrfx_err_t nrfx_gpiote_output_configure(nrfx_gpiote_pin_t                   pin,
-                                        nrfx_gpiote_output_config_t const * p_config,
-                                        nrfx_gpiote_task_config_t const *   p_task_config);
-
-nrfx_err_t nrfx_gpiote_pin_uninit(nrfx_gpiote_pin_t pin);
-
-void nrfx_gpiote_trigger_enable(nrfx_gpiote_pin_t pin, bool int_enable);
-
-void nrfx_gpiote_trigger_disable(nrfx_gpiote_pin_t pin);
-
-void nrfx_gpiote_global_callback_set(nrfx_gpiote_interrupt_handler_t handler,
-                                     void *                          p_context);
-
-nrfx_err_t nrfx_gpiote_channel_get(nrfx_gpiote_pin_t pin, uint8_t *p_channel);
-
-void nrfx_gpiote_out_set(nrfx_gpiote_pin_t pin);
-
-void nrfx_gpiote_out_clear(nrfx_gpiote_pin_t pin);
-
-void nrfx_gpiote_out_toggle(nrfx_gpiote_pin_t pin);
-
-void nrfx_gpiote_out_task_enable(nrfx_gpiote_pin_t pin);
-
-void nrfx_gpiote_out_task_disable(nrfx_gpiote_pin_t pin);
-
-nrf_gpiote_task_t nrfx_gpiote_out_task_get(nrfx_gpiote_pin_t pin);
-
-uint32_t nrfx_gpiote_out_task_address_get(nrfx_gpiote_pin_t pin);
-
-#if defined(GPIOTE_FEATURE_SET_PRESENT)
-nrf_gpiote_task_t nrfx_gpiote_set_task_get(nrfx_gpiote_pin_t pin);
-
-uint32_t nrfx_gpiote_set_task_address_get(nrfx_gpiote_pin_t pin);
-#endif
-
-#if defined(GPIOTE_FEATURE_CLR_PRESENT)
-nrf_gpiote_task_t nrfx_gpiote_clr_task_get(nrfx_gpiote_pin_t pin);
-
-uint32_t nrfx_gpiote_clr_task_address_get(nrfx_gpiote_pin_t pin);
-#endif
-
-nrf_gpiote_event_t nrfx_gpiote_in_event_get(nrfx_gpiote_pin_t pin);
-
-uint32_t nrfx_gpiote_in_event_address_get(nrfx_gpiote_pin_t pin);
-
-void nrfx_gpiote_out_task_force(nrfx_gpiote_pin_t pin, uint8_t state);
-
-void nrfx_gpiote_out_task_trigger(nrfx_gpiote_pin_t pin);
-
-#if defined(GPIOTE_FEATURE_SET_PRESENT)
-void nrfx_gpiote_set_task_trigger(nrfx_gpiote_pin_t pin);
-#endif
-
-#if defined(GPIOTE_FEATURE_CLR_PRESENT)
-void nrfx_gpiote_clr_task_trigger(nrfx_gpiote_pin_t pin);
-#endif
-
-#if NRF_GPIOTE_HAS_LATENCY
-NRFX_STATIC_INLINE void nrfx_gpiote_latency_set(nrf_gpiote_latency_t latency);
-
-NRFX_STATIC_INLINE nrf_gpiote_latency_t nrfx_gpiote_latency_get(void);
-#endif
-
-#ifndef NRFX_DECLARE_ONLY
-#if NRF_GPIOTE_HAS_LATENCY
-NRFX_STATIC_INLINE void nrfx_gpiote_latency_set(nrf_gpiote_latency_t latency)
-{
-    nrfy_gpiote_latency_set(NRFX_CONCAT(NRF_, GPIOTE, NRF_GPIOTE_INDEX), latency);
-}
-
-NRFX_STATIC_INLINE nrf_gpiote_latency_t nrfx_gpiote_latency_get(void)
-{
-    return nrfy_gpiote_latency_get(NRFX_CONCAT(NRF_, GPIOTE, NRF_GPIOTE_INDEX));
-}
-#endif // NRF_GPIOTE_HAS_LATENCY
-#endif // NRFX_DECLARE_ONLY
-#endif // NRFX_API_VER_AT_LEAST(3, 2, 0) || defined(__NRFX_DOXYGEN__)
-
 /** @} */
-
-/*
- * Declare interrupt handlers for all enabled driver instances in the following format:
- * nrfx_\<periph_name\>_\<idx\>_irq_handler (for example, nrfx_gpiote_0_irq_handler).
- *
- * A specific interrupt handler for the driver instance can be retrieved by using
- * the NRFX_GPIOTE_INST_HANDLER_GET macro.
- *
- * Here is a sample of using the NRFX_GPIOTE_INST_HANDLER_GET macro to map an interrupt handler
- * in a Zephyr application:
- *
- * IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(\<instance_index\>)), \<priority\>,
- *             NRFX_GPIOTE_INST_HANDLER_GET(\<instance_index\>), 0, 0);
- */
-NRFX_INSTANCE_IRQ_HANDLERS_DECLARE(GPIOTE, gpiote)
 
 #ifdef __cplusplus
 }

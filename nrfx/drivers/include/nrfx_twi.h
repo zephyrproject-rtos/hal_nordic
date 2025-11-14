@@ -217,19 +217,15 @@ typedef void (* nrfx_twi_evt_handler_t)(nrfx_twi_evt_t const * p_event,
  * @param[in] event_handler Event handler provided by the user. If NULL, blocking mode is enabled.
  * @param[in] p_context     Context passed to event handler.
  *
- * @retval NRFX_SUCCESS             Initialization is successful.
- * @retval NRFX_ERROR_ALREADY       The driver is already initialized.
- * @retval NRFX_ERROR_INVALID_STATE The driver is already initialized.
- *                                  Deprecated - use @ref NRFX_ERROR_ALREADY instead.
- * @retval NRFX_ERROR_BUSY          Some other peripheral with the same
- *                                  instance ID is already in use. This is
- *                                  possible only if @ref nrfx_prs module
- *                                  is enabled.
+ * @retval 0         Initialization is successful.
+ * @retval -EALREADY The driver is already initialized.
+ * @retval -EBUSY    Some other peripheral with the same instance ID is already in use.
+ *                   This is possible only if @ref nrfx_prs module is enabled.
  */
-nrfx_err_t nrfx_twi_init(nrfx_twi_t const *        p_instance,
-                         nrfx_twi_config_t const * p_config,
-                         nrfx_twi_evt_handler_t    event_handler,
-                         void *                    p_context);
+int nrfx_twi_init(nrfx_twi_t const *        p_instance,
+                  nrfx_twi_config_t const * p_config,
+                  nrfx_twi_evt_handler_t    event_handler,
+                  void *                    p_context);
 
 /**
  * @brief Function for reconfiguring the TWI instance.
@@ -237,12 +233,12 @@ nrfx_err_t nrfx_twi_init(nrfx_twi_t const *        p_instance,
  * @param[in] p_instance Pointer to the driver instance structure.
  * @param[in] p_config   Pointer to the structure with the configuration.
  *
- * @retval NRFX_SUCCESS             Reconfiguration was successful.
- * @retval NRFX_ERROR_BUSY          The driver is during transaction.
- * @retval NRFX_ERROR_INVALID_STATE The driver is uninitialized.
+ * @retval 0            Reconfiguration was successful.
+ * @retval -EBUSY       The driver is during transaction.
+ * @retval -EINPROGRESS The driver is uninitialized.
  */
-nrfx_err_t nrfx_twi_reconfigure(nrfx_twi_t const *        p_instance,
-                                nrfx_twi_config_t const * p_config);
+int nrfx_twi_reconfigure(nrfx_twi_t const *        p_instance,
+                         nrfx_twi_config_t const * p_config);
 
 /**
  * @brief Function for uninitializing the TWI instance.
@@ -300,20 +296,19 @@ void nrfx_twi_disable(nrfx_twi_t const * p_instance);
  * @param[in] p_xfer_desc Pointer to the transfer descriptor.
  * @param[in] flags       Transfer options (0 for default settings).
  *
- * @retval NRFX_SUCCESS                   The procedure is successful.
- * @retval NRFX_ERROR_BUSY                The driver is not ready for a new transfer.
- * @retval NRFX_ERROR_NOT_SUPPORTED       The provided parameters are not supported.
- * @retval NRFX_ERROR_INTERNAL            An unexpected transition occurred on the bus.
- * @retval NRFX_ERROR_INVALID_STATE       Other direction of transaction is suspended on the bus.
- * @retval NRFX_ERROR_DRV_TWI_ERR_OVERRUN The unread data is replaced by new data (TXRX and RX)
- * @retval NRFX_ERROR_DRV_TWI_ERR_ANACK   Negative acknowledgement (NACK) is received after sending
- *                                        the address in polling mode.
- * @retval NRFX_ERROR_DRV_TWI_ERR_DNACK   Negative acknowledgement (NACK) is received after sending
- *                                        a data byte in polling mode.
+ * @retval 0            The procedure is successful.
+ * @retval -EBUSY       The driver is not ready for a new transfer.
+ * @retval -ECANCELED   An unexpected transition occurred on the bus.
+ * @retval -EINPROGRESS Other direction of transaction is suspended on the bus.
+ * @retval -EOVERFLOW   The unread data is replaced by new data (TXRX and RX)
+ * @retval -EIO         Negative acknowledgement (NACK) is received after sending
+ *                      the address in polling mode.
+ * @retval -EAGAIN      Negative acknowledgement (NACK) is received after sending
+ *                      a data byte in polling mode.
  */
-nrfx_err_t nrfx_twi_xfer(nrfx_twi_t           const * p_instance,
-                         nrfx_twi_xfer_desc_t const * p_xfer_desc,
-                         uint32_t                     flags);
+int nrfx_twi_xfer(nrfx_twi_t           const * p_instance,
+                  nrfx_twi_xfer_desc_t const * p_xfer_desc,
+                  uint32_t                     flags);
 
 /**
  * @brief Function for checking the TWI driver state.
@@ -358,13 +353,13 @@ uint32_t nrfx_twi_stopped_event_get(nrfx_twi_t const * p_instance);
  * @param[in] scl_pin SCL pin number.
  * @param[in] sda_pin SDA pin number.
  *
- * @retval NRFX_SUCCESS        Bus recovery was successful.
- * @retval NRFX_ERROR_INTERNAL Bus recovery failed.
+ * @retval 0          Bus recovery was successful.
+ * @retval -ECANCELED Bus recovery failed.
  */
-NRFX_STATIC_INLINE nrfx_err_t nrfx_twi_bus_recover(uint32_t scl_pin, uint32_t sda_pin);
+NRFX_STATIC_INLINE int nrfx_twi_bus_recover(uint32_t scl_pin, uint32_t sda_pin);
 
 #ifndef NRFX_DECLARE_ONLY
-NRFX_STATIC_INLINE nrfx_err_t nrfx_twi_bus_recover(uint32_t scl_pin, uint32_t sda_pin)
+NRFX_STATIC_INLINE int nrfx_twi_bus_recover(uint32_t scl_pin, uint32_t sda_pin)
 {
     return nrfx_twi_twim_bus_recover(scl_pin, sda_pin);
 }

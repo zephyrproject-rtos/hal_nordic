@@ -47,6 +47,7 @@ extern "C" {
 * @ingroup nrf_temp
 * @brief   Hardware access layer with cache and barrier support
            for managing the Temperature sensor (TEMP).
+* @note    Extended Hardware Access Layer (HALY) is deprecated.
 */
 
 #if NRF_TEMP_HAS_CALIBRATION || defined(__NRFX_DOXYGEN__)
