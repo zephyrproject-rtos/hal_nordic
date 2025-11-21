@@ -1,4 +1,6 @@
-# GPPI one to one {#gppi_basic_one_to_one_desc}
+@page gppi_basic_one_to_one_desc GPPI one to one
+
+# GPPI one to one
 
 The sample demonstrates a basic functionality of the nrfx_gppi helper.
 
@@ -12,6 +14,7 @@ The sample supports the following development kits:
 | nrf52833dk_nrf52833 |     Yes     |     PPI    |
 | nrf52840dk_nrf52840 |     Yes     |     PPI    |
 | nrf5340dk_nrf5340   |     Yes     |    DPPI    |
+| nrf54l15dk_nrf54l15 |     Yes     |    DPPI    |
 | nrf9160dk_nrf9160   |     Yes     |    DPPI    |
 
 ## Overview

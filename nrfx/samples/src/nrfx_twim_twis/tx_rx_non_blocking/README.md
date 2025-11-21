@@ -1,4 +1,6 @@
-# TWIM with TWIS non-blocking {#twim_twis_tx_rx_non_blocking}
+@page twim_twis_tx_rx_non_blocking TWIM with TWIS non-blocking
+
+# TWIM with TWIS non-blocking
 
 The sample demonstrates a functionality of nrfx_twim and nrfx_twis drivers operating in the non-blocking mode.
 
@@ -12,7 +14,9 @@ The sample supports the following development kits:
 | nrf52833dk_nrf52833 |     Yes     |
 | nrf52840dk_nrf52840 |     Yes     |
 | nrf5340dk_nrf5340   |     Yes     |
+| nrf54l15dk_nrf54l15 |     Yes     |
 | nrf9160dk_nrf9160   |     Yes     |
+
 ## Overview
 
 Application initializes nrfx_twim and nrfx_twis drivers.

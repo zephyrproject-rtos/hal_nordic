@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -51,8 +51,13 @@
  *          for each triggered channel with relevant log message.
  */
 
-/** @brief Symbol specifying EGU instance to use. */
-#define EGU_INST_IDX 0
+/** @brief EGU instance used in the example. */
+static nrfx_egu_t egu_inst = NRFX_EGU_INSTANCE(NRF_EGU_INST_GET(EGU_INST_IDX));
+
+#if !defined(__ZEPHYR__)
+/* Define an IRQ handler named nrfx_egu_<EGU_INST_IDX>_irq_handler. */
+NRFX_INSTANCE_IRQ_HANDLER_DEFINE(egu, EGU_INST_IDX, &egu_inst);
+#endif
 
 /**
  * @brief Function for handling EGU driver events.
@@ -75,12 +80,12 @@ static void egu_handler(uint8_t event_idx, void * p_context)
  */
 int main(void)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
 #if defined(__ZEPHYR__)
     IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_EGU_INST_GET(EGU_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_EGU_INST_HANDLER_GET(EGU_INST_IDX), 0, 0);
+                nrfx_egu_irq_handler, &egu_inst, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -88,10 +93,9 @@ int main(void)
     NRFX_LOG_INFO("Starting nrfx_egu example");
     NRFX_EXAMPLE_LOG_PROCESS();
 
-    nrfx_egu_t egu_inst = NRFX_EGU_INSTANCE(EGU_INST_IDX);
     void * p_context = "Some context";
     status = nrfx_egu_init(&egu_inst, NRFX_EGU_DEFAULT_CONFIG_IRQ_PRIORITY, egu_handler, p_context);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     uint32_t ch0_idx = 0;
     uint32_t ch1_idx = 1;

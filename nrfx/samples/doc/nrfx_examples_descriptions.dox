@@ -1,6 +1,7 @@
 /**
 @page nrfx_examples_desc Samples descriptions
 The complete base, where you can find all the necessary information about samples:
+- @subpage nrfx_cracen_example_desc
 - @subpage nrfx_egu_example_desc
 - @subpage nrfx_gppi_example_desc
 - @subpage nrfx_pwm_example_desc
@@ -12,6 +13,10 @@ The complete base, where you can find all the necessary information about sample
 - @subpage nrfx_timer_example_desc
 - @subpage nrfx_twim_twis_example_desc
 - @subpage nrfx_uarte_example_desc
+
+@page nrfx_cracen_example_desc CRACEN
+Here you can find all the necessary information about following samples:
+- @subpage cracen_basic_desc
 
 @page nrfx_egu_example_desc EGU
 Here you can find all the necessary information about following samples:

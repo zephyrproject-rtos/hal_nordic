@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -54,36 +54,6 @@
  *          Then received messages are read from @ref m_rx_buffer_master and @ref m_rx_buffer_slave.
  */
 
-/** @brief Symbol specifying SPIM instance to be used. */
-#define SPIM_INST_IDX 1
-
-/** @brief Symbol specifying SPIS instance to be used. */
-#define SPIS_INST_IDX 2
-
-/** @brief Symbol specifying master's pin number for MOSI. */
-#define MOSI_PIN_MASTER LOOPBACK_PIN_1A
-
-/** @brief Symbol specifying slave's pin number for MOSI. */
-#define MOSI_PIN_SLAVE LOOPBACK_PIN_1B
-
-/** @brief Symbol specifying master's pin number for MISO. */
-#define MISO_PIN_MASTER LOOPBACK_PIN_2A
-
-/** @brief Symbol specifying slave's pin number for MISO. */
-#define MISO_PIN_SLAVE LOOPBACK_PIN_2B
-
-/** @brief Symbol specifying master's pin number for SCK. */
-#define SCK_PIN_MASTER LOOPBACK_PIN_3A
-
-/** @brief Symbol specifying slave's pin number for SCK. */
-#define SCK_PIN_SLAVE LOOPBACK_PIN_3B
-
-/** @brief Symbol specifying master's pin number for SS. */
-#define SS_PIN_MASTER LOOPBACK_PIN_4A
-
-/** @brief Symbol specifying slave's pin number for CSN. */
-#define CSN_PIN_SLAVE LOOPBACK_PIN_4B
-
 /** @brief Symbol specifying message to be sent via SPIM data transfer. */
 #define MSG_TO_SEND_MASTER "Semiconductor"
 
@@ -102,13 +72,27 @@ static uint8_t m_rx_buffer_master[sizeof(MSG_TO_SEND_SLAVE)];
 /** @brief Receive buffer defined with the size to store specified message ( @ref MSG_TO_SEND_MASTER ). */
 static uint8_t m_rx_buffer_slave[sizeof(MSG_TO_SEND_MASTER)];
 
+/** @brief SPIM instance used in the example. */
+static nrfx_spim_t spim_inst = NRFX_SPIM_INSTANCE(NRF_SPIM_INST_GET(SPIM_SPIS_SPIM_INST_IDX));
+
+/** @brief SPIS instance used in the example. */
+static nrfx_spis_t spis_inst = NRFX_SPIS_INSTANCE(NRF_SPIS_INST_GET(SPIM_SPIS_SPIS_INST_IDX));
+
+#if !defined(__ZEPHYR__)
+/* Define an IRQ handler named nrfx_spim_<SPIM_SPIS_SPIM_INST_IDX>_irq_handler. */
+NRFX_INSTANCE_IRQ_HANDLER_DEFINE(spim, SPIM_SPIS_SPIM_INST_IDX, &spim_inst);
+
+/* Define an IRQ handler named nrfx_spis_<SPIM_SPIS_SPIS_INST_IDX>_irq_handler. */
+NRFX_INSTANCE_IRQ_HANDLER_DEFINE(spis, SPIM_SPIS_SPIS_INST_IDX, &spis_inst);
+#endif
+
 /**
  * @brief Function for handling SPIM driver events.
  *
  * @param[in] p_event   Pointer to the SPIM driver event.
  * @param[in] p_context Pointer to the context passed from the driver.
  */
-static void spim_handler(nrfx_spim_evt_t const * p_event, void * p_context)
+static void spim_handler(nrfx_spim_event_t const * p_event, void * p_context)
 {
     if (p_event->type == NRFX_SPIM_EVENT_DONE)
     {
@@ -124,7 +108,7 @@ static void spim_handler(nrfx_spim_evt_t const * p_event, void * p_context)
  * @param[in] p_event   Pointer to the SPIS driver event.
  * @param[in] p_context Pointer to the context passed from the driver.
  */
-static void spis_handler(nrfx_spis_evt_t const * p_event, void * p_context)
+static void spis_handler(nrfx_spis_event_t const * p_event, void * p_context)
 {
     if (p_event->evt_type == NRFX_SPIS_XFER_DONE)
     {
@@ -141,14 +125,14 @@ static void spis_handler(nrfx_spis_evt_t const * p_event, void * p_context)
  */
 int main(void)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
 #if defined(__ZEPHYR__)
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIM_INST_GET(SPIM_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_SPIM_INST_HANDLER_GET(SPIM_INST_IDX), 0, 0);
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIS_INST_GET(SPIS_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_SPIS_INST_HANDLER_GET(SPIS_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIS_INST_GET(SPIM_SPIS_SPIS_INST_IDX)), IRQ_PRIO_LOWEST,
+                nrfx_spis_irq_handler, &spis_inst, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIM_INST_GET(SPIM_SPIS_SPIM_INST_IDX)), IRQ_PRIO_LOWEST,
+                nrfx_spim_irq_handler, &spim_inst, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -156,30 +140,27 @@ int main(void)
     NRFX_LOG_INFO("Starting nrfx_spim_spis basic non-blocking example.");
     NRFX_EXAMPLE_LOG_PROCESS();
 
-    nrfx_spim_t spim_inst = NRFX_SPIM_INSTANCE(SPIM_INST_IDX);
-
-    nrfx_spim_config_t spim_config = NRFX_SPIM_DEFAULT_CONFIG(SCK_PIN_MASTER,
-                                                              MOSI_PIN_MASTER,
-                                                              MISO_PIN_MASTER,
-                                                              SS_PIN_MASTER);
+    nrfx_spim_config_t spim_config = NRFX_SPIM_DEFAULT_CONFIG(SPIM_SPIS_SCK_PIN_MASTER,
+                                                              SPIM_SPIS_MOSI_PIN_MASTER,
+                                                              SPIM_SPIS_MISO_PIN_MASTER,
+                                                              SPIM_SPIS_SS_PIN_MASTER);
 
     void * p_context = "Some context";
     status = nrfx_spim_init(&spim_inst, &spim_config, spim_handler, p_context);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
-    nrfx_spis_t spis_inst = NRFX_SPIS_INSTANCE(SPIS_INST_IDX);
-    nrfx_spis_config_t spis_config = NRFX_SPIS_DEFAULT_CONFIG(SCK_PIN_SLAVE,
-                                                              MOSI_PIN_SLAVE,
-                                                              MISO_PIN_SLAVE,
-                                                              CSN_PIN_SLAVE);
+    nrfx_spis_config_t spis_config = NRFX_SPIS_DEFAULT_CONFIG(SPIM_SPIS_SCK_PIN_SLAVE,
+                                                              SPIM_SPIS_MOSI_PIN_SLAVE,
+                                                              SPIM_SPIS_MISO_PIN_SLAVE,
+                                                              SPIM_SPIS_CSN_PIN_SLAVE);
 
     status = nrfx_spis_init(&spis_inst, &spis_config, spis_handler, p_context);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     status = nrfx_spis_buffers_set(&spis_inst,
                                    m_tx_buffer_slave, sizeof(m_tx_buffer_slave),
                                    m_rx_buffer_slave, sizeof(m_rx_buffer_slave));
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     nrfx_spim_xfer_desc_t spim_xfer_desc = NRFX_SPIM_XFER_TRX(m_tx_buffer_master,
                                                               sizeof(m_tx_buffer_master),
@@ -187,7 +168,7 @@ int main(void)
                                                               sizeof(m_rx_buffer_master));
 
     status = nrfx_spim_xfer(&spim_inst, &spim_xfer_desc, 0);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     while (1)
     {

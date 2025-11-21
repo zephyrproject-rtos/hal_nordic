@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -55,17 +55,16 @@
  *          The @ref uarte_handler() is executed with relevant log messages.
  */
 
-/** @brief Symbol specifying UARTE instance to be used. */
-#define UARTE_INST_IDX 1
-
-/** @brief Symbol specifying TX pin number of UARTE. */
-#define UARTE_TX_PIN LOOPBACK_PIN_1A
-
-/** @brief Symbol specifying RX pin number of UARTE. */
-#define UARTE_RX_PIN LOOPBACK_PIN_1B
-
 /** @brief Symbol specifying message to be sent via UARTE data transfer.*/
 #define MSG_TO_SEND "Nordic Semiconductor"
+
+/** @brief UARTE instance used in the example. */
+static nrfx_uarte_t uarte_inst = NRFX_UARTE_INSTANCE(NRF_UARTE_INST_GET(UARTE_INST_IDX));
+
+#if !defined(__ZEPHYR__)
+/* Define an IRQ handler named nrfx_uarte_<UARTE_INST_IDX>_irq_handler. */
+NRFX_INSTANCE_IRQ_HANDLER_DEFINE(uarte, UARTE_INST_IDX, &uarte_inst);
+#endif
 
 /** @brief UARTE transmit buffer initialized with @ref MSG_TO_SEND. */
 static uint8_t m_tx_buffer[] = MSG_TO_SEND;
@@ -83,7 +82,6 @@ static uint8_t m_rx_buffer[sizeof(MSG_TO_SEND)];
  */
 static void uarte_handler(nrfx_uarte_event_t const * p_event, void * p_context)
 {
-    nrfx_uarte_t * p_inst = p_context;
     if (p_event->type == NRFX_UARTE_EVT_TX_DONE)
     {
         NRFX_LOG_INFO("--> UARTE event: TX done");
@@ -94,7 +92,6 @@ static void uarte_handler(nrfx_uarte_event_t const * p_event, void * p_context)
     {
         NRFX_LOG_INFO("UARTE event: %d", p_event->type);
     }
-    nrfx_uarte_uninit(p_inst);
 }
 
 /**
@@ -104,12 +101,12 @@ static void uarte_handler(nrfx_uarte_event_t const * p_event, void * p_context)
  */
 int main(void)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
 #if defined(__ZEPHYR__)
     IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_UARTE_INST_GET(UARTE_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_UARTE_INST_HANDLER_GET(UARTE_INST_IDX), 0, 0);
+                nrfx_uarte_irq_handler, &uarte_inst, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -117,21 +114,27 @@ int main(void)
     NRFX_LOG_INFO("Starting nrfx_uarte non-blocking example.");
     NRFX_EXAMPLE_LOG_PROCESS();
 
-    nrfx_uarte_t uarte_inst = NRFX_UARTE_INSTANCE(UARTE_INST_IDX);
     nrfx_uarte_config_t uarte_config = NRFX_UARTE_DEFAULT_CONFIG(UARTE_TX_PIN, UARTE_RX_PIN);
-    uarte_config.p_context = &uarte_inst;
     status = nrfx_uarte_init(&uarte_inst, &uarte_config, uarte_handler);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     NRFX_LOG_INFO("Content of TX buffer: %s", m_tx_buffer);
     NRFX_LOG_INFO("Content of RX buffer: %s", m_rx_buffer);
     NRFX_EXAMPLE_LOG_PROCESS();
 
-    status = nrfx_uarte_rx(&uarte_inst, m_rx_buffer, sizeof(m_rx_buffer));
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    status = nrfx_uarte_rx_buffer_set(&uarte_inst, m_rx_buffer, NRFX_ARRAY_SIZE(m_rx_buffer) - 1);
+    NRFX_ASSERT(status == 0);
+
+    status = nrfx_uarte_rx_enable(&uarte_inst, NRFX_UARTE_RX_ENABLE_STOP_ON_END);
+    NRFX_ASSERT(status == 0);
 
     status = nrfx_uarte_tx(&uarte_inst, m_tx_buffer, sizeof(m_tx_buffer), 0);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
+
+    while (nrfx_uarte_tx_in_progress(&uarte_inst))
+    {}
+
+    nrfx_uarte_uninit(&uarte_inst);
 
     while (1)
     {

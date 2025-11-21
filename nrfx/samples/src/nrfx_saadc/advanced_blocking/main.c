@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -58,14 +58,8 @@
  *          is being triggered between successive samplings to verify the functionality of the SAADC on the non-constant analog signal.
  */
 
-/** @brief Symbol specifying analog input to be observed by SAADC channel 0. */
-#define CH0_AIN ANALOG_INPUT_TO_SAADC_AIN(ANALOG_INPUT_A0)
-
-/** @brief Symbol specifying GPIOTE instance to be used. */
-#define GPIOTE_INST_IDX 0
-
 /** @brief Symbol specifying GPIO pin used to test the functionality of SAADC. */
-#define OUT_GPIO_PIN LOOPBACK_PIN_1B
+#define OUT_GPIO_PIN SAADC_CH0_LOOPBACK_PIN
 
 /** @brief Symbol specifying the size of singular sample buffer ( @ref m_samples_buffer ). */
 #define BUFFER_SIZE 2UL
@@ -77,10 +71,18 @@
 #define RESOLUTION NRF_SAADC_RESOLUTION_10BIT
 
 /** @brief SAADC channel configuration structure for single channel use. */
-static const nrfx_saadc_channel_t m_single_channel = SAADC_CHANNEL_SE_ACQ_3US(CH0_AIN, 0);
+static const nrfx_saadc_channel_t m_single_channel = SAADC_CHANNEL_SE_ACQ_3US(SAADC_CH0_AIN, 0);
 
 /** @brief Samples buffer to store values from a SAADC channel. */
-static uint16_t m_samples_buffer[BUFFER_SIZE];
+static nrf_saadc_value_t m_samples_buffer[BUFFER_SIZE];
+
+/** @brief GPIOTE instance used in the example. */
+static nrfx_gpiote_t gpiote_inst = NRFX_GPIOTE_INSTANCE(NRF_GPIOTE_INST_GET(SAADC_GPIOTE_INST_IDX));
+
+#if !defined(__ZEPHYR__)
+/* Define an IRQ handler named nrfx_gpiote_<SAADC_GPIOTE_INST_IDX>_irq_handler. */
+NRFX_INSTANCE_IRQ_HANDLER_DEFINE(gpiote, SAADC_GPIOTE_INST_IDX, &gpiote_inst);
+#endif
 
 /**
  * @brief Function for application main entry.
@@ -89,12 +91,12 @@ static uint16_t m_samples_buffer[BUFFER_SIZE];
  */
 int main(void)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
 #if defined(__ZEPHYR__)
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_GPIOTE_INST_HANDLER_GET(GPIOTE_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(SAADC_GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                nrfx_gpiote_irq_handler, &gpiote_inst, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -102,18 +104,17 @@ int main(void)
     NRFX_EXAMPLE_LOG_PROCESS();
 
     status = nrfx_saadc_init(NRFX_SAADC_DEFAULT_CONFIG_IRQ_PRIORITY);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
-    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPIOTE_INST_IDX);
     status = nrfx_gpiote_init(&gpiote_inst, NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
     NRFX_LOG_INFO("GPIOTE status: %s",
                   nrfx_gpiote_init_check(&gpiote_inst) ? "initialized" : "not initialized");
 
     gpiote_pin_toggle_task_setup(&gpiote_inst, OUT_GPIO_PIN);
 
     status = nrfx_saadc_channel_config(&m_single_channel);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     nrfx_saadc_adv_config_t adv_config = NRFX_SAADC_DEFAULT_ADV_CONFIG;
 
@@ -122,10 +123,10 @@ int main(void)
                                           RESOLUTION,
                                           &adv_config,
                                           NULL);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     status = nrfx_saadc_buffer_set(m_samples_buffer, BUFFER_SIZE);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     uint16_t sampling_index = 0;
     while (1)
@@ -135,16 +136,16 @@ int main(void)
             nrfx_gpiote_out_task_trigger(&gpiote_inst, OUT_GPIO_PIN);
 
             status = nrfx_saadc_offset_calibrate(NULL);
-            NRFX_ASSERT(status == NRFX_SUCCESS);
+            NRFX_ASSERT(status == 0);
             NRFX_LOG_INFO("Calibration in the blocking manner finished successfully.");
 
             /*
-             * If function nrfx_saadc_mode_trigger() returns NRFX_ERROR_BUSY it means that the conversion in the advanced
+             * If function nrfx_saadc_mode_trigger() returns -EBUSY it means that the conversion in the advanced
              * blocking mode is still being performed. Then the function must be called again to continue the conversion.
              */
-            while ((status = nrfx_saadc_mode_trigger()) == NRFX_ERROR_BUSY)
+            while ((status = nrfx_saadc_mode_trigger()) == -EBUSY)
             {}
-            NRFX_ASSERT(status == NRFX_SUCCESS);
+            NRFX_ASSERT(status == 0);
             NRFX_LOG_INFO("Sampling %d / %ld", sampling_index + 1, SAMPLING_ITERATIONS);
 
             for (uint32_t buffer_index = 0; buffer_index < BUFFER_SIZE; buffer_index++)
@@ -155,7 +156,7 @@ int main(void)
             }
 
             status = nrfx_saadc_buffer_set(m_samples_buffer, BUFFER_SIZE);
-            NRFX_ASSERT(status == NRFX_SUCCESS);
+            NRFX_ASSERT(status == 0);
 
             sampling_index++;
         }

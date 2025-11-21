@@ -1,4 +1,6 @@
-# SPIM with SPIS non-blocking {#spim_spis_non_blocking}
+@page spim_spis_non_blocking SPIM with SPIS non-blocking
+
+# SPIM with SPIS non-blocking
 
 The sample demonstrates a basic functionality of nrfx_spim and nrfx_spis drivers operating in the non-blocking mode.
 
@@ -12,7 +14,10 @@ The sample supports the following development kits:
 | nrf52833dk_nrf52833 |     Yes     |
 | nrf52840dk_nrf52840 |     Yes     |
 | nrf5340dk_nrf5340   |     Yes     |
+| nrf54l15dk_nrf54l15 |     Yes     |
 | nrf9160dk_nrf9160   |     Yes     |
+
+> Due to pin conflicts on the nRF54L15 DK, this example uses an alternate UART console.
 
 ## Overview
 

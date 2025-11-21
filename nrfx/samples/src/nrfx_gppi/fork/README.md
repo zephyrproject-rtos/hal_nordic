@@ -1,4 +1,6 @@
-# GPPI fork {#gppi_basic_fork_desc}
+@page gppi_basic_fork_desc GPPI fork
+
+# GPPI fork
 
 The sample demonstrates a basic fork functionality of the nrfx_gppi helper.
 ## Requirements
@@ -11,6 +13,7 @@ The sample supports the following development kits:
 | nrf52833dk_nrf52833 |     Yes     |     PPI    |
 | nrf52840dk_nrf52840 |     Yes     |     PPI    |
 | nrf5340dk_nrf5340   |     Yes     |    DPPI    |
+| nrf54l15dk_nrf54l15 |     Yes     |    DPPI    |
 | nrf9160dk_nrf9160   |     Yes     |    DPPI    |
 
 ## Overview
