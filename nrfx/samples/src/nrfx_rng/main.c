@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -80,7 +80,7 @@ static void rng_handler(uint8_t rng_data)
  */
 int main(void)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
 #if defined(__ZEPHYR__)
@@ -94,7 +94,7 @@ int main(void)
 
     nrfx_rng_config_t config = NRFX_RNG_DEFAULT_CONFIG;
     status = nrfx_rng_init(&config, rng_handler);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     nrfx_rng_start();
 

@@ -1,4 +1,6 @@
-# RNG {#rng_basic_desc}
+@page rng_basic_desc RNG
+
+# RNG
 
 The sample demonstrates a basic functionality of the nrfx_rng driver.
 
@@ -12,7 +14,9 @@ The sample supports the following development kits:
 | nrf52833dk_nrf52833 |     Yes     |
 | nrf52840dk_nrf52840 |     Yes     |
 | nrf5340dk_nrf5340   |     Yes     |
+| nrf54l15dk_nrf54l15 |     No      |
 | nrf9160dk_nrf9160   |     No      |
+
 ## Overview
 
 Application initializes the nrfx_rng driver.

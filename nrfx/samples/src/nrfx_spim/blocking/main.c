@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -51,9 +51,6 @@
  *          the transfer is finished received message is read from @ref m_rx_buffer.
  */
 
-/** @brief Symbol specifying SPIM instance to be used. */
-#define SPIM_INST_IDX 1
-
 /** @brief Symbol specifying pin number for MOSI. */
 #define MOSI_PIN LOOPBACK_PIN_1A
 
@@ -72,6 +69,9 @@ static uint8_t m_tx_buffer[] = MSG_TO_SEND;
 /** @brief Receive buffer defined with the size to store specified message ( @ref MSG_TO_SEND ). */
 static uint8_t m_rx_buffer[sizeof(MSG_TO_SEND)];
 
+/** @brief SPIM instance used in the example. */
+static nrfx_spim_t spim_inst = NRFX_SPIM_INSTANCE(NRF_SPIM_INST_GET(SPIM_INST_IDX));
+
 /**
  * @brief Function for application main entry.
  *
@@ -79,7 +79,7 @@ static uint8_t m_rx_buffer[sizeof(MSG_TO_SEND)];
  */
 int main(void)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -87,21 +87,19 @@ int main(void)
     NRFX_LOG_INFO("Starting nrfx_spim basic blocking example.");
     NRFX_EXAMPLE_LOG_PROCESS();
 
-    nrfx_spim_t spim_inst = NRFX_SPIM_INSTANCE(SPIM_INST_IDX);
-
     nrfx_spim_config_t spim_config = NRFX_SPIM_DEFAULT_CONFIG(SCK_PIN,
                                                               MOSI_PIN,
                                                               MISO_PIN,
                                                               NRF_SPIM_PIN_NOT_CONNECTED);
 
     status = nrfx_spim_init(&spim_inst, &spim_config, NULL, NULL);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     nrfx_spim_xfer_desc_t spim_xfer_desc = NRFX_SPIM_XFER_TRX(m_tx_buffer, sizeof(m_tx_buffer),
                                                               m_rx_buffer, sizeof(m_rx_buffer));
 
     status = nrfx_spim_xfer(&spim_inst, &spim_xfer_desc, 0);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     NRFX_LOG_INFO("Message received: %s", m_rx_buffer);
     NRFX_EXAMPLE_LOG_PROCESS();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -55,10 +55,10 @@
  *          In the example, @ref m_single_channel is configured and the SAADC driver is set to the advanced mode.
  *          To achieve maximum performance:
  *              - Performing sampling at @ref MAX_SAADC_SAMPLE_FREQUENCY requires an external timer. It is done
- *                by setting up endpoints of the channel @ref m_gppi_channels [ @p gppi_channels_purpose_t::SAADC_SAMPLING ]
+ *                by setting up endpoints of the channel @ref m_gppi_handles [ @p gppi_handle_purpose_t::SAADC_SAMPLING ]
  *                to trigger SAADC sample task ( @p nrf_saadc_task_t::NRF_SAADC_TASK_SAMPLE ) on the timer compare event.
  *              - Hardware start-on-end must be provided. It is done by setting up endpoints of the channel
- *                @ref m_gppi_channels [ @p gppi_channels_purpose_t::SAADC_START_ON_END ] to trigger SAADC task start
+ *                @ref m_gppi_handles [ @p gppi_handle_purpose_t::SAADC_START_ON_END ] to trigger SAADC task start
  *                ( @p nrf_saadc_task_t::NRF_SAADC_TASK_START ) on the SAADC event end ( @p nrf_saadc_event_t::NRF_SAADC_EVENT_END ).
  *
  *          Calibration in a non-blocking manner is triggered by @p nrfx_saadc_offset_calibrate. Then at @p NRFX_SAADC_EVT_CALIBRATEDONE
@@ -69,17 +69,8 @@
  *          that @p NRF_SAADC_EVENT_RESULTDONE event is connected with the GPIOTE task that toggles the @ref OUT_GPIO_PIN pin.
  */
 
-/** @brief Symbol specifying timer instance to be used. */
-#define TIMER_INST_IDX 0
-
-/** @brief Symbol specifying GPIOTE instance to be used. */
-#define GPIOTE_INST_IDX 0
-
-/** @brief Symbol specifying analog input to be observed by SAADC channel 0. */
-#define CH0_AIN ANALOG_INPUT_TO_SAADC_AIN(ANALOG_INPUT_A0)
-
 /** @brief Symbol specifying GPIO pin used to test the functionality of SAADC. */
-#define OUT_GPIO_PIN LOOPBACK_PIN_1B
+#define OUT_GPIO_PIN SAADC_CH0_LOOPBACK_PIN
 
 /** @brief Acquisition time [us] for source resistance <= 10 kOhm (see SAADC electrical specification). */
 #define ACQ_TIME_10K 3UL
@@ -112,26 +103,34 @@
 #define RESOLUTION NRF_SAADC_RESOLUTION_10BIT
 
 /** @brief SAADC channel configuration structure for single channel use. */
-static const nrfx_saadc_channel_t m_single_channel = SAADC_CHANNEL_SE_ACQ_3US(CH0_AIN, 0);
+static const nrfx_saadc_channel_t m_single_channel = SAADC_CHANNEL_SE_ACQ_3US(SAADC_CH0_AIN, 0);
 
 /** @brief Samples buffer to store values from a SAADC channel. */
-static uint16_t m_sample_buffers[BUFFER_COUNT][BUFFER_SIZE];
+static nrf_saadc_value_t m_sample_buffers[BUFFER_COUNT][BUFFER_SIZE];
 
 /** @brief Array of the GPPI channels. */
-static uint8_t m_gppi_channels[2];
+static nrfx_gppi_handle_t m_gppi_handles[2];
 
-/** @brief Enum with intended uses of GPPI channels defined as @ref m_gppi_channels. */
+/** @brief Enum with intended uses of GPPI channels defined as @ref m_gppi_handles. */
 typedef enum
 {
     SAADC_SAMPLING,     ///< Triggers SAADC sampling task on external timer event.
     SAADC_START_ON_END, ///< Triggers SAADC start task on SAADC end event.
-} gppi_channels_purpose_t;
+} gppi_handle_purpose_t;
 
 /** Maximum sampling rate of SAADC is 200 [kHz]. */
 NRFX_STATIC_ASSERT(SAADC_SAMPLE_FREQUENCY <= (MAX_SAADC_SAMPLE_FREQUENCY));
 
 /** For continuous sampling the sample rate SAADC_SAMPLE_FREQUENCY should fulfill the following criteria (see SAADC Continuous sampling). */
 NRFX_STATIC_ASSERT(SAADC_SAMPLE_FREQUENCY <= (1000000UL / (ACQ_TIME_10K + CONV_TIME)));
+
+/** @brief GPIOTE instance used in the example. */
+static nrfx_gpiote_t gpiote_inst = NRFX_GPIOTE_INSTANCE(NRF_GPIOTE_INST_GET(SAADC_GPIOTE_INST_IDX));
+
+#if !defined(__ZEPHYR__)
+/* Define an IRQ handler named nrfx_gpiote_<SAADC_GPIOTE_INST_IDX>_irq_handler. */
+NRFX_INSTANCE_IRQ_HANDLER_DEFINE(gpiote, SAADC_GPIOTE_INST_IDX, &gpiote_inst);
+#endif
 
 /**
  * @brief Function for handling SAADC driver events.
@@ -140,7 +139,7 @@ NRFX_STATIC_ASSERT(SAADC_SAMPLE_FREQUENCY <= (1000000UL / (ACQ_TIME_10K + CONV_T
  */
 static void saadc_handler(nrfx_saadc_evt_t const * p_event)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
     static uint16_t buffer_index = 1;
@@ -153,13 +152,13 @@ static void saadc_handler(nrfx_saadc_evt_t const * p_event)
             NRFX_LOG_INFO("SAADC event: CALIBRATEDONE");
 
             status = nrfx_saadc_mode_trigger();
-            NRFX_ASSERT(status == NRFX_SUCCESS);
+            NRFX_ASSERT(status == 0);
             break;
 
         case NRFX_SAADC_EVT_READY:
             NRFX_LOG_INFO("SAADC event: READY");
 
-            nrfx_gppi_channels_enable(NRFX_BIT(m_gppi_channels[SAADC_SAMPLING]));
+            nrfx_gppi_conn_enable(m_gppi_handles[SAADC_SAMPLING]);
             break;
 
         case NRFX_SAADC_EVT_BUF_REQ:
@@ -169,12 +168,12 @@ static void saadc_handler(nrfx_saadc_evt_t const * p_event)
             {
                 /* Next available buffer must be set on the NRFX_SAADC_EVT_BUF_REQ event to achieve the continuous conversion. */
                 status = nrfx_saadc_buffer_set(m_sample_buffers[buffer_index++], BUFFER_SIZE);
-                NRFX_ASSERT(status == NRFX_SUCCESS);
+                NRFX_ASSERT(status == 0);
                 buffer_index = buffer_index % BUFFER_COUNT;
             }
             else
             {
-                nrfx_gppi_channels_disable(NRFX_BIT(m_gppi_channels[SAADC_START_ON_END]));
+                nrfx_gppi_conn_disable(m_gppi_handles[SAADC_START_ON_END]);
             }
             break;
 
@@ -193,7 +192,7 @@ static void saadc_handler(nrfx_saadc_evt_t const * p_event)
         case NRFX_SAADC_EVT_FINISHED:
             NRFX_LOG_INFO("FINISHED");
 
-            nrfx_gppi_channels_disable(NRFX_BIT(m_gppi_channels[SAADC_SAMPLING]));
+            nrfx_gppi_conn_disable(m_gppi_handles[SAADC_SAMPLING]);
             break;
 
         default:
@@ -222,13 +221,13 @@ static void timer_handler(nrf_timer_event_t event_type, void * p_context)
  */
 int main(void)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
 #if defined(__ZEPHYR__)
     IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SAADC), IRQ_PRIO_LOWEST, nrfx_saadc_irq_handler, 0, 0);
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_GPIOTE_INST_HANDLER_GET(GPIOTE_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(SAADC_GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                nrfx_gpiote_irq_handler, &gpiote_inst, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -236,16 +235,16 @@ int main(void)
     NRFX_EXAMPLE_LOG_PROCESS();
 
     status = nrfx_saadc_init(NRFX_SAADC_DEFAULT_CONFIG_IRQ_PRIORITY);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
-    nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
+    nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(NRF_TIMER_INST_GET(SAADC_TIMER_INST_IDX));
     uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
     nrfx_timer_config_t timer_config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
     timer_config.bit_width = NRF_TIMER_BIT_WIDTH_32;
     timer_config.p_context = &timer_inst;
 
     status = nrfx_timer_init(&timer_inst, &timer_config, timer_handler);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     nrfx_timer_clear(&timer_inst);
 
@@ -264,7 +263,7 @@ int main(void)
                                 false);
 
     status = nrfx_saadc_channel_config(&m_single_channel);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     /*
      * Setting the advanced configuration with triggering sampling by the internal timer disabled
@@ -279,38 +278,35 @@ int main(void)
                                           RESOLUTION,
                                           &adv_config,
                                           saadc_handler);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     status = nrfx_saadc_buffer_set(m_sample_buffers[0], BUFFER_SIZE);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     /*
      * Allocate a dedicated channel and configure endpoints of that channel so that the timer compare event
      * is connected with the SAADC sample task. This means that each time the timer interrupt occurs,
      * the SAADC sampling will be triggered.
      */
-    status = nrfx_gppi_channel_alloc(&m_gppi_channels[SAADC_SAMPLING]);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
-
-    nrfx_gppi_channel_endpoints_setup(m_gppi_channels[SAADC_SAMPLING],
+    status = nrfx_gppi_conn_alloc(
         nrfx_timer_compare_event_address_get(&timer_inst, NRF_TIMER_CC_CHANNEL0),
-        nrf_saadc_task_address_get(NRF_SAADC, NRF_SAADC_TASK_SAMPLE));
+        nrf_saadc_task_address_get(NRF_SAADC, NRF_SAADC_TASK_SAMPLE),
+        &m_gppi_handles[SAADC_SAMPLING]);
+    NRFX_ASSERT(status == 0);
 
     /*
      * Allocate a dedicated channel and configure endpoints of that so that the SAADC event end is connected
      * with the SAADC task start. This means that each time the SAADC fills up the result buffer,
      * the SAADC will be restarted and the result buffer will be prepared in RAM.
      */
-    status = nrfx_gppi_channel_alloc(&m_gppi_channels[SAADC_START_ON_END]);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
-
-    nrfx_gppi_channel_endpoints_setup(m_gppi_channels[SAADC_START_ON_END],
+    status = nrfx_gppi_conn_alloc(
         nrf_saadc_event_address_get(NRF_SAADC, NRF_SAADC_EVENT_END),
-        nrf_saadc_task_address_get(NRF_SAADC, NRF_SAADC_TASK_START));
+        nrf_saadc_task_address_get(NRF_SAADC, NRF_SAADC_TASK_START),
+        &m_gppi_handles[SAADC_START_ON_END]);
+    NRFX_ASSERT(status == 0);
 
-    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPIOTE_INST_IDX);
     status = nrfx_gpiote_init(&gpiote_inst, NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
     NRFX_LOG_INFO("GPIOTE status: %s",
                   nrfx_gpiote_init_check(&gpiote_inst) ? "initialized" : "not initialized");
 
@@ -319,10 +315,10 @@ int main(void)
 
     nrfx_timer_enable(&timer_inst);
 
-    nrfx_gppi_channels_enable(NRFX_BIT(m_gppi_channels[SAADC_START_ON_END]));
+    nrfx_gppi_conn_enable(m_gppi_handles[SAADC_START_ON_END]);
 
     status = nrfx_saadc_offset_calibrate(saadc_handler);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     while (1)
     {

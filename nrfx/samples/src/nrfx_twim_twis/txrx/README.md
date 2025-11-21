@@ -1,4 +1,6 @@
-# TWIM with TWIS TX-RX {#twim_twis_txrx}
+@page twim_twis_txrx TWIM with TWIS TX-RX
+
+# TWIM with TWIS TX-RX
 
 The sample demonstrates a functionality of nrfx_twim and nrfx_twis drivers, when TWI transfer is performed in the TX-RX mode.
 
@@ -6,13 +8,13 @@ The sample demonstrates a functionality of nrfx_twim and nrfx_twis drivers, when
 
 The sample supports the following development kits:
 
-
 | **Board**           | **Support** |
 |---------------------|:-----------:|
 | nrf52dk_nrf52832    |     Yes     |
 | nrf52833dk_nrf52833 |     Yes     |
 | nrf52840dk_nrf52840 |     Yes     |
 | nrf5340dk_nrf5340   |     Yes     |
+| nrf54l15dk_nrf54l15 |     Yes     |
 | nrf9160dk_nrf9160   |     Yes     |
 
 ## Overview
@@ -27,6 +29,7 @@ The sample works as a simple simulation in which you can communicate with a dron
 * @p register_read() function is used to write data from particular registers to buffer in master device and print content of that buffer.
 
 > For more information, see **TWIM driver** and **TWIS driver** - **nrfx documentation**.
+
 ## Wiring
 
 To run the sample correctly, connect pins as follows:

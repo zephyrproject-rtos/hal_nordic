@@ -1,4 +1,6 @@
-# TEMP non-blocking {#temp_non_blocking}
+@page temp_non_blocking TEMP non-blocking
+
+# TEMP non-blocking
 
 The sample demonstrates a functionality of the nrfx_temp driver operating in the non-blocking mode.
 
@@ -12,6 +14,7 @@ The sample supports the following development kits:
 | nrf52833dk_nrf52833 |     Yes     |
 | nrf52840dk_nrf52840 |     Yes     |
 | nrf5340dk_nrf5340   |     Yes     |
+| nrf54l15dk_nrf54l15 |     Yes     |
 | nrf9160dk_nrf9160   |      No     |
 
 ## Overview

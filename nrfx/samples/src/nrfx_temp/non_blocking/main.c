@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -61,7 +61,7 @@
  */
 static void temp_handler(int32_t temperature)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
     static uint32_t i = 1;
@@ -74,7 +74,7 @@ static void temp_handler(int32_t temperature)
     if (i < TEMP_ITERATIONS)
     {
         status = nrfx_temp_measure();
-        NRFX_ASSERT(status == NRFX_SUCCESS);
+        NRFX_ASSERT(status == 0);
         i++;
     }
     else
@@ -90,7 +90,7 @@ static void temp_handler(int32_t temperature)
  */
 int main(void)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
 #if defined(__ZEPHYR__)
@@ -104,10 +104,10 @@ int main(void)
 
     nrfx_temp_config_t config = NRFX_TEMP_DEFAULT_CONFIG;
     status = nrfx_temp_init(&config, temp_handler);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     status = nrfx_temp_measure();
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     while (1)
     {
