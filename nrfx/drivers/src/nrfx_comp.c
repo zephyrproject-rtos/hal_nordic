@@ -43,6 +43,10 @@
 #include <hal/nrf_ficr.h>
 #endif
 
+#if NRF_COMP_HAS_AIN_AS_PIN
+#include <hal/nrf_gpio.h>
+#endif
+
 #define EVT_TO_STR(event)                                     \
     (event == NRF_COMP_EVENT_READY ? "NRF_COMP_EVENT_READY" : \
     (event == NRF_COMP_EVENT_DOWN  ? "NRF_COMP_EVENT_DOWN"  : \
@@ -65,6 +69,10 @@ static int comp_input_convert(nrfx_analog_input_t analog_input,
     {
         return -EINVAL;
     }
+
+#if (NRF_COMP_HAS_AIN_AS_PIN && NRF_GPIO_HAS_RETENTION_SETCLEAR)
+    nrf_gpio_pin_retain_disable(comp_input);
+#endif
 
     *p_comp_input = comp_input;
     return 0;

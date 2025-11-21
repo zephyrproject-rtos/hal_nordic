@@ -589,9 +589,10 @@ NRF_STATIC_INLINE void nrf_rramc_buffer_read(void * dst, uint32_t address, uint3
 /**
  * @brief Function for setting RRAMC low power mode.
  *
- * @param[in] mode RRAMC low power mode.
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] mode  RRAMC low power mode.
  */
-NRF_STATIC_INLINE void nrf_rramc_lp_mode_set(nrf_rramc_lp_mode_t mode);
+NRF_STATIC_INLINE void nrf_rramc_lp_mode_set(NRF_RRAMC_Type * p_reg, nrf_rramc_lp_mode_t mode);
 
 #ifndef NRF_DECLARE_ONLY
 
@@ -859,12 +860,12 @@ NRF_STATIC_INLINE void nrf_rramc_buffer_read(void * dst, uint32_t address, uint3
     memcpy(dst, (void *)address, num_bytes);
 }
 
-NRF_STATIC_INLINE void nrf_rramc_lp_mode_set(nrf_rramc_lp_mode_t mode)
+NRF_STATIC_INLINE void nrf_rramc_lp_mode_set(NRF_RRAMC_Type * p_reg, nrf_rramc_lp_mode_t mode)
 {
-    NRF_RRAMC->POWER.LOWPOWERCONFIG = (NRF_RRAMC->POWER.LOWPOWERCONFIG &
-                                       ~RRAMC_POWER_LOWPOWERCONFIG_MODE_Msk) |
-                                       (((uint32_t)mode << RRAMC_POWER_LOWPOWERCONFIG_MODE_Pos) &
-                                       RRAMC_POWER_LOWPOWERCONFIG_MODE_Msk);
+    p_reg->POWER.LOWPOWERCONFIG = (p_reg->POWER.LOWPOWERCONFIG &
+                                   ~RRAMC_POWER_LOWPOWERCONFIG_MODE_Msk) |
+                                  (((uint32_t)mode << RRAMC_POWER_LOWPOWERCONFIG_MODE_Pos) &
+                                   RRAMC_POWER_LOWPOWERCONFIG_MODE_Msk);
 }
 
 #endif // NRF_DECLARE_ONLY

@@ -39,6 +39,10 @@
 #define NRFX_LOG_MODULE LPCOMP
 #include <nrfx_log.h>
 
+#if NRF_LPCOMP_HAS_AIN_AS_PIN
+#include <hal/nrf_gpio.h>
+#endif
+
 #define EVT_TO_STR(event)                                         \
     (event == NRF_LPCOMP_EVENT_READY ? "NRF_LPCOMP_EVENT_READY" : \
     (event == NRF_LPCOMP_EVENT_DOWN  ? "NRF_LPCOMP_EVENT_DOWN"  : \
@@ -60,6 +64,10 @@ static int lpcomp_input_convert(nrfx_analog_input_t analog_input,
     {
         return -EINVAL;
     }
+
+#if (NRF_LPCOMP_HAS_AIN_AS_PIN && NRF_GPIO_HAS_RETENTION_SETCLEAR)
+    nrf_gpio_pin_retain_disable(lpcomp_input);
+#endif
 
     *p_lpcomp_input = lpcomp_input;
     return 0;

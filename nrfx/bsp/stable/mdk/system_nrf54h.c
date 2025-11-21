@@ -63,17 +63,6 @@ void SystemInit(void)
             #ifndef NRF_SKIP_SAU_CONFIGURATION
                 configure_default_sau();
             #endif
-
-            #if NRF54H_ERRATA_62_ENABLE_WORKAROUND
-                /* Workaround for Errata 62 */
-                if (nrf54h_errata_62())
-                {
-                    if((NRF_LPCOMP->ENABLE & LPCOMP_ENABLE_ENABLE_Msk) == LPCOMP_ENABLE_ENABLE_Enabled){
-                        NRF_LPCOMP->TASKS_STOP=1;
-                        NRF_LPCOMP->ENABLE = LPCOMP_ENABLE_ENABLE_Disabled;
-                    }
-                }
-            #endif
         #endif
 
         /* Enable the FPU if the compiler used floating point unit instructions. __FPU_USED is a MACRO defined by the

@@ -118,6 +118,30 @@ extern "C" {
         (*((volatile uint32_t *)(task_or_event + NRF_SUBSCRIBE_PUBLISH_OFFSET(task_or_event))) = 0)
 #endif
 
+/**
+ * @brief Macro for enabling publish/subscribe register corresponding to specified event/task.
+ *
+ * @param[in] task_or_event Address of the event or task for which publish/subscribe
+ *                          register is to be used.
+ */
+#if !defined(NRF_DPPI_ENDPOINT_ENABLE)
+#define NRF_DPPI_ENDPOINT_ENABLE(task_or_event)                                                   \
+        (*((volatile uint32_t *)(task_or_event + NRF_SUBSCRIBE_PUBLISH_OFFSET(task_or_event))) |= \
+            NRF_SUBSCRIBE_PUBLISH_ENABLE)
+#endif
+
+/**
+ * @brief Macro for disabling publish/subscribe register corresponding to specified event/task.
+ *
+ * @param[in] task_or_event Address of the event or task for which publish/subscribe
+ *                          register is to be used.
+ */
+#if !defined(NRF_DPPI_ENDPOINT_DISABLE)
+#define NRF_DPPI_ENDPOINT_DISABLE(task_or_event)                                                  \
+        (*((volatile uint32_t *)(task_or_event + NRF_SUBSCRIBE_PUBLISH_OFFSET(task_or_event))) &= \
+            ~NRF_SUBSCRIBE_PUBLISH_ENABLE)
+#endif
+
 #if defined(ADDRESS_BUS_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether DPPI instance can be mapped to a peripheral based on common APB. */
 #define NRF_DPPI_HAS_APB_MAPPING 1

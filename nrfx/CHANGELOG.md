@@ -1,6 +1,23 @@
 # Changelog
 All notable changes to this project are documented in this file.
 
+## [4.0.1] - 2025-11-21
+
+### Changed
+- Updated MDK to version 8.73.2.
+- Changed nrfx_gppi helper layer to accept only task and event addresses as endpoints.
+- Disabled nRF52 Series anomaly 174 workaround.
+
+### Fixed
+- Fixed missing reference to nRF54L Series anomaly 60 in the NFCT driver.
+- Fixed missing pointer to the structure of the registers of the peripheral parameter in low-power mode setter in the RRAMC HAL.
+- Fixed missing non-volatile memory base address symbol for nRF51.
+- Fixed missing retention disabling when changing analog input in the COMP and LPCOMP drivers.
+- Fixed incorrect logger module name causing name collision in the LFCLK CLOCK driver.
+
+### Removed
+- Removed forcing nRF54H20 anomaly 62 presence off.
+
 ## [4.0.0] - 2025-11-07
 
 ### Added

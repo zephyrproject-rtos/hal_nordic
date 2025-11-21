@@ -43,7 +43,7 @@
 #include <nrfx_clock_xo.h>
 #endif
 
-#define NRFX_LOG_MODULE CLOCK
+#define NRFX_LOG_MODULE CLOCK_LFCLK
 #include <nrfx_log.h>
 
 #if (NRF_CLOCK_HAS_CALIBRATION && NRFX_CHECK(NRFX_CLOCK_CONFIG_LF_CAL_ENABLED) && \

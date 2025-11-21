@@ -633,30 +633,15 @@ void nrfx_gppi_channels_disable(uint32_t domain_id, uint32_t ch_mask)
     nrf_dppi_channels_disable(dppi_reg_get(domain_id), ch_mask);
 }
 
-static inline bool is_pub_sub(uint32_t ep)
-{
-#if defined(NRF_RADIO) && defined(RADIO_SUBSCRIBE_TXEN_ResetValue)
-    if ((NRFX_OFFSETOF(NRF_RADIO_Type, SUBSCRIBE_TXEN) != 0x80) &&
-        NRFX_IN_RANGE(ep, (uint32_t)NRF_RADIO, (uint32_t)NRF_RADIO + sizeof(NRF_RADIO_Type))) {
-        return (ep & 0x100) != 0;
-    }
-#endif
-    return (ep & 0x80) != 0;
-}
-
 int nrfx_gppi_ep_to_ch_attach(uint32_t ep, uint8_t channel)
 {
-    uint32_t pub_sub = is_pub_sub(ep) ? ep : (ep + NRF_SUBSCRIBE_PUBLISH_OFFSET(ep));
-
-    *(volatile uint32_t *)pub_sub = (uint32_t)channel | NRF_SUBSCRIBE_PUBLISH_ENABLE;
+    NRF_DPPI_ENDPOINT_SETUP(ep, channel);
     return 0;
 }
 
 void nrfx_gppi_ep_clear(uint32_t ep)
 {
-    uint32_t pub_sub = is_pub_sub(ep) ? ep : (ep + NRF_SUBSCRIBE_PUBLISH_OFFSET(ep));
-
-    *(volatile uint32_t *)pub_sub = 0;
+    NRF_DPPI_ENDPOINT_CLEAR(ep);
 }
 
 void nrfx_gppi_ep_ch_clear(uint32_t ep, uint8_t channel)
@@ -667,16 +652,12 @@ void nrfx_gppi_ep_ch_clear(uint32_t ep, uint8_t channel)
 
 void nrfx_gppi_ep_enable(uint32_t ep)
 {
-    uint32_t pub_sub = is_pub_sub(ep) ? ep : (ep + NRF_SUBSCRIBE_PUBLISH_OFFSET(ep));
-
-    *(volatile uint32_t *)pub_sub |= NRF_SUBSCRIBE_PUBLISH_ENABLE;
+    NRF_DPPI_ENDPOINT_ENABLE(ep);
 }
 
 void nrfx_gppi_ep_disable(uint32_t ep)
 {
-    uint32_t pub_sub = is_pub_sub(ep) ? ep : (ep + NRF_SUBSCRIBE_PUBLISH_OFFSET(ep));
-
-    *(volatile uint32_t *)pub_sub &= ~NRF_SUBSCRIBE_PUBLISH_ENABLE;
+    NRF_DPPI_ENDPOINT_DISABLE(ep);
 }
 
 int nrfx_gppi_domain_channel_get(nrfx_gppi_handle_t handle, uint32_t domain_id)
@@ -746,22 +727,22 @@ void nrfx_gppi_group_ch_add(nrfx_gppi_group_handle_t handle, uint32_t ch)
     uint32_t dis_reg = nrf_dppi_subscribe_get(p_reg, dis_task);
 
     /* Writes to CHG are ignored if SUBSCRIBE registers for a given group are enabled. */
-    if (en_reg & NRFX_BIT(31))
+    if (en_reg & NRF_SUBSCRIBE_PUBLISH_ENABLE)
     {
         nrf_dppi_subscribe_clear(p_reg, en_task);
     }
-    if (dis_reg & NRFX_BIT(31))
+    if (dis_reg & NRF_SUBSCRIBE_PUBLISH_ENABLE)
     {
         nrf_dppi_subscribe_clear(p_reg, dis_task);
     }
 
     nrf_dppi_channels_include_in_group(p_reg, NRFX_BIT(ch), group);
 
-    if (en_reg & NRFX_BIT(31))
+    if (en_reg & NRF_SUBSCRIBE_PUBLISH_ENABLE)
     {
         nrf_dppi_subscribe_set(p_reg, en_task, (uint8_t)en_reg);
     }
-    if (dis_reg & NRFX_BIT(31))
+    if (dis_reg & NRF_SUBSCRIBE_PUBLISH_ENABLE)
     {
         nrf_dppi_subscribe_set(p_reg, dis_task, (uint8_t)dis_reg);
     }
@@ -777,22 +758,22 @@ void nrfx_gppi_group_ch_remove(nrfx_gppi_group_handle_t handle, uint32_t ch)
     uint32_t dis_reg = nrf_dppi_subscribe_get(p_reg, dis_task);
 
     /* Writes to CHG are ignored if SUBSCRIBE registers for a given group are enabled. */
-    if (en_reg & NRFX_BIT(31))
+    if (en_reg & NRF_SUBSCRIBE_PUBLISH_ENABLE)
     {
         nrf_dppi_subscribe_clear(p_reg, en_task);
     }
-    if (dis_reg & NRFX_BIT(31))
+    if (dis_reg & NRF_SUBSCRIBE_PUBLISH_ENABLE)
     {
         nrf_dppi_subscribe_clear(p_reg, dis_task);
     }
 
     nrf_dppi_channels_remove_from_group(p_reg, NRFX_BIT(ch), group);
 
-    if (en_reg & NRFX_BIT(31))
+    if (en_reg & NRF_SUBSCRIBE_PUBLISH_ENABLE)
     {
         nrf_dppi_subscribe_set(p_reg, en_task, (uint8_t)en_reg);
     }
-    if (dis_reg & NRFX_BIT(31))
+    if (dis_reg & NRF_SUBSCRIBE_PUBLISH_ENABLE)
     {
         nrf_dppi_subscribe_set(p_reg, dis_task, (uint8_t)dis_reg);
     }
