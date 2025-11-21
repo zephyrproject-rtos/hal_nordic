@@ -6,6 +6,8 @@
 /**************************************************************************************************/
 
 #if defined(NRF51)
+    #define NVMC_FLASH_BASE_ADDRESS 0
+
     #define ECB_TASKS_STARTECB_TASKS_STARTECB_Msk
     #define ECB_TASKS_STOPECB_TASKS_STOPECB_Msk
     #define ECB_EVENTS_ENDECB_EVENTS_ENDECB_Msk

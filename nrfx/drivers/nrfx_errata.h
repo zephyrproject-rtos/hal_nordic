@@ -44,9 +44,9 @@
 #define NRF52_ERRATA_109_ENABLE_WORKAROUND  0
 #endif
 
-// By default, disable NRF54H errata 62
-#ifndef NRF54H_ERRATA_62_ENABLE_WORKAROUND
-#define NRF54H_ERRATA_62_ENABLE_WORKAROUND  0
+// By default, disable NRF52 errata 174
+#ifndef NRF52_ERRATA_174_ENABLE_WORKAROUND
+#define NRF52_ERRATA_174_ENABLE_WORKAROUND  0
 #endif
 
 #endif // NRFX_ERRATA_H__

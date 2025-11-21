@@ -13,7 +13,7 @@ nrfx 4.0 introduces API and structure changes. This guide lists actions required
 
 ## Errata
 
-- Reworked the errata system. The workarounds for unsupported SoCs were removed. Summary table [Doxygen file](https://github.com/nrfconnect/nrfx/blob/4.0-dev/doc/errata.dox) was created, which presents the currently implemented workarounds in nrfx.
+- Reworked the errata system. The workarounds for unsupported SoCs were removed. Summary table [Doxygen file](https://github.com/NordicSemiconductor/nrfx/blob/master/doc/errata.dox) was created, which presents the currently implemented workarounds in nrfx.
 - Added the following errata workarounds:
   - nRF52 Series:
     - 58,
