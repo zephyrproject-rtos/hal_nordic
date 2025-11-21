@@ -6,19 +6,17 @@ tests:
     tags:
       - twim
       - twis
-    filter: dt_compat_enabled("nordic,nrf-twim") and dt_compat_enabled("nordic,nrf-twis")
     platform_allow:
       - nrf52dk/nrf52832
       - nrf52833dk/nrf52833
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp
       - nrf9160dk/nrf9160
     integration_platforms:
       - nrf52dk/nrf52832
       - nrf52833dk/nrf52833
-      - nrf52840dk/nrf52840
-      - nrf5340dk/nrf5340/cpuapp
-      - nrf9160dk/nrf9160
+      - nrf54l15dk/nrf54l15/cpuapp
     harness: console
     harness_config:
       fixture: nrfx_example_loopbacks

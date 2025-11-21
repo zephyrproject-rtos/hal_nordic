@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -50,11 +50,16 @@
  *          the specified time.
  */
 
-/** @brief Symbol specifying timer instance to be used. */
-#define TIMER_INST_IDX 0
-
 /** @brief Symbol specifying time in milliseconds to wait for handler execution. */
 #define TIME_TO_WAIT_MS 5000UL
+
+/** @brief TIMER instance used in the example. */
+static nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(NRF_TIMER_INST_GET(TIMER_INST_IDX));
+
+#if !defined(__ZEPHYR__)
+/* Define an IRQ handler named nrfx_timer_<TIMER_INST_IDX>_irq_handler. */
+NRFX_INSTANCE_IRQ_HANDLER_DEFINE(timer, TIMER_INST_IDX, &timer_inst);
+#endif
 
 /**
  * @brief Function for handling TIMER driver events.
@@ -81,12 +86,12 @@ static void timer_handler(nrf_timer_event_t event_type, void * p_context)
  */
 int main(void)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
 #if defined(__ZEPHYR__)
     IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0, 0);
+                nrfx_timer_irq_handler, &timer_inst, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -94,14 +99,13 @@ int main(void)
     NRFX_LOG_INFO("Starting nrfx_timer basic example:");
     NRFX_EXAMPLE_LOG_PROCESS();
 
-    nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
     uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
     nrfx_timer_config_t config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
     config.bit_width = NRF_TIMER_BIT_WIDTH_32;
     config.p_context = "Some context";
 
     status = nrfx_timer_init(&timer_inst, &config, timer_handler);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     nrfx_timer_clear(&timer_inst);
 

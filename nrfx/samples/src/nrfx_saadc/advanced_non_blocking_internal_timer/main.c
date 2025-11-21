@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -63,14 +63,8 @@
  *          Please note that the internal timer can only be used in the non-blocking mode with only a single input channel enabled.
  */
 
-/** @brief Symbol specifying analog input to be observed by SAADC channel 0. */
-#define CH0_AIN ANALOG_INPUT_TO_SAADC_AIN(ANALOG_INPUT_A0)
-
-/** @brief Symbol specifying GPIOTE instance to be used. */
-#define GPIOTE_INST_IDX 0
-
 /** @brief Symbol specifying GPIO pin used to test the functionality of SAADC. */
-#define OUT_GPIO_PIN LOOPBACK_PIN_1B
+#define OUT_GPIO_PIN SAADC_CH0_LOOPBACK_PIN
 
 /** @brief Acquisition time [us] for source resistance <= 10 kOhm (see SAADC electrical specification). */
 #define ACQ_TIME_10K 3UL
@@ -103,10 +97,10 @@
 #define RESOLUTION NRF_SAADC_RESOLUTION_10BIT
 
 /** @brief SAADC channel configuration structure for single channel use. */
-static const nrfx_saadc_channel_t m_single_channel = SAADC_CHANNEL_SE_ACQ_3US(CH0_AIN, 0);
+static const nrfx_saadc_channel_t m_single_channel = SAADC_CHANNEL_SE_ACQ_3US(SAADC_CH0_AIN, 0);
 
 /** @brief Samples buffer to store values from a single channel ( @ref m_single_channel). */
-static uint16_t m_sample_buffers[BUFFER_COUNT][BUFFER_SIZE];
+static nrf_saadc_value_t m_sample_buffers[BUFFER_COUNT][BUFFER_SIZE];
 
 /** @brief Flag indicating that sampling on every specified channel is finished and buffer ( @ref m_sample_buffers ) is filled with samples. */
 static bool m_saadc_done;
@@ -117,6 +111,14 @@ NRFX_STATIC_ASSERT(SAADC_SAMPLE_FREQUENCY <= (1000000UL / (ACQ_TIME_10K + CONV_T
 /** Possible range value of a CC field in the SAMPLERATE register (SAADC) is 80-2047. */
 NRFX_STATIC_ASSERT((INTERNAL_TIMER_CC >= 80UL ) && (INTERNAL_TIMER_CC <= 2047UL));
 
+/** @brief GPIOTE instance used in the example. */
+static nrfx_gpiote_t gpiote_inst = NRFX_GPIOTE_INSTANCE(NRF_GPIOTE_INST_GET(SAADC_GPIOTE_INST_IDX));
+
+#if !defined(__ZEPHYR__)
+/* Define an IRQ handler named nrfx_gpiote_<SAADC_GPIOTE_INST_IDX>_irq_handler. */
+NRFX_INSTANCE_IRQ_HANDLER_DEFINE(gpiote, SAADC_GPIOTE_INST_IDX, &gpiote_inst);
+#endif
+
 /**
  * @brief Function for handling SAADC driver events.
  *
@@ -124,7 +126,7 @@ NRFX_STATIC_ASSERT((INTERNAL_TIMER_CC >= 80UL ) && (INTERNAL_TIMER_CC <= 2047UL)
  */
 static void saadc_handler(nrfx_saadc_evt_t const * p_event)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
     static uint16_t buffer_index = 1;
@@ -137,7 +139,7 @@ static void saadc_handler(nrfx_saadc_evt_t const * p_event)
             NRFX_LOG_INFO("SAADC event: CALIBRATEDONE");
 
             status = nrfx_saadc_mode_trigger();
-            NRFX_ASSERT(status == NRFX_SUCCESS);
+            NRFX_ASSERT(status == 0);
             break;
 
         case NRFX_SAADC_EVT_READY:
@@ -151,7 +153,7 @@ static void saadc_handler(nrfx_saadc_evt_t const * p_event)
             {
                 /* Next available buffer must be set on the NRFX_SAADC_EVT_BUF_REQ event to achieve the continuous conversion. */
                 status = nrfx_saadc_buffer_set(m_sample_buffers[buffer_index++], BUFFER_SIZE);
-                NRFX_ASSERT(status == NRFX_SUCCESS);
+                NRFX_ASSERT(status == 0);
                 buffer_index = buffer_index % BUFFER_COUNT;
             }
             break;
@@ -184,12 +186,12 @@ static void saadc_handler(nrfx_saadc_evt_t const * p_event)
  */
 int main(void)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
 #if defined(__ZEPHYR__)
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_GPIOTE_INST_HANDLER_GET(GPIOTE_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(SAADC_GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                nrfx_gpiote_irq_handler, &gpiote_inst, 0);
     IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SAADC), IRQ_PRIO_LOWEST, nrfx_saadc_irq_handler, 0, 0);
 #endif
 
@@ -198,10 +200,10 @@ int main(void)
     NRFX_EXAMPLE_LOG_PROCESS();
 
     status = nrfx_saadc_init(NRFX_SAADC_DEFAULT_CONFIG_IRQ_PRIORITY);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     status = nrfx_saadc_channel_config(&m_single_channel);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     nrfx_saadc_adv_config_t adv_config = NRFX_SAADC_DEFAULT_ADV_CONFIG;
     adv_config.internal_timer_cc = INTERNAL_TIMER_CC;
@@ -212,14 +214,13 @@ int main(void)
                                           RESOLUTION,
                                           &adv_config,
                                           saadc_handler);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     status = nrfx_saadc_buffer_set(m_sample_buffers[0], BUFFER_SIZE);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
-    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPIOTE_INST_IDX);
     status = nrfx_gpiote_init(&gpiote_inst, NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
     NRFX_LOG_INFO("GPIOTE status: %s",
                   nrfx_gpiote_init_check(&gpiote_inst) ? "initialized" : "not initialized");
 
@@ -228,7 +229,7 @@ int main(void)
 
     m_saadc_done = true;
     status = nrfx_saadc_offset_calibrate(saadc_handler);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     while (1)
     {

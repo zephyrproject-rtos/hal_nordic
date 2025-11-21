@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -35,14 +35,14 @@
 #include <helpers/nrfx_gppi.h>
 #include <nrfx_gpiote.h>
 
-void gpiote_pin_toggle_task_setup(nrfx_gpiote_t const * p_gpiote, nrfx_gpiote_pin_t pin)
+void gpiote_pin_toggle_task_setup(nrfx_gpiote_t * p_gpiote, nrfx_gpiote_pin_t pin)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
     uint8_t gpiote_channel;
     status = nrfx_gpiote_channel_alloc(p_gpiote, &gpiote_channel);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     static const nrfx_gpiote_output_config_t output_config =
     {
@@ -59,26 +59,23 @@ void gpiote_pin_toggle_task_setup(nrfx_gpiote_t const * p_gpiote, nrfx_gpiote_pi
     };
 
     status = nrfx_gpiote_output_configure(p_gpiote, pin, &output_config, &task_config);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     nrfx_gpiote_out_task_enable(p_gpiote, pin);
 }
 
-void pin_on_event_toggle_setup(nrfx_gpiote_t const * p_gpiote, nrfx_gpiote_pin_t pin, uint32_t eep)
+void pin_on_event_toggle_setup(nrfx_gpiote_t * p_gpiote, nrfx_gpiote_pin_t pin, uint32_t eep)
 {
-    nrfx_err_t status;
+    nrfx_gppi_handle_t gppi_handle;
+    int status;
+    uint32_t tep;
     (void)status;
 
-    uint8_t gppi_channel;
-
     gpiote_pin_toggle_task_setup(p_gpiote, pin);
+    tep = nrfx_gpiote_out_task_address_get(p_gpiote, pin);
 
-    status = nrfx_gppi_channel_alloc(&gppi_channel);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    status = nrfx_gppi_conn_alloc(eep, tep, &gppi_handle);
+    NRFX_ASSERT(status == 0);
 
-    nrfx_gppi_channel_endpoints_setup(gppi_channel,
-                                      eep,
-                                      nrfx_gpiote_out_task_address_get(p_gpiote, pin));
-
-    nrfx_gppi_channels_enable(NRFX_BIT(gppi_channel));
+    nrfx_gppi_conn_enable(gppi_handle);
 }

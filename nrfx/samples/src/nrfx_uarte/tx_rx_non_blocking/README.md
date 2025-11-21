@@ -1,4 +1,6 @@
-# UARTE non-blocking {#uarte_tx_rx_non_blocking}
+@page uarte_tx_rx_non_blocking UARTE non-blocking
+
+# UARTE non-blocking
 
 The sample demonstrates a functionality of the nrfx_uarte driver operating in the non-blocking mode.
 
@@ -12,7 +14,9 @@ The sample supports the following development kits:
 | nrf52833dk_nrf52833 |     Yes     |
 | nrf52840dk_nrf52840 |     Yes     |
 | nrf5340dk_nrf5340   |     Yes     |
+| nrf54l15dk_nrf54l15 |     Yes     |
 | nrf9160dk_nrf9160   |     Yes     |
+
 ## Overview
 
 Application initializes the nrfx_uarte driver and sends a specified message ( @p MSG_TO_SEND ) using UARTE instance.

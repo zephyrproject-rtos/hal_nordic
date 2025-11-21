@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -50,8 +50,8 @@
  *        analog pin is less than 10 kOhm.
  *
  * This configuration sets up single-ended SAADC channel with the following options:
- * - resistor ladder disabled
- * - gain: 1/6
+ * - resistor ladder inactive
+ * - gain: 1
  * - reference voltage: internal 0.6 V
  * - sample acquisition time: 3 us
  * - burst disabled
@@ -61,21 +61,25 @@
  *
  * @sa nrfx_saadc_channel_t
  */
-#define SAADC_CHANNEL_SE_ACQ_3US(_pin_p, _index)        \
-{                                                       \
-    .channel_config =                                   \
-    {                                                   \
-        .resistor_p = NRF_SAADC_RESISTOR_DISABLED,      \
-        .resistor_n = NRF_SAADC_RESISTOR_DISABLED,      \
-        .gain       = NRF_SAADC_GAIN1_6,                \
-        .reference  = NRF_SAADC_REFERENCE_INTERNAL,     \
-        .acq_time   = NRF_SAADC_ACQTIME_3US,            \
-        .mode       = NRF_SAADC_MODE_SINGLE_ENDED,      \
-        .burst      = NRF_SAADC_BURST_DISABLED,         \
-    },                                                  \
-    .pin_p          = (nrf_saadc_input_t)_pin_p,        \
-    .pin_n          = NRF_SAADC_INPUT_DISABLED,         \
-    .channel_index  = _index,                           \
+ #define SAADC_CHANNEL_SE_ACQ_3US(_pin_p, _index)                      \
+{                                                                      \
+    .channel_config =                                                  \
+    {                                                                  \
+        NRFX_COND_CODE_1(NRF_SAADC_HAS_CH_CONFIG_RES,                  \
+                         (.resistor_p = NRF_SAADC_RESISTOR_DISABLED,   \
+                          .resistor_n = NRF_SAADC_RESISTOR_DISABLED,), \
+                        ())                                            \
+        .gain       = NRF_SAADC_GAIN1,                                 \
+        .reference  = NRF_SAADC_REFERENCE_INTERNAL,                    \
+        NRFX_COND_CODE_1(NRF_SAADC_HAS_ACQTIME_ENUM,                   \
+                         (.acq_time = NRF_SAADC_ACQTIME_3US,),         \
+                         (.acq_time = 3,))                             \
+        .mode       = NRF_SAADC_MODE_SINGLE_ENDED,                     \
+        .burst      = NRF_SAADC_BURST_DISABLED,                        \
+    },                                                                 \
+    .pin_p          = (nrfx_analog_input_t)_pin_p,                     \
+    .pin_n          = NRFX_ANALOG_INPUT_DISABLED,                      \
+    .channel_index  = _index,                                          \
 }
 
 /**
@@ -84,7 +88,7 @@
  * @param[in] p_gpiote Pointer to the GPIOTE driver instance structure.
  * @param[in] pin      The pin to toggle.
  */
-void gpiote_pin_toggle_task_setup(nrfx_gpiote_t const * p_gpiote, nrfx_gpiote_pin_t pin);
+void gpiote_pin_toggle_task_setup(nrfx_gpiote_t * p_gpiote, nrfx_gpiote_pin_t pin);
 
 /**
  * @brief Function for setting up a pin to be toggled once specified event is triggered.
@@ -93,7 +97,7 @@ void gpiote_pin_toggle_task_setup(nrfx_gpiote_t const * p_gpiote, nrfx_gpiote_pi
  * @param[in] pin      The pin to toggle.
  * @param[in] eep      Address of the event register. This event will trigger the @p pin to toggle.
  */
-void pin_on_event_toggle_setup(nrfx_gpiote_t const * p_gpiote, nrfx_gpiote_pin_t pin, uint32_t eep);
+void pin_on_event_toggle_setup(nrfx_gpiote_t * p_gpiote, nrfx_gpiote_pin_t pin, uint32_t eep);
 
 /** @} */
 

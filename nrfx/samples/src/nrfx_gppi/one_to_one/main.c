@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -52,17 +52,22 @@
  *          TIMER compare event is set up to be forwarded via PPI/DPPI to GPIOTE and toggle a pin.
  */
 
-/** @brief Symbol specifying timer instance to be used. */
-#define TIMER_INST_IDX 0
-
 /** @brief Symbol specifying time in milliseconds to wait for handler execution. */
 #define TIME_TO_WAIT_MS 1000UL
 
-/** @brief Symbol specifying GPIOTE instance to be used. */
-#define GPIOTE_INST_IDX 0
+/** @brief TIMER instance used in the example. */
+static nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(NRF_TIMER_INST_GET(GPPI_TIMER_INST_IDX));
 
-/** @brief Symbol specifying ouput pin associated with the task. */
-#define OUTPUT_PIN LED1_PIN
+/** @brief GPIOTE instance used in the example. */
+static nrfx_gpiote_t gpiote_inst = NRFX_GPIOTE_INSTANCE(NRF_GPIOTE_INST_GET(GPPI_GPIOTE_INST_IDX));
+
+#if !defined(__ZEPHYR__)
+/* Define an IRQ handler named nrfx_timer_<GPPI_TIMER_INST_IDX>_irq_handler. */
+NRFX_INSTANCE_IRQ_HANDLER_DEFINE(timer, GPPI_TIMER_INST_IDX, &timer_inst);
+
+/* Define an IRQ handler named nrfx_gpiote_<GPPI_GPIOTE_INST_IDX>_irq_handler. */
+NRFX_INSTANCE_IRQ_HANDLER_DEFINE(gpiote, GPPI_GPIOTE_INST_IDX, &gpiote_inst);
+#endif
 
 /**
  * @brief Function for handling TIMER driver events.
@@ -78,8 +83,8 @@ static void timer_handler(nrf_timer_event_t event_type, void * p_context)
     {
         char * p_msg = p_context;
         NRFX_LOG_INFO("Timer finished. Context passed to the handler: >%s<", p_msg);
-        NRFX_LOG_INFO("GPIOTE output pin: %d is %s", OUTPUT_PIN,
-                      nrfx_gpiote_in_is_set(OUTPUT_PIN) ? "high" : "low");
+        NRFX_LOG_INFO("GPIOTE output pin: %d is %s", GPPI_OUTPUT_PIN_PRIMARY,
+                      nrfx_gpiote_in_is_set(GPPI_OUTPUT_PIN_PRIMARY) ? "high" : "low");
     }
 }
 
@@ -90,17 +95,17 @@ static void timer_handler(nrf_timer_event_t event_type, void * p_context)
  */
 int main(void)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
     uint8_t out_channel;
-    uint8_t gppi_channel;
+    nrfx_gppi_handle_t gppi_h;
 
 #if defined(__ZEPHYR__)
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_TIMER_INST_HANDLER_GET(TIMER_INST_IDX), 0, 0);
-    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_GPIOTE_INST_HANDLER_GET(GPIOTE_INST_IDX), 0, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TIMER_INST_GET(GPPI_TIMER_INST_IDX)), IRQ_PRIO_LOWEST,
+                nrfx_timer_irq_handler, &timer_inst, 0);
+    IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE_INST_GET(GPPI_GPIOTE_INST_IDX)), IRQ_PRIO_LOWEST,
+                nrfx_gpiote_irq_handler, &gpiote_inst, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -108,14 +113,13 @@ int main(void)
     NRFX_LOG_INFO("Starting nrfx_gppi basic one-to-one example.");
     NRFX_EXAMPLE_LOG_PROCESS();
 
-    nrfx_gpiote_t const gpiote_inst = NRFX_GPIOTE_INSTANCE(GPIOTE_INST_IDX);
     status = nrfx_gpiote_init(&gpiote_inst, NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
     NRFX_LOG_INFO("GPIOTE status: %s",
                   nrfx_gpiote_init_check(&gpiote_inst) ? "initialized" : "not initialized");
 
     status = nrfx_gpiote_channel_alloc(&gpiote_inst, &out_channel);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     /*
      * Initialize output pin. The SET task will turn the LED on,
@@ -135,19 +139,18 @@ int main(void)
         .init_val = NRF_GPIOTE_INITIAL_VALUE_HIGH,
     };
 
-    status = nrfx_gpiote_output_configure(&gpiote_inst, OUTPUT_PIN, &output_config, &task_config);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    status = nrfx_gpiote_output_configure(&gpiote_inst, GPPI_OUTPUT_PIN_PRIMARY, &output_config, &task_config);
+    NRFX_ASSERT(status == 0);
 
-    nrfx_gpiote_out_task_enable(&gpiote_inst, OUTPUT_PIN);
+    nrfx_gpiote_out_task_enable(&gpiote_inst, GPPI_OUTPUT_PIN_PRIMARY);
 
-    nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
     uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
     nrfx_timer_config_t timer_config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
     timer_config.bit_width = NRF_TIMER_BIT_WIDTH_32;
     timer_config.p_context = "Some context";
 
     status = nrfx_timer_init(&timer_inst, &timer_config, timer_handler);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     nrfx_timer_clear(&timer_inst);
 
@@ -163,18 +166,17 @@ int main(void)
     nrfx_timer_extended_compare(&timer_inst, NRF_TIMER_CC_CHANNEL0, desired_ticks,
                                 NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, true);
 
-    status = nrfx_gppi_channel_alloc(&gppi_channel);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
-
     /*
      * Configure endpoints of the channel so that the input timer event is connected with the output
      * pin OUT task. This means that each time the timer interrupt occurs, the LED pin will be toggled.
      */
-    nrfx_gppi_channel_endpoints_setup(gppi_channel,
+    status = nrfx_gppi_conn_alloc(
         nrfx_timer_compare_event_address_get(&timer_inst, NRF_TIMER_CC_CHANNEL0),
-        nrfx_gpiote_out_task_address_get(&gpiote_inst, OUTPUT_PIN));
+        nrfx_gpiote_out_task_address_get(&gpiote_inst, GPPI_OUTPUT_PIN_PRIMARY),
+	&gppi_h);
+    NRFX_ASSERT(status == 0);
 
-    nrfx_gppi_channels_enable(BIT(gppi_channel));
+    nrfx_gppi_conn_enable(gppi_h);
 
     nrfx_timer_enable(&timer_inst);
     NRFX_LOG_INFO("Timer status: %s", nrfx_timer_is_enabled(&timer_inst) ? "enabled" : "disabled");

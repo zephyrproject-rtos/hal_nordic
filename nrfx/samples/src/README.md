@@ -1,5 +1,6 @@
 # Samples
 Samples are grouped into the following subdirectories:
+- [nrfx_cracen] - samples showing the functionality of the CRACEN driver.
 - [nrfx_egu] - samples showing the functionality of the EGU driver.
 - [nrfx_gppi] - samples showing the functionality of the GPPI driver.
 - [nrfx_pwm] - samples showing the functionality of the PWM driver.
@@ -13,6 +14,7 @@ Samples are grouped into the following subdirectories:
 - [nrfx_uarte] - samples showing the functionality of the UARTE driver.
 
 [//]: #
+[nrfx_cracen]: <nrfx_cracen>
 [nrfx_egu]: <nrfx_egu>
 [nrfx_gppi]: <nrfx_gppi>
 [nrfx_pwm]: <nrfx_pwm>

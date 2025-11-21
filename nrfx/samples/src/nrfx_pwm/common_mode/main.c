@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -51,9 +51,6 @@
  *          executed with relevant log message after every loop.
  */
 
-/** @brief Symbol specifying PWM instance to be used. */
-#define PWM_INST_IDX 0
-
 /**
  * @brief Symbol specifying number of times that each duty cycle is to be repeated (after being
  *        played once) and is strictly correlated with the "breath" effect speed.
@@ -69,8 +66,16 @@
  */
 #define PLAYBACK_COUNT 1UL
 
+/** @brief PWM instance used in the example. */
+static nrfx_pwm_t pwm_instance = NRFX_PWM_INSTANCE(NRF_PWM_INST_GET(PWM_INST_IDX));
+
+#if !defined(__ZEPHYR__)
+/* Define an IRQ handler named nrfx_pwm_<PWM_INST_IDX>_irq_handler. */
+NRFX_INSTANCE_IRQ_HANDLER_DEFINE(pwm, PWM_INST_IDX, &pwm_instance);
+#endif
+
 /** @brief Array with duty cycle values. */
-nrf_pwm_values_common_t pwm_val []=
+static nrf_pwm_values_common_t pwm_val[] =
 {
     0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
     900, 800, 700, 600, 500, 400, 300, 200, 100, 0
@@ -84,9 +89,8 @@ nrf_pwm_values_common_t pwm_val []=
  *                       the timer. This parameter can be used to pass
  *                       additional information to the handler function.
  */
-static void pwm_handler(nrfx_pwm_evt_type_t event_type, void * p_context)
+static void pwm_handler(nrfx_pwm_event_type_t event_type, void * p_context)
 {
-    nrfx_pwm_t * inst = p_context;
     static uint32_t curr_loop = 1;
 
     NRFX_LOG_INFO("Loops: %u / %lu", curr_loop, NUM_OF_LOOPS);
@@ -94,7 +98,7 @@ static void pwm_handler(nrfx_pwm_evt_type_t event_type, void * p_context)
     if (curr_loop == NUM_OF_LOOPS)
     {
         NRFX_LOG_INFO("PWM finished");
-        nrfx_pwm_uninit(inst);
+        nrfx_pwm_uninit(&pwm_instance);
     }
     curr_loop++;
 }
@@ -106,12 +110,12 @@ static void pwm_handler(nrfx_pwm_evt_type_t event_type, void * p_context)
  */
 int main(void)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
 #if defined(__ZEPHYR__)
     IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_PWM_INST_GET(PWM_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_PWM_INST_HANDLER_GET(PWM_INST_IDX), 0, 0);
+                nrfx_pwm_irq_handler, &pwm_instance, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -119,10 +123,11 @@ int main(void)
     NRFX_LOG_INFO("Starting nrfx_pwm example for sequence loaded in common mode.");
     NRFX_EXAMPLE_LOG_PROCESS();
 
-    nrfx_pwm_t pwm_instance = NRFX_PWM_INSTANCE(PWM_INST_IDX);
-    nrfx_pwm_config_t config = NRFX_PWM_DEFAULT_CONFIG(LED1_PIN, LED2_PIN, LED3_PIN, LED4_PIN);
-    status = nrfx_pwm_init(&pwm_instance, &config, pwm_handler, &pwm_instance);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    nrfx_pwm_config_t config = NRFX_PWM_DEFAULT_CONFIG(PWM_LED1_PIN, PWM_LED2_PIN,
+                                                       PWM_LED3_PIN, PWM_LED4_PIN);
+
+    status = nrfx_pwm_init(&pwm_instance, &config, pwm_handler, NULL);
+    NRFX_ASSERT(status == 0);
 
     nrf_pwm_sequence_t seq =
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 - 2024, Nordic Semiconductor ASA
+ * Copyright (c) 2022 - 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -60,29 +60,6 @@
  *          @ref register_read() function is used to write data from particular registers to buffer
  *          in master device and print content of that buffer.
  */
-
-/** @brief Symbol specifying pin number of master SCL. */
-#define MASTER_SCL_PIN LOOPBACK_PIN_1A
-
-/** @brief Symbol specifying pin number of master SDA. */
-#define MASTER_SDA_PIN LOOPBACK_PIN_2A
-
-/** @brief Symbol specifying pin number of slave SCL. */
-#define SLAVE_SCL_PIN LOOPBACK_PIN_1B
-
-/** @brief Symbol specifying pin number of slave SDA. */
-#define SLAVE_SDA_PIN LOOPBACK_PIN_2B
-
-#if defined(NRF52_SERIES) || defined(__NRFX_DOXYGEN__)
-/** @brief Symbol specifying TWIM instance to be used. */
-#define TWIM_INST_IDX 0
-
-/** @brief Symbol specifying TWIS instance to be used. */
-#define TWIS_INST_IDX 1
-#else
-#define TWIM_INST_IDX 1
-#define TWIS_INST_IDX 2
-#endif
 
 /** @brief Symbol specifying drone (slave) address on TWI bus. */
 #define DRONE_IDX 0x01U
@@ -151,10 +128,18 @@ typedef union
 static drone_regs_t m_drone_reg = {.register_map = DRONE_DEFAULT_CONFIG(DRONE_IDX, DRONE_MASS)};
 
 /** @brief Structure containing TWIS driver instance. */
-static nrfx_twis_t m_twis_inst = NRFX_TWIS_INSTANCE(TWIS_INST_IDX);
+static nrfx_twis_t m_twis_inst = NRFX_TWIS_INSTANCE(NRF_TWIS_INST_GET(TWIS_INST_IDX));
 
 /** @brief Structure containing TWIM driver instance. */
-static nrfx_twim_t m_twim_inst = NRFX_TWIM_INSTANCE(TWIM_INST_IDX);
+static nrfx_twim_t m_twim_inst = NRFX_TWIM_INSTANCE(NRF_TWIS_INST_GET(TWIM_INST_IDX));
+
+#if !defined(__ZEPHYR__)
+/* Define an IRQ handler named nrfx_twis_<TWIS_INST_IDX>_irq_handler. */
+NRFX_INSTANCE_IRQ_HANDLER_DEFINE(twis, TWIS_INST_IDX, &m_twis_inst);
+
+/* Define an IRQ handler named nrfx_twim_<TWIM_INST_IDX>_irq_handler. */
+NRFX_INSTANCE_IRQ_HANDLER_DEFINE(twim, TWIM_INST_IDX, &m_twim_inst);
+#endif
 
 /**
  * @brief Function for showing values of all drone registers.
@@ -214,8 +199,8 @@ void register_read(uint8_t   slave_addr,
                                                                     rx_buffer,
                                                                     bytes_to_read);
     NRFX_EXAMPLE_LOG_PROCESS();
-    nrfx_err_t status = nrfx_twim_xfer(&m_twim_inst, &twim_xfer_desc, 0);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    int status = nrfx_twim_xfer(&m_twim_inst, &twim_xfer_desc, 0);
+    NRFX_ASSERT(status == 0);
 
     while (nrfx_twim_is_busy(&m_twim_inst))
     {}
@@ -229,7 +214,7 @@ void register_read(uint8_t   slave_addr,
  *                      This parameter can be used to pass additional information to the
  *                      handler function.
  */
-static void twim_handler(nrfx_twim_evt_t const * p_event, void * p_context)
+static void twim_handler(nrfx_twim_event_t const * p_event, void * p_context)
 {
     if (p_event->type == NRFX_TWIM_EVT_DONE)
     {
@@ -247,9 +232,9 @@ static void twim_handler(nrfx_twim_evt_t const * p_event, void * p_context)
  *
  * @param[in] p_event Event information structure.
  */
-static void twis_handler(nrfx_twis_evt_t const * p_event)
+static void twis_handler(nrfx_twis_event_t const * p_event)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
     /* Variable to store register number sent in the last TX. */
@@ -259,14 +244,14 @@ static void twis_handler(nrfx_twis_evt_t const * p_event)
     {
         case NRFX_TWIS_EVT_WRITE_REQ:
             status = nrfx_twis_rx_prepare(&m_twis_inst, &reg_buff, sizeof(reg_buff));
-            NRFX_ASSERT(status == NRFX_SUCCESS);
+            NRFX_ASSERT(status == 0);
             break;
 
         case NRFX_TWIS_EVT_READ_REQ:
             status = nrfx_twis_tx_prepare(&m_twis_inst,
                                           &m_drone_reg.bytes[reg_buff],
                                           sizeof(m_drone_reg) - reg_buff);
-            NRFX_ASSERT(status == NRFX_SUCCESS);
+            NRFX_ASSERT(status == 0);
             break;
 
         default:
@@ -281,15 +266,15 @@ static void twis_handler(nrfx_twis_evt_t const * p_event)
  */
 int main(void)
 {
-    nrfx_err_t status;
+    int status;
     (void)status;
 
 #if defined(__ZEPHYR__)
     IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TWIM_INST_GET(TWIM_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_TWIM_INST_HANDLER_GET(TWIM_INST_IDX), 0, 0);
+                nrfx_twim_irq_handler, &m_twim_inst, 0);
 
     IRQ_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_TWIS_INST_GET(TWIS_INST_IDX)), IRQ_PRIO_LOWEST,
-                NRFX_TWIS_INST_HANDLER_GET(TWIS_INST_IDX), 0, 0);
+                nrfx_twis_irq_handler, &m_twis_inst, 0);
 #endif
 
     NRFX_EXAMPLE_LOG_INIT();
@@ -301,15 +286,15 @@ int main(void)
     uint32_t drone_ctrl_buffer = 0;
 
     void * p_context = "--> Master event: done - transfer completed";
-    nrfx_twim_config_t twim_config = NRFX_TWIM_DEFAULT_CONFIG(MASTER_SCL_PIN, MASTER_SDA_PIN);
+    nrfx_twim_config_t twim_config = NRFX_TWIM_DEFAULT_CONFIG(TWIM_TWIS_MASTER_SCL_PIN, TWIM_TWIS_MASTER_SDA_PIN);
     status = nrfx_twim_init(&m_twim_inst, &twim_config, twim_handler, p_context);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
-    nrfx_twis_config_t twis_config = NRFX_TWIS_DEFAULT_CONFIG(SLAVE_SCL_PIN,
-                                                              SLAVE_SDA_PIN,
+    nrfx_twis_config_t twis_config = NRFX_TWIS_DEFAULT_CONFIG(TWIM_TWIS_SLAVE_SCL_PIN,
+                                                              TWIM_TWIS_SLAVE_SDA_PIN,
                                                               DRONE_IDX);
     status = nrfx_twis_init(&m_twis_inst, &twis_config, twis_handler);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+    NRFX_ASSERT(status == 0);
 
     drone_reg_print(&m_drone_reg);
 
