@@ -173,6 +173,15 @@
 #endif
 
 /**
+ * @brief NRFX_CRACEN_BSIM_SUPPORT
+ *
+ * Boolean. Accepted values: 0 and 1.
+ */
+#ifndef NRFX_CRACEN_BSIM_SUPPORT
+#define NRFX_CRACEN_BSIM_SUPPORT 0
+#endif
+
+/**
  * @brief NRFX_DPPI_ENABLED
  *
  * Boolean. Accepted values: 0 and 1.

@@ -38,6 +38,7 @@
 #include <hal/nrf_cracen_cm.h>
 #include <helpers/nrf_cracen_cm_dma.h>
 #endif
+#include <lib/nrfx_coredep.h>
 
 #define TRNG_OFF_TIMER_VAL          0
 #define TRNG_INIT_WAIT_VAL        512
@@ -238,6 +239,9 @@ static cracen_ret_t trng_entropy_get(uint8_t * p_buf, size_t size)
         {
             break;
         }
+#if NRFX_CHECK(NRFX_CRACEN_BSIM_SUPPORT)
+        nrfx_coredep_delay_us(1);
+#endif
     }
 
     nrf_cracen_module_disable(NRF_CRACEN, NRF_CRACEN_MODULE_RNG_MASK);
@@ -357,6 +361,9 @@ static cracen_ret_t cm_aes_ecb(uint8_t * p_key, size_t key_size, uint8_t * p_inp
         /* The HW is so fast that it is better to "busy wait" here than program an
          * interrupt. This will normally already succeed in the first try
          */
+#if NRFX_CHECK(NRFX_CRACEN_BSIM_SUPPORT)
+        nrfx_coredep_delay_us(1);
+#endif
         ret = cm_done_check();
     } while (ret == HW_PROCESSING);
 
