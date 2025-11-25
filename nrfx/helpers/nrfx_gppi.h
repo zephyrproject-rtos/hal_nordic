@@ -525,8 +525,9 @@ typedef struct {
  * @param[out] p_handle   Handle used to control the connection.
  * @param[in]  p_resource Optional external DPPI resource.
  *
- * @retval 0       Successful connection allocation.
- * @retval -ENOMEM There is not enough resources to allocate the connection.
+ * @retval 0        Successful connection allocation.
+ * @retval -ENOMEM  There is not enough resources to allocate the connection.
+ * @retval -ENOTSUP Not supported. Supported only on multi domain system.
  */
 #if NRFX_CHECK(NRFX_GPPI_MULTI_DOMAIN) || defined(__NRFX_DOXYGEN__)
 int nrfx_gppi_ext_conn_alloc(uint32_t producer, uint32_t consumer, nrfx_gppi_handle_t * p_handle,
@@ -663,7 +664,7 @@ NRFX_STATIC_INLINE int nrfx_gppi_ext_conn_alloc(uint32_t producer, uint32_t cons
     (void)consumer;
     (void)p_handle;
     (void)p_resource;
-    return 0;
+    return -ENOTSUP;
 }
 #endif
 #endif // NRFX_DECLARE_ONLY
