@@ -61,6 +61,7 @@
 
 #define DPPI_CH_OFF (DPPI_INST_CNT_OFF + DPPI_INST_CNT_BITS)
 #define DPPI_CH_BITS 5
+#define DPPI_CH_RESERVED NRFX_BIT_MASK(DPPI_CH_BITS)
 
 #define DPPI_REV_OFF (DPPI_CH_OFF + DPPI_CH_BITS)
 #define DPPI_REV_BITS 1
@@ -108,6 +109,7 @@ NRFX_STATIC_ASSERT(DPPI_TOTAL_BITS == 32);
 #define DPPI_CH_MAX_CNT 5
 #define DPPI_CH_OFF 0
 #define DPPI_CH_BITS 5
+#define DPPI_CH_RESERVED NRFX_BIT_MASK(DPPI_CH_BITS)
 
 #define DPPI_REV_OFF (DPPI_CH_OFF + DPPI_CH_MAX_CNT * DPPI_CH_BITS)
 #define DPPI_REV_BITS 1
@@ -424,6 +426,10 @@ int nrfx_gppi_ext_conn_alloc(uint32_t producer, uint32_t consumer, nrfx_gppi_han
             {
                 h |= HANDLE_CHAN(i, channels[i]);
             }
+            else if (p_node->domain_id == p_resource->domain_id)
+            {
+                h |= HANDLE_CHAN(i, DPPI_CH_RESERVED);
+            }
         }
     }
 
@@ -468,7 +474,10 @@ void nrfx_gppi_domain_conn_free(nrfx_gppi_handle_t handle)
             (void)rv;
             NRFX_ASSERT(rv == 0);
         }
-        flag_free(p_node->generic.p_channels, (uint8_t)chan);
+        if (chan != DPPI_CH_RESERVED)
+        {
+            flag_free(p_node->generic.p_channels, (uint8_t)chan);
+        }
     }
 }
 #else
@@ -581,7 +590,7 @@ static nrfx_atomic_t *get_group_chan_mask(uint32_t domain_id)
 			_reg = _route->p_nodes[i]->dppi.p_reg;					                        \
 	     i < _route->len;									                                \
 	     i += 2, _ch = HANDLE_GET_CHAN(_handle, i), _d_id = _route->p_nodes[i]->domain_id,	\
-	     _reg = _route->p_nodes[i]->dppi.p_reg)
+	     _reg = _route->p_nodes[i]->dppi.p_reg) if (_ch != DPPI_CH_RESERVED)
 #else
 #define FOR_EACH_DPPI(_gppi, _handle, _ch, _reg, _d_id)                                     \
     _reg = NRF_DPPIC;                                                                       \
