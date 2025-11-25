@@ -138,10 +138,14 @@ NRFX_STATIC_INLINE int nrfx_gppi_ep_channel_get(uint32_t ep);
 #endif
 
 /**
- * @brief Function for getting the channel that is used in a connection for a given domain.
+ * @brief Function for getting one of a channels that is used in a connection.
+ *
+ * A connection may consists of a number of nodes which are domains with a unique DPPI or PPIB nodes.
+ * @ref nrfx_gppi_domain_id_get can be used to get the domain ID for a given peripheral. Node ID for
+ * PPIB is target specific.
  *
  * @param[in] handle    Connection handle.
- * @param[in] domain_id Domain ID.
+ * @param[in] domain_id Domain or PPIB node ID.
  *
  * @retval non-negative Configured channel.
  * @retval -EINVAL      Invalid input arguments.

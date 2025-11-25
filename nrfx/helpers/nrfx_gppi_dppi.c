@@ -662,20 +662,25 @@ void nrfx_gppi_ep_disable(uint32_t ep)
 
 int nrfx_gppi_domain_channel_get(nrfx_gppi_handle_t handle, uint32_t domain_id)
 {
-    NRF_DPPIC_Type * p_reg;
-    uint32_t d_id;
-    uint32_t ch;
+#if NRFX_CHECK(NRFX_GPPI_FIXED_CONNECTIONS)
+    (void)domain_id;
+    return HANDLE_GET_CHAN(handle, 0);
+#elif !defined(NRFX_GPPI_MULTI_DOMAIN)
+    (void)domain_id;
+    return handle;
+#else
+    const nrfx_gppi_route_t * p_route = &p_gppi->routes[HANDLE_GET_ROUTE_ID(handle)];
 
-    FOR_EACH_DPPI(p_gppi, handle, ch, p_reg, d_id)
+    for (size_t i = 0; i < p_route->len; i++)
     {
-        (void)p_reg;
-        if (d_id == domain_id)
+        if (p_route->p_nodes[i]->domain_id == domain_id)
         {
-            return (int)ch;
+            return HANDLE_GET_CHAN(handle, i);
         }
     }
 
     return -EINVAL;
+#endif
 }
 
 
