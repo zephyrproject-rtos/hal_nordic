@@ -3113,7 +3113,7 @@ static bool nrf54l_errata_55(void)
                     case 0x00ul:
                         return true;
                     case 0x01ul:
-                        return false;
+                        return true;
                     default:
                         return false;
                 }
