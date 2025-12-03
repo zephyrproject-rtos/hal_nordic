@@ -37,8 +37,6 @@
 #include <helpers/nrfx_gppi.h>
 #include <helpers/nrfx_flag32_allocator.h>
 
-#define PPI_EP_IS_EVT(_ep) ((_ep) & NRFX_BIT(8))
-
 static nrfx_gppi_t * p_gppi;
 
 void nrfx_gppi_init(nrfx_gppi_t * p_instance)
@@ -155,11 +153,11 @@ int nrfx_gppi_ep_to_ch_attach(uint32_t ep, uint8_t channel)
 {
     nrf_ppi_channel_t ch = (nrf_ppi_channel_t)channel;
 
-    if (PPI_EP_IS_EVT(ep)) {
-        if (NRF_PPI->CH[ch].EEP != 0) {
+    if (NRF_PPI_ENDPOINT_IS_EVENT(ep)) {
+        if (nrf_ppi_event_endpoint_get(NRF_PPI, ch) != 0) {
             return -ENOTSUP;
         }
-        NRF_PPI->CH[ch].EEP = ep;
+        nrf_ppi_event_endpoint_setup(NRF_PPI, ch, ep);
         return 0;
     }
 
@@ -186,7 +184,7 @@ int nrfx_gppi_ep_attach(uint32_t ep, nrfx_gppi_handle_t handle)
 
 int nrfx_gppi_ep_channel_get(uint32_t ep)
 {
-    if (!PPI_EP_IS_EVT(ep))
+    if (!NRF_PPI_ENDPOINT_IS_EVENT(ep))
     {
 #ifdef PPI_FEATURE_FORKS_PRESENT
         for (int i = 0; i < PPI_CH_NUM; i++)
@@ -199,7 +197,7 @@ int nrfx_gppi_ep_channel_get(uint32_t ep)
 #endif
         for (int i = 0; i < PPI_CH_NUM; i++)
         {
-            if (NRF_PPI->CH[i].TEP == ep)
+            if (nrf_ppi_task_endpoint_get(NRF_PPI, (nrf_ppi_channel_t)i) == ep)
             {
                 return (int)i;
             }
@@ -209,7 +207,7 @@ int nrfx_gppi_ep_channel_get(uint32_t ep)
     {
         for (int i = 0; i < PPI_CH_NUM; i++)
         {
-            if (NRF_PPI->CH[i].EEP == ep)
+            if (nrf_ppi_event_endpoint_get(NRF_PPI, (nrf_ppi_channel_t)i) == ep)
             {
                 return i;
             }
@@ -221,7 +219,7 @@ int nrfx_gppi_ep_channel_get(uint32_t ep)
 
 void nrfx_gppi_ep_ch_clear(uint32_t ep, uint8_t channel)
 {
-    if (PPI_EP_IS_EVT(ep)) {
+    if (NRF_PPI_ENDPOINT_IS_EVENT(ep)) {
         nrf_ppi_event_endpoint_setup(NRF_PPI, (nrf_ppi_channel_t)channel, 0);
         return;
     }
