@@ -1,19 +1,5 @@
 #include "../../../common/common-pinctrl.dtsi"
 
-/ {
-    chosen {
-        zephyr,console = &uart30;
-    };
-};
-
-&uart20 {
-    status = "disabled";
-};
-
-&uart30 {
-    status = "okay";
-};
-
 &i2c21 {
     status = "okay";
     compatible = "nordic,nrf-twim";
