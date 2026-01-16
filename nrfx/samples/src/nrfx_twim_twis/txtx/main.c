@@ -129,7 +129,7 @@ static drone_regs_t m_drone_reg = {.register_map = DRONE_DEFAULT_CONFIG(DRONE_ID
 static nrfx_twis_t m_twis_inst = NRFX_TWIS_INSTANCE(NRF_TWIS_INST_GET(TWIS_INST_IDX));
 
 /** @brief Structure containing TWIM driver instance. */
-static nrfx_twim_t m_twim_inst = NRFX_TWIM_INSTANCE(NRF_TWIS_INST_GET(TWIM_INST_IDX));
+static nrfx_twim_t m_twim_inst = NRFX_TWIM_INSTANCE(NRF_TWIM_INST_GET(TWIM_INST_IDX));
 
 #if !defined(__ZEPHYR__)
 /* Define an IRQ handler named nrfx_twis_<TWIS_INST_IDX>_irq_handler. */
