@@ -9,7 +9,11 @@ nrfx 4.0 introduces API and structure changes. This guide lists actions required
   - SoC-specific templates
   - SoC-specific defines from nrfx drivers
   - Soc-specific files from soc/ directory (IRQ handlers and interconnect)
-<br>Action : Always include `nrfx.h` header globally, do not include sub-headers like `nrf.h` or `nrf_erratas.h`.
+<br>Action : Always include `nrfx.h` header globally, do not include sub-headers like:
+- `nrf.h`
+- `nrf_erratas.h`
+- `nrf_mem.h`
+- `nrf_peripherals.h`
 
 ## Errata
 
@@ -37,7 +41,7 @@ nrfx 4.0 introduces API and structure changes. This guide lists actions required
 
 ## Error codes
 
-All nrfx drivers and helpers now return int errno values. Failed function execution is indicated by negative return value. `nrfx_err_t` type is deprecated.
+All nrfx drivers and helpers now return int errno values. Failed function execution is indicated by negative return value. `nrfx_err_t` type is deprecated. Expressions like `NRFX_ASSERT(err == NRFX_SUCCESS)` will no longer work as expected.
 <br>Action : Update the affected code. Update implementation of `NRFX_LOG_ERROR_STRING_GET` macro to new error type.
 
 ## Instance interrupt handlers
@@ -577,3 +581,10 @@ nrfx_gppi_ep_clear(tep_c);
     <br>Action : Update the affected code, all SAADC samples are 16 bits wide now.
 - Defined `nrf_saadc_value_t` type as `int16_t`. `nrf_saadc_value_min_get`, `nrf_saadc_value_max_get`, `nrf_saadc_value_min_get` and `nrf_saadc_value_max_get` functions now return `nrf_saadc_value_t` type.
     <br>Action : Update the affected code.
+
+## Others
+
+### nrfx_coredep
+
+- Moved from `soc` directory to `lib` directory.
+    <br>Action : Update the inclusion paths.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Nordic Semiconductor ASA
+ * Copyright (c) 2025 - 2026, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -534,6 +534,11 @@ int nrfx_gppi_conn_alloc(uint32_t eep, uint32_t tep, nrfx_gppi_handle_t * p_hand
 {
     int rv;
 
+    if ((nrfx_gppi_ep_channel_get(eep) >= 0) || (nrfx_gppi_ep_channel_get(tep) >= 0))
+    {
+        return -EINVAL;
+    }
+
     rv = nrfx_gppi_domain_conn_alloc(nrfx_gppi_domain_id_get(eep),
                                      nrfx_gppi_domain_id_get(tep), p_handle);
     if (rv != 0)
@@ -669,20 +674,20 @@ void nrfx_gppi_ep_disable(uint32_t ep)
     NRF_DPPI_ENDPOINT_DISABLE(ep);
 }
 
-int nrfx_gppi_domain_channel_get(nrfx_gppi_handle_t handle, uint32_t domain_id)
+int nrfx_gppi_domain_channel_get(nrfx_gppi_handle_t handle, uint32_t node_id)
 {
 #if NRFX_CHECK(NRFX_GPPI_FIXED_CONNECTIONS)
-    (void)domain_id;
+    (void)node_id;
     return HANDLE_GET_CHAN(handle, 0);
 #elif !defined(NRFX_GPPI_MULTI_DOMAIN)
-    (void)domain_id;
+    (void)node_id;
     return handle;
 #else
     const nrfx_gppi_route_t * p_route = &p_gppi->routes[HANDLE_GET_ROUTE_ID(handle)];
 
     for (size_t i = 0; i < p_route->len; i++)
     {
-        if (p_route->p_nodes[i]->domain_id == domain_id)
+        if (p_route->p_nodes[i]->domain_id == node_id)
         {
             return HANDLE_GET_CHAN(handle, i);
         }
