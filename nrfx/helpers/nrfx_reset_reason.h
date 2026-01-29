@@ -179,6 +179,14 @@ extern "C" {
 #define NRFX_RESET_REASON_HAS_SECTAMPER 0
 #endif
 
+#if (defined(NRF_RESET) && NRF_RESET_HAS_DOG1_RESET) || \
+    (defined(NRF_RESETINFO)) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether DOG1 reset reason is present. */
+#define NRFX_RESET_REASON_HAS_DOG1 1
+#else
+#define NRFX_RESET_REASON_HAS_DOG1 0
+#endif
+
 /** @brief Reset reason bit masks. */
 typedef enum
 {
@@ -200,9 +208,11 @@ typedef enum
     /**< Reset due to wakeup from System OFF mode when wakeup is triggered by DETECT signal from
      *   GPIO. */
     NRFX_RESET_REASON_OFF_MASK          = NRF_RESET_RESETREAS_OFF_MASK,
+#if NRFX_RESET_REASON_HAS_LPCOMP
     /**< Reset due to wakeup from System OFF mode when wakeup is triggered by ANADETECT signal from
      *   LPCOMP. */
     NRFX_RESET_REASON_LPCOMP_MASK       = NRF_RESET_RESETREAS_LPCOMP_MASK,
+#endif
     /**< Reset due to wakeup from System OFF mode when wakeup is triggered by entering the debug
      *   interface mode. */
     NRFX_RESET_REASON_DIF_MASK          = NRF_RESET_RESETREAS_DIF_MASK,
@@ -226,8 +236,10 @@ typedef enum
     /**< Reset after wakeup from System OFF mode due to NFC field being detected. */
     NRFX_RESET_REASON_NFC_MASK          = NRF_RESET_RESETREAS_NFC_MASK,
 #endif
+#if NRFX_RESET_REASON_HAS_DOG1
     /**< Reset from application watchdog timer 1 detected. */
     NRFX_RESET_REASON_DOG1_MASK         = NRF_RESET_RESETREAS_DOG1_MASK,
+#endif
 #if NRFX_RESET_REASON_HAS_VBUS
     /**< Reset after wakeup from System OFF mode due to VBUS rising into valid range. */
     NRFX_RESET_REASON_VBUS_MASK         = NRF_RESET_RESETREAS_VBUS_MASK,
