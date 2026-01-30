@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Nordic Semiconductor ASA
+ * Copyright (c) 2025 - 2026, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -79,10 +79,10 @@ int nrfx_gppi_ep_attach(uint32_t ep, nrfx_gppi_handle_t handle)
 
 int nrfx_gppi_conn_alloc(uint32_t eep, uint32_t tep, nrfx_gppi_handle_t * p_handle)
 {
-    nrfx_err_t err = nrfx_gppiv1_channel_alloc((uint8_t *)p_handle);
-    if (err != NRFX_SUCCESS)
+    int err = nrfx_gppiv1_channel_alloc((uint8_t *)p_handle);
+    if (err != 0)
     {
-        return -ENOMEM;
+        return err;
     }
     nrfx_gppiv1_channel_endpoints_setup((uint8_t)*p_handle, eep, tep);
     return 0;

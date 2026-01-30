@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, Nordic Semiconductor ASA
+ * Copyright (c) 2025 - 2026, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -280,9 +280,9 @@ void nrfx_gppi_channels_disable(uint32_t domain_id, uint32_t ch_mask)
     nrf_ppi_channels_disable(NRF_PPI, ch_mask);
 }
 
-int nrfx_gppi_domain_channel_get(nrfx_gppi_handle_t handle, uint32_t domain_id)
+int nrfx_gppi_domain_channel_get(nrfx_gppi_handle_t handle, uint32_t node_id)
 {
-    (void)domain_id;
+    (void)node_id;
     return (int)handle;
 }
 
