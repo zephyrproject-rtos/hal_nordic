@@ -597,6 +597,7 @@
 
     #define ADDRESS_BUS_Pos (18UL)
     #define ADDRESS_BUS_Msk (0x3FUL << ADDRESS_BUS_Pos)
+    #define TRNG_CLK_DIV 1
 #endif
 
 /**************************************************************************************************/
