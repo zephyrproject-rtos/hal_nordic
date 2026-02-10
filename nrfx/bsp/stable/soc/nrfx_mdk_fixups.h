@@ -509,6 +509,10 @@
     #define CLOCK_STATIC_IRQ
     #define TRNG_CLK_DIV 0
     #define I2S_MCKFREQ_FACTOR 1048576
+
+    #define KMU_TASKS_REVOKE_POLICY_Rotating 0x01UL
+    #define KMU_TASKS_REVOKE_POLICY_Locked   0x02UL
+    #define KMU_TASKS_REVOKE_POLICY_Revoked  0x03UL
 #endif
 
 /**************************************************************************************************/
@@ -523,6 +527,10 @@
     #define CLOCK_STATIC_IRQ
     #define TRNG_CLK_DIV 0
     #define I2S_MCKFREQ_FACTOR 1048576
+
+    #define KMU_TASKS_REVOKE_POLICY_Rotating 0x01UL
+    #define KMU_TASKS_REVOKE_POLICY_Locked   0x02UL
+    #define KMU_TASKS_REVOKE_POLICY_Revoked  0x03UL
 #endif
 
 /**************************************************************************************************/
@@ -537,6 +545,10 @@
     #define CLOCK_STATIC_IRQ
     #define TRNG_CLK_DIV 0
     #define I2S_MCKFREQ_FACTOR 1048576
+
+    #define KMU_TASKS_REVOKE_POLICY_Rotating 0x01UL
+    #define KMU_TASKS_REVOKE_POLICY_Locked   0x02UL
+    #define KMU_TASKS_REVOKE_POLICY_Revoked  0x03UL
 #endif
 
 /**************************************************************************************************/
@@ -550,6 +562,10 @@
 #if defined(NRF54LM20A_XXAA)
     #define TRNG_CLK_DIV 1
     #define I2S_MCKFREQ_FACTOR 1048576
+
+    #define KMU_TASKS_REVOKE_POLICY_Rotating 0x01UL
+    #define KMU_TASKS_REVOKE_POLICY_Locked   0x02UL
+    #define KMU_TASKS_REVOKE_POLICY_Revoked  0x03UL
 #endif
 
 /**************************************************************************************************/
@@ -588,6 +604,10 @@
 
 #if defined(NRF54LV10A_XXAA)
     #define TRNG_CLK_DIV 1
+
+    #define KMU_TASKS_REVOKE_POLICY_Rotating 0x01UL
+    #define KMU_TASKS_REVOKE_POLICY_Locked   0x02UL
+    #define KMU_TASKS_REVOKE_POLICY_Revoked  0x03UL
 #endif
 
 /**************************************************************************************************/
@@ -602,6 +622,10 @@
 
     #define ADDRESS_BUS_Pos (18UL)
     #define ADDRESS_BUS_Msk (0x3FUL << ADDRESS_BUS_Pos)
+
+    #define KMU_TASKS_REVOKE_POLICY_Rotating 0x01UL
+    #define KMU_TASKS_REVOKE_POLICY_Locked   0x02UL
+    #define KMU_TASKS_REVOKE_POLICY_Revoked  0x03UL
 #endif
 
 /**************************************************************************************************/
