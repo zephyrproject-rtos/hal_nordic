@@ -44,10 +44,8 @@ typedef struct __NRFS_PACKED {
 
 #define NRFS_HDR_FILTER_ERR_SET(_p_hdr) NRFS_FILTER_ERR_SET((_p_hdr)->req)
 
-/* Warning! All "UNSOLICITED" features are not supported. This is intended for possible future use. */
 #define NRFS_HDR_UNSOLICITED_GET(_p_hdr) NRFS_UNSOLICITED_GET((_p_hdr)->req)
 
-/* Warning! All "UNSOLICITED" features are not supported. This is intended for possible future use. */
 #define NRFS_HDR_UNSOLICITED_SET(_p_hdr) NRFS_UNSOLICITED_SET((_p_hdr)->req)
 
 #ifdef __cplusplus
