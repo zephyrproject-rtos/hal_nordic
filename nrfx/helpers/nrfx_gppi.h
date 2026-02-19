@@ -562,9 +562,11 @@ NRFX_STATIC_INLINE int nrfx_gppi_ext_conn_alloc(uint32_t producer, uint32_t cons
  * @brief Function for writing to a PPIB register.
  *
  * On some platforms driver may not have a direct access to a PPIB register. It is done through
- * a function implemented outside of the driver.
+ * a function implemented outside of the driver. Function can also be used to indicate that
+ * PPIB write operations are finished in the current GPPI action by using NULL for @p p_addr
+ * argument. It can be helpful if implementation supports batch operations.
  *
- * @param[in] p_addr Register address.
+ * @param[in] p_addr Register address. If NULL it indicates end of current operations.
  * @param[in] value  Value to be written to the register.
  *
  * @retval 0       Successful write.
