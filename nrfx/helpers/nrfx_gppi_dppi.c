@@ -436,7 +436,12 @@ int nrfx_gppi_ext_conn_alloc(uint32_t producer, uint32_t consumer, nrfx_gppi_han
     *p_handle = h;
     NRFX_LOG_INFO("Alloc done, handle:%08x route:%d", h, route_idx);
 
+#if NRFX_CHECK(NRFX_GPPI_CONFIG_DPPI_PPIB_EXT_FUNC)
+    /* Flush external PPIB write operations. */
+    return nrfx_gppi_ext_ppib_write(NULL, 0);
+#else
     return 0;
+#endif
 }
 
 int nrfx_gppi_domain_conn_alloc(uint32_t producer, uint32_t consumer,
@@ -450,12 +455,12 @@ void nrfx_gppi_domain_conn_free(nrfx_gppi_handle_t handle)
     uint32_t route_id = HANDLE_GET_ROUTE_ID(handle);
     const nrfx_gppi_route_t * p_route = &p_gppi->routes[route_id];
     bool rev_conn = HANDLE_IS_REVERSED(handle);
+    int rv;
 
     NRFX_LOG_INFO("Freeing connection handle:%08x (route %d)", handle, route_id);
     for (size_t i = 0; i < p_route->len; i++) {
         uint32_t chan = HANDLE_GET_CHAN(handle, i);
         const nrfx_gppi_node_t *p_node = p_route->p_nodes[i];
-        int rv;
 
         if (p_node->type == NRFX_GPPI_NODE_PPIB) {
             bool rev;
@@ -479,6 +484,13 @@ void nrfx_gppi_domain_conn_free(nrfx_gppi_handle_t handle)
             flag_free(p_node->generic.p_channels, (uint8_t)chan);
         }
     }
+
+#if NRFX_CHECK(NRFX_GPPI_CONFIG_DPPI_PPIB_EXT_FUNC)
+    /* Flush external PPIB write operations. */
+    rv = nrfx_gppi_ext_ppib_write(NULL, 0);
+    (void)rv;
+    NRFX_ASSERT(rv == 0);
+#endif
 }
 #else
 int nrfx_gppi_domain_conn_alloc(uint32_t producer, uint32_t consumer, nrfx_gppi_handle_t *p_handle)
@@ -676,13 +688,7 @@ void nrfx_gppi_ep_disable(uint32_t ep)
 
 int nrfx_gppi_domain_channel_get(nrfx_gppi_handle_t handle, uint32_t node_id)
 {
-#if NRFX_CHECK(NRFX_GPPI_FIXED_CONNECTIONS)
-    (void)node_id;
-    return HANDLE_GET_CHAN(handle, 0);
-#elif !defined(NRFX_GPPI_MULTI_DOMAIN)
-    (void)node_id;
-    return handle;
-#else
+#if defined(NRFX_GPPI_MULTI_DOMAIN)
     const nrfx_gppi_route_t * p_route = &p_gppi->routes[HANDLE_GET_ROUTE_ID(handle)];
 
     for (size_t i = 0; i < p_route->len; i++)
@@ -694,6 +700,9 @@ int nrfx_gppi_domain_channel_get(nrfx_gppi_handle_t handle, uint32_t node_id)
     }
 
     return -EINVAL;
+#else
+    (void)node_id;
+    return handle;
 #endif
 }
 
