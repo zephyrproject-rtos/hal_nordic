@@ -282,6 +282,7 @@ static void nfct_activate_check(void)
     {
         nrfy_nfct_task_trigger(NRF_NFCT, NRF_NFCT_TASK_ACTIVATE);
         is_field_validation_pending = true;
+        m_timer_workaround.is_delayed = false;
 
         // Start the timer second time to validate whether the tag has locked to the field.
         nrfx_timer_clear(&m_timer_workaround.timer);
@@ -543,7 +544,40 @@ void nrfx_nfct_disable(void)
     NRFX_ASSERT(m_nfct_cb.state == NRFX_DRV_STATE_INITIALIZED);
 
     nrfy_nfct_int_disable(NRF_NFCT, NRF_NFCT_DISABLE_ALL_INT);
+
+#if NRF_ERRATA_STATIC_CHECK(52, 79) || NRF_ERRATA_STATIC_CHECK(52, 190) || \
+    NRF_ERRATA_STATIC_CHECK(53, 70) || NRF_ERRATA_STATIC_CHECK(54L, 60)
+    if (NRF_ERRATA_DYNAMIC_CHECK(52, 79) || NRF_ERRATA_DYNAMIC_CHECK(52, 190) ||
+        NRF_ERRATA_DYNAMIC_CHECK(53, 70) || NRF_ERRATA_DYNAMIC_CHECK(54L, 60))
+    {
+        nrfx_timer_disable(&m_timer_workaround.timer);
+
+#if NRF_ERRATA_STATIC_CHECK(52, 190) || NRF_ERRATA_STATIC_CHECK(53, 70) || \
+    NRF_ERRATA_STATIC_CHECK(54L, 60)
+        m_timer_workaround.is_hfclk_on               = false;
+        m_timer_workaround.is_delayed                = false;
+        m_timer_workaround.fieldevents_filter_active = false;
+#endif
+
+#if NRF_ERRATA_STATIC_CHECK(52, 79)
+        m_timer_workaround.field_state_cnt = 0;
+#endif
+    }
+#endif
+
     nrfy_nfct_task_trigger(NRF_NFCT, NRF_NFCT_TASK_DISABLE);
+
+    if (m_nfct_cb.field_on)
+    {
+        nrfx_nfct_evt_t nfct_evt =
+        {
+            .evt_id = NRFX_NFCT_EVT_FIELD_LOST
+        };
+
+        m_nfct_cb.field_on = false;
+
+        NRFX_NFCT_CB_HANDLE(m_nfct_cb.config.cb, nfct_evt);
+    }
 
     NRFX_LOG_INFO("Stop");
 }
@@ -947,7 +981,6 @@ void nrfx_nfct_irq_handler(void)
                                         NRFY_EVENT_TO_INT_BITMASK(NRF_NFCT_EVENT_FIELDDETECTED)  |
                                         (NRF_ERRATA_DYNAMIC_CHECK(52, 79) ? 0 :
                                             NRFY_EVENT_TO_INT_BITMASK(NRF_NFCT_EVENT_FIELDLOST)) |
-                                        NRFY_EVENT_TO_INT_BITMASK(NRF_NFCT_EVENT_FIELDLOST)      |
                                         NRFY_EVENT_TO_INT_BITMASK(NRF_NFCT_EVENT_RXFRAMESTART)   |
                                         NRFY_EVENT_TO_INT_BITMASK(NRF_NFCT_EVENT_RXFRAMEEND)     |
                                         NRFY_EVENT_TO_INT_BITMASK(NRF_NFCT_EVENT_SELECTED)       |
@@ -962,7 +995,7 @@ void nrfx_nfct_irq_handler(void)
         NRFX_LOG_DEBUG("Field detected");
     }
 
-    if (!NRF_ERRATA_DYNAMIC_CHECK(52, 79) && NRFX_NFCT_EVT_ACTIVE(FIELDLOST, evt_mask))
+    if (NRFX_NFCT_EVT_ACTIVE(FIELDLOST, evt_mask))
     {
         current_field = (current_field == NRFX_NFC_FIELD_STATE_NONE) ?
                         NRFX_NFC_FIELD_STATE_OFF : NRFX_NFC_FIELD_STATE_UNKNOWN;
