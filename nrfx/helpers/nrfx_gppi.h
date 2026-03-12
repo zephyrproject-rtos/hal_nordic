@@ -50,6 +50,17 @@ extern "C" {
  * @brief Helper layer that provides the common functionality of PPI system.
  *
  * This is the only place where PPI system resources are managed.
+ *
+ * There are 4 types of peripheral interconnection systems:
+ * - PPI - nRF51, nRF52 - Simple one-to-one with fork (one-to-two) feature added in nRF52.
+ * - DPPI - nRF53, nRF91 - Distributed PPI allowing many-to-many connections.
+ * - D2PPI - nRF54L, nRF71 - Distributed DPPI, multiple instances of DPPI in each domain. Domains connected
+ *                           through PPIB.
+ * - SD2PPI - nRF54H - Secure D2PPI. Similar to nRF54L solution but only secure core can configure
+ *                     PPIB directions and DPPI channel ownership. PPIB connects buses in the same
+ *                     domain and domains are conencted using IPCT. However cross-domain connection
+ *                     can be seen as set of 2 connections DomainAEndpoint-to-IPCT
+ *                     and DomainBEndpoint-to-IPCT.
  */
 
 #if defined(DPPI_TYPE_IPCT) || defined(DPPI_TYPE_PPIB) || defined(__NRFX_DOXYGEN__)
