@@ -68,7 +68,7 @@ extern "C" {
  *
  * @details Local reset reasons occupy highest bits.
  */
-#define NRFX_RESET_REASON_LOCAL_OFFSET (31UL - RESETINFO_RESETREAS_LOCAL_UNRETAINEDWAKE_Pos)
+#define NRFX_RESET_REASON_LOCAL_OFFSET (30UL - RESETINFO_RESETREAS_LOCAL_UNRETAINEDWAKE_Pos)
 #endif
 
 #if (defined(NRF_POWER) && NRF_POWER_HAS_RESETREAS_CTRLAP) || \
@@ -179,8 +179,14 @@ extern "C" {
 #define NRFX_RESET_REASON_HAS_SECTAMPER 0
 #endif
 
-#if (defined(NRF_RESET) && NRF_RESET_HAS_DOG1_RESET) || \
-    (defined(NRF_RESETINFO)) || defined(__NRFX_DOXYGEN__)
+#if (defined(NRF_RESET) && NRF_RESET_HAS_DOG0_RESET) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether DOG0 reset reason is present. */
+#define NRFX_RESET_REASON_HAS_DOG0 1
+#else
+#define NRFX_RESET_REASON_HAS_DOG0 0
+#endif
+
+#if (defined(NRF_RESET) && NRF_RESET_HAS_DOG1_RESET) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether DOG1 reset reason is present. */
 #define NRFX_RESET_REASON_HAS_DOG1 1
 #else
@@ -248,11 +254,11 @@ typedef enum
     /**< Reset from network CTRL-AP detected. */
     NRFX_RESET_REASON_LCTRLAP_MASK      = NRF_RESET_RESETREAS_LCTRLAP_MASK,
 #endif
-#if NRF_RESET_HAS_CTRLAPSOFT_RESET
+#if NRFX_RESET_REASON_HAS_CTRLAPSOFT
     /**< Soft reset from CTRL-AP detected. */
     NRFX_RESET_REASON_CTRLAPSOFT_MASK   = NRF_RESET_RESETREAS_CTRLAPSOFT_MASK,
 #endif
-#if NRFX_RESET_REASON_HAS_CTRLAPSOFT
+#if NRFX_RESET_REASON_HAS_CTRLAPHARD
     /**< Reset due to CTRL-AP hard reset. */
     NRFX_RESET_REASON_CTRLAPHARD_MASK   = NRF_RESET_RESETREAS_CTRLAPHARD_MASK,
 #endif

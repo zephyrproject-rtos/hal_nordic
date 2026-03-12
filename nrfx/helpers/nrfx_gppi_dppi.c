@@ -145,16 +145,18 @@ NRFX_STATIC_ASSERT(DPPI_TOTAL_BITS == 32);
 #define GHANDLE_GET_CHAN(handle) ((handle >> GHANDLE_CHAN_OFF) & NRFX_BIT_MASK(GHANDLE_CHAN_BITS))
 #define GHANDLE_GET_DOMAIN(handle) ((handle >> GHANDLE_DOMAIN_OFF) & NRFX_BIT_MASK(GHANDLE_DOMAIN_BITS))
 
-/* Handle has different layout for Lumos and Haltium. Lumos has different channels
- * on each node (DPPIC/PPIB) and Haltium has allocation through SDFW.
+/* Handle has different layout:
+ * - D2PPI (for example nRF54L Series) has different channels on each node (DPPIC/PPIB),
+ * - SD2PPI (for example nRF54H20)  has fixed channel and allocation requires
+ *   communication with Ironside SE.
  *
- * Lumos:
+ * D2PPI:
  *
  * --------------------------------------------------------------------------
  * | Route ID 6b | Reversed 1b | ch4 5b | ch3 5b | ch2 5b | ch1 5b | ch0 5b |
  * --------------------------------------------------------------------------
  *
- *  Haltium:
+ * SD2PPI:
  *  There is fixed channel but local domain has no access to routes so need to
  *  know which DPPIC instances belong to route (max 3).
  *
@@ -206,9 +208,8 @@ static int alloc_channels(uint8_t * p_channels, const nrfx_gppi_route_t * p_rout
 
     if (NRFX_IS_ENABLED(NRFX_GPPI_FIXED_CONNECTIONS))
     {
-        /* In Haltium connections between channels in DPPI and PPIB are fixed which
-         * means that to correctly allocate a route same channel must be available
-         * in all nodes.
+        /* In nRF54H20 connections between channels in DPPI and PPIB are fixed which means that
+         * to correctly allocate a route same channel must be available in all nodes.
          */
         uint32_t mask = UINT32_MAX;
         uint32_t ch;
