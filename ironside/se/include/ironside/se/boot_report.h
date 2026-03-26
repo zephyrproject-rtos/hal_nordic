@@ -26,7 +26,7 @@ extern "C" {
 #endif
 
 /** Constant used to check if an Nordic IronSide SE boot report has been written. */
-#define IRONSIDE_SE_BOOT_REPORT_MAGIC (0x4d69546fUL)
+#define IRONSIDE_SE_BOOT_REPORT_MAGIC (0x4D69546FUL)
 
 /** UICR had no errors. */
 #define IRONSIDE_SE_UICR_SUCCESS          0
@@ -57,6 +57,8 @@ extern "C" {
 #define IRONSIDE_SE_UICR_REGID_SECONDARY_PERIPHCONF   offsetof(struct UICR, SECONDARY.PERIPHCONF)
 /** Error found in UICR.SECONDARY.MPCCONF. */
 #define IRONSIDE_SE_UICR_REGID_SECONDARY_MPCCONF      offsetof(struct UICR, SECONDARY.MPCCONF)
+/** Error found in UICR.SNAPSHOT_REGIONS. */
+#define IRONSIDE_SE_UICR_REGID_SNAPSHOT_REGIONS       offsetof(struct UICR, SNAPSHOT_REGIONS)
 
 /** Failed to mount a CRYPTO secure storage partition in MRAM. */
 #define IRONSIDE_SE_UICR_SECURESTORAGE_ERROR_MOUNT_CRYPTO_FAILED 1
@@ -80,6 +82,13 @@ extern "C" {
 #define IRONSIDE_SE_UICR_MPCCONF_ERROR_ADDRESSES_NOT_PERMITTED 3
 /** The readback of the value for a UICR.MPCCONF array entry did not match. */
 #define IRONSIDE_SE_UICR_MPCCONF_ERROR_READBACK_MISMATCH       4
+
+/** There was an unexpected error processing UICR.SNAPSHOT_REGIONS. */
+#define IRONSIDE_SE_UICR_SNAPSHOT_REGIONS_ERROR_UNEXPECTED    1
+/** The address contained in a UICR.SNAPSHOT_REGIONS array entry is not permitted. */
+#define IRONSIDE_SE_UICR_SNAPSHOT_REGIONS_ERROR_NOT_PERMITTED 2
+/** The UICR.SNAPSHOT_REGIONS array entry values are invalid. */
+#define IRONSIDE_SE_UICR_SNAPSHOT_REGIONS_ERROR_MALFORMED     3
 
 /** Booted in secondary mode. */
 #define IRONSIDE_SE_BOOT_MODE_FLAGS_SECONDARY_MASK 0x1
@@ -162,6 +171,12 @@ struct ironside_se_boot_report_init_status {
 			/** Index of the failing entry in the UICR.MPCCONF array. */
 			uint16_t index;
 		} mpcconf;
+		struct {
+			/** Reason that UICR.SNAPSHOT_REGIONS configuration failed. */
+			uint16_t status;
+			/** Index of the failing entry in the UICR.SNAPSHOT_REGIONS array. */
+			uint16_t index;
+		} snapshot_regions;
 	} uicr_detail;
 };
 

@@ -526,7 +526,11 @@ int ironside_se_events_disable(uint64_t event_mask);
  */
 
 /** Invalid capture mode. */
-#define IRONSIDE_SE_SNAPSHOT_ERROR_INVALID_MODE (1)
+#define IRONSIDE_SE_SNAPSHOT_ERROR_INVALID_MODE      (1)
+/** Capture/recovery was expected to reset and not return. */
+#define IRONSIDE_SE_SNAPSHOT_ERROR_UNEXPECTED_RETURN (2)
+/** Snapshot feature has not been enabled in OTP. */
+#define IRONSIDE_SE_SNAPSHOT_ERROR_NOT_ENABLED       (3)
 
 /**
  * @}
@@ -561,9 +565,30 @@ enum ironside_se_snapshot_capture_mode {
  * @warning Incrementing the capture counter is a permanent operation that cannot be undone in a
  *          device's lifetime.
  *
+ * @note On success, function does not return.
+ *
+ * @retval -IRONSIDE_SE_SNAPSHOT_ERROR_UNEXPECTED_RETURN
  * @retval -IRONSIDE_SE_SNAPSHOT_ERROR_INVALID_MODE for an invalid mode.
+ * @retval -IRONSIDE_SE_SNAPSHOT_ERROR_NOT_ENABLED if snapshot is not enabled.
  */
 int ironside_se_snapshot_capture(enum ironside_se_snapshot_capture_mode mode);
+
+/**
+ * @brief Perform a snapshot recovery.
+ *
+ * Recovery restores the system state from the last successfully captured snapshot, allowing the
+ * system to return to a known good state.
+ *
+ * A successful recovery request results in a reset and does not return. The recovery operation
+ * itself is performed by the secure domain ROM as part of the system boot following the reset.
+ * The result of the recovery operation is found in the boot report.
+ *
+ * @note On success, function does not return.
+ *
+ * @retval -IRONSIDE_SE_SNAPSHOT_ERROR_UNEXPECTED_RETURN
+ * @retval -IRONSIDE_SE_SNAPSHOT_ERROR_NOT_ENABLED if snapshot is not enabled.
+ */
+int ironside_se_snapshot_recovery(void);
 
 /**
  * @name Peripheral configuration service error codes.

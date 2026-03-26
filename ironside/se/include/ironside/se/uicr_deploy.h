@@ -1,11 +1,10 @@
 /*
- * Copyright (c) 2025 Nordic Semiconductor ASA.
- *
+ * Copyright (c) 2025 Nordic Semiconductor ASA
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef UICR_DEPLOY_H__
-#define UICR_DEPLOY_H__
+#ifndef IRONSIDE_SE_UICR_DEPLOY_H_
+#define IRONSIDE_SE_UICR_DEPLOY_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,5 +36,4 @@ int uicr_deploy_block_eraseall(void);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* UICR_DEPLOY_H__ */
+#endif /* IRONSIDE_SE_UICR_DEPLOY_H_ */

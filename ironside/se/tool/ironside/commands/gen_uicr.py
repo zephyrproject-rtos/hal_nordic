@@ -26,6 +26,7 @@ except ImportError:
 UICR_VERSION_2_0 = 0x0002_0000
 UICR_VERSION_2_1 = 0x0002_0001
 UICR_VERSION_2_2 = 0x0002_0002
+UICR_VERSION_2_3 = 0x0002_0003
 
 # Common values for representing enabled/disabled in the UICR format.
 ENABLED_VALUE = 0xFFFF_FFFF
@@ -38,6 +39,9 @@ UICR_POLICY_PERIPHCONFSTAGE_NORMAL = 0x1730_C77F
 
 # Value used to select POLICY_MPCCONFSTAGE=NORMAL
 UICR_POLICY_MPCCONFSTAGE_NORMAL = 0x1730_C77F
+
+# Maximum number of snapshot regions supported
+MAX_SNAPSHOT_REGIONS = 7
 
 KB_4 = 4096
 
@@ -193,6 +197,15 @@ class Secondary(c.LittleEndianStructure):
     ]
 
 
+class SnapshotRegions(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("ENABLE", c.c_uint32),
+        ("COUNT", c.c_uint32),
+        ("REGIONS", c.c_uint32 * MAX_SNAPSHOT_REGIONS),
+    ]
+
+
 class Uicr(c.LittleEndianStructure):
     _pack_ = 1
     _fields_ = [
@@ -210,11 +223,13 @@ class Uicr(c.LittleEndianStructure):
         ("PERIPHCONF", Periphconf),
         ("MPCCONF", Mpcconf),
         ("SECONDARY", Secondary),
-        ("RESERVED4", c.c_uint32 * 77),
+        ("RESERVED4", c.c_uint32 * 8),
+        ("SNAPSHOT_REGIONS", SnapshotRegions),
+        ("RESERVED5", c.c_uint32 * 60),
         ("POLICY_MPCCONFSTAGE", c.c_uint32),
         ("POLICY_PERIPHCONFSTAGE", c.c_uint32),
         ("CUSTOMER", c.c_uint32 * 320),
-        ("RESERVED5", c.c_uint32 * 44),
+        ("RESERVED6", c.c_uint32 * 44),
     ]
 
 
@@ -705,6 +720,19 @@ def add_parser(subparsers: SubParsers) -> argparse.ArgumentParser:
             "Setting this to Initialization updates the UICR minimum version to 2.2"
         ),
     )
+    parser.add_argument(
+        "--snapshot-region",
+        dest="snapshot_regions",
+        default=[],
+        action="append",
+        nargs=2,
+        type=lambda s: int(s, 0),
+        metavar=("ADDRESS", "SIZE"),
+        help=(
+            "Address and size in number of 1KB blocks of a snapshot region. "
+            "Can be provided multiple times for allocating multiple regions."
+        ),
+    )
 
     return parser
 
@@ -716,6 +744,9 @@ def get_min_uicr_version(args: argparse.Namespace) -> int:
 
     if args.mpcconf or args.secondary_mpcconf:
         min_version = max(min_version, UICR_VERSION_2_2)
+
+    if args.snapshot_regions:
+        min_version = max(min_version, UICR_VERSION_2_3)
 
     # We have some special handling for POLICY_PERIPHCONFSTAGE because:
     # * If UICR version == 2.0, the default/only choice is NORMAL
@@ -1044,6 +1075,29 @@ def cmd_handler(args: argparse.Namespace) -> None:
         if uicr.VERSION >= UICR_VERSION_2_2 and args.policy_mpcconf_stage is not None:
             uicr.POLICY_MPCCONFSTAGE = args.policy_mpcconf_stage
 
+        if uicr.VERSION >= UICR_VERSION_2_3 and args.snapshot_regions:
+            block_bytes = 1024
+            num_regions = len(args.snapshot_regions)
+
+            if num_regions > MAX_SNAPSHOT_REGIONS:
+                raise ScriptError("Number of snapshot regions exceeds maximum allowed")
+
+            for i, (address, size) in enumerate(args.snapshot_regions):
+                if address % block_bytes != 0:
+                    raise ScriptError(
+                        f"Snapshot region address {address:#x} must be divisible by {block_bytes}"
+                    )
+
+                if size <= 0 or size > 0xFFF:
+                    raise ScriptError(
+                        "Snapshot region size must be greater than 0 and less than 4096"
+                    )
+
+                uicr.SNAPSHOT_REGIONS.REGIONS[i] = (address & 0xFFFF_F000) | size
+
+            uicr.SNAPSHOT_REGIONS.COUNT = num_regions
+            uicr.SNAPSHOT_REGIONS.ENABLE = ENABLED_VALUE
+
         # Create UICR hex object with final UICR data
         uicr_hex = IntelHex()
         uicr_hex.frombytes(bytes(uicr), offset=args.uicr_address)
@@ -1117,16 +1171,15 @@ def extract_and_combine_periphconfs(
     combined_periphconf.sort(key=lambda e: e.regptr)
     deduplicated_periphconf = []
 
-    for regptr, regptr_entries in groupby(combined_periphconf, key=lambda e: e.regptr):
-        entries = list(regptr_entries)
-        if len(entries) > 1:
-            unique_values = {e.value for e in entries}
-            if len(unique_values) > 1:
-                raise ScriptError(
-                    f"PERIPHCONF has conflicting values for register 0x{regptr:09_x}: "
-                    + ", ".join([f"0x{val:09_x}" for val in unique_values])
-                )
-        deduplicated_periphconf.append(entries[0])
+    for _, regptr_entries in groupby(combined_periphconf, key=lambda e: e.regptr):
+        # We allow conflicts here so that we can report them as errors
+        # in a separate validation step.
+        unique_values = set()
+        for entry in regptr_entries:
+            if entry.value in unique_values:
+                continue
+            unique_values.add(entry.value)
+            deduplicated_periphconf.append(entry)
 
     final_periphconf = (PeriphconfEntry * len(deduplicated_periphconf))()
     for i, entry in enumerate(deduplicated_periphconf):

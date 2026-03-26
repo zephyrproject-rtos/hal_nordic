@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2025 Nordic Semiconductor ASA.
- *
+ * Copyright (c) 2025 Nordic Semiconductor ASA
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -13,8 +12,8 @@
 #include <ironside/se/uicr.h>
 #include <ironside/se/internal/mdk.h>
 
-#define MRAM_WORD_SIZE_IN_BYTES     (MRAMC110_NMRAMWORDSIZE / 8)
-#define WORDS_IN_MRAM_WORD          (MRAM_WORD_SIZE_IN_BYTES / sizeof(uint32_t))
+#define MRAM_WORD_SIZE_IN_BYTES (MRAMC110_NMRAMWORDSIZE / 8)
+#define WORDS_IN_MRAM_WORD      (MRAM_WORD_SIZE_IN_BYTES / sizeof(uint32_t))
 
 /* Lock state change is pending reset, allowing further changes now. */
 static bool lock_pending;
