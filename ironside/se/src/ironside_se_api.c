@@ -283,6 +283,25 @@ int ironside_se_snapshot_capture(enum ironside_se_snapshot_capture_mode mode)
 	return status;
 }
 
+int ironside_se_snapshot_recovery(void)
+{
+	int status;
+	struct ironside_se_call_buf *buf = ironside_se_call_alloc();
+
+	buf->id = IRONSIDE_SE_CALL_ID_SNAPSHOT_RECOVERY_V1;
+
+	ironside_se_call_dispatch(buf);
+
+	status = buf->status;
+	if (status == IRONSIDE_SE_CALL_STATUS_RSP_SUCCESS) {
+		status = buf->args[IRONSIDE_SE_SNAPSHOT_RECOVERY_RSP_IDX_RETCODE];
+	}
+
+	ironside_se_call_release(buf);
+
+	return status;
+}
+
 struct ironside_se_periphconf_status ironside_se_periphconf_read(struct periphconf_entry *entries,
 								 size_t count)
 {

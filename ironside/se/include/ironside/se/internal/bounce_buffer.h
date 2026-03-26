@@ -3,14 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IRONSIDE_SE_INTERNAL_BOUNCE_BUFFERS_H_
-#define IRONSIDE_SE_INTERNAL_BOUNCE_BUFFERS_H_
+#ifndef IRONSIDE_SE_INTERNAL_BOUNCE_BUFFER_H_
+#define IRONSIDE_SE_INTERNAL_BOUNCE_BUFFER_H_
 
 #include <stddef.h>
 
 #include <nrfx.h>
 
 #include <ironside/se/glue.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Check if a bounce buffer would need to be allocated for this out buffer.
@@ -54,4 +58,7 @@ void *ironside_se_bounce_buffer_prepare(void *original_buffer, size_t size);
  */
 void ironside_se_bounce_buffer_release(void *original_buffer, void *out_buffer, size_t size);
 
-#endif /* IRONSIDE_SE_INTERNAL_BOUNCE_BUFFERS_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif /* IRONSIDE_SE_INTERNAL_BOUNCE_BUFFER_H_ */

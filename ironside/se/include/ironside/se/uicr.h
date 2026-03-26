@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Nordic Semiconductor ASA.
+ * Copyright (c) 2025 Nordic Semiconductor ASA
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -26,8 +26,10 @@ extern "C" {
 #define UICR_VERSION_2_1 0x00020001UL
 /* UICR version 2.2 */
 #define UICR_VERSION_2_2 0x00020002UL
+/* UICR version 2.3 */
+#define UICR_VERSION_2_3 0x00020003UL
 /* Maximum UICR version supported by this header. */
-#define UICR_VERSION_MAX UICR_VERSION_2_2
+#define UICR_VERSION_MAX UICR_VERSION_2_3
 
 /* Common enum values */
 /* Default erased value for all UICR fields */
@@ -245,6 +247,29 @@ struct UICR_SECONDARY {
 /* PERIPHCONF API stage is set to normal stage at application boot. */
 #define UICR_POLICY_PERIPHCONFSTAGE_NORMAL UICR_ENUM_CHOICE_1
 
+/* SNAPSHOT enum values */
+/* Maximum configurable snapshot regions. */
+#define UICR_SNAPSHOT_REGIONS_MAX_REGIONS (7UL)
+
+/* SNAPSHOT_REGION field access macros */
+#define UICR_SNAPSHOT_REGIONS_REGION_SIZEKB_Pos  (0UL)
+#define UICR_SNAPSHOT_REGIONS_REGION_SIZEKB_Msk  (0xFFFUL << UICR_SNAPSHOT_REGIONS_REGION_SIZEKB_Pos)
+#define UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Pos (12UL)
+#define UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Msk                                                   \
+	(0xFFFFFUL << UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Pos)
+
+/**
+ * @brief Snapshot configuration.
+ */
+struct UICR_SNAPSHOT_REGIONS {
+	/* Enable parsing of snapshot regions. */
+	volatile uint32_t ENABLE;
+	/* Number of region configuration entries */
+	volatile uint32_t COUNT;
+	/* List of snapshot region configurations. */
+	volatile uint32_t REGION[UICR_SNAPSHOT_REGIONS_MAX_REGIONS];
+};
+
 /**
  * @brief User information configuration region.
  *
@@ -276,7 +301,10 @@ struct UICR {
 	volatile struct UICR_MPCCONF MPCCONF;
 	/* Secondary firmware configuration */
 	volatile struct UICR_SECONDARY SECONDARY;
-	volatile const uint32_t RESERVED4[77];
+	volatile const uint32_t RESERVED4[8];
+	/* Snapshot region configuration */
+	volatile struct UICR_SNAPSHOT_REGIONS SNAPSHOT_REGIONS;
+	volatile const uint32_t RESERVED5[60];
 	/* MPCCONF API stage at application boot. */
 	volatile uint32_t POLICY_MPCCONFSTAGE;
 	/* PERIPHCONF API stage at application boot. */
@@ -284,7 +312,7 @@ struct UICR {
 #if !defined(UICR_DEF_OMIT_CUSTOMER)
 	/* Reserved for customer. */
 	volatile uint32_t CUSTOMER[320];
-	volatile const uint32_t RESERVED5[44];
+	volatile const uint32_t RESERVED6[44];
 #endif
 };
 

@@ -9,12 +9,14 @@ import argparse
 import enum
 import json
 import re
+import struct
 import warnings
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass
 from enum import Enum, Flag
-from functools import cached_property, lru_cache
+from functools import cached_property, lru_cache, partial
 from itertools import groupby
+from pathlib import Path
 from textwrap import dedent, indent
 from typing import Any
 
@@ -23,15 +25,111 @@ from intelhex import IntelHex
 from .. import CommandError, SubCommand, SubParsers
 
 try:
-    from tabulate import tabulate
+    from tabulate import SEPARATING_LINE, tabulate
 except ImportError:
     warnings.warn(
         "'tabulate' is not installed, table pretty printing is unavailable",
         stacklevel=0,
     )
 
+    SEPARATING_LINE = ""
+
     def tabulate(table: list, **kwargs: Any) -> str:
         return "\n".join(" ".join(row) for row in table)
+
+
+class FileFormat(enum.Enum):
+    # .bin file
+    BIN = enum.auto()
+    # .hex file
+    HEX = enum.auto()
+
+
+class OffsetFormat(enum.Enum):
+    # "0x3000 0x10"
+    # "0x3000 20entries"
+    LITERAL = enum.auto()
+    # "/path/to/tlv_data.bin 0x800"
+    MCUBOOT_TLV = enum.auto()
+
+
+@dataclass
+class InputFile:
+    format: FileFormat
+    path: Path
+    offsets: list[tuple[int, int]]
+
+
+class InputFileAction(argparse.Action):
+    """Custom Action for handling PERIPHCONF file inputs."""
+
+    def __init__(
+        self,
+        option_strings,
+        dest,
+        input_format,
+        offset_format,
+        **kwargs,
+    ) -> None:
+        self._input_format = input_format
+        self._offset_format = offset_format
+        if self._offset_format == OffsetFormat.MCUBOOT_TLV:
+            nargs = 3
+        else:
+            nargs = "+"
+        super().__init__(option_strings, dest, nargs=nargs, **kwargs)
+
+    @classmethod
+    def with_format(cls, input_format: str, offset_format: str):
+        return partial(cls, input_format=input_format, offset_format=offset_format)
+
+    def __call__(
+        self,
+        parser,
+        namespace,
+        values,
+        option_string=None,
+        **kwargs,
+    ) -> None:
+        file_name = Path(values[0])
+        offsets = []
+
+        match self._offset_format:
+            case OffsetFormat.LITERAL:
+                # Since nargs="+" we don't get exact validation from before
+                if len(values) % 2 == 0:
+                    raise argparse.ArgumentError(self, "(offset, size) must be given in pairs")
+
+                for i in range(1, len(values), 2):
+                    offset = int(values[i], 0)
+                    size_str = values[i + 1]
+                    if size_str.endswith("entries"):
+                        size_no_suffix_str = size_str.removesuffix("entries")
+                        size = int(size_no_suffix_str, 0) * 8
+                    else:
+                        size = int(size_str, 0)
+                    offsets.append((offset, size))
+
+            case OffsetFormat.MCUBOOT_TLV:
+                desc_bin = Path(values[1])
+                desc_start_offset = int(values[2], 0)
+                try:
+                    desc_data = desc_bin.read_bytes()
+                except FileNotFoundError as err:
+                    raise argparse.ArgumentError(self, str(err)) from err
+
+                for offset, count in struct.iter_unpack("<II", desc_data):
+                    offsets.append((offset + desc_start_offset, count * 8))
+
+            case other:
+                raise NotImplementedError(f"No implementation exists for offset format {other}")
+
+        dest_attr = getattr(namespace, self.dest, None)
+        if dest_attr is None:
+            dest_attr = []
+            setattr(namespace, self.dest, dest_attr)
+
+        dest_attr.append(InputFile(self._input_format, file_name, offsets))
 
 
 def add_parser(subparsers: SubParsers) -> argparse.ArgumentParser:
@@ -42,14 +140,56 @@ def add_parser(subparsers: SubParsers) -> argparse.ArgumentParser:
             "Decode and validate a PERIPHCONF blob. "
             "Can be used to detect errors in the PERIPHCONF that would prevent the "
             "device from booting. "
-            "The command exits with a 0 exit"
+            "Multiple input files can be given, and will be concatenated in the order they were "
+            "provided and validated as a combined list of entries."
         ),
+    )
+
+    LITERAL_OFFSET_DESC = (
+        "( Format: BLOB_FILE [[OFFSET SIZE] ...] ). "
+        "Path to a PERIPHCONF blob in {0} format. Can be given multiple times. "
+        "One or more (offset, size) pairs can optionally be given for each file "
+        "to instruct the decoder to read PERIPHCONF blobs from parts of the file rather "
+        "than interpreting the entire file as a PERIPHCONF blob. "
+        "The offset and size parameters are given as decimal or 0x-prefixed hex. "
+        "The size can be given the suffix 'entries' to specify number of entries instead "
+        "of byte size. Example: '/path/to/blob 0x3000 0x20 0x8000 32entries'."
     )
     parser.add_argument(
         "--in-periphconf-hex",
-        type=argparse.FileType("r", encoding="utf-8"),
-        required=True,
-        help="Path to the PERIPHCONF blob, in Intel HEX format.",
+        dest="in_periphconf_blobs",
+        action=InputFileAction.with_format(FileFormat.HEX, OffsetFormat.LITERAL),
+        help=LITERAL_OFFSET_DESC.format("Intel HEX"),
+    )
+    parser.add_argument(
+        "--in-periphconf-bin",
+        dest="in_periphconf_blobs",
+        action=InputFileAction.with_format(FileFormat.BIN, OffsetFormat.LITERAL),
+        help=LITERAL_OFFSET_DESC.format("binary"),
+    )
+
+    MCUBOOT_TLV_OFFSET_DESC = (
+        "Path to a signed MCUboot image in {0} format, "
+        "along with metadata describing where to find PERIPHCONF blobs in the image file. "
+        "The metadata consists of a pair (TLV data bin file, start offset). "
+        "The TLV data bin file should contain a packed sequence of "
+        "(4B little-endian offset, 4B little-endian entry count) pairs describing where in the "
+        "file the PERIPHCONF blobs are located, relative to the start offset. "
+        "The start offset is a decimal or 0x-prefixed hex value which serves as the base offset."
+    )
+    parser.add_argument(
+        "--in-periphconf-hex-mcuboot-tlv",
+        dest="in_periphconf_blobs",
+        metavar=("IMAGE", "TLV_DATA_FILE", "START_OFFSET"),
+        action=InputFileAction.with_format(FileFormat.HEX, OffsetFormat.MCUBOOT_TLV),
+        help=MCUBOOT_TLV_OFFSET_DESC.format("Intel HEX"),
+    )
+    parser.add_argument(
+        "--in-periphconf-bin-mcuboot-tlv",
+        dest="in_periphconf_blobs",
+        metavar=("IMAGE", "TLV_DATA_FILE", "START_OFFSET"),
+        action=InputFileAction.with_format(FileFormat.BIN, OffsetFormat.MCUBOOT_TLV),
+        help=MCUBOOT_TLV_OFFSET_DESC.format("binary"),
     )
     parser.add_argument(
         "--in-periphconf-registers-json",
@@ -67,7 +207,7 @@ def add_parser(subparsers: SubParsers) -> argparse.ArgumentParser:
         choices=["full", "errors"],
         default="full",
         help=(
-            "Command mode: 'print': validate and print full PERIPHCONF blob, "
+            "Command mode: 'full': validate and print full PERIPHCONF blob, "
             "'errors': only print entries from the PERIPHCONF that have validation errors "
             "(the command outputs nothing if this option is provided and there are no errors)."
         ),
@@ -85,36 +225,44 @@ def add_parser(subparsers: SubParsers) -> argparse.ArgumentParser:
 
 
 def cmd_handler(args: argparse.Namespace) -> None:
-    ihex = IntelHex()
-    ihex.loadhex(args.in_periphconf_hex)
-
-    if len(ihex.segments()) > 1:
-        raise CommandError(
-            "Expected a PERIPHCONF HEX file containing a single contiguous data segment"
-        )
-
     register_info = json.load(args.in_periphconf_registers_json)
+    combined_entries, sources = load_input_blobs(args.in_periphconf_blobs, register_info)
 
-    raw = ihex.tobinstr()
-    entries = load_periphconf(register_info, raw)
-    validate_status = validate_periphconf(entries)
+    validate_status = validate_periphconf(combined_entries)
     if args.mode == "errors":
         if not validate_status.is_error():
-            # We are running in --only-errors mode and have no errors.
-            # Therefore we are done.
+            # No errors; we are done.
             return
-        entries_to_print = [e for e in entries if e.status.is_error()]
+        entries_to_print = [e for e in combined_entries if e.status.is_error()]
     else:
-        entries_to_print = entries
+        entries_to_print = combined_entries
 
-    table_str = render_periphconf_table(entries_to_print, style=args.style)
-    status_str = render_validation_status(validate_status)
+    include_errors = validate_status != ValidationStatus.SUCCESS or args.mode == "errors"
+    table_str = render_periphconf_table(
+        entries_to_print,
+        sources,
+        style=args.style,
+        include_errors=include_errors,
+    )
+    files_str = render_input_files(sources)
+    if validate_status != ValidationStatus.SUCCESS:
+        status_str = render_validation_status(validate_status)
+    else:
+        status_str = None
 
     if table_str:
         print()
-        if validate_status.is_error():
-            print("Found errors in the PERIPHCONF table:", end="\n\n")
         print(indent(table_str, "  "))
+
+    if files_str:
+        print()
+        print("Files:")
+        print(indent(files_str, "  "))
+
+    if entries_to_print:
+        print()
+        print("Register description:")
+        print("  See datasheet")
 
     if status_str:
         print()
@@ -123,8 +271,8 @@ def cmd_handler(args: argparse.Namespace) -> None:
 
     if validate_status.is_fatal_error():
         raise CommandError(
-            f"PERIPHCONF at {args.in_periphconf_hex.name} has errors "
-            "that will prevent the device from booting correctly.\n"
+            f"{'Combined ' if len(args.in_periphconf_blobs) > 1 else ''}PERIPHCONF entries "
+            "have errors that will prevent the device from booting correctly.\n"
         )
 
 
@@ -133,6 +281,55 @@ PERIPHCONF_CHECK_COMMAND = SubCommand(
     cmd_handler=cmd_handler,
     cmd_handler_unpack_args=False,
 )
+
+
+@dataclass
+class Source:
+    path: Path
+    offset: tuple[int, int]
+    entry_range: tuple[int, int] = tuple()
+
+
+def load_input_blobs(periphconf_blobs: Sequence[InputFile], register_info: dict) -> tuple:
+    sources = []
+    combined_entries = []
+
+    for blob_file in periphconf_blobs:
+        try:
+            match blob_file.format:
+                case FileFormat.HEX:
+                    ihex = IntelHex()
+                    with blob_file.path.open("r", encoding="utf-8") as fp:
+                        ihex.loadhex(fp)
+
+                    if len(ihex.segments()) > 1:
+                        raise CommandError(
+                            f"Invalid PERIPHCONF HEX file {blob_file.name}: "
+                            "expected a file containing a single contiguous data segment."
+                        )
+                    raw = ihex.tobinstr()
+                case FileFormat.BIN:
+                    raw = blob_file.path.read_bytes()
+        except FileNotFoundError as err:
+            raise CommandError(f"Failed to open input file: {str(err)}") from err
+
+        if not blob_file.offsets:
+            offsets = [(0, len(raw))]
+        else:
+            offsets = blob_file.offsets
+
+        for offset, size in offsets:
+            source = Source(path=blob_file.path, offset=(offset, size))
+            entries = load_periphconf(register_info, raw[offset : offset + size], source)
+
+            range_start = len(combined_entries)
+            range_end = range_start + len(entries)
+            source.entry_range = (range_start, range_end)
+
+            combined_entries.extend(entries)
+            sources.append(source)
+
+    return combined_entries, sources
 
 
 @enum.unique
@@ -171,7 +368,8 @@ class ValidationStatus(Flag):
     # Flag.__iter__() is only available from 3.11
     def __iter__(self) -> Iterator[ValidationStatus]:
         for member in ValidationStatus.__members__.values():
-            if member in self:
+            # Note that SUCCESS is skipped, otherwise it is always included
+            if member in self and member != ValidationStatus.SUCCESS:
                 yield member
 
 
@@ -185,6 +383,7 @@ class RegType(Enum):
     MEMCONF_POWER_CONTROL = enum.auto()
     MEMCONF_POWER_RET = enum.auto()
     MEMCONF_POWER_RET2 = enum.auto()
+    MRAMC_CONFIGNVR_PAGE = enum.auto()
     PPIB_PUBLISH_RECEIVE = enum.auto()
     PPIB_SUBSCRIBE_SEND = enum.auto()
     SPU_PERIPH_PERM = enum.auto()
@@ -204,6 +403,9 @@ class RegType(Enum):
     SPU_FEATURE_IPCT_CH = enum.auto()
     SPU_FEATURE_IPCT_INTERRUPT = enum.auto()
 
+    def has_lock_bit(self) -> bool:
+        return self.is_spu_register() or self == RegType.MRAMC_CONFIGNVR_PAGE
+
     def is_spu_register(self) -> bool:
         return (
             RegType.SPU_PERIPH_PERM.value <= self.value <= RegType.SPU_FEATURE_IPCT_INTERRUPT.value
@@ -216,6 +418,7 @@ class ConfEntry:
     regptr: int
     value: int
     info: dict | None
+    source: Source
     status: ValidationStatus = ValidationStatus.SUCCESS
 
     @property
@@ -297,6 +500,8 @@ class ConfEntry:
                 reg_type = RegType.MEMCONF_POWER_RET
             elif data := self._parse_name("POWER{0}.RET2"):
                 reg_type = RegType.MEMCONF_POWER_RET2
+        elif self.name.startswith("MRAMC") and (data := self._parse_name("CONFIGNVR.PAGE{0}")):
+            reg_type = RegType.MRAMC_CONFIGNVR_PAGE
         elif self.name.startswith("PPIB"):
             if data := self._parse_name("SUBSCRIBE_SEND{0}"):
                 reg_type = RegType.PPIB_SUBSCRIBE_SEND
@@ -391,18 +596,10 @@ class PathData:
     array_indices: list[int]
 
 
-# TODO: combine this with conf?
-@dataclass
-class ValidatedConf:
-    index: int
-    conf: ConfEntry
-    status: ValidationStatus = ValidationStatus.SUCCESS
-
-
 REGPTR_MASK = 0xFFFF_FFFC
 
 
-def load_periphconf(register_info: dict, periphconf_raw: bytes) -> list[ConfEntry]:
+def load_periphconf(register_info: dict, periphconf_raw: bytes, source: Source) -> list[ConfEntry]:
     """Parse/load PERIPHCONF from raw bytes"""
     blob = []
 
@@ -414,7 +611,7 @@ def load_periphconf(register_info: dict, periphconf_raw: bytes) -> list[ConfEntr
 
         value = int.from_bytes(periphconf_raw[i + 4 : i + 8], "little")
         info = register_info.get(str(regptr))
-        blob.append(ConfEntry(i // 8, regptr, value, info))
+        blob.append(ConfEntry(index=i // 8, regptr=regptr, value=value, info=info, source=source))
 
     return blob
 
@@ -469,10 +666,23 @@ def check_if_conflicting_values(
 
     # We assume that all entries have the same regtype
     if reg_type_props := regptr_confs[0].reg_type_props:
+        # A fatal conflict occurs if two or more registers has lock bit = Locked
+        # This implies that one or more of the other bits are different, otherwise we would
+        # not get here.
         reg_type = reg_type_props[0]
-        if reg_type.is_spu_register():
-            # SPU registers are locked upon first configuration
-            status = ValidationStatus.CONFLICTING_VALUES_FATAL
+        if reg_type.has_lock_bit():
+            all_lock_bit_values = []
+            for confs in conf_by_masked_value.values():
+                # We ignore the reg_type when getting the field since it is the same in all
+                # lockable registers.
+                all_lock_bit_values.append(bool(confs[0].get_conf_field("LOCK")))
+            if any(all_lock_bit_values):
+                # At least one entry is locked, so it is expected to fail at runtime.
+                # It could be possible to have it succeed if only the last entry sets the lock
+                # bit, but we ignore that here as this is almost certainly an unintentional config.
+                status = ValidationStatus.CONFLICTING_VALUES_FATAL
+            else:
+                status = ValidationStatus.CONFLICTING_VALUES_NON_FATAL
         else:
             status = ValidationStatus.CONFLICTING_VALUES_NON_FATAL
     else:
@@ -624,28 +834,79 @@ class SpuPermDma(int, Enum):
     SEPARATE_ATTRIBUTE = 2
 
 
-def render_periphconf_table(entries: list[ConfEntry], style: str = "regs") -> str:
+def render_input_files(sources: list[Source]) -> str:
+    """Render list of input files and number of entries in each."""
+    lines = []
+
+    sources_by_path = [(p, list(s)) for p, s in groupby(sources, lambda s: s.path)]
+
+    for i, (path, src) in enumerate(sources_by_path):
+        lines.append(f"{i}: {path}")
+        for source in src:
+            offset, size = source.offset
+            start, end = source.entry_range
+            count = end - start
+            if count > 0:
+                lines.append(
+                    f"  offset [0x{offset:_x}, 0x{size:_x}] "
+                    f"-> index [{start} - {end - 1}] ({count} entries)"
+                )
+            else:
+                lines.append("  No entries")
+        if i < len(sources_by_path) - 1:
+            lines.append("")
+
+    table_str = "\n".join(lines)
+
+    return table_str
+
+
+def render_periphconf_table(
+    entries: list[ConfEntry],
+    sources: list[Source],
+    style: str = "regs",
+    include_errors: bool = True,
+) -> str:
     """Render validated PERIPHCONF entries in table form."""
     table = []
-    for conf in entries:
-        if conf.status != ValidationStatus.SUCCESS:
-            error_char = "X"
-            error_desc = ", ".join(str(s.name) for s in conf.status)
-        else:
-            error_char = ""
-            error_desc = ""
-        index = str(conf.index)
-        if style == "regs":
-            reg_name = conf.name
-            field_desc = conf.field_desc
-        else:
-            reg_name = fmt_addr(conf.regptr)
-            field_desc = fmt_addr(conf.value)
-        table.append([error_char, index, reg_name, field_desc, error_desc])
+    for source in sources:
+        start, end = source.entry_range
+        for conf in entries[start:end]:
+            if len(sources) > 1:
+                # Left padding to 3 spaces makes it look nice for reasonable numbers
+                index = f"{conf.index + start:<3} | {conf.index:<3}"
+            else:
+                index = str(conf.index)
+
+            if style == "regs":
+                reg_name = conf.name
+                field_desc = conf.field_desc
+            else:
+                reg_name = fmt_addr(conf.regptr)
+                field_desc = fmt_addr(conf.value)
+
+            if include_errors:
+                if conf.status != ValidationStatus.SUCCESS:
+                    error_char = "X"
+                    error_desc = ", ".join(str(s.name) for s in conf.status)
+                else:
+                    error_char = ""
+                    error_desc = ""
+
+                table.append([error_char, index, reg_name, field_desc, error_desc])
+            else:
+                table.append([index, reg_name, field_desc])
+
+        table.append(SEPARATING_LINE)
+
+    if include_errors:
+        headers = ["E", "Index", "Register", "Fields", "Error"]
+    else:
+        headers = ["Index", "Register", "Fields"]
 
     table_str = tabulate(
         table,
-        headers=["E", "Index", "Register", "Fields", "Error"],
+        headers=headers,
         tablefmt="simple",
     )
 
@@ -677,14 +938,14 @@ VALIDATION_STATUS_DESCRIPTIONS = {
         """\
         Two or more PERIPHCONF entries target the same register but have different values.
         This is likely caused by conflicting configurations in the device tree or source code.
-        The targeted register is not lockable, therefore the latest entry in the table will
+        The targeted register is not locked, therefore the latest entry in the table will
         take precedence and overwrite previous entries."""
     ),
     ValidationStatus.CONFLICTING_VALUES_FATAL: dedent(
         """\
         Two or more PERIPHCONF entries target the same register but have different values.
         This is likely caused by conflicting configurations in the device tree or source code.
-        The targeted register is lockable, therefore the second entry will cause a read-back
+        The targeted register is locked, therefore the second entry will cause a read-back
         error, preventing the device from booting normally."""
     ),
     ValidationStatus.UNIMPLEMENTED_REGISTER: dedent(

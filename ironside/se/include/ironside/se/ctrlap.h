@@ -69,6 +69,8 @@ extern "C" {
 #define IRONSIDE_SE_BOOT_ERROR_UICR_FORMAT_UNSUPPORTED                      0xF
 /** Failed to initialize counter service */
 #define IRONSIDE_SE_BOOT_ERROR_COUNTER_SERVICE_INIT_FAILED                  0x10
+/** Failed to initialize snapshot */
+#define IRONSIDE_SE_BOOT_ERROR_SNAPSHOT_REGIONS_INIT_FAILED                 0x11
 /** Value reserved for conditions that should never happen. */
 #define IRONSIDE_SE_BOOT_ERROR_UNEXPECTED                                   0xFF
 

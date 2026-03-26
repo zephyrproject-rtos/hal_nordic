@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2025 Nordic Semiconductor ASA.
+ * Copyright (c) 2025 Nordic Semiconductor ASA
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef IRONSIDE_INTERNAL_MDK_H_
-#define IRONSIDE_INTERNAL_MDK_H_
+#ifndef IRONSIDE_SE_INTERNAL_MDK_H_
+#define IRONSIDE_SE_INTERNAL_MDK_H_
 
 #include <nrfx.h>
 
@@ -184,4 +184,4 @@ typedef struct {
 #ifdef __cplusplus
 }
 #endif
-#endif /* IRONSIDE_INTERNAL_MDK_H_ */
+#endif /* IRONSIDE_SE_INTERNAL_MDK_H_ */
