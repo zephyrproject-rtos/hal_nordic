@@ -1120,15 +1120,17 @@
     #if defined(NRF_TRUSTZONE_NONSECURE)
         #if defined(NRF_APPLICATION)
             #define GRTC_IRQ_GROUP 2
-            #define GPIOTE_IRQ_GROUP 0
+            #define GPIOTE_IRQ_GROUP 2
         #endif
     #elif defined(NRF_PPR)
         #define GRTC_IRQ_GROUP 7
-        #define GPIOTE_IRQ_GROUP 0
+        #define GPIOTE_IRQ_GROUP 2
+    #elif defined(NRF_FLPR)
+        #define GRTC_IRQ_GROUP 8
     #else
         #if defined(NRF_APPLICATION)
             #define GRTC_IRQ_GROUP 3
-            #define GPIOTE_IRQ_GROUP 1
+            #define GPIOTE_IRQ_GROUP 3
         #endif
     #endif
 
