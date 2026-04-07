@@ -1,0 +1,369 @@
+# Copyright (c) 2026 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+"""Generated using gen_public_tool_types.py - do not edit directly.
+
+Source headers:
+* ironside/se/uicr.h
+* ironside/se/mpcconf.h
+* ironside/se/periphconf.h
+"""
+
+from __future__ import annotations
+
+import ctypes as c
+
+
+def _init_uicr_erased(cls):
+    init_values = UICR_MAGIC_ERASE_VALUE.to_bytes(4, "little") * (c.sizeof(cls) // 4)
+    return cls.from_buffer_copy(init_values)
+
+
+UICR_VERSION_2_0 = 0x00020000
+UICR_VERSION_2_1 = 0x00020001
+UICR_VERSION_2_2 = 0x00020002
+UICR_VERSION_2_3 = 0x00020003
+UICR_VERSION_MAX = UICR_VERSION_2_3
+UICR_MAGIC_ERASE_VALUE = 0xBD2328A8
+UICR_DISABLED = UICR_MAGIC_ERASE_VALUE
+UICR_ENABLED = 0xFFFFFFFF
+UICR_UNPROTECTED = UICR_MAGIC_ERASE_VALUE
+UICR_PROTECTED = UICR_ENABLED
+UICR_ENUM_CHOICE_0 = UICR_MAGIC_ERASE_VALUE
+UICR_ENUM_CHOICE_1 = 0x1730C77F
+UICR_APPROTECT_APPLICATION_UNPROTECTED = UICR_MAGIC_ERASE_VALUE
+UICR_APPROTECT_APPLICATION_PROTECTED = UICR_PROTECTED
+UICR_APPROTECT_RADIOCORE_UNPROTECTED = UICR_MAGIC_ERASE_VALUE
+UICR_APPROTECT_RADIOCORE_PROTECTED = UICR_PROTECTED
+UICR_APPROTECT_CORESIGHT_UNPROTECTED = UICR_MAGIC_ERASE_VALUE
+UICR_APPROTECT_CORESIGHT_PROTECTED = UICR_PROTECTED
+UICR_WDTSTART_INSTANCE_WDT0 = UICR_ENUM_CHOICE_0
+UICR_WDTSTART_INSTANCE_WDT1 = UICR_ENUM_CHOICE_1
+UICR_WDTSTART_CRV_CRV_MIN = 0xF
+UICR_WDTSTART_CRV_CRV_MAX = 0xFFFFFFFF
+UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT0_Pos = 0
+UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT0_Msk = (
+    0x1 << UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT0_Pos
+)
+UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT1_Pos = 1
+UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT1_Msk = (
+    0x1 << UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT1_Pos
+)
+UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONLOCKUP_Pos = 3
+UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONLOCKUP_Msk = (
+    0x1 << UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONLOCKUP_Pos
+)
+UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT0_Pos = 5
+UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT0_Msk = (
+    0x1 << UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT0_Pos
+)
+UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT1_Pos = 6
+UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT1_Msk = (
+    0x1 << UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT1_Pos
+)
+UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCORELOCKUP_Pos = 8
+UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCORELOCKUP_Msk = (
+    0x1 << UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCORELOCKUP_Pos
+)
+UICR_SECONDARY_PROCESSOR_APPLICATION = UICR_ENUM_CHOICE_0
+UICR_SECONDARY_PROCESSOR_RADIOCORE = UICR_ENUM_CHOICE_1
+UICR_SECONDARY_ADDRESS_ADDRESS_Msk = 0xFFFFF000
+UICR_LOCK_PALL_UNLOCKED = UICR_MAGIC_ERASE_VALUE
+UICR_LOCK_PALL_LOCKED = 0xFFFFFFFF
+UICR_ERASEPROTECT_PALL_UNPROTECTED = UICR_MAGIC_ERASE_VALUE
+UICR_ERASEPROTECT_PALL_PROTECTED = UICR_PROTECTED
+UICR_POLICY_MPCCONFSTAGE_INIT = UICR_ENUM_CHOICE_0
+UICR_POLICY_MPCCONFSTAGE_NORMAL = UICR_ENUM_CHOICE_1
+UICR_POLICY_PERIPHCONFSTAGE_INIT = UICR_ENUM_CHOICE_0
+UICR_POLICY_PERIPHCONFSTAGE_NORMAL = UICR_ENUM_CHOICE_1
+UICR_SNAPSHOT_REGIONS_MAX_REGIONS = 7
+UICR_SNAPSHOT_REGIONS_REGION_SIZEKB_Pos = 0
+UICR_SNAPSHOT_REGIONS_REGION_SIZEKB_Msk = 0xFFF << UICR_SNAPSHOT_REGIONS_REGION_SIZEKB_Pos
+UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Pos = 12
+UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Msk = 0xFFFFF << UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Pos
+
+
+class Approtect(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("APPLICATION", c.c_uint32),
+        ("RADIOCORE", c.c_uint32),
+        ("RESERVED", c.c_uint32),
+        ("CORESIGHT", c.c_uint32),
+    ]
+
+    def __new__(cls) -> Approtect:
+        return _init_uicr_erased(cls)
+
+
+class Protectedmem(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("ENABLE", c.c_uint32),
+        ("SIZE4KB", c.c_uint32),
+    ]
+
+    def __new__(cls) -> Protectedmem:
+        return _init_uicr_erased(cls)
+
+
+class Wdtstart(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("ENABLE", c.c_uint32),
+        ("INSTANCE", c.c_uint32),
+        ("CRV", c.c_uint32),
+    ]
+
+    def __new__(cls) -> Wdtstart:
+        return _init_uicr_erased(cls)
+
+
+class SecurestorageSizes(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("APPLICATIONSIZE1KB", c.c_uint32),
+        ("RADIOCORESIZE1KB", c.c_uint32),
+    ]
+
+    def __new__(cls) -> SecurestorageSizes:
+        return _init_uicr_erased(cls)
+
+
+class Securestorage(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("ENABLE", c.c_uint32),
+        ("ADDRESS", c.c_uint32),
+        ("CRYPTO", SecurestorageSizes),
+        ("ITS", SecurestorageSizes),
+    ]
+
+    def __new__(cls) -> Securestorage:
+        return _init_uicr_erased(cls)
+
+
+class Periphconf(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("ENABLE", c.c_uint32),
+        ("ADDRESS", c.c_uint32),
+        ("MAXCOUNT", c.c_uint32),
+    ]
+
+    def __new__(cls) -> Periphconf:
+        return _init_uicr_erased(cls)
+
+
+class Mpcconf(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("ENABLE", c.c_uint32),
+        ("ADDRESS", c.c_uint32),
+        ("MAXCOUNT", c.c_uint32),
+    ]
+
+    def __new__(cls) -> Mpcconf:
+        return _init_uicr_erased(cls)
+
+
+class SecondaryTrigger(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("ENABLE", c.c_uint32),
+        ("RESETREAS", c.c_uint32),
+        ("RESERVED", c.c_uint32),
+    ]
+
+    def __new__(cls) -> SecondaryTrigger:
+        return _init_uicr_erased(cls)
+
+
+class Secondary(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("ENABLE", c.c_uint32),
+        ("PROCESSOR", c.c_uint32),
+        ("TRIGGER", SecondaryTrigger),
+        ("ADDRESS", c.c_uint32),
+        ("PROTECTEDMEM", Protectedmem),
+        ("WDTSTART", Wdtstart),
+        ("PERIPHCONF", Periphconf),
+        ("MPCCONF", Mpcconf),
+    ]
+
+    def __new__(cls) -> Secondary:
+        return _init_uicr_erased(cls)
+
+
+class SnapshotRegions(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("ENABLE", c.c_uint32),
+        ("COUNT", c.c_uint32),
+        ("REGION", c.c_uint32 * 7),
+    ]
+
+    def __new__(cls) -> SnapshotRegions:
+        return _init_uicr_erased(cls)
+
+
+class Uicr(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("VERSION", c.c_uint32),
+        ("RESERVED", c.c_uint32),
+        ("LOCK", c.c_uint32),
+        ("RESERVED1", c.c_uint32),
+        ("APPROTECT", Approtect),
+        ("ERASEPROTECT", c.c_uint32),
+        ("PROTECTEDMEM", Protectedmem),
+        ("WDTSTART", Wdtstart),
+        ("RESERVED2", c.c_uint32),
+        ("SECURESTORAGE", Securestorage),
+        ("RESERVED3", c.c_uint32 * 5),
+        ("PERIPHCONF", Periphconf),
+        ("MPCCONF", Mpcconf),
+        ("SECONDARY", Secondary),
+        ("RESERVED4", c.c_uint32 * 8),
+        ("SNAPSHOT_REGIONS", SnapshotRegions),
+        ("RESERVED5", c.c_uint32 * 60),
+        ("POLICY_MPCCONFSTAGE", c.c_uint32),
+        ("POLICY_PERIPHCONFSTAGE", c.c_uint32),
+        ("CUSTOMER", c.c_uint32 * 320),
+        ("RESERVED6", c.c_uint32 * 44),
+    ]
+
+    def __new__(cls) -> Uicr:
+        return _init_uicr_erased(cls)
+
+
+MPCCONF_ENTRY_CONFIG0_LOCK_Pos = 0
+MPCCONF_ENTRY_CONFIG0_LOCK_Msk = 0x1 << MPCCONF_ENTRY_CONFIG0_LOCK_Pos
+MPCCONF_ENTRY_CONFIG0_ENABLE_Pos = 1
+MPCCONF_ENTRY_CONFIG0_ENABLE_Msk = 0x1 << MPCCONF_ENTRY_CONFIG0_ENABLE_Pos
+MPCCONF_ENTRY_CONFIG0_REGPTR_Pos = 4
+MPCCONF_ENTRY_CONFIG0_REGPTR_Msk = 0xFFFFFFF << MPCCONF_ENTRY_CONFIG0_REGPTR_Pos
+MPCCONF_ENTRY_CONFIG1_READ_Pos = 0
+MPCCONF_ENTRY_CONFIG1_READ_Msk = 0x1 << MPCCONF_ENTRY_CONFIG1_READ_Pos
+MPCCONF_ENTRY_CONFIG1_WRITE_Pos = 1
+MPCCONF_ENTRY_CONFIG1_WRITE_Msk = 0x1 << MPCCONF_ENTRY_CONFIG1_WRITE_Pos
+MPCCONF_ENTRY_CONFIG1_EXECUTE_Pos = 2
+MPCCONF_ENTRY_CONFIG1_EXECUTE_Msk = 0x1 << MPCCONF_ENTRY_CONFIG1_EXECUTE_Pos
+MPCCONF_ENTRY_CONFIG1_SECATTR_Pos = 3
+MPCCONF_ENTRY_CONFIG1_SECATTR_Msk = 0x1 << MPCCONF_ENTRY_CONFIG1_SECATTR_Pos
+MPCCONF_ENTRY_CONFIG1_STARTADDR_Pos = 5
+MPCCONF_ENTRY_CONFIG1_STARTADDR_Msk = 0x7FFFFFF << MPCCONF_ENTRY_CONFIG1_STARTADDR_Pos
+MPCCONF_ENTRY_CONFIG2_OWNERID_Pos = 0
+MPCCONF_ENTRY_CONFIG2_OWNERID_Msk = 0xF << MPCCONF_ENTRY_CONFIG2_OWNERID_Pos
+MPCCONF_ENTRY_CONFIG2_ENDADDR_OR_MASK_Pos = 5
+MPCCONF_ENTRY_CONFIG2_ENDADDR_OR_MASK_Msk = 0x7FFFFFF << MPCCONF_ENTRY_CONFIG2_ENDADDR_OR_MASK_Pos
+MPCCONF_ENTRY_CONFIG3_MASTERPORT_Pos = 0
+MPCCONF_ENTRY_CONFIG3_MASTERPORT_Msk = 0xFFFFFFFF << MPCCONF_ENTRY_CONFIG3_MASTERPORT_Pos
+
+
+class MpcconfEntry(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("config0", c.c_uint32),
+        ("config1", c.c_uint32),
+        ("config2", c.c_uint32),
+        ("config3", c.c_uint32),
+    ]
+
+
+class PeriphconfEntry(c.LittleEndianStructure):
+    _pack_ = 1
+    _fields_ = [
+        ("regptr", c.c_uint32),
+        ("value", c.c_uint32),
+    ]
+
+
+__all__ = [
+    "Approtect",
+    "MPCCONF_ENTRY_CONFIG0_ENABLE_Msk",
+    "MPCCONF_ENTRY_CONFIG0_ENABLE_Pos",
+    "MPCCONF_ENTRY_CONFIG0_LOCK_Msk",
+    "MPCCONF_ENTRY_CONFIG0_LOCK_Pos",
+    "MPCCONF_ENTRY_CONFIG0_REGPTR_Msk",
+    "MPCCONF_ENTRY_CONFIG0_REGPTR_Pos",
+    "MPCCONF_ENTRY_CONFIG1_EXECUTE_Msk",
+    "MPCCONF_ENTRY_CONFIG1_EXECUTE_Pos",
+    "MPCCONF_ENTRY_CONFIG1_READ_Msk",
+    "MPCCONF_ENTRY_CONFIG1_READ_Pos",
+    "MPCCONF_ENTRY_CONFIG1_SECATTR_Msk",
+    "MPCCONF_ENTRY_CONFIG1_SECATTR_Pos",
+    "MPCCONF_ENTRY_CONFIG1_STARTADDR_Msk",
+    "MPCCONF_ENTRY_CONFIG1_STARTADDR_Pos",
+    "MPCCONF_ENTRY_CONFIG1_WRITE_Msk",
+    "MPCCONF_ENTRY_CONFIG1_WRITE_Pos",
+    "MPCCONF_ENTRY_CONFIG2_ENDADDR_OR_MASK_Msk",
+    "MPCCONF_ENTRY_CONFIG2_ENDADDR_OR_MASK_Pos",
+    "MPCCONF_ENTRY_CONFIG2_OWNERID_Msk",
+    "MPCCONF_ENTRY_CONFIG2_OWNERID_Pos",
+    "MPCCONF_ENTRY_CONFIG3_MASTERPORT_Msk",
+    "MPCCONF_ENTRY_CONFIG3_MASTERPORT_Pos",
+    "Mpcconf",
+    "MpcconfEntry",
+    "Periphconf",
+    "PeriphconfEntry",
+    "Protectedmem",
+    "Secondary",
+    "SecondaryTrigger",
+    "Securestorage",
+    "SecurestorageSizes",
+    "SnapshotRegions",
+    "UICR_APPROTECT_APPLICATION_PROTECTED",
+    "UICR_APPROTECT_APPLICATION_UNPROTECTED",
+    "UICR_APPROTECT_CORESIGHT_PROTECTED",
+    "UICR_APPROTECT_CORESIGHT_UNPROTECTED",
+    "UICR_APPROTECT_RADIOCORE_PROTECTED",
+    "UICR_APPROTECT_RADIOCORE_UNPROTECTED",
+    "UICR_DISABLED",
+    "UICR_ENABLED",
+    "UICR_ENUM_CHOICE_0",
+    "UICR_ENUM_CHOICE_1",
+    "UICR_ERASEPROTECT_PALL_PROTECTED",
+    "UICR_ERASEPROTECT_PALL_UNPROTECTED",
+    "UICR_LOCK_PALL_LOCKED",
+    "UICR_LOCK_PALL_UNLOCKED",
+    "UICR_MAGIC_ERASE_VALUE",
+    "UICR_POLICY_MPCCONFSTAGE_INIT",
+    "UICR_POLICY_MPCCONFSTAGE_NORMAL",
+    "UICR_POLICY_PERIPHCONFSTAGE_INIT",
+    "UICR_POLICY_PERIPHCONFSTAGE_NORMAL",
+    "UICR_PROTECTED",
+    "UICR_SECONDARY_ADDRESS_ADDRESS_Msk",
+    "UICR_SECONDARY_PROCESSOR_APPLICATION",
+    "UICR_SECONDARY_PROCESSOR_RADIOCORE",
+    "UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONLOCKUP_Msk",
+    "UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONLOCKUP_Pos",
+    "UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT0_Msk",
+    "UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT0_Pos",
+    "UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT1_Msk",
+    "UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT1_Pos",
+    "UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCORELOCKUP_Msk",
+    "UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCORELOCKUP_Pos",
+    "UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT0_Msk",
+    "UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT0_Pos",
+    "UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT1_Msk",
+    "UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT1_Pos",
+    "UICR_SNAPSHOT_REGIONS_MAX_REGIONS",
+    "UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Msk",
+    "UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Pos",
+    "UICR_SNAPSHOT_REGIONS_REGION_SIZEKB_Msk",
+    "UICR_SNAPSHOT_REGIONS_REGION_SIZEKB_Pos",
+    "UICR_UNPROTECTED",
+    "UICR_VERSION_2_0",
+    "UICR_VERSION_2_1",
+    "UICR_VERSION_2_2",
+    "UICR_VERSION_2_3",
+    "UICR_VERSION_MAX",
+    "UICR_WDTSTART_CRV_CRV_MAX",
+    "UICR_WDTSTART_CRV_CRV_MIN",
+    "UICR_WDTSTART_INSTANCE_WDT0",
+    "UICR_WDTSTART_INSTANCE_WDT1",
+    "Uicr",
+    "Wdtstart",
+]
