@@ -233,16 +233,17 @@ def cmd_handler(args: argparse.Namespace) -> None:
         if not validate_status.is_error():
             # No errors; we are done.
             return
-        entries_to_print = [e for e in combined_entries if e.status.is_error()]
+        error_style = TableErrorStyle.ONLY_ERRORS
+    elif validate_status == ValidationStatus.SUCCESS:
+        error_style = TableErrorStyle.HIDE_ERROR_COLUMNS
     else:
-        entries_to_print = combined_entries
+        error_style = TableErrorStyle.SHOW_ERROR_COLUMNS
 
-    include_errors = validate_status != ValidationStatus.SUCCESS or args.mode == "errors"
     table_str = render_periphconf_table(
-        entries_to_print,
+        combined_entries,
         sources,
-        style=args.style,
-        include_errors=include_errors,
+        reg_style=TableRegStyle(args.style),
+        error_style=error_style,
     )
     files_str = render_input_files(sources)
     if validate_status != ValidationStatus.SUCCESS:
@@ -259,7 +260,7 @@ def cmd_handler(args: argparse.Namespace) -> None:
         print("Files:")
         print(indent(files_str, "  "))
 
-    if entries_to_print:
+    if table_str:
         print()
         print("Register description:")
         print("  See datasheet")
@@ -861,48 +862,68 @@ def render_input_files(sources: list[Source]) -> str:
     return table_str
 
 
+class TableRegStyle(enum.Enum):
+    REGS = "regs"
+    RAW = "raw"
+
+
+class TableErrorStyle(enum.Enum):
+    SHOW_ERROR_COLUMNS = enum.auto()
+    HIDE_ERROR_COLUMNS = enum.auto()
+    ONLY_ERRORS = enum.auto()
+
+
 def render_periphconf_table(
     entries: list[ConfEntry],
     sources: list[Source],
-    style: str = "regs",
-    include_errors: bool = True,
+    reg_style: TableRegStyle,
+    error_style: TableErrorStyle,
 ) -> str:
     """Render validated PERIPHCONF entries in table form."""
     table = []
     for source in sources:
         start, end = source.entry_range
         for conf in entries[start:end]:
+            if error_style == TableErrorStyle.ONLY_ERRORS and not conf.status.is_error():
+                continue
+
             if len(sources) > 1:
                 # Left padding to 3 spaces makes it look nice for reasonable numbers
                 index = f"{conf.index + start:<3} | {conf.index:<3}"
             else:
                 index = str(conf.index)
 
-            if style == "regs":
+            if reg_style == TableRegStyle.REGS:
                 reg_name = conf.name
                 field_desc = conf.field_desc
             else:
                 reg_name = fmt_addr(conf.regptr)
                 field_desc = fmt_addr(conf.value)
 
-            if include_errors:
-                if conf.status != ValidationStatus.SUCCESS:
-                    error_char = "X"
-                    error_desc = ", ".join(str(s.name) for s in conf.status)
-                else:
-                    error_char = ""
-                    error_desc = ""
-
-                table.append([error_char, index, reg_name, field_desc, error_desc])
+            if conf.status != ValidationStatus.SUCCESS:
+                error_char = "X"
+                error_desc = ", ".join(str(s.name) for s in conf.status)
             else:
-                table.append([index, reg_name, field_desc])
+                error_char = ""
+                error_desc = ""
+
+            match error_style:
+                case TableErrorStyle.HIDE_ERROR_COLUMNS:
+                    table.append([index, reg_name, field_desc])
+                case TableErrorStyle.ONLY_ERRORS:
+                    table.append([index, reg_name, field_desc, error_desc])
+                case _:
+                    table.append([error_char, index, reg_name, field_desc, error_desc])
 
         table.append(SEPARATING_LINE)
 
-    if include_errors:
-        headers = ["E", "Index", "Register", "Fields", "Error"]
-    else:
-        headers = ["Index", "Register", "Fields"]
+    match error_style:
+        case TableErrorStyle.HIDE_ERROR_COLUMNS:
+            headers = ["Index", "Register", "Fields"]
+        case TableErrorStyle.ONLY_ERRORS:
+            headers = ["Index", "Register", "Fields", "Error"]
+        case _:
+            headers = ["E", "Index", "Register", "Fields", "Error"]
 
     table_str = tabulate(
         table,

@@ -11,7 +11,7 @@ import sys
 from itertools import groupby, pairwise
 from typing import NamedTuple
 
-from .. import SubCommand, SubParsers
+from .. import SubCommand, SubParsers, c_types
 
 try:
     from elftools.elf.elffile import ELFFile
@@ -22,26 +22,6 @@ try:
 except ImportError:
     sys.exit("Missing dependency 'intelhex'")
 
-# UICR format versions supported by this script
-UICR_VERSION_2_0 = 0x0002_0000
-UICR_VERSION_2_1 = 0x0002_0001
-UICR_VERSION_2_2 = 0x0002_0002
-UICR_VERSION_2_3 = 0x0002_0003
-
-# Common values for representing enabled/disabled in the UICR format.
-ENABLED_VALUE = 0xFFFF_FFFF
-DISABLED_VALUE = 0xBD23_28A8
-PROTECTED_VALUE = ENABLED_VALUE  # UICR_PROTECTED = UICR_ENABLED per uicr_defs.h
-UNPROTECTED_VALUE = DISABLED_VALUE  # Unprotected uses the default erased value
-
-# Value used to select POLICY_PERIPHCONFSTAGE=NORMAL
-UICR_POLICY_PERIPHCONFSTAGE_NORMAL = 0x1730_C77F
-
-# Value used to select POLICY_MPCCONFSTAGE=NORMAL
-UICR_POLICY_MPCCONFSTAGE_NORMAL = 0x1730_C77F
-
-# Maximum number of snapshot regions supported
-MAX_SNAPSHOT_REGIONS = 7
 
 KB_4 = 4096
 
@@ -57,180 +37,7 @@ class PartitionInfo(NamedTuple):
     name: str
 
 
-class PeriphconfEntry(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("regptr", c.c_uint32),
-        ("value", c.c_uint32),
-    ]
-
-
-PERIPHCONF_ENTRY_SIZE = c.sizeof(PeriphconfEntry)
-
-
-class Approtect(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("APPLICATION", c.c_uint32),
-        ("RADIOCORE", c.c_uint32),
-        ("RESERVED", c.c_uint32),
-        ("CORESIGHT", c.c_uint32),
-    ]
-
-
-class Protectedmem(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("ENABLE", c.c_uint32),
-        ("SIZE4KB", c.c_uint32),
-    ]
-
-
-class Wdtstart(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("ENABLE", c.c_uint32),
-        ("INSTANCE", c.c_uint32),
-        ("CRV", c.c_uint32),
-    ]
-
-
-class SecurestorageCrypto(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("APPLICATIONSIZE1KB", c.c_uint32),
-        ("RADIOCORESIZE1KB", c.c_uint32),
-    ]
-
-
-class SecurestorageIts(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("APPLICATIONSIZE1KB", c.c_uint32),
-        ("RADIOCORESIZE1KB", c.c_uint32),
-    ]
-
-
-class Securestorage(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("ENABLE", c.c_uint32),
-        ("ADDRESS", c.c_uint32),
-        ("CRYPTO", SecurestorageCrypto),
-        ("ITS", SecurestorageIts),
-    ]
-
-
-class Periphconf(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("ENABLE", c.c_uint32),
-        ("ADDRESS", c.c_uint32),
-        ("MAXCOUNT", c.c_uint32),
-    ]
-
-
-class Mpcconf(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("ENABLE", c.c_uint32),
-        ("ADDRESS", c.c_uint32),
-        ("MAXCOUNT", c.c_uint32),
-    ]
-
-
-class SecondaryTrigger(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("ENABLE", c.c_uint32),
-        ("RESETREAS", c.c_uint32),
-        ("RESERVED", c.c_uint32),
-    ]
-
-
-class SecondaryProtectedmem(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("ENABLE", c.c_uint32),
-        ("SIZE4KB", c.c_uint32),
-    ]
-
-
-class SecondaryWdtstart(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("ENABLE", c.c_uint32),
-        ("INSTANCE", c.c_uint32),
-        ("CRV", c.c_uint32),
-    ]
-
-
-class SecondaryPeriphconf(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("ENABLE", c.c_uint32),
-        ("ADDRESS", c.c_uint32),
-        ("MAXCOUNT", c.c_uint32),
-    ]
-
-
-class SecondaryMpcconf(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("ENABLE", c.c_uint32),
-        ("ADDRESS", c.c_uint32),
-        ("MAXCOUNT", c.c_uint32),
-    ]
-
-
-class Secondary(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("ENABLE", c.c_uint32),
-        ("PROCESSOR", c.c_uint32),
-        ("TRIGGER", SecondaryTrigger),
-        ("ADDRESS", c.c_uint32),
-        ("PROTECTEDMEM", SecondaryProtectedmem),
-        ("WDTSTART", SecondaryWdtstart),
-        ("PERIPHCONF", SecondaryPeriphconf),
-        ("MPCCONF", SecondaryMpcconf),
-    ]
-
-
-class SnapshotRegions(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("ENABLE", c.c_uint32),
-        ("COUNT", c.c_uint32),
-        ("REGIONS", c.c_uint32 * MAX_SNAPSHOT_REGIONS),
-    ]
-
-
-class Uicr(c.LittleEndianStructure):
-    _pack_ = 1
-    _fields_ = [
-        ("VERSION", c.c_uint32),
-        ("RESERVED", c.c_uint32),
-        ("LOCK", c.c_uint32),
-        ("RESERVED1", c.c_uint32),
-        ("APPROTECT", Approtect),
-        ("ERASEPROTECT", c.c_uint32),
-        ("PROTECTEDMEM", Protectedmem),
-        ("WDTSTART", Wdtstart),
-        ("RESERVED2", c.c_uint32),
-        ("SECURESTORAGE", Securestorage),
-        ("RESERVED3", c.c_uint32 * 5),
-        ("PERIPHCONF", Periphconf),
-        ("MPCCONF", Mpcconf),
-        ("SECONDARY", Secondary),
-        ("RESERVED4", c.c_uint32 * 8),
-        ("SNAPSHOT_REGIONS", SnapshotRegions),
-        ("RESERVED5", c.c_uint32 * 60),
-        ("POLICY_MPCCONFSTAGE", c.c_uint32),
-        ("POLICY_PERIPHCONFSTAGE", c.c_uint32),
-        ("CUSTOMER", c.c_uint32 * 320),
-        ("RESERVED6", c.c_uint32 * 44),
-    ]
+PERIPHCONF_ENTRY_SIZE = c.sizeof(c_types.PeriphconfEntry)
 
 
 def validate_secure_storage_partitions(args: argparse.Namespace) -> None:
@@ -571,7 +378,11 @@ def add_parser(subparsers: SubParsers) -> argparse.ArgumentParser:
     parser.add_argument(
         "--wdtstart-instance-code",
         type=lambda s: int(s, 0),
-        help="Watchdog timer instance code (0xBD2328A8 for WDT0, 0x1730C77F for WDT1)",
+        help=(
+            "Watchdog timer instance code "
+            f"(0x{c_types.UICR_WDTSTART_INSTANCE_WDT0:08x} for WDT0, "
+            f"0x{c_types.UICR_WDTSTART_INSTANCE_WDT1:08x} for WDT1)"
+        ),
     )
     parser.add_argument(
         "--wdtstart-crv",
@@ -586,12 +397,19 @@ def add_parser(subparsers: SubParsers) -> argparse.ArgumentParser:
     parser.add_argument(
         "--secondary-wdtstart-instance-code",
         type=lambda s: int(s, 0),
-        help="Secondary watchdog timer instance code (0xBD2328A8 for WDT0, 0x1730C77F for WDT1)",
+        help=(
+            "Secondary watchdog timer instance code "
+            f"(0x{c_types.UICR_WDTSTART_INSTANCE_WDT0:08x} for WDT0, "
+            f"0x{c_types.UICR_WDTSTART_INSTANCE_WDT1:08x} for WDT1)"
+        ),
     )
     parser.add_argument(
         "--secondary-wdtstart-crv",
         type=int,
-        help="Secondary initial Counter Reload Value (CRV) for watchdog timer (minimum: 0xF)",
+        help=(
+            "Secondary initial Counter Reload Value (CRV) for watchdog timer "
+            f"(minimum: 0x{c_types.UICR_WDTSTART_CRV_CRV_MIN})",
+        ),
     )
     parser.add_argument(
         "--secondary",
@@ -706,7 +524,8 @@ def add_parser(subparsers: SubParsers) -> argparse.ArgumentParser:
         type=lambda s: int(s, 0),
         help=(
             "Set the stage of the PERIPHCONF API when IronSide SE starts the Application core: "
-            "0xBD2328A8 for Initialization, 0x1730C77F for Normal Operation. "
+            f"0x{c_types.UICR_POLICY_PERIPHCONFSTAGE_INIT:08x} for Initialization, "
+            f"0x{c_types.UICR_POLICY_PERIPHCONFSTAGE_NORMAL:08x} for Normal Operation. "
             "Setting this to Initialization updates the UICR minimum version to 2.1"
         ),
     )
@@ -716,7 +535,8 @@ def add_parser(subparsers: SubParsers) -> argparse.ArgumentParser:
         type=lambda s: int(s, 0),
         help=(
             "Set the stage of the MPCCONF API when IronSide SE starts the Application core: "
-            "0xBD2328A8 for Initialization, 0x1730C77F for Normal Operation. "
+            f"0x{c_types.UICR_POLICY_MPCCONFSTAGE_INIT:08x} for Initialization, "
+            f"0x{c_types.UICR_POLICY_MPCCONFSTAGE_NORMAL:08x} for Normal Operation. "
             "Setting this to Initialization updates the UICR minimum version to 2.2"
         ),
     )
@@ -740,13 +560,13 @@ def add_parser(subparsers: SubParsers) -> argparse.ArgumentParser:
 def get_min_uicr_version(args: argparse.Namespace) -> int:
     """Deduce the minimum required UICR version based on the options used."""
 
-    min_version = UICR_VERSION_2_0
+    min_version = c_types.UICR_VERSION_2_0
 
     if args.mpcconf or args.secondary_mpcconf:
-        min_version = max(min_version, UICR_VERSION_2_2)
+        min_version = max(min_version, c_types.UICR_VERSION_2_2)
 
     if args.snapshot_regions:
-        min_version = max(min_version, UICR_VERSION_2_3)
+        min_version = max(min_version, c_types.UICR_VERSION_2_3)
 
     # We have some special handling for POLICY_PERIPHCONFSTAGE because:
     # * If UICR version == 2.0, the default/only choice is NORMAL
@@ -762,8 +582,8 @@ def get_min_uicr_version(args: argparse.Namespace) -> int:
     # This makes it so if min_version == 2.0, we rely on the default IronSide behavior for 2.0,
     # and if min_version >= 2.1, we explicitly set that value in UICR since it's non-default.
     #
-    if args.policy_periphconf_stage not in (None, UICR_POLICY_PERIPHCONFSTAGE_NORMAL):
-        min_version = max(min_version, UICR_VERSION_2_1)
+    if args.policy_periphconf_stage not in (None, c_types.UICR_POLICY_PERIPHCONFSTAGE_NORMAL):
+        min_version = max(min_version, c_types.UICR_VERSION_2_1)
 
     # POLICY_MPCCONFSTAGE works in much the same way, except:
     # * If UICR version <= 2.1, the default/only choice is NORMAL
@@ -771,8 +591,8 @@ def get_min_uicr_version(args: argparse.Namespace) -> int:
     #
     # If stage is set to INIT, we select min_version >= 2.2.
     #
-    if args.policy_mpcconf_stage not in (None, UICR_POLICY_MPCCONFSTAGE_NORMAL):
-        min_version = max(min_version, UICR_VERSION_2_2)
+    if args.policy_mpcconf_stage not in (None, c_types.UICR_POLICY_MPCCONFSTAGE_NORMAL):
+        min_version = max(min_version, c_types.UICR_VERSION_2_2)
 
     return min_version
 
@@ -858,15 +678,14 @@ def cmd_handler(args: argparse.Namespace) -> None:
             # Validate partition layout
             validate_secure_storage_partitions(args)
 
-        init_values = DISABLED_VALUE.to_bytes(4, "little") * (c.sizeof(Uicr) // 4)
-        uicr = Uicr.from_buffer_copy(init_values)
+        uicr = c_types.Uicr()
 
         min_version = get_min_uicr_version(args)
         uicr.VERSION = min_version
 
         # Handle secure storage configuration
         if args.securestorage:
-            uicr.SECURESTORAGE.ENABLE = ENABLED_VALUE
+            uicr.SECURESTORAGE.ENABLE = c_types.UICR_ENABLED
             uicr.SECURESTORAGE.ADDRESS = args.securestorage_address
 
             # Set partition sizes in 1KB units
@@ -890,18 +709,18 @@ def cmd_handler(args: argparse.Namespace) -> None:
             )
 
         if args.lock:
-            uicr.LOCK = ENABLED_VALUE
+            uicr.LOCK = c_types.UICR_ENABLED
         if args.eraseprotect:
-            uicr.ERASEPROTECT = ENABLED_VALUE
+            uicr.ERASEPROTECT = c_types.UICR_ENABLED
         # Handle APPROTECT configuration
         if args.approtect_application_protected:
-            uicr.APPROTECT.APPLICATION = PROTECTED_VALUE
+            uicr.APPROTECT.APPLICATION = c_types.UICR_PROTECTED
 
         if args.approtect_radiocore_protected:
-            uicr.APPROTECT.RADIOCORE = PROTECTED_VALUE
+            uicr.APPROTECT.RADIOCORE = c_types.UICR_PROTECTED
 
         if args.approtect_coresight_protected:
-            uicr.APPROTECT.CORESIGHT = PROTECTED_VALUE
+            uicr.APPROTECT.CORESIGHT = c_types.UICR_PROTECTED
         # Handle protected memory configuration
         if args.protectedmem:
             if args.protectedmem_size_bytes % KB_4 != 0:
@@ -909,12 +728,12 @@ def cmd_handler(args: argparse.Namespace) -> None:
                     f"Protected memory size ({args.protectedmem_size_bytes} bytes) "
                     f"must be divisible by {KB_4}"
                 )
-            uicr.PROTECTEDMEM.ENABLE = ENABLED_VALUE
+            uicr.PROTECTEDMEM.ENABLE = c_types.UICR_ENABLED
             uicr.PROTECTEDMEM.SIZE4KB = args.protectedmem_size_bytes // KB_4
 
         # Handle WDTSTART configuration
         if args.wdtstart:
-            uicr.WDTSTART.ENABLE = ENABLED_VALUE
+            uicr.WDTSTART.ENABLE = c_types.UICR_ENABLED
             uicr.WDTSTART.CRV = args.wdtstart_crv
             uicr.WDTSTART.INSTANCE = args.wdtstart_instance_code
 
@@ -925,7 +744,7 @@ def cmd_handler(args: argparse.Namespace) -> None:
 
         # Handle MPCCONF configuration
         if args.mpcconf:
-            uicr.MPCCONF.ENABLE = ENABLED_VALUE
+            uicr.MPCCONF.ENABLE = c_types.UICR_ENABLED
             uicr.MPCCONF.ADDRESS = args.mpcconf_address
 
             # MAXCOUNT is given in number of 16-byte MPC
@@ -948,7 +767,7 @@ def cmd_handler(args: argparse.Namespace) -> None:
 
         # Handle PERIPHCONF configuration
         if args.periphconf:
-            uicr.PERIPHCONF.ENABLE = ENABLED_VALUE
+            uicr.PERIPHCONF.ENABLE = c_types.UICR_ENABLED
             uicr.PERIPHCONF.ADDRESS = args.periphconf_address
 
             # MAXCOUNT is given in number of 8-byte peripheral
@@ -978,18 +797,18 @@ def cmd_handler(args: argparse.Namespace) -> None:
 
         # Handle secondary firmware configuration
         if args.secondary:
-            uicr.SECONDARY.ENABLE = ENABLED_VALUE
+            uicr.SECONDARY.ENABLE = c_types.UICR_ENABLED
             uicr.SECONDARY.ADDRESS = args.secondary_address
             uicr.SECONDARY.PROCESSOR = args.secondary_processor
 
             # Handle secondary TRIGGER configuration
             if args.secondary_trigger:
-                uicr.SECONDARY.TRIGGER.ENABLE = ENABLED_VALUE
+                uicr.SECONDARY.TRIGGER.ENABLE = c_types.UICR_ENABLED
                 uicr.SECONDARY.TRIGGER.RESETREAS = args.secondary_trigger_resetreas
 
             # Handle secondary PROTECTEDMEM configuration
             if args.secondary_protectedmem_size:
-                uicr.SECONDARY.PROTECTEDMEM.ENABLE = ENABLED_VALUE
+                uicr.SECONDARY.PROTECTEDMEM.ENABLE = c_types.UICR_ENABLED
                 if args.secondary_protectedmem_size % 4096 != 0:
                     raise ScriptError(
                         f"args.secondary_protectedmem_size was {args.secondary_protectedmem_size}, "
@@ -999,7 +818,7 @@ def cmd_handler(args: argparse.Namespace) -> None:
 
             # Handle secondary MPCCONF configuration
             if args.secondary_mpcconf:
-                uicr.SECONDARY.MPCCONF.ENABLE = ENABLED_VALUE
+                uicr.SECONDARY.MPCCONF.ENABLE = c_types.UICR_ENABLED
                 uicr.SECONDARY.MPCCONF.ADDRESS = args.secondary_mpcconf_address
 
                 # MAXCOUNT is given in number of 16-byte MPC
@@ -1029,7 +848,7 @@ def cmd_handler(args: argparse.Namespace) -> None:
 
             # Handle secondary PERIPHCONF configuration
             if args.secondary_periphconf:
-                uicr.SECONDARY.PERIPHCONF.ENABLE = ENABLED_VALUE
+                uicr.SECONDARY.PERIPHCONF.ENABLE = c_types.UICR_ENABLED
                 uicr.SECONDARY.PERIPHCONF.ADDRESS = args.secondary_periphconf_address
 
                 # MAXCOUNT is given in number of 8-byte peripheral
@@ -1065,21 +884,21 @@ def cmd_handler(args: argparse.Namespace) -> None:
 
             # Handle secondary WDTSTART configuration
             if args.secondary_wdtstart:
-                uicr.SECONDARY.WDTSTART.ENABLE = ENABLED_VALUE
+                uicr.SECONDARY.WDTSTART.ENABLE = c_types.UICR_ENABLED
                 uicr.SECONDARY.WDTSTART.CRV = args.secondary_wdtstart_crv
                 uicr.SECONDARY.WDTSTART.INSTANCE = args.secondary_wdtstart_instance_code
 
-        if uicr.VERSION >= UICR_VERSION_2_1 and args.policy_periphconf_stage is not None:
+        if uicr.VERSION >= c_types.UICR_VERSION_2_1 and args.policy_periphconf_stage is not None:
             uicr.POLICY_PERIPHCONFSTAGE = args.policy_periphconf_stage
 
-        if uicr.VERSION >= UICR_VERSION_2_2 and args.policy_mpcconf_stage is not None:
+        if uicr.VERSION >= c_types.UICR_VERSION_2_2 and args.policy_mpcconf_stage is not None:
             uicr.POLICY_MPCCONFSTAGE = args.policy_mpcconf_stage
 
-        if uicr.VERSION >= UICR_VERSION_2_3 and args.snapshot_regions:
+        if uicr.VERSION >= c_types.UICR_VERSION_2_3 and args.snapshot_regions:
             block_bytes = 1024
             num_regions = len(args.snapshot_regions)
 
-            if num_regions > MAX_SNAPSHOT_REGIONS:
+            if num_regions > c_types.UICR_SNAPSHOT_REGIONS_MAX_REGIONS:
                 raise ScriptError("Number of snapshot regions exceeds maximum allowed")
 
             for i, (address, size) in enumerate(args.snapshot_regions):
@@ -1093,10 +912,12 @@ def cmd_handler(args: argparse.Namespace) -> None:
                         "Snapshot region size must be greater than 0 and less than 4096"
                     )
 
-                uicr.SNAPSHOT_REGIONS.REGIONS[i] = (address & 0xFFFF_F000) | size
+                uicr.SNAPSHOT_REGIONS.REGIONS[i] = (
+                    address & c_types.UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Msk
+                ) | size
 
             uicr.SNAPSHOT_REGIONS.COUNT = num_regions
-            uicr.SNAPSHOT_REGIONS.ENABLE = ENABLED_VALUE
+            uicr.SNAPSHOT_REGIONS.ENABLE = c_types.UICR_ENABLED
 
         # Create UICR hex object with final UICR data
         uicr_hex = IntelHex()
@@ -1152,7 +973,7 @@ def extract_and_combine_periphconfs(
     periphconf_section_name: str,
     ipcmap_reallocate: bool,
 ) -> bytes:
-    combined_periphconf: list[PeriphconfEntry] = []
+    combined_periphconf: list[c_types.PeriphconfEntry] = []
     ipcmap_index = 0
 
     for in_file in elf_files:
@@ -1163,7 +984,7 @@ def extract_and_combine_periphconfs(
 
         conf_section_data = conf_section.data()
         num_entries = len(conf_section_data) // PERIPHCONF_ENTRY_SIZE
-        periphconf = (PeriphconfEntry * num_entries).from_buffer_copy(conf_section_data)
+        periphconf = (c_types.PeriphconfEntry * num_entries).from_buffer_copy(conf_section_data)
         if ipcmap_reallocate:
             ipcmap_index = adjust_ipcmap_entries(periphconf, offset_index=ipcmap_index)
         combined_periphconf.extend(periphconf)
@@ -1181,7 +1002,7 @@ def extract_and_combine_periphconfs(
             unique_values.add(entry.value)
             deduplicated_periphconf.append(entry)
 
-    final_periphconf = (PeriphconfEntry * len(deduplicated_periphconf))()
+    final_periphconf = (c_types.PeriphconfEntry * len(deduplicated_periphconf))()
     for i, entry in enumerate(deduplicated_periphconf):
         final_periphconf[i] = entry
 
@@ -1193,7 +1014,7 @@ def extract_and_combine_periphconfs(
 #
 # The workaround assumes that IPCMAP entries are allocated sequentially starting from 0
 # in each image, it will probably not work for arbitrary IPCMAP entries.
-def adjust_ipcmap_entries(periphconf: c.Array[PeriphconfEntry], offset_index: int) -> int:
+def adjust_ipcmap_entries(periphconf: c.Array[c_types.PeriphconfEntry], offset_index: int) -> int:
     max_ipcmap_index = offset_index
 
     for entry in sorted(periphconf, key=lambda e: e.regptr):
