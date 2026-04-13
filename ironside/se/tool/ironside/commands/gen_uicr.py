@@ -547,10 +547,10 @@ def add_parser(subparsers: SubParsers) -> argparse.ArgumentParser:
         action="append",
         nargs=2,
         type=lambda s: int(s, 0),
-        metavar=("ADDRESS", "SIZE"),
+        metavar=("ADDRESS", "SIZE_BYTES"),
         help=(
-            "Address and size in number of 1KB blocks of a snapshot region. "
-            "Can be provided multiple times for allocating multiple regions."
+            "Address and size of snapshot regions. The address and size are specified in bytes "
+            "but must both be 1kB aligned. Can be provided multiple times."
         ),
     )
 
@@ -895,26 +895,30 @@ def cmd_handler(args: argparse.Namespace) -> None:
             uicr.POLICY_MPCCONFSTAGE = args.policy_mpcconf_stage
 
         if uicr.VERSION >= c_types.UICR_VERSION_2_3 and args.snapshot_regions:
-            block_bytes = 1024
             num_regions = len(args.snapshot_regions)
 
             if num_regions > c_types.UICR_SNAPSHOT_REGIONS_MAX_REGIONS:
                 raise ScriptError("Number of snapshot regions exceeds maximum allowed")
 
-            for i, (address, size) in enumerate(args.snapshot_regions):
-                if address % block_bytes != 0:
+            for i, (address, size_bytes) in enumerate(args.snapshot_regions):
+                if address % 1024 != 0:
                     raise ScriptError(
-                        f"Snapshot region address {address:#x} must be divisible by {block_bytes}"
+                        f"Snapshot region address {address:#x} must be aligned to 1024 bytes (1 KB)"
                     )
 
-                if size <= 0 or size > 0xFFF:
+                if size_bytes % 1024 != 0:
                     raise ScriptError(
-                        "Snapshot region size must be greater than 0 and less than 4096"
+                        f"Snapshot region size ({size_bytes} bytes) must be aligned to 1024 bytes"
                     )
 
-                uicr.SNAPSHOT_REGIONS.REGIONS[i] = (
+                if size_bytes > 1024 * 1024:
+                    raise ScriptError(
+                        f"Snapshot region size ({size_bytes} bytes) exceeds the maximum of 1MByte"
+                    )
+
+                uicr.SNAPSHOT_REGIONS.REGION[i] = (
                     address & c_types.UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Msk
-                ) | size
+                ) | (size_bytes / 1024)
 
             uicr.SNAPSHOT_REGIONS.COUNT = num_regions
             uicr.SNAPSHOT_REGIONS.ENABLE = c_types.UICR_ENABLED
