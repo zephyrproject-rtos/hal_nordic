@@ -12,8 +12,8 @@
 extern "C" {
 #endif
 
-/* Only add these definitions for Haltium architecture based products. */
-#if defined(HALTIUM_XXAA)
+/* Only add these definitions for nRF54H/nRF7140/nRF92 architecture based products. */
+#if defined(NRF54H_SERIES) || defined(NRF92_SERIES) || defined(NRF7140_XXAA)
 
 /* The definitions below are not currently available in the MDK but are needed for certain
  * macros in this package. When they are, this can be deleted.
@@ -179,7 +179,7 @@ typedef struct {
 #define NRF_MPC110 ((NRF_MPC_Type *)0x5F081000UL)
 #endif
 
-#endif /* NRF_HALTIUM_XXAA */
+#endif /* NRF54H_SERIES || NRF92_SERIES */
 
 #ifdef __cplusplus
 }
