@@ -385,6 +385,7 @@ class RegType(Enum):
     MEMCONF_POWER_RET = enum.auto()
     MEMCONF_POWER_RET2 = enum.auto()
     MRAMC_CONFIGNVR_PAGE = enum.auto()
+    L2CACHE_ENABLE = enum.auto()
     PPIB_PUBLISH_RECEIVE = enum.auto()
     PPIB_SUBSCRIBE_SEND = enum.auto()
     SPU_PERIPH_PERM = enum.auto()
@@ -503,6 +504,9 @@ class ConfEntry:
                 reg_type = RegType.MEMCONF_POWER_RET2
         elif self.name.startswith("MRAMC") and (data := self._parse_name("CONFIGNVR.PAGE{0}")):
             reg_type = RegType.MRAMC_CONFIGNVR_PAGE
+        elif self.name.startswith("L2CACHE"):
+            if data := self._parse_name("ENABLE"):
+                reg_type = RegType.L2CACHE_ENABLE
         elif self.name.startswith("PPIB"):
             if data := self._parse_name("SUBSCRIBE_SEND{0}"):
                 reg_type = RegType.PPIB_SUBSCRIBE_SEND
