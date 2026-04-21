@@ -514,6 +514,28 @@ struct periphconf_entry {
 #define PERIPHCONF_MEMCONF_POWER_RET2_REGPTR(_memconf, _index)                                     \
 	(uint32_t)&((NRF_MEMCONF_Type *)(_memconf))->POWER[(_index)].RET2
 
+/** @brief Initialize a PERIPHCONF entry for the L2CACHE ENABLE register.
+ *
+ * @param _enable If true, enable the L2CACHE, otherwise disable it.
+ */
+#define PERIPHCONF_L2CACHE_ENABLE(_enable)                                                         \
+	(struct periphconf_entry)                                                                  \
+	{                                                                                          \
+		.regptr = PERIPHCONF_L2CACHE_ENABLE_REGPTR(),                                      \
+		.value = PERIPHCONF_L2CACHE_ENABLE_VALUE(_enable),                                 \
+	}
+
+/** @brief L2CACHE ENABLE register pointer. */
+#define PERIPHCONF_L2CACHE_ENABLE_REGPTR() (uint32_t)&NRF_SYSCTRL_L2CACHE->ENABLE
+
+/** @brief L2CACHE ENABLE register value.
+ *
+ * @param _enable If true, enable the L2CACHE, otherwise disable it.
+ */
+#define PERIPHCONF_L2CACHE_ENABLE_VALUE(_enable)                                                   \
+	(uint32_t)(((_enable) ? CACHE_ENABLE_ENABLE_Enabled : CACHE_ENABLE_ENABLE_Disabled)        \
+		   << CACHE_ENABLE_ENABLE_Pos)
+
 #ifdef __cplusplus
 }
 #endif

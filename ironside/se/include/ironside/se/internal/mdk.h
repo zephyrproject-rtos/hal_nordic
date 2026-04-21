@@ -179,6 +179,10 @@ typedef struct {
 #define NRF_MPC110 ((NRF_MPC_Type *)0x5F081000UL)
 #endif
 
+#ifndef NRF_SYSCTRL_L2CACHE
+#define NRF_SYSCTRL_L2CACHE ((NRF_CACHE_Type *)0x5F082000UL)
+#endif
+
 #endif /* NRF_HALTIUM_XXAA */
 
 #ifdef __cplusplus

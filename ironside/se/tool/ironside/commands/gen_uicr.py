@@ -918,7 +918,7 @@ def cmd_handler(args: argparse.Namespace) -> None:
 
                 uicr.SNAPSHOT_REGIONS.REGION[i] = (
                     address & c_types.UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Msk
-                ) | (size_bytes / 1024)
+                ) | (size_bytes // 1024)
 
             uicr.SNAPSHOT_REGIONS.COUNT = num_regions
             uicr.SNAPSHOT_REGIONS.ENABLE = c_types.UICR_ENABLED
