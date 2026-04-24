@@ -304,7 +304,9 @@ struct UICR_SECONDARY {
  */
 
 /** Bit mask for SECONDARY ADDRESS field (address bits, 4 kB aligned). */
+#ifndef UICR_SECONDARY_ADDRESS_ADDRESS_Msk
 #define UICR_SECONDARY_ADDRESS_ADDRESS_Msk (0xFFFFF000UL)
+#endif
 
 /** @} */
 
