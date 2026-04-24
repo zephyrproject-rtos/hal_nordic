@@ -61,7 +61,10 @@ typedef struct __NRFS_PACKED {
 /** @brief PMIC service notification data structure. */
 typedef struct __NRFS_PACKED {
 	pmic_reg_access_type_t access_type; /** Register access type */
-	uint8_t val;			    /** Register value of 8-bit register. */
+	/** Response value: PMIC register content (TEST_IF)
+	 *  or VDETPOF5V0 STATUSANA (POFWARN status).
+	 */
+	uint8_t val;
 } nrfs_pmic_rsp_data_t;
 
 /** @brief PMIC RFFE ON request structure. */
@@ -145,6 +148,22 @@ typedef struct __NRFS_PACKED {
 	nrfs_ctx_t ctx;		   /**< Context of the message. */
 	nrfs_pmic_info_rsp_data_t data; /**< Data of the notification. */
 } nrfs_pmic_info_rsp_t;
+
+/** @brief PMIC POFWARN subscribe/threshold set request structure. */
+typedef struct __NRFS_PACKED {
+	nrfs_hdr_t hdr; /**< Header of the message. */
+	nrfs_ctx_t ctx; /**< Context of the message. */
+	/** Per-subscriber POFWARN threshold in decivolts.
+	 *  0 = unsubscribe, 18..49 = 1.8..4.9V (subscribes to notification).
+	 */
+	uint8_t    threshold;
+} nrfs_pmic_pofwarn_th_req_t;
+
+/** @brief PMIC POFWARN status get request structure. */
+typedef struct __NRFS_PACKED {
+	nrfs_hdr_t hdr; /**< Header of the message. */
+	nrfs_ctx_t ctx; /**< Context of the message. */
+} nrfs_pmic_pofwarn_status_req_t;
 
 /** @brief PMIC service notification structure. */
 typedef struct __NRFS_PACKED {
