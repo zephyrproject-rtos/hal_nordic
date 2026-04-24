@@ -294,6 +294,35 @@ nrfs_err_t nrfs_pmic_test_if_write(uint16_t addr, uint8_t val, void *p_context)
 	return nrfs_backend_send(&req, sizeof(req));
 }
 
+nrfs_err_t nrfs_pmic_pofwarn_th_set(int volts, void *p_context)
+{
+	if (!m_cb.is_initialized) {
+		return NRFS_ERR_INVALID_STATE;
+	}
+
+	nrfs_pmic_pofwarn_th_req_t req;
+
+	NRFS_SERVICE_HDR_FILL(&req, NRFS_PMIC_POFWARN_TH);
+	req.ctx.ctx   = (uint32_t)p_context;
+	req.threshold = volts;
+
+	return nrfs_backend_send(&req, sizeof(req));
+}
+
+nrfs_err_t nrfs_pmic_pofwarn_status_get(void *p_context)
+{
+	if (!m_cb.is_initialized) {
+		return NRFS_ERR_INVALID_STATE;
+	}
+
+	nrfs_pmic_pofwarn_status_req_t req;
+
+	NRFS_SERVICE_HDR_FILL(&req, NRFS_PMIC_POFWARN_STATUS);
+	req.ctx.ctx = (uint32_t)p_context;
+
+	return nrfs_backend_send(&req, sizeof(req));
+}
+
 nrfs_err_t nrfs_pmic_info_read(void *p_context)
 {
 	if (!m_cb.is_initialized) {
@@ -351,6 +380,24 @@ void nrfs_pmic_service_notify(void *p_notification, size_t size)
 		info_evt.info = p_rsp_info->data;
 		m_cb.handler(&info_evt, (void *)p_rsp_info->ctx.ctx);
 		break;
+	case NRFS_PMIC_POFWARN_TH:
+		nrfs_pmic_evt_t *p_pofwarn_evt;
+
+		p_pofwarn_evt = (nrfs_pmic_evt_t *)p_data->payload;
+
+		evt.type = p_pofwarn_evt->type;
+		m_cb.handler(&evt, (void *)p_data->ctx.ctx);
+		break;
+
+	case NRFS_PMIC_POFWARN_STATUS:
+		nrfs_pmic_rsp_t *p_status_rsp;
+
+		p_status_rsp = (nrfs_pmic_rsp_t *)p_notification;
+		evt.type = NRFS_PMIC_EVT_POFWARN_STATUS;
+		evt.val  = p_status_rsp->data.val;
+		m_cb.handler(&evt, (void *)p_status_rsp->ctx.ctx);
+		break;
+
 	default:
 		break;
 	}

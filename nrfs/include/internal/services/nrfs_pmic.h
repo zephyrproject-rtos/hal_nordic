@@ -146,6 +146,22 @@ typedef struct __NRFS_PACKED {
 	nrfs_pmic_info_rsp_data_t data; /**< Data of the notification. */
 } nrfs_pmic_info_rsp_t;
 
+/** @brief PMIC POFWARN threshold set request structure. */
+typedef struct __NRFS_PACKED {
+	nrfs_hdr_t hdr; /**< Header of the message. */
+	nrfs_ctx_t ctx; /**< Context of the message. */
+	/** POFWARN threshold in decivolts
+	 *  (0 = disable, 18..49 = 1.8..4.9V)
+	 */
+	uint8_t    threshold;
+} nrfs_pmic_pofwarn_th_req_t;
+
+/** @brief PMIC POFWARN status get request structure. */
+typedef struct __NRFS_PACKED {
+	nrfs_hdr_t hdr; /**< Header of the message. */
+	nrfs_ctx_t ctx; /**< Context of the message. */
+} nrfs_pmic_pofwarn_status_req_t;
+
 /** @brief PMIC service notification structure. */
 typedef struct __NRFS_PACKED {
 	nrfs_hdr_t hdr;		   /**< Header of the message. */

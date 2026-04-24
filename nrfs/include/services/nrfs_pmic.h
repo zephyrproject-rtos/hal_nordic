@@ -19,6 +19,9 @@ typedef enum __NRFS_PACKED {
 	NRFS_PMIC_EVT_REJECT		= 1, /** Request rejected. */
 	NRFS_PMIC_EVT_TEST_IF_RSP	= 2, /** Response for TEST_IF request */
 	NRFS_PMIC_EVT_INFO_RSP		= 3, /** Response for INFO IF request */
+	NRFS_PMIC_EVT_POFWARN		= 4, /** Power-fail warning */
+	NRFS_PMIC_EVT_POFWARN_TH_SET	= 5, /** POFWARN TH set */
+	NRFS_PMIC_EVT_POFWARN_STATUS	= 6, /** POFWARN status */
 } nrfs_pmic_evt_type_t;
 
 /** @brief PMIC Service response data structure. */
@@ -262,6 +265,31 @@ nrfs_err_t nrfs_pmic_test_if_read(uint16_t addr, void * p_context);
  * @retval NRFS_ERR_IPC           Backend returned error during request sending.
  */
 nrfs_err_t nrfs_pmic_test_if_write(uint16_t addr, uint8_t val, void * p_context);
+
+/**
+ * @brief Function for setting POFWARN threshold voltage
+ *
+ * @param[in] volts      Threshold voltage value.
+ * @param[in] p_context  Opaque user data that will be passed
+ *                        to registered callback.
+ *
+ * @retval NRFS_SUCCESS           Request sent successfully.
+ * @retval NRFS_ERR_INVALID_STATE Service is uninitialized.
+ * @retval NRFS_ERR_IPC           Backend returned error during request sending.
+ */
+nrfs_err_t nrfs_pmic_pofwarn_th_set(int volts, void *p_context);
+
+/**
+ * @brief Function for reading POFWARN status from sysctrl
+ *
+ * @param[in] p_context  Opaque user data that will be passed
+ *                        to registered callback.
+ *
+ * @retval NRFS_SUCCESS           Request sent successfully.
+ * @retval NRFS_ERR_INVALID_STATE Service is uninitialized.
+ * @retval NRFS_ERR_IPC           Backend returned error during request sending.
+ */
+nrfs_err_t nrfs_pmic_pofwarn_status_get(void *p_context);
 
 #ifdef __cplusplus
 }
