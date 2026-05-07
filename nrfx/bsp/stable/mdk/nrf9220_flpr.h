@@ -99,6 +99,7 @@ typedef enum {
   WDT131_IRQn                            = 299,      /*!< 299 WDT131                                                           */
   WDT132_IRQn                            = 300,      /*!< 300 WDT132                                                           */
   EGU130_IRQn                            = 301,      /*!< 301 EGU130                                                           */
+  AUDIOPLL_IRQn                          = 343,      /*!< 343 AUDIOPLL                                                         */
   SAADC_IRQn                             = 386,      /*!< 386 SAADC                                                            */
   TEMP_IRQn                              = 388,      /*!< 388 TEMP                                                             */
   NFCT_IRQn                              = 389,      /*!< 389 NFCT                                                             */

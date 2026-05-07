@@ -153,7 +153,8 @@ extern "C" {
 #define NRF_GPIO_HAS_RETENTION_SETCLEAR 0
 #endif
 
-#if defined(GPIO_DETECTMODE_DETECTMODE_Msk) || defined(__NRFX_DOXYGEN__)
+#if (defined(GPIO_DETECTMODE_DETECTMODE_Msk) && NRFX_CHECK(GPIO_DETECTMODE_ACCESSIBLE)) || \
+    defined(__NRFX_DOXYGEN__)
 /** @brief Presence of detect mode. */
 #define NRF_GPIO_HAS_DETECT_MODE 1
 #else
@@ -172,6 +173,20 @@ extern "C" {
 #define NRF_GPIO_HAS_CTRLSEL_GRTC 1
 #else
 #define NRF_GPIO_HAS_CTRLSEL_GRTC 0
+#endif
+
+#if defined(GPIO_EPD_ENABLE_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating presence of extra PMOS drive. */
+#define NRF_GPIO_HAS_EPD 1
+#else
+#define NRF_GPIO_HAS_EPD 0
+#endif
+
+#if defined(GPIO_TRIM_SLEW_VAL_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating presence of slew rate trim. */
+#define NRF_GPIO_HAS_TRIM_SLEW 1
+#else
+#define NRF_GPIO_HAS_TRIM_SLEW 0
 #endif
 
 /** @brief Macro for getting number of pins in the port */
@@ -969,6 +984,55 @@ NRF_STATIC_INLINE uint32_t nrf_gpio_pin_port_number_extract(uint32_t * p_pin);
  */
 NRF_STATIC_INLINE NRF_GPIO_Type * nrf_gpio_pin_port_decode(uint32_t * p_pin);
 
+#if NRF_GPIO_HAS_EPD
+/**
+ * @brief Function for enabling or disabling extra PMOS drive on the given port.
+ *        Needed for 1.2 V operation.
+ *
+ * @warning This register is retained when retention is enabled.
+ *
+ * @param[in] p_reg  Pointer to the structure of registers of the peripheral.
+ * @param[in] enable True if extra PMOS drive is to be enabled, false otherwise.
+ */
+NRF_STATIC_INLINE void nrf_gpio_epd_set(NRF_GPIO_Type * p_reg, bool enable);
+
+/**
+ * @brief Function for retrieving the extra PMOS drive on the given port.
+ *        Needed for 1.2 V operation.
+ *
+ * @warning This register is retained when retention is enabled.
+ *
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ *
+ * @return True if extra PMOS drive is enabled, false otherwise.
+ */
+NRF_STATIC_INLINE bool nrf_gpio_epd_get(NRF_GPIO_Type const * p_reg);
+
+#endif
+
+#if NRF_GPIO_HAS_TRIM_SLEW
+/**
+ * @brief Function for setting the slew trim value.
+ *
+ * @warning This register is retained when retention is enabled.
+ *
+ * @param[in] p_reg           Pointer to the structure of registers of the peripheral.
+ * @param[in] trim_slew_value Slew rate trim value.
+ */
+NRF_STATIC_INLINE void nrf_gpio_trim_slew_set(NRF_GPIO_Type * p_reg, uint32_t trim_slew_value);
+
+/**
+ * @brief Function for retrieving the slew trim value.
+ *
+ * @warning This register is retained when retention is enabled.
+ *
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ *
+ * @return Slew rate trim value.
+*/
+NRF_STATIC_INLINE uint32_t nrf_gpio_trim_slew_get(NRF_GPIO_Type const * p_reg);
+#endif
+
 #ifndef NRF_DECLARE_ONLY
 
 NRF_STATIC_INLINE NRF_GPIO_Type * nrf_gpio_pin_port_decode(uint32_t * p_pin)
@@ -1588,6 +1652,31 @@ NRF_STATIC_INLINE uint32_t nrf_gpio_pin_port_number_extract(uint32_t * p_pin)
 
     return NRF_PIN_NUMBER_TO_PORT(pin_number);
 }
+
+#if NRF_GPIO_HAS_EPD
+NRF_STATIC_INLINE void nrf_gpio_epd_set(NRF_GPIO_Type * p_reg, bool enable)
+{
+    p_reg->EPD = (enable ? GPIO_EPD_ENABLE_Enabled :
+                           GPIO_EPD_ENABLE_Disabled);
+}
+
+NRF_STATIC_INLINE bool nrf_gpio_epd_get(NRF_GPIO_Type const * p_reg)
+{
+    return (p_reg->EPD == GPIO_EPD_ENABLE_Enabled);
+}
+#endif
+
+#if NRF_GPIO_HAS_TRIM_SLEW
+NRF_STATIC_INLINE void nrf_gpio_trim_slew_set(NRF_GPIO_Type * p_reg, uint32_t trim_slew_value)
+{
+    p_reg->TRIM.SLEW = (uint32_t)trim_slew_value;
+}
+
+NRF_STATIC_INLINE uint32_t nrf_gpio_trim_slew_get(NRF_GPIO_Type const * p_reg)
+{
+    return (uint32_t)(p_reg->TRIM.SLEW);
+}
+#endif
 
 #endif // NRF_DECLARE_ONLY
 

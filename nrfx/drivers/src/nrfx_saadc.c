@@ -928,6 +928,12 @@ static void saadc_event_started_handle(void)
 
 static void saadc_disable(void)
 {
+    /* Ensure STOP sequence completes before disabling,
+     * otherwise ENABLE=0 does not fully power down the core module. */
+    nrfy_saadc_task_trigger(NRF_SAADC, NRF_SAADC_TASK_STOP);
+    nrfy_saadc_event_clear(NRF_SAADC, NRF_SAADC_EVENT_STOPPED);
+    /* Prevent interrupt handler invocation caused by STOPPED event that was just cleared. */
+    NRFY_IRQ_PENDING_CLEAR(nrfx_get_irq_number(NRF_SAADC));
     nrfy_saadc_disable(NRF_SAADC);
     nrfy_saadc_disable(NRF_SAADC);
 }

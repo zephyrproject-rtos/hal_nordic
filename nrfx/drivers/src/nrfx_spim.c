@@ -201,7 +201,7 @@ static void spim_abort(NRF_SPIM_Type * p_spim, nrfx_spim_control_block_t * p_cb)
         }
         p_cb->transfer_in_progress = false;
     }
-#if defined(NRF_SPIM_CHECK_DISABLE_ON_XFER_END)
+#if NRF_SPIM_HAS_CHECK_DISABLE_ON_XFER_END
     if (p_cb->disable_on_xfer_end)
 #endif
     {
@@ -267,10 +267,10 @@ static void configure_pins(nrfx_spim_t *              p_instance,
     }
 
     nrf_gpio_pin_drive_t pin_drive;
-    // Configure pin drive - high drive for 32 MHz clock frequency.
-#if defined(NRF_SPIM_FORCE_H0H1)
-    pin_drive = NRF_GPIO_PIN_H0H1;
-#elif (NRF_SPIM_HAS_FREQUENCY && NRF_SPIM_HAS_32_MHZ_FREQ) || NRF_SPIM_HAS_PRESCALER
+    // Configure pin drive - high drive for 32 MHz clock frequency (extra high for SoCs which support it).
+#if NRF_SPIM_HAS_H0H1_AS_S0S1
+    pin_drive = (p_config->frequency == NRFX_MHZ_TO_HZ(32)) ? NRF_GPIO_PIN_E0E1 : NRF_GPIO_PIN_H0H1;
+#elif NRF_SPIM_HAS_32_MHZ_FREQ
     pin_drive = (p_config->frequency == NRFX_MHZ_TO_HZ(32)) ? NRF_GPIO_PIN_H0H1 : NRF_GPIO_PIN_S0S1;
 #else
     pin_drive = NRF_GPIO_PIN_S0S1;
@@ -448,8 +448,8 @@ static void spim_configure(nrfx_spim_t *              p_instance,
     }
 #endif
 
-#if NRF_ERRATA_STATIC_CHECK(54L, 8) || NRF_ERRATA_STATIC_CHECK(54H, 212)
-    if (NRF_ERRATA_DYNAMIC_CHECK(54L, 8) || NRF_ERRATA_DYNAMIC_CHECK(54H, 212))
+#if NRF_ERRATA_STATIC_CHECK(54L, 8) || NRF_ERRATA_STATIC_CHECK(54H, 115)
+    if (NRF_ERRATA_DYNAMIC_CHECK(54L, 8) || NRF_ERRATA_DYNAMIC_CHECK(54H, 115))
     {
         /* Workaround must be applied only if PRESCALER is larger than 2 and CPHA=0 */
         if ((prescaler > 2) &&
@@ -457,11 +457,11 @@ static void spim_configure(nrfx_spim_t *              p_instance,
         {
             uint8_t min_dur = (uint8_t)((prescaler / 2) + 1);
             csn_duration = NRFX_MAX(csn_duration, min_dur);
-            p_cb->apply_errata_8_212 = 1;
+            p_cb->apply_errata_8_115 = 1;
         }
         else
         {
-            p_cb->apply_errata_8_212 = 0;
+            p_cb->apply_errata_8_115 = 0;
         }
     }
 #endif
@@ -811,7 +811,7 @@ static int spim_xfer(NRF_SPIM_Type *               p_spim,
     nrfy_spim_buffers_set(p_spim, &xfer_desc);
 
     nrfy_spim_event_clear(p_spim, NRF_SPIM_EVENT_END);
-#if defined(NRF_SPIM_CHECK_DISABLE_ON_XFER_END)
+#if NRF_SPIM_HAS_CHECK_DISABLE_ON_XFER_END
     p_cb->disable_on_xfer_end = (flags & (NRFX_SPIM_FLAG_NO_XFER_EVT_HANDLER |
                                           NRFX_SPIM_FLAG_HOLD_XFER |
                                           NRFX_SPIM_FLAG_REPEATED_XFER)) ?
@@ -838,8 +838,8 @@ static int spim_xfer(NRF_SPIM_Type *               p_spim,
     }
 #endif
 
-#if NRF_ERRATA_STATIC_CHECK(54L, 8) || NRF_ERRATA_STATIC_CHECK(54H, 212)
-    if (p_cb->apply_errata_8_212)
+#if NRF_ERRATA_STATIC_CHECK(54L, 8) || NRF_ERRATA_STATIC_CHECK(54H, 115)
+    if (p_cb->apply_errata_8_115)
     {
         *(volatile uint32_t *)((uint8_t *)p_spim + 0xc84) = 0x82;
         if (p_cb->handler)
@@ -864,8 +864,8 @@ static int spim_xfer(NRF_SPIM_Type *               p_spim,
         }
 #endif
 
-#if NRF_ERRATA_STATIC_CHECK(54L, 8) || NRF_ERRATA_STATIC_CHECK(54H, 212)
-        if (p_cb->apply_errata_8_212)
+#if NRF_ERRATA_STATIC_CHECK(54L, 8) || NRF_ERRATA_STATIC_CHECK(54H, 115)
+        if (p_cb->apply_errata_8_115)
         {
             *(volatile uint32_t *)((uint8_t *)p_spim + 0xc84) = 0;
         }
@@ -977,8 +977,8 @@ void nrfx_spim_irq_handler(nrfx_spim_t * p_instance)
     }
 #endif
 
-#if NRF_ERRATA_STATIC_CHECK(54L, 8) || NRF_ERRATA_STATIC_CHECK(54H, 212)
-    if (p_cb->apply_errata_8_212)
+#if NRF_ERRATA_STATIC_CHECK(54L, 8) || NRF_ERRATA_STATIC_CHECK(54H, 115)
+    if (p_cb->apply_errata_8_115)
     {
         if (nrfy_spim_int_enable_check(p_spim, NRF_SPIM_INT_STARTED_MASK) &&
             nrfy_spim_event_check(p_spim, NRF_SPIM_EVENT_STARTED))

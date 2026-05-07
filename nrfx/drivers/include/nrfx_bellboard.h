@@ -48,6 +48,40 @@ extern "C" {
  * @brief   BELLBOARD peripheral driver.
  */
 
+/**
+ * @brief Bellboard event handler callback.
+ *
+ * @param[in] event_idx Bellboard event index.
+ * @param[in] p_context User context.
+ */
+typedef void (*nrfx_bellboard_event_handler_t)(uint8_t event_idx, void * p_context);
+
+#if NRFX_API_VER_AT_LEAST(4, 3, 0) || defined(__NRFX_DOXYGEN__)
+/** @cond Driver internal data. */
+typedef struct
+{
+    nrfx_bellboard_event_handler_t handler;
+    void *                         context;
+    uint8_t                        int_idx;
+    nrfx_drv_state_t               state;
+} nrfx_bellboard_control_block_t;
+/** @endcond */
+
+/** @brief Structure for the BELLBOARD driver instance. */
+typedef struct
+{
+    nrfx_bellboard_control_block_t cb; ///< Driver internal data.
+} nrfx_bellboard_t;
+
+/** @brief Macro for creating a BELLBOARD driver instance. */
+#define NRFX_BELLBOARD_INSTANCE(id) \
+{                                   \
+    .cb =                           \
+    {                               \
+        .int_idx = id,              \
+    }                               \
+}
+#else
 /** @brief Structure for the BELLBOARD driver instance. */
 typedef struct
 {
@@ -68,14 +102,7 @@ enum {
     .drv_inst_idx = NRFX_CONCAT(NRFX_BELLBOARD, id, _INST_IDX),     \
     .int_idx      = id,                                             \
 }
-
-/**
- * @brief Bellboard event handler callback.
- *
- * @param[in] event_idx Bellboard event index.
- * @param[in] p_context User context.
- */
-typedef void (*nrfx_bellboard_event_handler_t)(uint8_t event_idx, void * p_context);
+#endif
 
 /**
  * @brief Initialize BELLBOARD driver instance.
@@ -88,17 +115,28 @@ typedef void (*nrfx_bellboard_event_handler_t)(uint8_t event_idx, void * p_conte
  * @retval 0         Instance successfully initialized.
  * @retval -EALREADY Instance already initialized.
  */
+#if NRFX_API_VER_AT_LEAST(4, 3, 0) || defined(__NRFX_DOXYGEN__)
+int nrfx_bellboard_init(nrfx_bellboard_t *             p_instance,
+                        uint8_t                        irq_priority,
+                        nrfx_bellboard_event_handler_t event_handler,
+                        void *                         p_context);
+#else
 int nrfx_bellboard_init(nrfx_bellboard_t const *       p_instance,
                         uint8_t                        irq_priority,
                         nrfx_bellboard_event_handler_t event_handler,
                         void *                         p_context);
+#endif
 
 /**
  * @brief Uninitialize BELLBOARD driver instance.
  *
  * @param[in] p_instance Pointer to BELLBOARD driver instance.
  */
+#if NRFX_API_VER_AT_LEAST(4, 3, 0) || defined(__NRFX_DOXYGEN__)
+void nrfx_bellboard_uninit(nrfx_bellboard_t * p_instance);
+#else
 void nrfx_bellboard_uninit(nrfx_bellboard_t const * p_instance);
+#endif
 
 /**
  * @brief Function for checking if the BELLBOARD driver instance is initialized.
@@ -126,9 +164,29 @@ void nrfx_bellboard_int_enable(nrfx_bellboard_t const * p_instance, uint32_t mas
  */
 void nrfx_bellboard_int_disable(nrfx_bellboard_t const * p_instance, uint32_t mask);
 
+#if NRFX_API_VER_AT_LEAST(4, 3, 0) || defined(__NRFX_DOXYGEN__)
+/**
+ * @brief Driver interrupt handler.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ */
+void nrfx_bellboard_irq_handler(nrfx_bellboard_t * p_instance);
+
+/**
+ * @brief Macro returning BELLBOARD interrupt handler.
+ *
+ * param[in] idx BELLBOARD index.
+ *
+ * @return Interrupt handler.
+ */
+#define NRFX_BELLBOARD_INST_HANDLER_GET(idx) NRFX_CONCAT_3(nrfx_bellboard_, idx, _irq_handler)
+#endif
+
 /** @} */
 
+#if !NRFX_API_VER_AT_LEAST(4, 3, 0)
 NRFX_INSTANCE_IRQ_HANDLERS_DECLARE(BELLBOARD, bellboard)
+#endif
 
 #ifdef __cplusplus
 }

@@ -81,6 +81,21 @@ extern "C" {
 #define NRF_RADIO_HAS_TXPOWER 0
 #endif
 
+#if (defined(RADIO_FREQUENCY_FREQUENCY_Msk) && (RADIO_FREQUENCY_FREQUENCY_Msk > 0x400)) \
+  || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the FREQUENCY register is absolute. **/
+#define NRF_RADIO_HAS_ABSOLUTE_FREQ 1
+#else
+#define NRF_RADIO_HAS_ABSOLUTE_FREQ 0
+#endif
+
+#if defined(RADIO_VDMACONFIG_LISTPTR_LISTPTR_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the radio has an EVDMA. **/
+#define NRF_RADIO_HAS_EVDMA 1
+#else
+#define NRF_RADIO_HAS_EVDMA 0
+#endif
+
 /** @brief RADIO tasks. */
 typedef enum
 {
@@ -113,6 +128,9 @@ typedef enum
     NRF_RADIO_TASK_SOFTRESET = offsetof(NRF_RADIO_Type, TASKS_SOFTRESET), /**< Reset all public registers, but with these exceptions:
                                                                            *   DMA registers and EVENT/INTEN/SUBSCRIBE/PUBLISH
                                                                            *   registers. Only to be used in DISABLED state. */
+#endif
+#if defined(RADIO_TASKS_PLLEN_TASKS_PLLEN_Msk) || defined(__NRFX_DOXYGEN__)
+    NRF_RADIO_TASK_PLLEN     = offsetof(NRF_RADIO_Type, TASKS_PLLEN),     /**< Enable RADIO in PLL mode */
 #endif
 } nrf_radio_task_t;
 
@@ -209,7 +227,11 @@ typedef enum
 #if defined(RADIO_INTENSET_CTEPRESENT_Msk) ||   \
     defined(RADIO_INTENSET00_CTEPRESENT_Msk) || \
     defined(__NRFX_DOXYGEN__)
-    NRF_RADIO_EVENT_CTEPRESENT = offsetof(NRF_RADIO_Type, EVENTS_CTEPRESENT)  /**< CTE is present. */
+    NRF_RADIO_EVENT_CTEPRESENT = offsetof(NRF_RADIO_Type, EVENTS_CTEPRESENT), /**< CTE is present. */
+#endif
+#if defined(RADIO_EVENTS_PLLREADY_EVENTS_PLLREADY_Msk) || \
+    defined(__NRFX_DOXYGEN__)
+    NRF_RADIO_EVENT_PLLREADY   = offsetof(NRF_RADIO_Type, EVENTS_PLLREADY)    /**< PLL has settled. */
 #endif
 } nrf_radio_event_t;
 
@@ -391,6 +413,15 @@ typedef enum
 #if defined(RADIO_SHORTS_PHYEND_START_Msk) || defined(__NRFX_DOXYGEN__)
     NRF_RADIO_SHORT_PHYEND_START_MASK       = RADIO_SHORTS_PHYEND_START_Msk,       /**< Shortcut between PHYEND event and START task. */
 #endif
+#if defined(RADIO_SHORTS_PHYEND_PLLEN_Msk) || defined(__NRFX_DOXYGEN__)
+    NRF_RADIO_SHORT_PHYEND_PLLEN_MASK       = RADIO_SHORTS_PHYEND_PLLEN_Msk,       /**< Shortcut between PHYEND event and PLLEN task. */
+#endif
+#if defined(RADIO_SHORTS_PLLREADY_RXEN_Msk) || defined(__NRFX_DOXYGEN__)
+    NRF_RADIO_SHORT_PLLREADY_RXEN_MASK      = RADIO_SHORTS_PLLREADY_RXEN_Msk,      /**< Shortcut between PLLREADY event and RXEN task. */
+#endif
+#if defined(RADIO_SHORTS_PLLREADY_TXEN_Msk) || defined(__NRFX_DOXYGEN__)
+    NRF_RADIO_SHORT_PLLREADY_TXEN_MASK      = RADIO_SHORTS_PLLREADY_TXEN_Msk,      /**< Shortcut between PLLREADY event and TXEN task. */
+#endif
 } nrf_radio_short_mask_t;
 
 #else
@@ -542,6 +573,12 @@ typedef enum
     NRF_RADIO_STATE_RXIDLE    = RADIO_STATE_STATE_RxIdle,    /**< The radio is ready for reception to start. */
     NRF_RADIO_STATE_RX        = RADIO_STATE_STATE_Rx,        /**< Reception has been started. */
     NRF_RADIO_STATE_RXDISABLE = RADIO_STATE_STATE_RxDisable, /**< The radio is disabling the receiver. */
+#if defined(RADIO_STATE_STATE_Settle)
+    NRF_RADIO_STATE_SETTLE    = RADIO_STATE_STATE_Settle,    /**< The PLL is settling. */
+#endif
+#if defined(RADIO_STATE_STATE_Pll)
+    NRF_RADIO_STATE_PLL       = RADIO_STATE_STATE_Pll,       /**< The PLL is settled. */
+#endif
     NRF_RADIO_STATE_TXRU      = RADIO_STATE_STATE_TxRu,      /**< The radio is ramping up and preparing for transmission. */
     NRF_RADIO_STATE_TXIDLE    = RADIO_STATE_STATE_TxIdle,    /**< The radio is ready for transmission to start. */
     NRF_RADIO_STATE_TX        = RADIO_STATE_STATE_Tx,        /**< The radio is transmitting a packet. */

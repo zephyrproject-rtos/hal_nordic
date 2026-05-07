@@ -42,8 +42,8 @@ extern "C" {
 
 /* Analog pins definitions. */
 #ifndef ANALOG_REF_INTERNAL_VAL
-#if defined(NRF54LV10A_XXAA)
-#define ANALOG_REF_INTERNAL_VAL 1300
+#if defined(NRF54LC10A_XXAA) || defined(NRF54LV10A_XXAA)
+#define ANALOG_REF_INTERNAL_VAL 1350
 #elif defined(NRF9220_XXAA) || defined(NRF9230_ENGB_XXAA) ||  \
     defined(NRF54H20_XXAA) || defined(NRF7120_ENGA_XXAA) || \
     defined(NRF54LS05A_XXAA) || defined(NRF54LS05B_XXAA)
@@ -454,7 +454,7 @@ extern "C" {
         NRFX_COND_CODE_1(NRFX_ARG_HAS_PARENTHESIS(SAADC_CH_PSELP_PSELP_AnalogInput11), \
             (NRF_SAADC_INPUT_AIN11,), ())                                              \
         NRFX_COND_CODE_1(NRFX_ARG_HAS_PARENTHESIS(SAADC_CH_PSELP_PSELP_AnalogInput12), \
-            (NRF_SAADC_INPUT_AIN812,), ())                                             \
+            (NRF_SAADC_INPUT_AIN12,), ())                                              \
         NRFX_COND_CODE_1(NRFX_ARG_HAS_PARENTHESIS(SAADC_CH_PSELP_PSELP_AnalogInput13), \
             (NRF_SAADC_INPUT_AIN13,), ())
 #endif

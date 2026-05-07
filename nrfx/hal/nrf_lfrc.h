@@ -152,6 +152,20 @@ extern "C" {
 #define NRF_LFRC_HAS_CAL_NHI 0
 #endif
 
+#if defined(LFRC_EVENTS_CKSYNSTARTED_EVENTS_CKSYNSTARTED_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the CKSYNSTARTED event is present. */
+#define NRF_LFRC_HAS_CKSYNSTARTED_EVENT 1
+#else
+#define NRF_LFRC_HAS_CKSYNSTARTED_EVENT 0
+#endif
+
+#if defined(LFRC_EVENTS_CKLFRCSTARTED_EVENTS_CKLFRCSTARTED_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the CKLFRCSTARTED event is present. */
+#define NRF_LFRC_HAS_CKLFRCSTARTED_EVENT 1
+#else
+#define NRF_LFRC_HAS_CKLFRCSTARTED_EVENT 0
+#endif
+
 /**
  * @brief LFRC tasks.
  *
@@ -166,17 +180,29 @@ typedef enum
 /** @brief LFRC events. */
 typedef enum
 {
-    NRF_LFRC_EVENT_CALDONE   = offsetof(NRF_LFRC_Type, EVENTS_CALDONE),   /**< LFRC calibration done. */
-    NRF_LFRC_EVENT_TRIMDONE  = offsetof(NRF_LFRC_Type, EVENTS_TRIMDONE),  /**< LFRC trim done. */
-    NRF_LFRC_EVENT_TRIMERROR = offsetof(NRF_LFRC_Type, EVENTS_TRIMERROR), /**< LFRC trim error. */
+    NRF_LFRC_EVENT_CALDONE       = offsetof(NRF_LFRC_Type, EVENTS_CALDONE),      /**< LFRC calibration done. */
+    NRF_LFRC_EVENT_TRIMDONE      = offsetof(NRF_LFRC_Type, EVENTS_TRIMDONE),     /**< LFRC trim done. */
+    NRF_LFRC_EVENT_TRIMERROR     = offsetof(NRF_LFRC_Type, EVENTS_TRIMERROR),    /**< LFRC trim error. */
+#if NRF_LFRC_HAS_CKSYNSTARTED_EVENT
+    NRF_LFRC_EVENT_CKSYNSTARTED  = offsetof(NRF_LFRC_Type, EVENTS_CKSYNSTARTED), /**< LFRC clock synchronization started. */
+#endif
+#if NRF_LFRC_HAS_CKLFRCSTARTED_EVENT
+    NRF_LFRC_EVENT_CKLFRCSTARTED = offsetof(NRF_LFRC_Type, EVENTS_CKLFRCSTARTED), /**< LFRC clock started. */
+#endif
 } nrf_lfrc_event_t;
 
 /** @brief LFRC interrupts. */
 typedef enum
 {
-    NRF_LFRC_INT_CALDONE_MASK   = LFRC_INTENSET_CALDONE_Msk,   /**< Interrupt on CALDONE event. */
-    NRF_LFRC_INT_TRIMDONE_MASK  = LFRC_INTENSET_TRIMDONE_Msk,  /**< Interrupt on TRIMDONE event. */
-    NRF_LFRC_INT_TRIMERROR_MASK = LFRC_INTENSET_TRIMERROR_Msk, /**< Interrupt on TRIMERROR event. */
+    NRF_LFRC_INT_CALDONE_MASK       = LFRC_INTENSET_CALDONE_Msk,       /**< Interrupt on CALDONE event. */
+    NRF_LFRC_INT_TRIMDONE_MASK      = LFRC_INTENSET_TRIMDONE_Msk,      /**< Interrupt on TRIMDONE event. */
+    NRF_LFRC_INT_TRIMERROR_MASK     = LFRC_INTENSET_TRIMERROR_Msk,     /**< Interrupt on TRIMERROR event. */
+#if NRF_LFRC_HAS_CKSYNSTARTED_EVENT
+    NRF_LFRC_INT_CKSYNSTARTED_MASK  = LFRC_INTENSET_CKSYNSTARTED_Msk,  /**< Interrupt on CKSYNSTARTED event. */
+#endif
+#if NRF_LFRC_HAS_CKLFRCSTARTED_EVENT
+    NRF_LFRC_INT_CKLFRCSTARTED_MASK = LFRC_INTENSET_CKLFRCSTARTED_Msk, /**< Interrupt on CKLFRCSTARTED event. */
+#endif
 } nrf_lfrc_int_mask_t;
 
 #if NRF_LFRC_HAS_CONFIG_CFG

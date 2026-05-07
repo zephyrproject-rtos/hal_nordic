@@ -145,7 +145,7 @@ static int tdm_configure(nrfx_tdm_t *              p_instance,
     nrf_tdm_ors_set(p_instance->p_reg, p_config->ors);
 
     nrf_tdm_mck_configure(p_instance->p_reg, p_config->mck_src, p_config->mck_bypass);
-    nrf_tdm_mck_set(p_instance->p_reg, p_config->mck_pin != NRF_TDM_PIN_NOT_CONNECTED);
+    nrf_tdm_mck_set(p_instance->p_reg, p_config->prescalers.mck_div != 0);
 
     nrf_tdm_sck_configure(p_instance->p_reg, p_config->sck_src, p_config->sck_bypass);
 
@@ -424,11 +424,50 @@ void nrfx_tdm_stop(nrfx_tdm_t * p_instance, bool abort)
     nrf_tdm_task_trigger(p_instance->p_reg, abort ? NRF_TDM_TASK_ABORT : NRF_TDM_TASK_STOP);
 }
 
+static uint32_t div_calculate(uint32_t base_freq, uint32_t desired_freq)
+{
+    return (uint32_t)(((uint64_t)desired_freq * TDM_MCKCONST_FACTOR) /
+                      (base_freq + desired_freq / 2)) * TDM_CK_DIV_FACTOR;
+}
+
 int nrfx_tdm_prescalers_calc(nrfx_tdm_clk_params_t const * clk_params,
                              nrfx_tdm_prescalers_t *       prescalers)
 {
     NRFX_ASSERT(clk_params && prescalers);
 
+#if NRFX_API_VER_AT_LEAST(4, 3, 0)
+    if (clk_params->mck_freq != 0)
+    {
+        if (clk_params->base_mck_freq != 0)
+        {
+            prescalers->mck_div = div_calculate(clk_params->base_mck_freq, clk_params->mck_freq);
+        }
+        else
+        {
+            return -EINVAL;
+        }
+    }
+    else
+    {
+        prescalers->mck_div = 0;
+    }
+
+    if (clk_params->sck_freq != 0)
+    {
+        if (clk_params->base_sck_freq != 0)
+        {
+            prescalers->sck_div = div_calculate(clk_params->base_sck_freq, clk_params->sck_freq);
+        }
+        else
+        {
+            return -EINVAL;
+        }
+    }
+    else
+    {
+        prescalers->sck_div = 0;
+    }
+#else
     uint32_t mck_div = (uint32_t)(((uint64_t)clk_params->mck_freq * TDM_MCKCONST_FACTOR) /
                 (clk_params->base_clock_freq + clk_params->mck_freq / 2)) * TDM_CK_DIV_FACTOR;
 
@@ -443,6 +482,7 @@ int nrfx_tdm_prescalers_calc(nrfx_tdm_clk_params_t const * clk_params,
 
     prescalers->mck_div = mck_div;
     prescalers->sck_div = sck_div;
+#endif
 
     return 0;
 }
@@ -454,16 +494,19 @@ void nrfx_tdm_irq_handler(nrfx_tdm_t * p_instance)
     NRF_TDM_Type * p_reg = p_instance->p_reg;
     nrfx_tdm_control_block_t * p_cb = &p_instance->cb;
 
-    if (nrf_tdm_event_check(p_reg, NRF_TDM_EVENT_MAXCNT)) {
+    if (nrf_tdm_event_check(p_reg, NRF_TDM_EVENT_MAXCNT))
+    {
         nrf_tdm_event_clear(p_reg, NRF_TDM_EVENT_MAXCNT);
     }
 
-    if (nrf_tdm_event_check(p_reg, NRF_TDM_EVENT_RXPTRUPD)) {
+    if (nrf_tdm_event_check(p_reg, NRF_TDM_EVENT_RXPTRUPD))
+    {
         nrf_tdm_event_clear(p_reg, NRF_TDM_EVENT_RXPTRUPD);
         p_cb->rx_ready = true;
     }
 
-    if (nrf_tdm_event_check(p_reg, NRF_TDM_EVENT_TXPTRUPD)) {
+    if (nrf_tdm_event_check(p_reg, NRF_TDM_EVENT_TXPTRUPD))
+    {
         nrf_tdm_event_clear(p_reg, NRF_TDM_EVENT_TXPTRUPD);
         p_cb->tx_ready = true;
     }
@@ -474,7 +517,8 @@ void nrfx_tdm_irq_handler(nrfx_tdm_t * p_instance)
     }
 
     if (nrf_tdm_event_check(p_reg, NRF_TDM_EVENT_STOPPED) ||
-        nrf_tdm_event_check(p_reg, NRF_TDM_EVENT_ABORTED)) {
+        nrf_tdm_event_check(p_reg, NRF_TDM_EVENT_ABORTED))
+    {
         nrf_tdm_event_clear(p_reg, NRF_TDM_EVENT_STOPPED);
         nrf_tdm_event_clear(p_reg, NRF_TDM_EVENT_ABORTED);
 

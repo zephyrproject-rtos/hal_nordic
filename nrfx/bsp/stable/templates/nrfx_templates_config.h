@@ -115,7 +115,7 @@
 #elif defined(NRF9230_ENGB_XXAA) && defined(NRF_FLPR)
     #include <nrfx_config_nrf9230_engb_flpr.h>
 #else
-    #include "nrfx_config_ext.h"
+    #include <nrfx_config_ext.h>
 #endif
 
 // Uncomment this line to use the standard MDK way of binding IRQ handlers

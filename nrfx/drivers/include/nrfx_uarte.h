@@ -367,10 +367,13 @@ typedef struct
     {                                                                           \
         .hwfc           = NRF_UARTE_HWFC_DISABLED,                              \
         .parity         = NRF_UARTE_PARITY_EXCLUDED,                            \
-        NRFX_COND_CODE_1(NRF_UART_HAS_STOP_BITS,                                \
+        NRFX_COND_CODE_1(NRF_UARTE_HAS_STOP_BITS,                               \
                 (.stop = (nrf_uarte_stop_t)NRF_UARTE_STOP_ONE,), ())            \
-        NRFX_COND_CODE_1(NRF_UART_HAS_PARITY_BIT,                               \
+        NRFX_COND_CODE_1(NRF_UARTE_HAS_PARITY_BIT,                              \
                 (.paritytype = NRF_UARTE_PARITYTYPE_EVEN,), ())                 \
+        NRFX_COND_CODE_1(NRF_UARTE_HAS_FRAME_SIZE,                              \
+                (.frame_size = NRF_UARTE_FRAME_SIZE_8_BIT,                      \
+                 .endian = NRF_UARTE_ENDIAN_MSB,), ())                          \
     },                                                                          \
     .skip_psel_cfg      = false,                                                \
     .skip_gpio_cfg      = false,                                                \

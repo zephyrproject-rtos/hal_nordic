@@ -222,17 +222,28 @@ extern "C" {
 #endif
 #endif // NRF_SPIM_HAS_RXDELAY
 
-/** @brief SPIM should force H0H1 drive on pins. */
-#define NRF_SPIM_FORCE_H0H1 SPIM_FORCE_H0H1
+#if defined(SPIM_USE_H0H1_E0E1) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying whether SPIM should use H0H1 drive by default and E0E1 drive for higher frequencies. */
+#define NRF_SPIM_HAS_H0H1_AS_S0S1 1
+#else
+#define NRF_SPIM_HAS_H0H1_AS_S0S1 0
+#endif
 
-/** @brief SPIM should check disable on end of transfer. */
-#define NRF_SPIM_CHECK_DISABLE_ON_XFER_END SPIM_CHECK_DISABLE_ON_XFER_END
+#if defined(SPIM_CHECK_DISABLE_ON_XFER_END) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol specifying whether SPIM should check disable on end of transfer. */
+#define NRF_SPIM_HAS_CHECK_DISABLE_ON_XFER_END 1
+#else
+#define NRF_SPIM_HAS_CHECK_DISABLE_ON_XFER_END 0
+#endif
 
 /** @brief Minimal SPIM frequency in Hz. */
 #define NRF_SPIM_MIN_FREQUENCY (NRFX_KHZ_TO_HZ(125UL))
 
 /** @brief Base frequency value 320 MHz for SPIM. */
 #define NRF_SPIM_BASE_FREQUENCY_320MHZ (NRFX_MHZ_TO_HZ(320UL))
+
+/** @brief Base frequency value 256 MHz for SPIM. */
+#define NRF_SPIM_BASE_FREQUENCY_256MHZ (NRFX_MHZ_TO_HZ(256UL))
 
 /** @brief Base frequency value 192 MHz for SPIM. */
 #define NRF_SPIM_BASE_FREQUENCY_192MHZ (NRFX_MHZ_TO_HZ(192UL))
@@ -254,6 +265,15 @@ extern "C" {
 #define NRF_SPIM_IS_320MHZ_SPIM(p_reg) \
     (NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(SPIM120), (p_reg == NRF_SPIM120), (false)) || \
      NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(SPIM121), (p_reg == NRF_SPIM121), (false)))
+#endif
+
+#if !defined(NRF_SPIM_IS_256MHZ_SPIM)
+/** @brief Macro for checking whether the base frequency for the specified SPIM instance is 256 MHz. */
+#define NRF_SPIM_IS_256MHZ_SPIM(p_reg)                                                      \
+    (NRFX_COND_CODE_1(NRFX_IS_ENABLED(NRF_CPU_FREQ_IS_256MHZ),                              \
+        (NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(SPIM00), (p_reg == NRF_SPIM00), (false)) || \
+         NRFX_COND_CODE_1(NRFX_INSTANCE_PRESENT(SPIM01), (p_reg == NRF_SPIM01), (false))),  \
+        (false)))
 #endif
 
 #if !defined(NRF_SPIM_IS_192MHZ_SPIM)
@@ -285,11 +305,12 @@ extern "C" {
 /** @brief Macro for getting base frequency value in Hz for the specified SPIM instance. */
 #define NRF_SPIM_BASE_FREQUENCY_GET(p_reg)                                 \
     ((NRF_SPIM_IS_320MHZ_SPIM(p_reg)) ? (NRF_SPIM_BASE_FREQUENCY_320MHZ) : \
+    ((NRF_SPIM_IS_256MHZ_SPIM(p_reg)) ? (NRF_SPIM_BASE_FREQUENCY_256MHZ) : \
     ((NRF_SPIM_IS_192MHZ_SPIM(p_reg)) ? (NRF_SPIM_BASE_FREQUENCY_192MHZ) : \
     ((NRF_SPIM_IS_128MHZ_SPIM(p_reg)) ? (NRF_SPIM_BASE_FREQUENCY_128MHZ) : \
     ((NRF_SPIM_IS_64MHZ_SPIM(p_reg))  ? (NRF_SPIM_BASE_FREQUENCY_64MHZ) :  \
     ((NRF_SPIM_IS_32MHZ_SPIM(p_reg))  ? (NRF_SPIM_BASE_FREQUENCY_32MHZ) :  \
-    (NRF_SPIM_BASE_FREQUENCY_16MHZ))))))
+    (NRF_SPIM_BASE_FREQUENCY_16MHZ)))))))
 
 #if NRF_SPIM_HAS_PRESCALER
 /**

@@ -36,6 +36,7 @@
 
 #include <nrfx.h>
 #include <haly/nrfy_mramc.h>
+#include <hal/nrf_uicr.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,13 +67,6 @@ typedef struct
     uint8_t                         irq_priority;    ///< Interrupt priority.
 } nrfx_mramc_config_t;
 
-#if NRF_MRAMC_HAS_CONFIG_DISABLEECC || defined(__NRFX_DOXYGEN__)
-/** @brief Symbol to set DISABLEECC default configuration. */
-#define NRFX_MRAMC_CONFIG_DISABLEECC .disable_ecc = true,
-#else
-#define NRFX_MRAMC_CONFIG_DISABLEECC
-#endif
-
 /**
  * @brief MRAMC driver default configuration.
  *
@@ -80,6 +74,7 @@ typedef struct
  * - Write mode disabled
  * - Erase mode disabled
  * - ECC enabled (if present)
+ * - Bus fault on ECC error disabled (if present)
  * - Preload timeout value: 0x0
  * - Write to the MRAM backed-to-backed on the next preload timeout in direct mode enabled
  * - Automatic power-down feature disabled
@@ -92,7 +87,10 @@ typedef struct
     .config                 = {                                       \
         .mode_write         = NRF_MRAMC_MODE_WRITE_DISABLE,           \
         .mode_erase         = NRF_MRAMC_MODE_ERASE_DISABLE,           \
-        NRFX_MRAMC_CONFIG_DISABLEECC                                  \
+        NRFX_COND_CODE_1(NRF_MRAMC_HAS_CONFIG_DISABLEECC,             \
+             (.disable_ecc = false,), ())                             \
+        NRFX_COND_CODE_1(NRF_MRAMC_HAS_CONFIG_ENABLEECCBUSFAULT,      \
+             (.enable_ecc_bus_fault = false,), ())                    \
     },                                                                \
     .preload_timeout        = {                                       \
         .value              = NRF_MRAMC_READYNEXTTIMEOUT_DEFAULT,     \
@@ -247,12 +245,22 @@ void nrfx_mramc_uninit(void);
 uint32_t nrfx_mramc_memory_size_get(void);
 
 /**
- * @brief Function for erasing area in MRAM.
+ * @brief Function for erasing MRAM area in given MRAM words size.
+ *
+ * @deprecated Use @ref nrfx_mramc_erase instead.
  *
  * @param[in] address Address to be erased.
- * @param[in] size    Size to erase in number of words.
+ * @param[in] size    Size to erase per number of NRF_MRAMC_BUS_SIZE in bytes.
  */
 void nrfx_mramc_area_erase(uint32_t address, uint32_t size);
+
+/**
+ * @brief Function for erasing MRAM area in given 32-bit words size.
+ *
+ * @param[in] address   Address to be erased.
+ * @param[in] num_words Number of 32-bit words to be erased.
+ */
+void nrfx_mramc_erase(uint32_t address, uint32_t num_words);
 
 /**
  * @brief Function for reading a 32-bit word from the MRAM.
@@ -276,6 +284,37 @@ NRFX_STATIC_INLINE uint32_t nrfx_mramc_word_read(uint32_t address);
  */
 NRFX_STATIC_INLINE bool nrfx_mramc_ready_check(void);
 
+#if NRF_UICR_HAS_OTP
+/**
+ * @brief Function for reading a word from the OTP in UICR.
+ *
+ * OTP is a region of the UICR present in some chips. This function must be used
+ * to read word data from this region since unaligned accesses are not
+ * available on the OTP RRAM area.
+ *
+ * @param[in] index Address (index) in OTP table from which a word is to be read.
+ *
+ * @retval The contents at @p index.
+ */
+NRFX_STATIC_INLINE uint32_t nrfx_mramc_otp_word_read(uint32_t index);
+
+/**
+ * @brief Function for writing a 32-bit word at index position to OTP region in UICR.
+ *
+ * The OTP can only be written once after each Erase All is performed.
+ * This function checks if the value currently residing at the specified index can
+ * be transformed to the desired value. If yes, then performs the write operation.
+ *
+ * @param[in] index Address (index) in OTP table to which a word it to be written.
+ * @param[in] value Value to be written.
+ *
+ * @retval true  Word can be written into the specified OTP index address.
+ * @retval false Word cannot be written into the specified OTP index address.
+ *               Erase UICR or change index address.
+ */
+NRFX_STATIC_INLINE bool nrfx_mramc_otp_word_write(uint32_t index, uint32_t value);
+#endif // NRF_UICR_HAS_OTP
+
 #ifndef NRFX_DECLARE_ONLY
 
 NRFX_STATIC_INLINE uint32_t nrfx_mramc_word_read(uint32_t address)
@@ -287,6 +326,18 @@ NRFX_STATIC_INLINE bool nrfx_mramc_ready_check(void)
 {
     return nrfy_mramc_ready_get(NRF_MRAMC);
 }
+
+#if NRF_UICR_HAS_OTP
+NRFX_STATIC_INLINE uint32_t nrfx_mramc_otp_word_read(uint32_t index)
+{
+    return nrfy_mramc_otp_word_read(index);
+}
+
+NRFX_STATIC_INLINE bool nrfx_mramc_otp_word_write(uint32_t index, uint32_t value)
+{
+    return nrfy_mramc_otp_word_write(NRF_MRAMC, index, value);
+}
+#endif // NRF_UICR_HAS_OTP
 
 #endif // NRFX_DECLARE_ONLY
 

@@ -96,6 +96,13 @@ extern "C" {
 #define NRF_RESETINFO_ERROR_STATUS_MAX RESETINFO_RESETREAS_ERROR_STATUS_ERRORSTATUS_Msk
 #endif
 
+#if defined(RESETINFO_RESETREAS_GLOBAL_LPCOMP_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether LPCOMP global reset reason is present. */
+#define NRF_RESETINFO_HAS_GLOBAL_LPCOMP 1
+#else
+#define NRF_RESETINFO_HAS_GLOBAL_LPCOMP 0
+#endif
+
 /** @brief Global reset reason mask. */
 typedef enum
 {
@@ -113,7 +120,9 @@ typedef enum
     NRF_RESETINFO_RESETREAS_GLOBAL_SECLOCKUP_MASK = RESETINFO_RESETREAS_GLOBAL_SECLOCKUP_Msk,     /**< Reset due to secure domain lockup. */
     NRF_RESETINFO_RESETREAS_GLOBAL_SECTAMPER_MASK = RESETINFO_RESETREAS_GLOBAL_SECTAMPER_Msk,     /**< Reset due to secure domain tamper detected. */
     NRF_RESETINFO_RESETREAS_GLOBAL_GPIO_MASK      = RESETINFO_RESETREAS_GLOBAL_OFF_Msk,           /**< Reset due to wakeup from System OFF triggered by DETECT signal from GPIO. */
+#if NRF_RESETINFO_HAS_GLOBAL_LPCOMP
     NRF_RESETINFO_RESETREAS_GLOBAL_LPCOMP_MASK    = RESETINFO_RESETREAS_GLOBAL_LPCOMP_Msk,        /**< Reset due to wakeup from System OFF triggered by LPCOMP. */
+#endif
     NRF_RESETINFO_RESETREAS_GLOBAL_DIF_MASK       = RESETINFO_RESETREAS_GLOBAL_DIF_Msk,           /**< Reset due to wakeup from System OFF triggered by entering debug interface mode. */
     NRF_RESETINFO_RESETREAS_GLOBAL_GRTC_MASK      = RESETINFO_RESETREAS_GLOBAL_GRTC_Msk,          /**< Reset due to wakeup from System OFF triggered by GRTC interrupt. */
     NRF_RESETINFO_RESETREAS_GLOBAL_NFC_MASK       = RESETINFO_RESETREAS_GLOBAL_NFC_Msk,           /**< Reset due to wakeup from System OFF triggered by NRF field detection in sense mode. */

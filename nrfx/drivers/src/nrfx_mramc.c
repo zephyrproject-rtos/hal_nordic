@@ -185,10 +185,13 @@ static void mramc_configure(nrfx_mramc_config_t const * p_config)
 {
     nrfy_mramc_config_t nrfy_config = {
         .config = {
-            .mode_write      = p_config->config.mode_write,
-            .mode_erase      = p_config->config.mode_erase,
+            .mode_write           = p_config->config.mode_write,
+            .mode_erase           = p_config->config.mode_erase,
 #if NRF_MRAMC_HAS_CONFIG_DISABLEECC
-            .disable_ecc     = p_config->config.disable_ecc,
+            .disable_ecc          = p_config->config.disable_ecc,
+#endif
+#if NRF_MRAMC_HAS_CONFIG_ENABLEECCBUSFAULT
+            .enable_ecc_bus_fault = p_config->config.enable_ecc_bus_fault,
 #endif
         },
         .preload_timeout = {
@@ -284,11 +287,20 @@ void nrfx_mramc_area_erase(uint32_t address, uint32_t size)
     NRFX_ASSERT((m_cb.state == NRFX_DRV_STATE_INITIALIZED) &&
                 nrfx_mramc_valid_address_check(address, true) &&
                 nrfx_mramc_fits_memory_check(address, true, (size * NRFY_MRAMC_BYTES_IN_WORD)) &&
-                nrfx_is_word_aligned((void const *)address));
+                nrfx_is_word_aligned((void const *)address) &&
+                (size % NRFY_MRAMC_WORDS_IN_BUS_SIZE == 0));
 
     nrfy_mramc_erase_area_set(NRF_MRAMC, address, size);
-    while (!nrfx_mramc_ready_check())
-    {}
+}
+
+void nrfx_mramc_erase(uint32_t address, uint32_t size)
+{
+    NRFX_ASSERT((m_cb.state == NRFX_DRV_STATE_INITIALIZED) &&
+                nrfx_mramc_valid_address_check(address, true) &&
+                nrfx_mramc_fits_memory_check(address, true, (size * NRFY_MRAMC_BYTES_IN_WORD)) &&
+                nrfx_is_word_aligned((void const *)address));
+
+    nrfy_mramc_erase(address, size);
 }
 
 void nrfx_mramc_irq_handler(void)

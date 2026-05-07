@@ -8787,7 +8787,7 @@ POSSIBILITY OF SUCH DAMAGE.
       <registers>
         <register>
           <name>CTRLREG</name>
-          <description>The IDFILTER0 register enables the programming of ID filtering for master port 0.</description>
+          <description>The CTRLREG register enables the slave ports and defines the hold time of the slave ports.</description>
           <addressOffset>0x000</addressOffset>
           <access>read-write</access>
           <resetValue>0x00000000</resetValue>
@@ -8939,9 +8939,9 @@ POSSIBILITY OF SUCH DAMAGE.
             </field>
             <field>
               <name>HT</name>
-              <description>Hold Time. The formatting scheme can become inefficient when fast switching occurs, and you can use this setting to minimize switching. 
-          When a source has nothing to transmit, then another source is selected irrespective of the minimum number of transactions. 
-          The ATB funnel holds for the minimum hold time and one additional transaction. The actual hold time is the register value plus 1. 
+              <description>Hold Time. The formatting scheme can become inefficient when fast switching occurs, and you can use this setting to minimize switching.
+          When a source has nothing to transmit, then another source is selected irrespective of the minimum number of transactions.
+          The ATB funnel holds for the minimum hold time and one additional transaction. The actual hold time is the register value plus 1.
           The maximum value that can be entered is 0b1110 and this equates to 15 transactions. 0b1111 is reserved.</description>
               <lsb>8</lsb>
               <msb>11</msb>
@@ -9333,7 +9333,7 @@ POSSIBILITY OF SUCH DAMAGE.
             <field>
               <name>ATREADY</name>
               <description>A read access returns the value of atreadym.
-        A write access outputs the data to afvalids[n], where the value of the CTRLREG at 0x000 defines n.</description>
+          A write access outputs the data to afvalids[n], where the value of the CTRLREG at 0x000 defines n.</description>
               <lsb>0</lsb>
               <msb>0</msb>
               <enumeratedValues>
@@ -9352,7 +9352,7 @@ POSSIBILITY OF SUCH DAMAGE.
             <field>
               <name>AFVALID</name>
               <description>A read access returns the value of afvalidm.
-        A write access outputs the data to atreadys[n], where the value of the CTRLREG at 0x000 defines n.</description>
+          A write access outputs the data to atreadys[n], where the value of the CTRLREG at 0x000 defines n.</description>
               <lsb>1</lsb>
               <msb>1</msb>
               <enumeratedValues>
@@ -9381,7 +9381,7 @@ POSSIBILITY OF SUCH DAMAGE.
             <field>
               <name>ATVALIDM0</name>
               <description>A read returns the value of the atids[n] signals, where the value of the Control Register at 0x000 defines n.
-A write outputs the value to the atidm port.</description>
+          A write outputs the value to the atidm port.</description>
               <lsb>0</lsb>
               <msb>6</msb>
               <enumeratedValues>
@@ -9410,7 +9410,7 @@ A write outputs the value to the atidm port.</description>
             <field>
               <name>ATVALID</name>
               <description>A read returns the value of the atvalids[n] signal, where the value of the CTRLREG at 0x000 defines n.
-A write outputs the value to atvalidm.</description>
+          A write outputs the value to atvalidm.</description>
               <lsb>0</lsb>
               <msb>0</msb>
               <enumeratedValues>
@@ -9429,7 +9429,7 @@ A write outputs the value to atvalidm.</description>
             <field>
               <name>AFREADY</name>
               <description>A read returns the value of the afreadys[n] signal, where the value of the Ctrl_Reg at 0x000 defines n.
-A write outputs the value to afreadym.</description>
+          A write outputs the value to afreadym.</description>
               <lsb>2</lsb>
               <msb>2</msb>
               <enumeratedValues>
@@ -9448,7 +9448,7 @@ A write outputs the value to afreadym.</description>
             <field>
               <name>ATBYTES</name>
               <description>A read returns the value of the atbytess[n] signal, where the value of the Ctrl_Reg at 0x000 defines n.
-A write outputs the value to atbytesm.</description>
+          A write outputs the value to atbytesm.</description>
               <lsb>8</lsb>
               <msb>9</msb>
               <enumeratedValues>
@@ -9468,8 +9468,8 @@ A write outputs the value to atbytesm.</description>
         </register>
         <register>
           <name>ITCTRL</name>
-          <description>The ITCTRL register enables the component to switch from a functional mode, which is the default behavior, 
-      to integration mode where the inputs and outputs of the component can be directly controlled for the purposes of integration testing and topology detection.</description>
+          <description>The ITCTRL register enables the component to switch from a functional mode, which is the default behavior,
+        to integration mode where the inputs and outputs of the component can be directly controlled for the purposes of integration testing and topology detection.</description>
           <addressOffset>0xF00</addressOffset>
           <access>read-write</access>
           <resetValue>0x00000000</resetValue>
@@ -9497,8 +9497,8 @@ A write outputs the value to atbytesm.</description>
         </register>
         <register>
           <name>CLAIMSET</name>
-          <description>Software can use the claim tag to coordinate application and debugger access to trace unit functionality. 
-      The claim tags have no effect on the operation of the component. The CLAIMSET register sets bits in the claim tag, and determines the number of claim bits implemented.</description>
+          <description>Software can use the claim tag to coordinate application and debugger access to trace unit functionality.
+        The claim tags have no effect on the operation of the component. The CLAIMSET register sets bits in the claim tag, and determines the number of claim bits implemented.</description>
           <addressOffset>0xFA0</addressOffset>
           <access>read-write</access>
           <resetValue>0x00000000</resetValue>
@@ -9616,9 +9616,9 @@ A write outputs the value to atbytesm.</description>
         </register>
         <register>
           <name>CLAIMCLR</name>
-          <description>Software can use the claim tag to coordinate application and debugger access to trace unit functionality. 
-      The claim tags have no effect on the operation of the component. 
-      The CLAIMCLR register sets the bits in the claim tag to 0 and determines the current value of the claim tag.</description>
+          <description>Software can use the claim tag to coordinate application and debugger access to trace unit functionality.
+        The claim tags have no effect on the operation of the component.
+        The CLAIMCLR register sets the bits in the claim tag to 0 and determines the current value of the claim tag.</description>
           <addressOffset>0xFA4</addressOffset>
           <access>read-write</access>
           <resetValue>0x00000000</resetValue>
@@ -9759,11 +9759,11 @@ A write outputs the value to atbytesm.</description>
         </register>
         <register>
           <name>LSR</name>
-          <description>This indicates the status of the lock control mechanism. This lock prevents accidental writes by code under debug. 
-      Accesses to the extended stimulus port registers are not affected by the lock mechanism. 
-      This register must always be present although there might not be any lock access control mechanism. 
-      The lock mechanism, where present and locked, must block write accesses to any control register, except the Lock Access Register. 
-      For most components this covers all registers except for the Lock Access Register.</description>
+          <description>This indicates the status of the lock control mechanism. This lock prevents accidental writes by code under debug.
+        Accesses to the extended stimulus port registers are not affected by the lock mechanism.
+        This register must always be present although there might not be any lock access control mechanism.
+        The lock mechanism, where present and locked, must block write accesses to any control register, except the Lock Access Register.
+        For most components this covers all registers except for the Lock Access Register.</description>
           <addressOffset>0xFB4</addressOffset>
           <access>read-write</access>
           <resetValue>0x00000000</resetValue>
@@ -34744,6 +34744,65 @@ A write outputs the value to atbytesm.</description>
           </register>
         </cluster>
       </registers>
+    </peripheral>
+    <peripheral>
+      <name>GLOBAL_BELLBOARD_SEC</name>
+      <description>BELLBOARD public registers 0</description>
+      <baseAddress>0x5F099000</baseAddress>
+      <headerStructName>BELLBOARDPUBLIC</headerStructName>
+      <!--Security dma=NA-->
+      <!--Security securemapping=S-->
+      <!--Split access-->
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x1000</size>
+        <usage>registers</usage>
+      </addressBlock>
+      <groupName>BELLBOARDPUBLIC</groupName>
+      <size>0x20</size>
+      <registers>
+        <register>
+          <dim>0x20</dim>
+          <dimIncrement>0x4</dimIncrement>
+          <name>TASKS_TRIGGER[%s]</name>
+          <description>Description collection: Task TRIGGER[n]</description>
+          <addressOffset>0x000</addressOffset>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TASKS_TRIGGER</name>
+              <description>Task TRIGGER[n]</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Trigger</name>
+                  <description>Trigger task</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+      </registers>
+    </peripheral>
+    <peripheral derivedFrom="GLOBAL_BELLBOARD_SEC">
+      <name>GLOBAL_BELLBOARD_APP</name>
+      <description>BELLBOARD public registers 1</description>
+      <baseAddress>0x5F09A000</baseAddress>
+      <!--Security dma=NA-->
+      <!--Security securemapping=NS-->
+      <!--Split access-->
+    </peripheral>
+    <peripheral derivedFrom="GLOBAL_BELLBOARD_SEC">
+      <name>GLOBAL_BELLBOARD_CELLCORE</name>
+      <description>BELLBOARD public registers 2</description>
+      <baseAddress>0x5F09C000</baseAddress>
+      <!--Security dma=NA-->
+      <!--Security securemapping=S-->
+      <!--Split access-->
     </peripheral>
     <peripheral>
       <name>GLOBAL_IPCT120</name>
@@ -68784,6 +68843,988 @@ A write outputs the value to atbytesm.</description>
       <!--Security dma=NA-->
       <!--Security securemapping=S-->
       <!--Split access-->
+    </peripheral>
+    <peripheral>
+      <name>GLOBAL_AUDIOPLL</name>
+      <description>AUXPLL</description>
+      <baseAddress>0x5F957000</baseAddress>
+      <headerStructName>AUXPLL</headerStructName>
+      <!--Security dma=NA-->
+      <!--Security securemapping=US-->
+      <addressBlock>
+        <offset>0</offset>
+        <size>0x1000</size>
+        <usage>registers</usage>
+      </addressBlock>
+      <interrupt>
+        <name>AUDIOPLL</name>
+        <value>343</value>
+      </interrupt>
+      <groupName>AUXPLL</groupName>
+      <size>0x20</size>
+      <registers>
+        <register>
+          <name>TASKS_START</name>
+          <description>Start the AUXPLL</description>
+          <addressOffset>0x000</addressOffset>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TASKS_START</name>
+              <description>Start the AUXPLL</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Trigger</name>
+                  <description>Trigger task</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TASKS_STOP</name>
+          <description>Stop the AUXPLL</description>
+          <addressOffset>0x004</addressOffset>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TASKS_STOP</name>
+              <description>Stop the AUXPLL</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Trigger</name>
+                  <description>Trigger task</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TASKS_NEWFINEFREQ</name>
+          <description>Change fine frequency</description>
+          <addressOffset>0x008</addressOffset>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TASKS_NEWFINEFREQ</name>
+              <description>Change fine frequency</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Trigger</name>
+                  <description>Trigger task</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TASKS_NEWBASEFREQ</name>
+          <description>Change base frequency</description>
+          <addressOffset>0x00C</addressOffset>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TASKS_NEWBASEFREQ</name>
+              <description>Change base frequency</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Trigger</name>
+                  <description>Trigger task</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TASKS_FREQINCSTART</name>
+          <description>Start automated frequency increment</description>
+          <addressOffset>0x010</addressOffset>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TASKS_FREQINCSTART</name>
+              <description>Start automated frequency increment</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Trigger</name>
+                  <description>Trigger task</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>TASKS_FREQINCSTOP</name>
+          <description>Stop automated frequency increment</description>
+          <addressOffset>0x014</addressOffset>
+          <access>write-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>TASKS_FREQINCSTOP</name>
+              <description>Stop automated frequency increment</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Trigger</name>
+                  <description>Trigger task</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>EVENTS_STARTED</name>
+          <description>AUXPLL started</description>
+          <addressOffset>0x100</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>EVENTS_STARTED</name>
+              <description>AUXPLL started</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>NotGenerated</name>
+                  <description>Event not generated</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Generated</name>
+                  <description>Event generated</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>EVENTS_STOPPED</name>
+          <description>AUXPLL stopped</description>
+          <addressOffset>0x104</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>EVENTS_STOPPED</name>
+              <description>AUXPLL stopped</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>NotGenerated</name>
+                  <description>Event not generated</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Generated</name>
+                  <description>Event generated</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>EVENTS_LOCKED</name>
+          <description>AUXPLL locked</description>
+          <addressOffset>0x108</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>EVENTS_LOCKED</name>
+              <description>AUXPLL locked</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>NotGenerated</name>
+                  <description>Event not generated</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Generated</name>
+                  <description>Event generated</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INTEN</name>
+          <description>Enable or disable interrupt</description>
+          <addressOffset>0x300</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>STARTED</name>
+              <description>Enable or disable interrupt for event STARTED</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Disable</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Enable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>STOPPED</name>
+              <description>Enable or disable interrupt for event STOPPED</description>
+              <lsb>1</lsb>
+              <msb>1</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Disable</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Enable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>LOCKED</name>
+              <description>Enable or disable interrupt for event LOCKED</description>
+              <lsb>2</lsb>
+              <msb>2</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Disable</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Enable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INTENSET</name>
+          <description>Enable interrupt</description>
+          <addressOffset>0x304</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>STARTED</name>
+              <description>Write '1' to enable interrupt for event STARTED</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <modifiedWriteValues>oneToSet</modifiedWriteValues>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Read: Disabled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Read: Enabled</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+              <enumeratedValues>
+                <usage>write</usage>
+                <enumeratedValue>
+                  <name>Set</name>
+                  <description>Enable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>STOPPED</name>
+              <description>Write '1' to enable interrupt for event STOPPED</description>
+              <lsb>1</lsb>
+              <msb>1</msb>
+              <modifiedWriteValues>oneToSet</modifiedWriteValues>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Read: Disabled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Read: Enabled</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+              <enumeratedValues>
+                <usage>write</usage>
+                <enumeratedValue>
+                  <name>Set</name>
+                  <description>Enable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>LOCKED</name>
+              <description>Write '1' to enable interrupt for event LOCKED</description>
+              <lsb>2</lsb>
+              <msb>2</msb>
+              <modifiedWriteValues>oneToSet</modifiedWriteValues>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Read: Disabled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Read: Enabled</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+              <enumeratedValues>
+                <usage>write</usage>
+                <enumeratedValue>
+                  <name>Set</name>
+                  <description>Enable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INTENCLR</name>
+          <description>Disable interrupt</description>
+          <addressOffset>0x308</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>STARTED</name>
+              <description>Write '1' to disable interrupt for event STARTED</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <modifiedWriteValues>oneToClear</modifiedWriteValues>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Read: Disabled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Read: Enabled</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+              <enumeratedValues>
+                <usage>write</usage>
+                <enumeratedValue>
+                  <name>Clear</name>
+                  <description>Disable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>STOPPED</name>
+              <description>Write '1' to disable interrupt for event STOPPED</description>
+              <lsb>1</lsb>
+              <msb>1</msb>
+              <modifiedWriteValues>oneToClear</modifiedWriteValues>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Read: Disabled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Read: Enabled</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+              <enumeratedValues>
+                <usage>write</usage>
+                <enumeratedValue>
+                  <name>Clear</name>
+                  <description>Disable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>LOCKED</name>
+              <description>Write '1' to disable interrupt for event LOCKED</description>
+              <lsb>2</lsb>
+              <msb>2</msb>
+              <modifiedWriteValues>oneToClear</modifiedWriteValues>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Read: Disabled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Read: Enabled</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+              <enumeratedValues>
+                <usage>write</usage>
+                <enumeratedValue>
+                  <name>Clear</name>
+                  <description>Disable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>INTPEND</name>
+          <description>Pending interrupts</description>
+          <addressOffset>0x30C</addressOffset>
+          <access>read-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>STARTED</name>
+              <description>Read pending status of interrupt for event STARTED</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>STOPPED</name>
+              <description>Read pending status of interrupt for event STOPPED</description>
+              <lsb>1</lsb>
+              <msb>1</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>LOCKED</name>
+              <description>Read pending status of interrupt for event LOCKED</description>
+              <lsb>2</lsb>
+              <msb>2</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>STATUS</name>
+          <description>Status of AUXPLL</description>
+          <addressOffset>0x400</addressOffset>
+          <access>read-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MODE</name>
+              <description>AUXPLL mode</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Freerunning</name>
+                  <description>Freerunning mode</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Locked</name>
+                  <description>Locked mode</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>PLLRUNNING</name>
+              <description>AUXPLL running status</description>
+              <lsb>1</lsb>
+              <msb>1</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Off</name>
+                  <description>PLL not running</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Running</name>
+                  <description>PLL running</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>FREQUENCYACTUAL</name>
+              <description>Actual fractional PLL divider ratio</description>
+              <lsb>16</lsb>
+              <msb>31</msb>
+            </field>
+          </fields>
+        </register>
+        <cluster>
+          <name>CONFIG</name>
+          <description>Unspecified</description>
+          <headerStructName>AUXPLL_CONFIG</headerStructName>
+          <access>read-write</access>
+          <addressOffset>0x410</addressOffset>
+          <register>
+            <name>CFGSTATIC</name>
+            <description>AUXPLL configuration</description>
+            <addressOffset>0x000</addressOffset>
+            <access>read-write</access>
+            <resetValue>0x00000224</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>OUTDRIVE</name>
+                <description>Output buffer drive strength selection</description>
+                <lsb>0</lsb>
+                <msb>1</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>Min</name>
+                    <description>Lowest drive strength</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Max</name>
+                    <description>Highest drive strength</description>
+                    <value>0x3</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>SELCONSTANTI</name>
+                <description>Constant current tune for ring oscillator</description>
+                <lsb>2</lsb>
+                <msb>6</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>Min</name>
+                    <description>Minimum current</description>
+                    <value>0x00</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Default</name>
+                    <description>Default current for audio and USB</description>
+                    <value>0x09</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Max</name>
+                    <description>Maximum current</description>
+                    <value>0x0F</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>SDMOFF</name>
+                <description>Turn off sigma delta modulation</description>
+                <lsb>7</lsb>
+                <msb>7</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>SDMOn</name>
+                    <description>Sigma Delta Modulator enabled</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>SDMOff</name>
+                    <description>Sigma Delta Modulator disabled</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>SDMDITHEROFF</name>
+                <description>Turn off dither in sigma delta modulator</description>
+                <lsb>8</lsb>
+                <msb>8</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>DitherOn</name>
+                    <description>Dither enabled</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>DitherOff</name>
+                    <description>Dither disabled</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+              <field>
+                <name>AUXPLLRANGE</name>
+                <description>Loop divider base settings</description>
+                <lsb>9</lsb>
+                <msb>10</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>Low</name>
+                    <description>Low range divider setting</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Mid</name>
+                    <description>Mid range divider setting</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>High</name>
+                    <description>High range divider setting</description>
+                    <value>0x2</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>StaticHigh</name>
+                    <description>Maximum static divider setting</description>
+                    <value>0x3</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+        </cluster>
+        <cluster>
+          <name>TRIM</name>
+          <description>Unspecified</description>
+          <headerStructName>AUXPLL_TRIM</headerStructName>
+          <access>read-write</access>
+          <addressOffset>0x440</addressOffset>
+          <register>
+            <name>CTUNE</name>
+            <description>Ring oscillator core process corner tuning</description>
+            <addressOffset>0x000</addressOffset>
+            <access>read-write</access>
+            <resetValue>0x0000000D</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>VAL</name>
+                <description>Tuning value</description>
+                <lsb>0</lsb>
+                <msb>4</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>Max</name>
+                    <description>Highest frequency</description>
+                    <value>0x00</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Default</name>
+                    <description>Default center frequency for audio and USB</description>
+                    <value>0x0D</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Min</name>
+                    <description>Lowest frequency</description>
+                    <value>0x1F</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+        </cluster>
+        <cluster>
+          <name>AUXPLLCTRL</name>
+          <description>Unspecified</description>
+          <headerStructName>AUXPLL_AUXPLLCTRL</headerStructName>
+          <access>read-write</access>
+          <addressOffset>0x460</addressOffset>
+          <register>
+            <name>FREQUENCY</name>
+            <description>AUXPLL frequency selection</description>
+            <addressOffset>0x000</addressOffset>
+            <access>read-write</access>
+            <resetValue>0x00008000</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>FREQUENCY</name>
+                <description>Set fractional PLL divider ratio</description>
+                <lsb>0</lsb>
+                <msb>15</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>MinimumDiv</name>
+                    <description>Division ratio of 4</description>
+                    <value>0x0000</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Audio44k1</name>
+                    <description>Division ratio for audio 44.1kHz frequency family</description>
+                    <value>0x3BCD</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>USB24M</name>
+                    <description>Division ratio for USB PHY 24MHz clock</description>
+                    <value>0x8000</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Audio48k</name>
+                    <description>Division ratio for audio 48kHz frequency family</description>
+                    <value>0x9BA5</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>MaximumDiv</name>
+                    <description>Division ratio of 5</description>
+                    <value>0xFFFF</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>FREQINC</name>
+            <description>Frequency increment</description>
+            <addressOffset>0x004</addressOffset>
+            <access>read-write</access>
+            <resetValue>0x00000000</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>FREQINC</name>
+                <description>Signed 8-bit frequency increment, applied to FREQUENCY</description>
+                <lsb>0</lsb>
+                <msb>7</msb>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>FREQINCPERIOD</name>
+            <description>Frequency increment period in 1 us steps</description>
+            <addressOffset>0x008</addressOffset>
+            <access>read-write</access>
+            <resetValue>0x00000000</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>FREQINCPERIOD</name>
+                <description>Frequency increment period</description>
+                <lsb>0</lsb>
+                <msb>15</msb>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>OUTSEL</name>
+            <description>AUXPLL output prescaler</description>
+            <addressOffset>0x00C</addressOffset>
+            <access>read-write</access>
+            <resetValue>0x00000007</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>OUTSEL</name>
+                <description>Prescaler ratio</description>
+                <lsb>0</lsb>
+                <msb>3</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>DivDisabled</name>
+                    <description>Divider disabled. Bypassed external clock still supported</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Div1</name>
+                    <description>Divide by 1</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Div2</name>
+                    <description>Divide by 2</description>
+                    <value>0x2</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Div3</name>
+                    <description>Divide by 3</description>
+                    <value>0x3</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Div4</name>
+                    <description>Divide by 4</description>
+                    <value>0x4</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Div6</name>
+                    <description>Divide by 6</description>
+                    <value>0x5</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Div8</name>
+                    <description>Divide by 8</description>
+                    <value>0x6</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Div12</name>
+                    <description>Divide by 12</description>
+                    <value>0x7</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Div16</name>
+                    <description>Divide by 16</description>
+                    <value>0x8</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>MODE</name>
+            <description>Freerunning mode control</description>
+            <addressOffset>0x010</addressOffset>
+            <access>read-write</access>
+            <resetValue>0x00000000</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>MODECTRL</name>
+                <description>Freerunning mode control</description>
+                <lsb>0</lsb>
+                <msb>1</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>Auto</name>
+                    <description>Automatically handled by the AUXPLL peripheral</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Freerun</name>
+                    <description>Keep AUXPLL in freerunning mode</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Locked</name>
+                    <description>Keep AUXPLL in locked mode</description>
+                    <value>0x2</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+        </cluster>
+        <register>
+          <name>MIRROR</name>
+          <description>Enable LOCK for mirrored registers</description>
+          <addressOffset>0x480</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>LOCK</name>
+              <description>Lock for mirrored registers</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Lock disabled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Lock enabled</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+      </registers>
     </peripheral>
     <peripheral derivedFrom="GLOBAL_DPPIC120">
       <name>GLOBAL_DPPIC131</name>
