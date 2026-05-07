@@ -91,10 +91,10 @@ extern "C" {
 #define NRFX_RELEASE_VER_MAJOR 4
 
 /** @brief Symbol specifying minor number of the current nrfx version. */
-#define NRFX_RELEASE_VER_MINOR 2
+#define NRFX_RELEASE_VER_MINOR 3
 
 /** @brief Symbol specifying micro number of the current nrfx version. */
-#define NRFX_RELEASE_VER_MICRO 1
+#define NRFX_RELEASE_VER_MICRO 0
 
 /**
  * @brief IRQ handler type.

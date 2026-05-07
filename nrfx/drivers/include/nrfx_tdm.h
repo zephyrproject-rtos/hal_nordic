@@ -41,6 +41,16 @@
 extern "C" {
 #endif
 
+#if NRF_TDM_HAS_CONFIG_FSYNC_DURATION_ENUM || defined(__NRFX_DOXYGEN__)
+/** @brief Auxiliary symbol specifying default value for the TDM CONFIG_FSYNC_DURATION register. */
+#define NRFX_TDM_DEFAULT_FSYNC_DURATION NRF_TDM_FSYNC_DURATION_CHANNEL
+#else
+#define NRFX_TDM_DEFAULT_FSYNC_DURATION 1
+#endif
+
+/** @brief Minimal transfer size of TDM buffer in 32-bit words. */
+#define NRFX_TDM_MIN_TRANSFER_SIZE TDM_MIN_TRANSFER_SIZE
+
 /**
  * @defgroup nrfx_tdm TDM driver
  * @{
@@ -51,7 +61,12 @@ extern "C" {
 /** @brief Parameters used to describe TDM clock prescaling. */
 typedef struct
 {
-    uint32_t base_clock_freq; ///< Freqency of the TDM base clock source.
+#if NRFX_API_VER_AT_LEAST(4, 3, 0) || defined(__NRFX_DOXYGEN__)
+    uint32_t base_mck_freq;   ///< Frequency of the TDM Master clock source.
+    uint32_t base_sck_freq;   ///< Frequency of the TDM Serial clock source.
+#else
+    uint32_t base_clock_freq; ///< Frequency of the TDM base clock source.
+#endif
     uint32_t mck_freq;        ///< Desired TDM Master clock frequency.
     uint32_t sck_freq;        ///< Desired TDM Serial clock frequency.
 } nrfx_tdm_clk_params_t;
@@ -153,7 +168,7 @@ typedef struct
     .channel_delay   = NRF_TDM_CHANNEL_DELAY_1CK,                                      \
     .sck_polarity    = NRF_TDM_POLARITY_POSEDGE,                                       \
     .fsync_polarity  = NRF_TDM_POLARITY_NEGEDGE,                                       \
-    .fsync_duration  = NRF_TDM_FSYNC_DURATION_CHANNEL,                                 \
+    .fsync_duration  = NRFX_TDM_DEFAULT_FSYNC_DURATION,                                \
     .ors             = 0,                                                              \
     .mck_src         = NRF_TDM_SRC_PCLK32M,                                            \
     .sck_src         = NRF_TDM_SRC_PCLK32M,                                            \
@@ -384,11 +399,17 @@ void nrfx_tdm_stop(nrfx_tdm_t * p_instance, bool abort);
  * Call this function to find suitable value for prescalers in
  * @ref nrfx_tdm_config_t structure.
  *
+ * If prescaler calculation for a specific clock is to be skipped,
+ * its desired frequency should be set to 0.
+ *
+ * Application must ensure that requested clock frequency can be achieved
+ * using its base clock frequency.
+ *
  * @param[in]  clk_params Parameters used to describe clock prescaling.
  * @param[out] prescalers Prescaler structure pointer to be filled with prescaler values.
  *
- * @retval 0        Suitable prescaler values were found.
- * @retval -EINVAL  No suitable prescaler values were found.
+ * @retval 0        Suitable prescaler values were found for both clocks.
+ * @retval -EINVAL  No suitable prescaler values were found for either of the clocks.
  */
 int nrfx_tdm_prescalers_calc(nrfx_tdm_clk_params_t const * clk_params,
                              nrfx_tdm_prescalers_t *       prescalers);

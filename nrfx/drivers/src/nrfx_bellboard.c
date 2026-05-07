@@ -38,6 +38,108 @@
 #define NRFX_LOG_MODULE BELLBOARD
 #include <nrfx_log.h>
 
+#if NRFX_API_VER_AT_LEAST(4, 3, 0)
+static uint32_t m_int_pend[BELLBOARD_IRQ_COUNT];
+
+int nrfx_bellboard_init(nrfx_bellboard_t *             p_instance,
+                        uint8_t                        interrupt_priority,
+                        nrfx_bellboard_event_handler_t event_handler,
+                        void *                         p_context)
+{
+    NRFX_ASSERT(p_instance);
+
+    nrfx_bellboard_control_block_t * p_cb = &p_instance->cb;
+    int err_code = 0;
+
+    if (p_cb->state == NRFX_DRV_STATE_INITIALIZED)
+    {
+        err_code = -EALREADY;
+        NRFX_LOG_WARNING("Function: %s, error code: %s.",
+                         __func__,
+                         NRFX_LOG_ERROR_STRING_GET(err_code));
+        return err_code;
+    }
+
+    p_cb->state   = NRFX_DRV_STATE_INITIALIZED;
+    p_cb->handler = event_handler;
+    p_cb->context = p_context;
+
+    m_int_pend[p_cb->int_idx] = 0;
+
+    nrfy_bellboard_int_init(NRF_BELLBOARD,
+                            0,
+                            interrupt_priority,
+                            false,
+                            p_cb->int_idx);
+
+    NRFX_LOG_INFO("Initialized.");
+    return err_code;
+}
+
+void nrfx_bellboard_uninit(nrfx_bellboard_t * p_instance)
+{
+    NRFX_ASSERT(p_instance && (p_instance->cb.state == NRFX_DRV_STATE_INITIALIZED));
+
+    nrfx_bellboard_control_block_t * p_cb = &p_instance->cb;
+
+    nrfy_bellboard_int_uninit(p_cb->int_idx);
+
+    p_cb->handler = NULL;
+    p_cb->state = NRFX_DRV_STATE_UNINITIALIZED;
+    NRFX_LOG_INFO("Uninitialized.");
+}
+
+bool nrfx_bellboard_init_check(nrfx_bellboard_t const * p_instance)
+{
+    NRFX_ASSERT(p_instance);
+
+    return (p_instance->cb.state != NRFX_DRV_STATE_UNINITIALIZED);
+}
+
+void nrfx_bellboard_int_enable(nrfx_bellboard_t const * p_instance, uint32_t mask)
+{
+    NRFX_ASSERT(p_instance && (p_instance->cb.state == NRFX_DRV_STATE_INITIALIZED));
+
+    nrfy_bellboard_int_enable(NRF_BELLBOARD, p_instance->cb.int_idx, mask);
+}
+
+void nrfx_bellboard_int_disable(nrfx_bellboard_t const * p_instance, uint32_t mask)
+{
+    NRFX_ASSERT(p_instance && (p_instance->cb.state == NRFX_DRV_STATE_INITIALIZED));
+
+    nrfy_bellboard_int_disable(NRF_BELLBOARD, p_instance->cb.int_idx, mask);
+}
+
+void nrfx_bellboard_irq_handler(nrfx_bellboard_t * p_instance)
+{
+    NRFX_ASSERT(p_instance);
+
+    nrfx_bellboard_control_block_t * p_cb = &p_instance->cb;
+
+    /* Pending interrupts registers are cleared when event is cleared.
+     * Add current pending interrupts to be processed later.
+     */
+    for (uint8_t i = 0; i < BELLBOARD_IRQ_COUNT; i++)
+    {
+        m_int_pend[i] |= nrfy_bellboard_int_pending_get(NRF_BELLBOARD, i);
+    }
+
+    uint32_t int_pend = m_int_pend[p_cb->int_idx];
+    m_int_pend[p_cb->int_idx] = 0;
+
+    (void)nrfy_bellboard_events_process(NRF_BELLBOARD, int_pend);
+
+    if (p_cb->handler != NULL)
+    {
+        while (int_pend)
+        {
+            uint8_t event_no = (uint8_t)NRF_CTZ(int_pend);
+            p_cb->handler(event_no, p_cb->context);
+            nrf_bitmask_bit_clear(event_no, &int_pend);
+        }
+    }
+}
+#else
 typedef struct
 {
     nrfx_bellboard_event_handler_t handler;
@@ -147,3 +249,4 @@ static void irq_handler(void * unused, nrfx_bellboard_cb_t * p_cb)
 }
 
 NRFX_INSTANCE_IRQ_HANDLERS(BELLBOARD, bellboard)
+#endif

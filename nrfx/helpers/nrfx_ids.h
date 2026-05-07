@@ -170,11 +170,19 @@ typedef enum
  * @retval 0         Driver successfully initialized.
  * @retval -EALREADY Driver already initialized.
  */
+#if NRFX_API_VER_AT_LEAST(4, 3, 0) || defined(__NRFX_DOXYGEN__)
+__STATIC_INLINE int nrfx_ids_init(nrfx_ids_t *             p_instance,
+                                  uint8_t                  interrupt_priority,
+                                  nrfx_ids_event_handler_t event_handler,
+                                  void *                   p_context,
+                                  void const *             p_config)
+#else
 __STATIC_INLINE int nrfx_ids_init(nrfx_ids_t const *       p_instance,
                                   uint8_t                  interrupt_priority,
                                   nrfx_ids_event_handler_t event_handler,
                                   void *                   p_context,
                                   void const *             p_config)
+#endif
 {
 #if defined(DOMAIN_NET) || defined(DOMAIN_MODEM)
     (void)p_instance;
@@ -189,10 +197,17 @@ __STATIC_INLINE int nrfx_ids_init(nrfx_ids_t const *       p_instance,
 #elif defined(DOMAIN_FLPR)
 #if defined(ISA_ARM)
     (void)p_config;
+#if NRFX_API_VER_AT_LEAST(4, 3, 0)
+    return nrfx_bellboard_init((nrfx_bellboard_t *)p_instance,
+                               interrupt_priority,
+                               (nrfx_bellboard_event_handler_t)event_handler,
+                               p_context);
+#else
     return nrfx_bellboard_init((nrfx_bellboard_t const *)p_instance,
                                interrupt_priority,
                                (nrfx_bellboard_event_handler_t)event_handler,
                                p_context);
+#endif /* NRFX_API_VER_AT_LEAST(4, 3, 0) */
 #else /* ISA_RISCV */
     (void)p_instance;
     (void)p_config;
@@ -208,14 +223,22 @@ __STATIC_INLINE int nrfx_ids_init(nrfx_ids_t const *       p_instance,
  *
  * @param[in] p_instance Pointer to IDS instance.
  */
+#if NRFX_API_VER_AT_LEAST(4, 3, 0) || defined(__NRFX_DOXYGEN__)
+__STATIC_INLINE void nrfx_ids_uninit(nrfx_ids_t * p_instance)
+#else
 __STATIC_INLINE void nrfx_ids_uninit(nrfx_ids_t const * p_instance)
+#endif
 {
 #if defined(DOMAIN_NET) || defined(DOMAIN_MODEM)
     (void)p_instance;
     nrfx_ipc_uninit();
 #elif defined(DOMAIN_FLPR)
 #if defined(ISA_ARM)
+#if NRFX_API_VER_AT_LEAST(4, 3, 0)
+    nrfx_bellboard_uninit((nrfx_bellboard_t *)p_instance);
+#else
     nrfx_bellboard_uninit((nrfx_bellboard_t const *)p_instance);
+#endif /* NRFX_API_VER_AT_LEAST(4, 3, 0) */
 #else /* ISA_RISCV */
     (void)p_instance;
     nrfx_vevif_uninit();

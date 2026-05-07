@@ -246,6 +246,13 @@ extern "C" {
 #define NRF_CLOCK_FEATURE_HFCLK_DIVIDE_PRESENT 0
 #endif
 
+#if defined(CLOCK_TASKS_CALSTOP_TASKS_CALSTOP_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the LFCLK calibration stop task is present. */
+#define NRF_CLOCK_HAS_CALSTOP 1
+#else
+#define NRF_CLOCK_HAS_CALSTOP 0
+#endif
+
 #if NRF_CLOCK_HAS_LFCLK_TYPE
 #define NRF_CLOCK_LFCLKRUN_STATUS_NotTriggered CLOCK_LFCLK_RUN_STATUS_NotTriggered /**< Task LFCLKSTART/HFCLKSTART has not been triggered definiton. */
 #define NRF_CLOCK_LFCLKRUN_STATUS_Triggered    CLOCK_LFCLK_RUN_STATUS_Triggered    /**< Task LFCLKSTART/HFCLKSTART has been triggered. */
@@ -522,6 +529,9 @@ typedef enum
 #endif
 #if NRF_CLOCK_HAS_CALIBRATION
     NRF_CLOCK_TASK_CAL             = offsetof(NRF_CLOCK_Type, TASKS_CAL),             /**< Start calibration of LFCLK RC oscillator. */
+#if NRF_CLOCK_HAS_CALSTOP
+    NRF_CLOCK_TASK_CALSTOP         = offsetof(NRF_CLOCK_Type, TASKS_CALSTOP),         /**< Stop calibration of LFCLK RC oscillator. */
+#endif
 #endif
 #if NRF_CLOCK_HAS_CALIBRATION_TIMER
     NRF_CLOCK_TASK_CTSTART         = offsetof(NRF_CLOCK_Type, TASKS_CTSTART),         /**< Start calibration timer. */

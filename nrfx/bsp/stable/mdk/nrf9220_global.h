@@ -95,6 +95,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #define NRF_GPIOTE130_S_BASE              0x5F934000UL
 #define NRF_GRTC_NS_BASE                  0x4F99C000UL
 #define NRF_GRTC_S_BASE                   0x5F99C000UL
+#define NRF_BELLBOARD_SEC_NS_BASE         0x5F099000UL
+#define NRF_BELLBOARD_SEC_S_BASE          0x5F099000UL
+#define NRF_BELLBOARD_APP_NS_BASE         0x5F09A000UL
+#define NRF_BELLBOARD_APP_S_BASE          0x5F09A000UL
+#define NRF_BELLBOARD_CELLCORE_NS_BASE    0x5F09C000UL
+#define NRF_BELLBOARD_CELLCORE_S_BASE     0x5F09C000UL
 #define NRF_IPCT120_NS_BASE               0x4F8D1000UL
 #define NRF_IPCT120_S_BASE                0x5F8D1000UL
 #define NRF_MUTEX120_NS_BASE              0x4F8D2000UL
@@ -139,6 +145,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #define NRF_P12_NS_BASE                   0x4F939800UL
 #define NRF_P10_S_BASE                    0x5F939400UL
 #define NRF_P12_S_BASE                    0x5F939800UL
+#define NRF_AUDIOPLL_NS_BASE              0x4F957000UL
+#define NRF_AUDIOPLL_S_BASE               0x5F957000UL
 #define NRF_DPPIC131_NS_BASE              0x4F981000UL
 #define NRF_DPPIC131_S_BASE               0x5F981000UL
 #define NRF_SAADC_NS_BASE                 0x4F982000UL
@@ -236,6 +244,12 @@ POSSIBILITY OF SUCH DAMAGE.
 #define NRF_GPIOTE130_S                   ((NRF_GPIOTE_Type*)                   NRF_GPIOTE130_S_BASE)
 #define NRF_GRTC_NS                       ((NRF_GRTC_Type*)                     NRF_GRTC_NS_BASE)
 #define NRF_GRTC_S                        ((NRF_GRTC_Type*)                     NRF_GRTC_S_BASE)
+#define NRF_BELLBOARD_SEC_NS              ((NRF_BELLBOARDPUBLIC_Type*)          NRF_BELLBOARD_SEC_NS_BASE)
+#define NRF_BELLBOARD_SEC_S               ((NRF_BELLBOARDPUBLIC_Type*)          NRF_BELLBOARD_SEC_S_BASE)
+#define NRF_BELLBOARD_APP_NS              ((NRF_BELLBOARDPUBLIC_Type*)          NRF_BELLBOARD_APP_NS_BASE)
+#define NRF_BELLBOARD_APP_S               ((NRF_BELLBOARDPUBLIC_Type*)          NRF_BELLBOARD_APP_S_BASE)
+#define NRF_BELLBOARD_CELLCORE_NS         ((NRF_BELLBOARDPUBLIC_Type*)          NRF_BELLBOARD_CELLCORE_NS_BASE)
+#define NRF_BELLBOARD_CELLCORE_S          ((NRF_BELLBOARDPUBLIC_Type*)          NRF_BELLBOARD_CELLCORE_S_BASE)
 #define NRF_IPCT120_NS                    ((NRF_IPCT_Type*)                     NRF_IPCT120_NS_BASE)
 #define NRF_IPCT120_S                     ((NRF_IPCT_Type*)                     NRF_IPCT120_S_BASE)
 #define NRF_MUTEX120_NS                   ((NRF_MUTEX_Type*)                    NRF_MUTEX120_NS_BASE)
@@ -280,6 +294,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #define NRF_P12_NS                        ((NRF_GPIO_Type*)                     NRF_P12_NS_BASE)
 #define NRF_P10_S                         ((NRF_GPIO_Type*)                     NRF_P10_S_BASE)
 #define NRF_P12_S                         ((NRF_GPIO_Type*)                     NRF_P12_S_BASE)
+#define NRF_AUDIOPLL_NS                   ((NRF_AUXPLL_Type*)                   NRF_AUDIOPLL_NS_BASE)
+#define NRF_AUDIOPLL_S                    ((NRF_AUXPLL_Type*)                   NRF_AUDIOPLL_S_BASE)
 #define NRF_DPPIC131_NS                   ((NRF_DPPIC_Type*)                    NRF_DPPIC131_NS_BASE)
 #define NRF_DPPIC131_S                    ((NRF_DPPIC_Type*)                    NRF_DPPIC131_S_BASE)
 #define NRF_SAADC_NS                      ((NRF_SAADC_Type*)                    NRF_SAADC_NS_BASE)
@@ -374,6 +390,9 @@ POSSIBILITY OF SUCH DAMAGE.
   #define NRF_GPR                                 NRF_GPR_NS
   #define NRF_GPIOTE130                           NRF_GPIOTE130_NS
   #define NRF_GRTC                                NRF_GRTC_NS
+  #define NRF_BELLBOARD_SEC                       NRF_BELLBOARD_SEC_NS
+  #define NRF_BELLBOARD_APP                       NRF_BELLBOARD_APP_NS
+  #define NRF_BELLBOARD_CELLCORE                  NRF_BELLBOARD_CELLCORE_NS
   #define NRF_IPCT120                             NRF_IPCT120_NS
   #define NRF_MUTEX120                            NRF_MUTEX120_NS
   #define NRF_VPR121                              NRF_VPR121_NS
@@ -397,6 +416,7 @@ POSSIBILITY OF SUCH DAMAGE.
   #define NRF_P5                                  NRF_P5_NS
   #define NRF_P10                                 NRF_P10_NS
   #define NRF_P12                                 NRF_P12_NS
+  #define NRF_AUDIOPLL                            NRF_AUDIOPLL_NS
   #define NRF_DPPIC131                            NRF_DPPIC131_NS
   #define NRF_SAADC                               NRF_SAADC_NS
   #define NRF_TEMP                                NRF_TEMP_NS
@@ -452,6 +472,9 @@ POSSIBILITY OF SUCH DAMAGE.
   #define NRF_GPR                                 NRF_GPR_NS
   #define NRF_GPIOTE130                           NRF_GPIOTE130_S
   #define NRF_GRTC                                NRF_GRTC_S
+  #define NRF_BELLBOARD_SEC                       NRF_BELLBOARD_SEC_S
+  #define NRF_BELLBOARD_APP                       NRF_BELLBOARD_APP_S
+  #define NRF_BELLBOARD_CELLCORE                  NRF_BELLBOARD_CELLCORE_S
   #define NRF_IPCT120                             NRF_IPCT120_S
   #define NRF_MUTEX120                            NRF_MUTEX120_NS
   #define NRF_VPR121                              NRF_VPR121_S
@@ -475,6 +498,7 @@ POSSIBILITY OF SUCH DAMAGE.
   #define NRF_P5                                  NRF_P5_S
   #define NRF_P10                                 NRF_P10_S
   #define NRF_P12                                 NRF_P12_S
+  #define NRF_AUDIOPLL                            NRF_AUDIOPLL_S
   #define NRF_DPPIC131                            NRF_DPPIC131_S
   #define NRF_SAADC                               NRF_SAADC_S
   #define NRF_TEMP                                NRF_TEMP_S

@@ -1,6 +1,36 @@
 # Changelog
 All notable changes to this project are documented in this file.
 
+## [4.3.0] - 2026-05-07
+
+### Added
+- Added function for erasing MRAM area in given 32-bit words size in the MRAMC driver.
+- Added functions for reading and writing OTP region in the MRAMC driver.
+- Added support for disabling ECC bus fault in the MRAMC driver.
+- Added support for EPD and TRIM SLEW features in the GPIO HAL.
+- Added support for HFXO64 in startup time getter function in the BICR HAL.
+- Added support for PIERCE and PIXO LFXO modes in the BICR HAL.
+- Added support for SHORTS feature in the RTC HAL.
+- Added support for REGION feature in MRAMC HAL.
+- Added support for 256 MHz base frequency in the SPIM HAL.
+- Added support for nRF54H Series anomaly 115 in the SPIM driver.
+
+### Changed
+- Updated MDK to version 8.75.3.
+- Moved control blocks from driver context into driver instance structure in the BELLBOARD driver.
+- Changed clock prescaler calculation function to use two separate source frequencies for MCK and SCK clocks in the TDM driver.
+
+### Fixed
+- Fixed missing settings in the default configuration in the UARTE driver.
+- Fixed extended channel mask definition for devices supporting MINTERVAL feature in the GRTC driver.
+- Fixed high-drive pin confguration in the SPIM driver.
+- Fixed MCK clock enabling condition in the TDM driver.
+- Fixed potential memory violation in the nrfx_gppi helper.
+- Fixed stopping sequence causing increased power consumption on nRF52 Series SoCs in the SAADC driver.
+
+### Removed
+- Removed support for nRF54H Series anomaly 212 in the SPIM driver.
+
 ## [4.2.1] - 2026-03-27
 
 ### Fixed

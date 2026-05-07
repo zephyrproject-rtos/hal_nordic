@@ -55,11 +55,47 @@ extern "C" {
 #define NRF_BICR_HAS_LFOSC_LFXOCONFIG 0
 #endif
 
-#if defined(BICR_HFXO_STARTUPTIME_ResetValue) || defined(__NRFX_DOXYGEN__)
+#if defined(BICR_HFXO_STARTUPTIME_ResetValue) || defined(BICR_HFXO64M_STARTUPTIME_ResetValue) || \
+    defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether BICR HFXO.STARTUPTIME register is present. */
 #define NRF_BICR_HAS_HFXO_STARTUPTIME 1
 #else
 #define NRF_BICR_HAS_HFXO_STARTUPTIME 0
+#endif
+
+#if defined(BICR_HFXO64M_STARTUPTIME_ResetValue) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether BICR HFXO64M register is present. */
+#define NRF_BICR_HAS_HFXO_64M 1
+#else
+#define NRF_BICR_HAS_HFXO_64M 0
+#endif
+
+#if defined(BICR_LFOSC_LFXOCONFIG_MODE_Crystal) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether LFXOCONFIG Crystal mode is present. */
+#define NRF_BICR_HAS_LFOSC_LFXOCONFIG_CRYSTAL 1
+#else
+#define NRF_BICR_HAS_LFOSC_LFXOCONFIG_CRYSTAL 0
+#endif
+
+#if defined(BICR_LFOSC_LFXOCONFIG_MODE_Pierce) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether LFXOCONFIG Pierce mode is present. */
+#define NRF_BICR_HAS_LFOSC_LFXOCONFIG_PIERCE 1
+#else
+#define NRF_BICR_HAS_LFOSC_LFXOCONFIG_PIERCE 0
+#endif
+
+#if defined(BICR_LFOSC_LFXOCONFIG_MODE_PIXO) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether LFXOCONFIG PIXO mode is present. */
+#define NRF_BICR_HAS_LFOSC_LFXOCONFIG_PIXO 1
+#else
+#define NRF_BICR_HAS_LFOSC_LFXOCONFIG_PIXO 0
+#endif
+
+#if defined(BICR_LFOSC_LFXOCONFIG_MODE_Disabled) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether LFXOCONFIG Disabled mode is present. */
+#define NRF_BICR_HAS_LFOSC_LFXOCONFIG_DISABLED 1
+#else
+#define NRF_BICR_HAS_LFOSC_LFXOCONFIG_DISABLED 0
 #endif
 
 #if NRF_BICR_HAS_LFOSC_LFXOCONFIG
@@ -70,10 +106,20 @@ extern "C" {
 typedef enum
 {
     NRF_BICR_LFOSC_MODE_UNCONFIGURED = BICR_LFOSC_LFXOCONFIG_MODE_Unconfigured, ///< The mode is unconfigured.
+#if NRF_BICR_HAS_LFOSC_LFXOCONFIG_CRYSTAL
     NRF_BICR_LFOSC_MODE_CRYSTAL      = BICR_LFOSC_LFXOCONFIG_MODE_Crystal,      ///< LFXO in external crystal oscillator mode.
+#endif
+#if NRF_BICR_HAS_LFOSC_LFXOCONFIG_PIERCE
+    NRF_BICR_LFOSC_MODE_PIERCE       = BICR_LFOSC_LFXOCONFIG_MODE_Pierce,       ///< LFXO in Pierce oscillator mode.
+#endif
+#if NRF_BICR_HAS_LFOSC_LFXOCONFIG_PIXO
+    NRF_BICR_LFOSC_MODE_PIXO         = BICR_LFOSC_LFXOCONFIG_MODE_PIXO,         ///< LFXO in PIXO mode.
+#endif
     NRF_BICR_LFOSC_MODE_EXTSINE      = BICR_LFOSC_LFXOCONFIG_MODE_ExtSine,      ///< LFXO in external sine wave mode.
     NRF_BICR_LFOSC_MODE_EXTSQUARE    = BICR_LFOSC_LFXOCONFIG_MODE_ExtSquare,    ///< LFXO in external square wave mode.
+#if NRF_BICR_HAS_LFOSC_LFXOCONFIG_DISABLED
     NRF_BICR_LFOSC_MODE_DISABLED     = BICR_LFOSC_LFXOCONFIG_MODE_Disabled,     ///< LFXO is not to be used.
+#endif
 } nrf_bicr_lfosc_mode_t;
 
 /** @brief LFOSC Accuracy. */
@@ -93,7 +139,11 @@ typedef enum
 
 #if NRF_BICR_HAS_HFXO_STARTUPTIME
 /** @brief HFXO unconfigured startup time value */
+#if NRF_BICR_HAS_HFXO_64M
+#define NRF_BICR_HFXO_STARTUP_TIME_UNCONFIGURED BICR_HFXO64M_STARTUPTIME_TIME_Unconfigured
+#else
 #define NRF_BICR_HFXO_STARTUP_TIME_UNCONFIGURED BICR_HFXO_STARTUPTIME_TIME_Unconfigured
+#endif
 #endif
 
 #if NRF_BICR_HAS_LFOSC_LFXOCONFIG
@@ -161,8 +211,13 @@ NRF_STATIC_INLINE nrf_bicr_lfosc_accuracy_t nrf_bicr_lfosc_accuracy_get(NRF_BICR
 #if NRF_BICR_HAS_HFXO_STARTUPTIME
 NRF_STATIC_INLINE uint32_t nrf_bicr_hfxo_startup_time_us_get(NRF_BICR_Type const * p_reg)
 {
+#if NRF_BICR_HAS_HFXO_64M
+    return (p_reg->HFXO64M.STARTUPTIME & BICR_HFXO64M_STARTUPTIME_TIME_Msk) >>
+           BICR_HFXO64M_STARTUPTIME_TIME_Pos;
+#else
     return (p_reg->HFXO.STARTUPTIME & BICR_HFXO_STARTUPTIME_TIME_Msk) >>
            BICR_HFXO_STARTUPTIME_TIME_Pos;
+#endif
 }
 #endif
 

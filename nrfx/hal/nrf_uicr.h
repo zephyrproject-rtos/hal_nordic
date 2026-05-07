@@ -121,6 +121,13 @@ extern "C" {
 #define NRF_UICR_HAS_CH_LINK_DIR_EN 0
 #endif
 
+#if defined(UICR_OTP_MaxCount) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the OTP area is present in UICR. */
+#define NRF_UICR_HAS_OTP 1
+#else
+#define NRF_UICR_HAS_OTP 0
+#endif
+
 /** @brief Number of memory blocks. */
 #define NRF_UICR_MEM_COUNT         UICR_MEM_MaxCount
 

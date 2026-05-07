@@ -52,6 +52,13 @@ extern "C" {
  * @brief   Hardware access layer for managing the Real Time Counter (RTC) peripheral.
  */
 
+#if defined(RTC_SHORTS_COMPARE0_CLEAR_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether COMPARE_CLEAR shorts are present. */
+#define NRF_RTC_HAS_SHORTS 1
+#else
+#define NRF_RTC_HAS_SHORTS 0
+#endif
+
 /**
  * @brief Macro getting pointer to the structure of registers of the RTC peripheral.
  *
@@ -148,6 +155,23 @@ typedef enum
     NRF_RTC_INT_COMPARE_7_MASK = RTC_INTENSET_COMPARE7_Msk  /**< RTC interrupt from compare event on channel 7. */
 #endif
 } nrf_rtc_int_t;
+
+#if NRF_RTC_HAS_SHORTS
+/** @brief RTC shorts. */
+typedef enum
+{
+    NRF_RTC_SHORT_COMPARE0_CLEAR_MASK  = RTC_SHORTS_COMPARE0_CLEAR_Msk, /**< Shortcut between COMPARE0 event and CLEAR task. */
+    NRF_RTC_SHORT_COMPARE1_CLEAR_MASK  = RTC_SHORTS_COMPARE1_CLEAR_Msk, /**< Shortcut between COMPARE1 event and CLEAR task. */
+    NRF_RTC_SHORT_COMPARE2_CLEAR_MASK  = RTC_SHORTS_COMPARE2_CLEAR_Msk, /**< Shortcut between COMPARE2 event and CLEAR task. */
+    NRF_RTC_SHORT_COMPARE3_CLEAR_MASK  = RTC_SHORTS_COMPARE3_CLEAR_Msk, /**< Shortcut between COMPARE3 event and CLEAR task. */
+#if defined(RTC_SHORTS_COMPARE7_CLEAR_Pos) || defined(__NRFX_DOXYGEN__)
+    NRF_RTC_SHORT_COMPARE4_CLEAR_MASK  = RTC_SHORTS_COMPARE4_CLEAR_Msk, /**< Shortcut between COMPARE4 event and CLEAR task. */
+    NRF_RTC_SHORT_COMPARE5_CLEAR_MASK  = RTC_SHORTS_COMPARE5_CLEAR_Msk, /**< Shortcut between COMPARE5 event and CLEAR task. */
+    NRF_RTC_SHORT_COMPARE6_CLEAR_MASK  = RTC_SHORTS_COMPARE6_CLEAR_Msk, /**< Shortcut between COMPARE6 event and CLEAR task. */
+    NRF_RTC_SHORT_COMPARE7_CLEAR_MASK  = RTC_SHORTS_COMPARE7_CLEAR_Msk, /**< Shortcut between COMPARE7 event and CLEAR task. */
+#endif
+} nrf_rtc_short_mask_t;
+#endif
 
 /**
  * @brief Function for setting a compare value for a channel.
@@ -378,6 +402,34 @@ NRF_STATIC_INLINE void nrf_rtc_event_disable(NRF_RTC_Type * p_reg, uint32_t mask
  */
 NRF_STATIC_INLINE nrf_rtc_event_t nrf_rtc_compare_event_get(uint8_t index);
 
+#if NRF_RTC_HAS_SHORTS
+/**
+ * @brief Function for enabling the specified shortcuts.
+ *
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] mask  Shortcuts to be enabled.
+ */
+NRF_STATIC_INLINE void nrf_rtc_shorts_enable(NRF_RTC_Type * p_reg, uint32_t mask);
+
+/**
+ * @brief Function for disabling the specified shortcuts.
+ *
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] mask  Shortcuts to be disabled.
+ */
+NRF_STATIC_INLINE void nrf_rtc_shorts_disable(NRF_RTC_Type * p_reg, uint32_t mask);
+
+/**
+ * @brief Function for getting the shortcut setting.
+ *
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ *
+ * @return Current shortcut configuration.
+ */
+NRF_STATIC_INLINE uint32_t nrf_rtc_shorts_get(NRF_RTC_Type const * p_reg);
+
+#endif // NRF_RTC_HAS_SHORTS
+
 #ifndef NRF_DECLARE_ONLY
 
 NRF_STATIC_INLINE  void nrf_rtc_cc_set(NRF_RTC_Type * p_reg, uint32_t ch, uint32_t cc_val)
@@ -512,6 +564,25 @@ NRF_STATIC_INLINE nrf_rtc_event_t nrf_rtc_compare_event_get(uint8_t index)
 {
     return (nrf_rtc_event_t)NRFX_OFFSETOF(NRF_RTC_Type, EVENTS_COMPARE[index]);
 }
+
+#if NRF_RTC_HAS_SHORTS
+
+NRF_STATIC_INLINE void nrf_rtc_shorts_enable(NRF_RTC_Type * p_reg, uint32_t mask)
+{
+    p_reg->SHORTS |= mask;
+}
+
+NRF_STATIC_INLINE void nrf_rtc_shorts_disable(NRF_RTC_Type * p_reg, uint32_t mask)
+{
+    p_reg->SHORTS &= ~mask;
+}
+
+NRF_STATIC_INLINE uint32_t nrf_rtc_shorts_get(NRF_RTC_Type const * p_reg)
+{
+    return p_reg->SHORTS;
+}
+
+#endif // NRF_RTC_HAS_SHORTS
 
 #endif // NRF_DECLARE_ONLY
 

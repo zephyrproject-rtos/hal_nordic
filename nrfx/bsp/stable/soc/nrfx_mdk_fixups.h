@@ -111,6 +111,8 @@
         #define DELAY_CUSTOM_CYCLES 7
         #define DWT_MISSING
     #endif
+
+    #define GPIO_DETECTMODE_ACCESSIBLE 1
 #endif
 /**************************************************************************************************/
 /* End fixups section for NRF52_SERIES                                                            */
@@ -202,6 +204,8 @@
     #define I2S_MCKFREQ_FACTOR 1048576
 
     #define KMU_KEYSLOTNUM 128
+
+    #define GPIO_DETECTMODE_ACCESSIBLE 1
 #endif
 /**************************************************************************************************/
 /* End fixups section for NRF53_SERIES                                                            */
@@ -237,6 +241,8 @@
     #define DOMAIN_MODEM
 
     #define KMU_KEYSLOTNUM 128
+
+    #define GPIO_DETECTMODE_ACCESSIBLE 1
 #endif
 /**************************************************************************************************/
 /* End fixups section for NRF91_SERIES                                                            */
@@ -437,11 +443,30 @@
     #define TWIS_CLOCKPIN_SCL_NEEDED
     #define UARTE_CLOCKPIN_TXD_NEEDED
 
+    #define SPIM_USE_H0H1_E0E1
     #define SPIM_CHECK_DISABLE_ON_XFER_END
 
     #define DPPI_TYPE_IPCT
 
     #define DOMAIN_FLPR
+
+    typedef struct {
+        __IOM NRF_BICR_POWER_Type POWER;
+        __IOM NRF_BICR_IOPORT_Type IOPORT;
+        __IM uint32_t RESERVED[2];
+        __IOM NRF_BICR_LFOSC_Type LFOSC;
+        __IOM NRF_BICR_HFXO_Type HFXO;
+        __IM uint32_t RESERVED1[8];
+        __IOM uint32_t CRC32;
+    } NRF_BICR_Type_fixed;
+
+    #if defined(NRF_APPLICATION_BICR_NS)
+        #undef NRF_APPLICATION_BICR_NS
+        #define NRF_APPLICATION_BICR_NS ((NRF_BICR_Type_fixed*) NRF_APPLICATION_BICR_NS_BASE)
+    #endif
+
+    #define NRF_BICR_Type NRF_BICR_Type_fixed
+
 #endif
 
 /**************************************************************************************************/
@@ -503,11 +528,15 @@
         #define GRTC_MAIN_CC_CHANNEL 0
     #endif
 
-    #define SPIM_FORCE_H0H1
+    #define SPIM_USE_H0H1_E0E1
 
     #define DPPI_TYPE_PPIB
 
     #define DELAY_RISCV_SLOWDOWN 15
+
+    #if !defined(NRF_TRUSTZONE_NONSECURE)
+        #define GPIO_DETECTMODE_ACCESSIBLE 1
+    #endif
 #endif
 
 /**************************************************************************************************/
@@ -568,11 +597,15 @@
         #define GRTC_MAIN_CC_CHANNEL 0
     #endif
 
-    #define SPIM_FORCE_H0H1
+    #define SPIM_USE_H0H1_E0E1
 
     #define DPPI_TYPE_PPIB
 
     #define DELAY_RISCV_SLOWDOWN 15
+
+    #if !defined(NRF_TRUSTZONE_NONSECURE)
+        #define GPIO_DETECTMODE_ACCESSIBLE 1
+    #endif
 #endif
 
 /**************************************************************************************************/
@@ -633,11 +666,15 @@
         #define GRTC_MAIN_CC_CHANNEL 0
     #endif
 
-    #define SPIM_FORCE_H0H1
+    #define SPIM_USE_H0H1_E0E1
 
     #define DPPI_TYPE_PPIB
 
     #define DELAY_RISCV_SLOWDOWN 15
+
+    #if !defined(NRF_TRUSTZONE_NONSECURE)
+        #define GPIO_DETECTMODE_ACCESSIBLE 1
+    #endif
 #endif
 
 /**************************************************************************************************/
@@ -696,11 +733,15 @@
         #define GRTC_MAIN_CC_CHANNEL 0
     #endif
 
-    #define SPIM_FORCE_H0H1
+    #define SPIM_USE_H0H1_E0E1
 
     #define DPPI_TYPE_PPIB
 
     #define DELAY_RISCV_SLOWDOWN 15
+
+    #if !defined(NRF_TRUSTZONE_NONSECURE)
+        #define GPIO_DETECTMODE_ACCESSIBLE 1
+    #endif
 #endif
 
 /**************************************************************************************************/
@@ -766,11 +807,15 @@
         #define GRTC_MAIN_CC_CHANNEL 0
     #endif
 
-    #define SPIM_FORCE_H0H1
+    #define SPIM_USE_H0H1_E0E1
 
     #define DPPI_TYPE_PPIB
 
     #define DELAY_RISCV_SLOWDOWN 15
+
+    #if !defined(NRF_TRUSTZONE_NONSECURE)
+        #define GPIO_DETECTMODE_ACCESSIBLE 1
+    #endif
 #endif
 
 /**************************************************************************************************/
@@ -836,11 +881,15 @@
         #define GRTC_MAIN_CC_CHANNEL 0
     #endif
 
-    #define SPIM_FORCE_H0H1
+    #define SPIM_USE_H0H1_E0E1
 
     #define DPPI_TYPE_PPIB
 
     #define DELAY_RISCV_SLOWDOWN 15
+
+    #if !defined(NRF_TRUSTZONE_NONSECURE)
+        #define GPIO_DETECTMODE_ACCESSIBLE 1
+    #endif
 #endif
 
 /**************************************************************************************************/
@@ -881,11 +930,13 @@
         #define GRTC_MAIN_CC_CHANNEL 0
     #endif
 
-    #define SPIM_FORCE_H0H1
+    #define SPIM_USE_H0H1_E0E1
 
     #define DPPI_TYPE_PPIB
 
     #define DELAY_RISCV_SLOWDOWN 15
+
+    #define GPIO_DETECTMODE_ACCESSIBLE 1
 #endif
 
 /**************************************************************************************************/
@@ -926,11 +977,13 @@
         #define GRTC_MAIN_CC_CHANNEL 0
     #endif
 
-    #define SPIM_FORCE_H0H1
+    #define SPIM_USE_H0H1_E0E1
 
     #define DPPI_TYPE_PPIB
 
     #define DELAY_RISCV_SLOWDOWN 15
+
+    #define GPIO_DETECTMODE_ACCESSIBLE 1
 #endif
 
 /**************************************************************************************************/
@@ -989,11 +1042,15 @@
         #define GRTC_MAIN_CC_CHANNEL 0
     #endif
 
-    #define SPIM_FORCE_H0H1
+    #define SPIM_USE_H0H1_E0E1
 
     #define DPPI_TYPE_PPIB
 
     #define DELAY_RISCV_SLOWDOWN 15
+
+    #if !defined(NRF_TRUSTZONE_NONSECURE)
+        #define GPIO_DETECTMODE_ACCESSIBLE 1
+    #endif
 #endif
 
 /**************************************************************************************************/
@@ -1061,11 +1118,15 @@
         #define GRTC_MAIN_CC_CHANNEL 0
     #endif
 
-    #define SPIM_FORCE_H0H1
+    #define SPIM_USE_H0H1_E0E1
 
     #define DPPI_TYPE_PPIB
 
     #define DELAY_RISCV_SLOWDOWN 15
+
+    #if !defined(NRF_TRUSTZONE_NONSECURE)
+        #define GPIO_DETECTMODE_ACCESSIBLE 1
+    #endif
 #endif
 
 /**************************************************************************************************/
@@ -1078,8 +1139,6 @@
 #if defined(NRF9220_XXAA)
     #include "mdk/haltium_interim.h"
 
-    #define DPPIC020_CH_NUM (DPPIC020_CH_NUM_MAX + 1UL)
-    #define DPPIC030_CH_NUM (DPPIC030_CH_NUM_MAX + 1UL)
     #define DPPIC120_CH_NUM (DPPIC120_CH_NUM_MAX + 1UL)
     #define DPPIC130_CH_NUM (DPPIC130_CH_NUM_MAX + 1UL)
     #define DPPIC131_CH_NUM (DPPIC131_CH_NUM_MAX + 1UL)
@@ -1087,8 +1146,6 @@
     #define DPPIC133_CH_NUM (DPPIC133_CH_NUM_MAX + 1UL)
     #define DPPIC134_CH_NUM (DPPIC134_CH_NUM_MAX + 1UL)
 
-    #define DPPIC020_GROUP_NUM (DPPIC020_GROUP_NUM_MAX + 1UL)
-    #define DPPIC030_GROUP_NUM (DPPIC030_GROUP_NUM_MAX + 1UL)
     #define DPPIC120_GROUP_NUM (DPPIC120_GROUP_NUM_MAX + 1UL)
     #define DPPIC130_GROUP_NUM (DPPIC130_GROUP_NUM_MAX + 1UL)
     #define DPPIC131_GROUP_NUM (DPPIC131_GROUP_NUM_MAX + 1UL)
@@ -1097,6 +1154,7 @@
     #define DPPIC134_GROUP_NUM (DPPIC134_GROUP_NUM_MAX + 1UL)
 
     #define EGU130_CH_NUM (EGU130_CH_NUM_MAX + 1UL)
+
     #define TIMER120_CC_NUM (TIMER120_CC_NUM_MAX + 1UL)
     #define TIMER130_CC_NUM (TIMER130_CC_NUM_MAX + 1UL)
     #define TIMER131_CC_NUM (TIMER131_CC_NUM_MAX + 1UL)
@@ -1115,7 +1173,6 @@
     #define P5_PIN_NUM P5_PIN_NUM_SIZE
     #define P10_PIN_NUM P10_PIN_NUM_SIZE
     #define P12_PIN_NUM P12_PIN_NUM_SIZE
-    #define RTC130_CC_NUM RTC130_CC_NUM_SIZE
 
     #if defined(NRF_TRUSTZONE_NONSECURE)
         #if defined(NRF_APPLICATION)
@@ -1127,6 +1184,7 @@
         #define GPIOTE_IRQ_GROUP 2
     #elif defined(NRF_FLPR)
         #define GRTC_IRQ_GROUP 8
+        #define GPIOTE_IRQ_GROUP 2
     #else
         #if defined(NRF_APPLICATION)
             #define GRTC_IRQ_GROUP 3
@@ -1260,8 +1318,6 @@
 
     #if defined(NRF_APPLICATION) || defined(NRF_PPR) || defined(NRF_FLPR)
         #define GPIOTE_PORT_ID 1
-    #elif defined(NRF_RADIOCORE)
-        #define GPIOTE_PORT_ID 2
     #endif
 
     #if (!defined(__VPR_REV) && defined(NRF_TRUSTZONE_NONSECURE)) || defined(__VPR_REV)
@@ -1300,9 +1356,6 @@
     #define TDM_CLOCKPIN_FSYNC_NEEDED
     #define TDM_CLOCKPIN_MCK_NEEDED
 
-    #define EXMIF_MAX_MEMORY_DEVICE_SIZE 0x10000000UL
-    #define EXMIF_MAX_NUMBER_OF_DEVICES  2
-
     #define TWIM_CLOCKPIN_SCL_NEEDED
     #define TWIS_CLOCKPIN_SCL_NEEDED
     #define UARTE_CLOCKPIN_TXD_NEEDED
@@ -1312,6 +1365,20 @@
     #define DPPI_TYPE_IPCT
 
     #define DOMAIN_FLPR
+
+    #if defined(NRF_APPLICATION)
+        #define NRF_OWNER NRF_OWNER_APPLICATION
+    #endif
+
+    #if defined(NRF_SECURE_BELLBOARD)
+        #define NRF_SECDOMBELLBOARD NRF_SECURE_BELLBOARD
+    #elif defined(NRF_BELLBOARD_SEC)
+        #define NRF_SECDOMBELLBOARD NRF_BELLBOARD_SEC
+    #endif
+
+    #ifdef UICR_SECONDARY_ADDRESS_ADDRESS_Msk
+        #undef UICR_SECONDARY_ADDRESS_ADDRESS_Msk
+    #endif
 #endif
 /**************************************************************************************************/
 /* End fixups section for NRF9220_XXAA                                                            */

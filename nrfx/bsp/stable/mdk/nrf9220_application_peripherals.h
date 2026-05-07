@@ -40,10 +40,6 @@ POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #include <stdbool.h>
-/*Extended UICR.*/
-#define UICREXTENDED_PRESENT 1
-#define UICREXTENDED_COUNT 1
-
 /*CACHEDATA*/
 #define ICACHEDATA_PRESENT 1
 #define ICACHEDATA_COUNT 1
@@ -259,6 +255,60 @@ POSSIBILITY OF SUCH DAMAGE.
 #define HSFLL_CLOCKCTRL_MULT_RESET 6                 /*!< Reset value of register CLOCKCTRL.MULT: clockctrl_mult_reset         */
 #define HSFLL_CLOCKCTRL_INTEGER_DIVISION 0           /*!< (unspecified)                                                        */
 
+/*LRCCONF*/
+#define LRCCONF_PRESENT 1
+#define LRCCONF_COUNT 2
+
+#define LRCCONF000_POWERON 0                         /*!< Does not support POWERON register                                    */
+#define LRCCONF000_RETAIN 0                          /*!< Does not support RETAIN register                                     */
+#define LRCCONF000_SYSTEMOFF 0                       /*!< Does not support SYSTEMOFF tasks                                     */
+#define LRCCONF000_LRCREQHFXO 0                      /*!< Does not support REQHFXO and STOPREQHFXO tasks and HFXOSTARTED event */
+#define LRCCONF000_NCLK_MIN 0                        /*!< (unspecified)                                                        */
+#define LRCCONF000_NCLK_MAX 0                        /*!< (unspecified)                                                        */
+#define LRCCONF000_NCLK_SIZE 1                       /*!< (unspecified)                                                        */
+#define LRCCONF000_CLKCTRL 1                         /*!< Number of clock at clock control and status registers: 0..0          */
+#define LRCCONF000_NACTPD_MIN 0                      /*!< (unspecified)                                                        */
+#define LRCCONF000_NACTPD_MAX 7                      /*!< (unspecified)                                                        */
+#define LRCCONF000_NACTPD_SIZE 8                     /*!< (unspecified)                                                        */
+#define LRCCONF000_PDACT 0                           /*!< Does not support active power domains                                */
+#define LRCCONF000_NPD_MIN 0                         /*!< (unspecified)                                                        */
+#define LRCCONF000_NPD_MAX 7                         /*!< (unspecified)                                                        */
+#define LRCCONF000_NPD_SIZE 8                        /*!< (unspecified)                                                        */
+#define LRCCONF000_OTHERON 0                         /*!< (unspecified)                                                        */
+#define LRCCONF000_NDOMAINS_MIN 0                    /*!< (unspecified)                                                        */
+#define LRCCONF000_NDOMAINS_MAX 15                   /*!< (unspecified)                                                        */
+#define LRCCONF000_NDOMAINS_SIZE 16                  /*!< (unspecified)                                                        */
+#define LRCCONF000_AX2XWAITSTATES 0                  /*!< Does not support AX2XWAITSTATES register                             */
+#define LRCCONF000_POWERON_MAIN_RESET 0              /*!< (unspecified)                                                        */
+#define LRCCONF000_POWERON_ACT_RESET 0               /*!< (unspecified)                                                        */
+#define LRCCONF000_RETAIN_MAIN_RESET 1               /*!< (unspecified)                                                        */
+#define LRCCONF000_RETAIN_ACT_RESET 1                /*!< (unspecified)                                                        */
+
+#define LRCCONF010_POWERON 1                         /*!< Supports POWERON register                                            */
+#define LRCCONF010_RETAIN 1                          /*!< Supports RETAIN register                                             */
+#define LRCCONF010_SYSTEMOFF 1                       /*!< Supports SYSTEMOFF tasks                                             */
+#define LRCCONF010_LRCREQHFXO 1                      /*!< Supports REQHFXO and STOPREQHFXO tasks and HFXOSTARTED event         */
+#define LRCCONF010_NCLK_MIN 0                        /*!< (unspecified)                                                        */
+#define LRCCONF010_NCLK_MAX 0                        /*!< (unspecified)                                                        */
+#define LRCCONF010_NCLK_SIZE 1                       /*!< (unspecified)                                                        */
+#define LRCCONF010_CLKCTRL 1                         /*!< Number of clock at clock control and status registers: 0..0          */
+#define LRCCONF010_NACTPD_MIN 0                      /*!< (unspecified)                                                        */
+#define LRCCONF010_NACTPD_MAX 0                      /*!< (unspecified)                                                        */
+#define LRCCONF010_NACTPD_SIZE 1                     /*!< (unspecified)                                                        */
+#define LRCCONF010_PDACT 1                           /*!< Number of active power domains : 0..0                                */
+#define LRCCONF010_NPD_MIN 0                         /*!< (unspecified)                                                        */
+#define LRCCONF010_NPD_MAX 7                         /*!< (unspecified)                                                        */
+#define LRCCONF010_NPD_SIZE 8                        /*!< (unspecified)                                                        */
+#define LRCCONF010_OTHERON 0                         /*!< (unspecified)                                                        */
+#define LRCCONF010_NDOMAINS_MIN 0                    /*!< (unspecified)                                                        */
+#define LRCCONF010_NDOMAINS_MAX 15                   /*!< (unspecified)                                                        */
+#define LRCCONF010_NDOMAINS_SIZE 16                  /*!< (unspecified)                                                        */
+#define LRCCONF010_AX2XWAITSTATES 0                  /*!< Does not support AX2XWAITSTATES register                             */
+#define LRCCONF010_POWERON_MAIN_RESET 0              /*!< Reset value of register POWERON.MAIN: 0                              */
+#define LRCCONF010_POWERON_ACT_RESET 0               /*!< Reset value of register POWERON.ACT: 0                               */
+#define LRCCONF010_RETAIN_MAIN_RESET 1               /*!< Reset value of register RETAIN.MAIN: 1                               */
+#define LRCCONF010_RETAIN_ACT_RESET 1                /*!< Reset value of register RETAIN.ACT: 1                                */
+
 /*Memory configuration*/
 #define MEMCONF_PRESENT 1
 #define MEMCONF_COUNT 1
@@ -293,6 +343,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #define RESETINFO_HASRESETREAS 1                     /*!< (unspecified)                                                        */
 #define RESETINFO_CROSSDOMAINRESET 1                 /*!< (unspecified)                                                        */
+#define RESETINFO_LPCOMP 0                           /*!< (unspecified)                                                        */
 
 /*IPCT APB registers*/
 #define IPCT_PRESENT 1
@@ -313,6 +364,13 @@ POSSIBILITY OF SUCH DAMAGE.
 #define BELLBOARD_COUNT 1
 
 #define BELLBOARD_IRQ_COUNT 4
+
+/*Axon wrapper*/
+#define AXONS_PRESENT 1
+#define AXONS_COUNT 1
+
+#define AXONS_AXON_NN_BASE_OFFSET 0x500              /*!< AxonNN base offset 0x500.                                            */
+#define AXONS_AXON_DSP_BASE_OFFSET 0x700             /*!< AxonDSP base offset 0x700.                                           */
 
 /*MICR*/
 #define MICR_PRESENT 1
@@ -404,6 +462,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #define GRTC_SYSCOUNTER_LOADED_STATUS 1              /*!< SYSCOUNTER[n].SYSCOUNTERH.LOADED status is available                 */
 #define GRTC_CC_PAST_STATUS 1                        /*!< CC[n].CCEN.PASTCC status is available                                */
 #define GRTC_SYSCOUNTER_WRITEABLE 0                  /*!< (unspecified)                                                        */
+
+/*BELLBOARD public registers*/
+#define BELLBOARDPUBLIC_PRESENT 1
+#define BELLBOARDPUBLIC_COUNT 3
 
 /*MUTEX*/
 #define MUTEX_PRESENT 1
@@ -976,6 +1038,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #define P12_SUPPORT_1V2 0                            /*!< (unspecified)                                                        */
 #define P12_PIN_OWNER_SEC 0                          /*!< (unspecified)                                                        */
 #define P12_BIASCTRL 0                               /*!< (unspecified)                                                        */
+
+/*AUXPLL*/
+#define AUXPLL_PRESENT 1
+#define AUXPLL_COUNT 1
 
 /*Analog to Digital Converter*/
 #define SAADC_PRESENT 1

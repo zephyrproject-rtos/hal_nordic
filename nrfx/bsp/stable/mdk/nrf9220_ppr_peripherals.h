@@ -192,6 +192,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #define GRTC_CC_PAST_STATUS 1                        /*!< CC[n].CCEN.PASTCC status is available                                */
 #define GRTC_SYSCOUNTER_WRITEABLE 0                  /*!< (unspecified)                                                        */
 
+/*BELLBOARD public registers*/
+#define BELLBOARDPUBLIC_PRESENT 1
+#define BELLBOARDPUBLIC_COUNT 3
+
 /*IPCT APB registers*/
 #define IPCT_PRESENT 1
 #define IPCT_COUNT 2
@@ -781,6 +785,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #define P12_SUPPORT_1V2 0                            /*!< (unspecified)                                                        */
 #define P12_PIN_OWNER_SEC 0                          /*!< (unspecified)                                                        */
 #define P12_BIASCTRL 0                               /*!< (unspecified)                                                        */
+
+/*AUXPLL*/
+#define AUXPLL_PRESENT 1
+#define AUXPLL_COUNT 1
 
 /*Analog to Digital Converter*/
 #define SAADC_PRESENT 1

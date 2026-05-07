@@ -54,12 +54,22 @@ extern "C" {
 #define NRF_LFXO_HAS_STATUSANA 0
 #endif
 
+#if defined(LFXO_EVENTS_STARTED_EVENTS_STARTED_Msk) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the STARTED event is present. */
+#define NRF_LFXO_HAS_EVENT_STARTED 1
+#else
+#define NRF_LFXO_HAS_EVENT_STARTED 0
+#endif
+
 /** @brief LFXO events. */
 typedef enum
 {
     NRF_LFXO_EVENT_MODECHANGED   = offsetof(NRF_LFXO_Type, EVENTS_MODECHANGED),   /**< LFXO mode changed. */
     NRF_LFXO_EVENT_ERRORSTARTING = offsetof(NRF_LFXO_Type, EVENTS_ERRORSTARTING), /**< Error while starting the LFXO in PIERCE mode. */
     NRF_LFXO_EVENT_ERRORRUNNING  = offsetof(NRF_LFXO_Type, EVENTS_ERRORRUNNING),  /**< Error detected while LFXO was running. */
+#if NRF_LFXO_HAS_EVENT_STARTED
+    NRF_LFXO_EVENT_STARTED       = offsetof(NRF_LFXO_Type, EVENTS_STARTED),       /**< LFXO has started and entered PIERCE_MANUAL mode. */
+#endif
 } nrf_lfxo_event_t;
 
 /** @brief LFXO interrupts. */
@@ -68,6 +78,9 @@ typedef enum
     NRF_LFXO_INT_MODECHANGED_MASK   = LFXO_INTENSET_MODECHANGED_Msk,   /**< Interrupt on MODECHANGED event. */
     NRF_LFXO_INT_ERRORSTARTING_MASK = LFXO_INTENSET_ERRORSTARTING_Msk, /**< Interrupt on ERRORSTARTING event. */
     NRF_LFXO_INT_ERRORRUNNING_MASK  = LFXO_INTENSET_ERRORRUNNING_Msk,  /**< Interrupt on ERRORRUNNING event. */
+#if NRF_LFXO_HAS_EVENT_STARTED
+    NRF_LFXO_INT_STARTED_MASK       = LFXO_INTENSET_STARTED_Msk,       /**< Interrupt on STARTED event. */
+#endif
 } nrf_lfxo_int_mask_t;
 
 /** @brief LFXO modes. */
@@ -182,7 +195,7 @@ NRF_STATIC_INLINE uint32_t nrf_lfxo_int_pending_get(NRF_LFXO_Type const * p_reg)
  * @param[in]  p_reg    Pointer to the structure of registers of the peripheral.
  * @param[out] p_status Pointer to the structure to be filled with LFXO status.
  */
-NRF_STATIC_INLINE void nrf_lfxo_status_get(NRF_LFXO_Type const * p_reg, 
+NRF_STATIC_INLINE void nrf_lfxo_status_get(NRF_LFXO_Type const * p_reg,
                                            nrf_lfxo_status_t *   p_status);
 
 #if NRF_LFXO_HAS_STATUSANA
@@ -301,11 +314,11 @@ NRF_STATIC_INLINE uint32_t nrf_lfxo_int_pending_get(NRF_LFXO_Type const * p_reg)
     return p_reg->INTPEND;
 }
 
-NRF_STATIC_INLINE void nrf_lfxo_status_get(NRF_LFXO_Type const * p_reg, 
+NRF_STATIC_INLINE void nrf_lfxo_status_get(NRF_LFXO_Type const * p_reg,
                                            nrf_lfxo_status_t *   p_status)
 {
     NRFX_ASSERT(p_status);
-    p_status->oscmode = (nrf_lfxo_oscillator_mode_t)((p_reg->STATUS & LFXO_STATUS_MODE_Msk) 
+    p_status->oscmode = (nrf_lfxo_oscillator_mode_t)((p_reg->STATUS & LFXO_STATUS_MODE_Msk)
                                                     >> LFXO_STATUS_MODE_Pos);
     p_status->hpmode  = (p_reg->STATUS & LFXO_STATUS_HPMODE_Msk)  >> LFXO_STATUS_HPMODE_Pos;
     p_status->running = (p_reg->STATUS & LFXO_STATUS_RUNNING_Msk) >> LFXO_STATUS_RUNNING_Pos;

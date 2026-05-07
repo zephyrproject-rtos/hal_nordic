@@ -50,7 +50,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define VPRCSR_HIBERNATE 1                           /*!< HIBERNATE: 1                                                         */
 #define VPRCSR_DBG 1                                 /*!< DBG: 1                                                               */
 #define VPRCSR_REMAP 0                               /*!< Code patching (REMAP): 0                                             */
-#define VPRCSR_BUSWIDTH 32                           /*!< BUSWIDTH: 32                                                         */
+#define VPRCSR_BUSWIDTH 64                           /*!< BUSWIDTH: 64                                                         */
 #define VPRCSR_BKPT 1                                /*!< BKPT: 1                                                              */
 #define VPRCSR_RETAINED 1                            /*!< VPR can be retained.                                                 */
 #define VPRCSR_VIOPINS 0x0000FFFF                    /*!< CSR VIOPINS value: 0x0000FFFF                                        */
@@ -191,6 +191,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #define GRTC_SYSCOUNTER_LOADED_STATUS 1              /*!< SYSCOUNTER[n].SYSCOUNTERH.LOADED status is available                 */
 #define GRTC_CC_PAST_STATUS 1                        /*!< CC[n].CCEN.PASTCC status is available                                */
 #define GRTC_SYSCOUNTER_WRITEABLE 0                  /*!< (unspecified)                                                        */
+
+/*BELLBOARD public registers*/
+#define BELLBOARDPUBLIC_PRESENT 1
+#define BELLBOARDPUBLIC_COUNT 3
 
 /*IPCT APB registers*/
 #define IPCT_PRESENT 1
@@ -781,6 +785,10 @@ POSSIBILITY OF SUCH DAMAGE.
 #define P12_SUPPORT_1V2 0                            /*!< (unspecified)                                                        */
 #define P12_PIN_OWNER_SEC 0                          /*!< (unspecified)                                                        */
 #define P12_BIASCTRL 0                               /*!< (unspecified)                                                        */
+
+/*AUXPLL*/
+#define AUXPLL_PRESENT 1
+#define AUXPLL_COUNT 1
 
 /*Analog to Digital Converter*/
 #define SAADC_PRESENT 1

@@ -54,6 +54,18 @@ extern "C" {
 #define NRF_TDM_CLOCKPIN_MCK_NEEDED 1
 #endif
 
+#if defined(TDM_CONFIG_FSYNC_DURATION_DURATION_Sck) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the configuration of frame sync duration using predefined values is present. */
+#define NRF_TDM_HAS_CONFIG_FSYNC_DURATION_ENUM 1
+#else
+#define NRF_TDM_HAS_CONFIG_FSYNC_DURATION_ENUM 0
+#endif
+
+#if !NRF_TDM_HAS_CONFIG_FSYNC_DURATION_ENUM
+/** @brief Maximum value of FSYNC DURATION register. */
+#define NRF_TDM_FSYNC_DURATION_MAX TDM_CONFIG_FSYNC_DURATION_DURATION_Max
+#endif
+
 /**
  * @defgroup nrf_tdm_hal TDM HAL
  * @{
@@ -260,11 +272,15 @@ typedef enum
 }  nrf_tdm_polarity_t;
 
 /** @brief TDM frame synchronization pulse duration. */
+#if NRF_TDM_HAS_CONFIG_FSYNC_DURATION_ENUM
 typedef enum
 {
     NRF_TDM_FSYNC_DURATION_SCK     = TDM_CONFIG_FSYNC_DURATION_DURATION_Sck,    ///< FSYNC is active for the duration of one SCK pulse.
     NRF_TDM_FSYNC_DURATION_CHANNEL = TDM_CONFIG_FSYNC_DURATION_DURATION_Channel ///< FSYNC is active for the duration of channel transmission.
 }  nrf_tdm_fsync_duration_t;
+#else
+typedef uint32_t nrf_tdm_fsync_duration_t;
+#endif
 
 /** @brief TDM configuration. */
 typedef struct
@@ -856,6 +872,9 @@ NRF_STATIC_INLINE uint32_t nrf_tdm_sdin_pin_get(NRF_TDM_Type const * p_reg)
 
 NRF_STATIC_INLINE void nrf_tdm_configure(NRF_TDM_Type * p_reg, nrf_tdm_config_t const * p_config)
 {
+#if !NRF_TDM_HAS_CONFIG_FSYNC_DURATION_ENUM
+    NRFX_ASSERT(p_config->fsync_duration <= NRF_TDM_FSYNC_DURATION_MAX);
+#endif
     p_reg->CONFIG.MODE           = p_config->mode;
     p_reg->CONFIG.ALIGN          = p_config->alignment;
     p_reg->CONFIG.SWIDTH         = p_config->sample_width;

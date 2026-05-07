@@ -593,31 +593,31 @@ static nrfx_atomic_t *get_group_chan_mask(uint32_t domain_id)
 }
 
 #if NRFX_CHECK(NRFX_GPPI_FIXED_CONNECTIONS)
-#define FOR_EACH_DPPI(_gppi, _handle, _ch, _reg, _d_id)                                     \
-    uint32_t cnt = HANDLE_GET_DPPI_CNT(_handle);                                            \
-    size_t i;                                                                               \
-    _ch = HANDLE_GET_CHAN(_handle, 0);                                                      \
-    for (i = 0, _d_id = HANDLE_GET_DPPI_ID(_handle, 0), _reg = dppi_reg_get(d_id);          \
-         i < cnt;                                                                           \
+#define FOR_EACH_DPPI(_gppi, _handle, _ch, _reg, _d_id)                                           \
+    uint32_t cnt = HANDLE_GET_DPPI_CNT(_handle);                                                  \
+    size_t i;                                                                                     \
+    _ch = HANDLE_GET_CHAN(_handle, 0);                                                            \
+    for (i = 0, _d_id = HANDLE_GET_DPPI_ID(_handle, 0), _reg = dppi_reg_get(d_id);                \
+         i < cnt;                                                                                 \
          i++, _d_id = HANDLE_GET_DPPI_ID(_handle, i), _reg = i < cnt ? dppi_reg_get(_d_id) : NULL)
 #elif defined(NRFX_GPPI_MULTI_DOMAIN)
-#define FOR_EACH_DPPI(_gppi, _handle, _ch, _reg, _d_id)                                     \
-    const nrfx_gppi_route_t *_route = &_gppi->routes[HANDLE_GET_ROUTE_ID(_handle)];         \
-    size_t i;                                                                               \
-    size_t _len = _route->len;                                                              \
-    for (i = 0, _ch = HANDLE_GET_CHAN(_handle, i), _d_id = _route->p_nodes[i]->domain_id,   \
-         _reg = _route->p_nodes[i]->dppi.p_reg;                                             \
-         i < _len;                                                                          \
-         i += 2, _ch = HANDLE_GET_CHAN(_handle, i),                                         \
-         _d_id = i < _len ? _route->p_nodes[i]->domain_id : 0,                              \
+#define FOR_EACH_DPPI(_gppi, _handle, _ch, _reg, _d_id)                                           \
+    const nrfx_gppi_route_t *_route = &_gppi->routes[HANDLE_GET_ROUTE_ID(_handle)];               \
+    size_t i;                                                                                     \
+    size_t _len = _route->len;                                                                    \
+    for (i = 0, _ch = HANDLE_GET_CHAN(_handle, i), _d_id = _route->p_nodes[i]->domain_id,         \
+         _reg = _route->p_nodes[i]->dppi.p_reg;                                                   \
+         i < _len;                                                                                \
+         i += 2, _ch = HANDLE_GET_CHAN(_handle, i),                                               \
+         _d_id = i < _len ? _route->p_nodes[i]->domain_id : 0,                                    \
          _reg = i < _len ? _route->p_nodes[i]->dppi.p_reg : NULL) if (_ch != DPPI_CH_RESERVED)
 #else
-#define FOR_EACH_DPPI(_gppi, _handle, _ch, _reg, _d_id)                                     \
-    _reg = NRF_DPPIC;                                                                       \
-    _d_id = 0;                                                                              \
-    (void)_d_id;                                                                            \
-    (void)_reg;                                                                             \
-    (void)_gppi;                                                                            \
+#define FOR_EACH_DPPI(_gppi, _handle, _ch, _reg, _d_id)                                           \
+    _reg = NRF_DPPIC;                                                                             \
+    _d_id = 0;                                                                                    \
+    (void)_d_id;                                                                                  \
+    (void)_reg;                                                                                   \
+    (void)_gppi;                                                                                  \
     _ch = _handle;
 #endif
 
