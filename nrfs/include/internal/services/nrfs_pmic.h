@@ -115,6 +115,18 @@ typedef struct __NRFS_PACKED {
 	nrfs_ctx_t ctx; /**< Context of the message. */
 } nrfs_pmic_pwm_ghost_avoid_req_t;
 
+/** @brief PMIC MA I/O Power ON request structure. */
+typedef struct __NRFS_PACKED {
+	nrfs_hdr_t hdr;			  /**< Header of the message. */
+	nrfs_ctx_t ctx;			  /**< Context of the message. */
+} nrfs_pmic_ma_io_on_req_t;
+
+/** @brief PMIC MA I/O Power OFF request structure. */
+typedef struct __NRFS_PACKED {
+	nrfs_hdr_t hdr; /**< Header of the message. */
+	nrfs_ctx_t ctx; /**< Context of the message. */
+} nrfs_pmic_ma_io_off_req_t;
+
 /** @brief PMIC TEST IF request structure. */
 typedef struct __NRFS_PACKED {
 	nrfs_hdr_t hdr;	       /**< Header of the message. */

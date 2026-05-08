@@ -260,6 +260,62 @@ nrfs_err_t nrfs_pmic_pwm_ghost_avoid_set_no_rsp(void)
 	return nrfs_backend_send(&req, sizeof(req));
 }
 
+nrfs_err_t nrfs_pmic_ma_io_on(void * p_context)
+{
+	if (!m_cb.is_initialized) {
+		return NRFS_ERR_INVALID_STATE;
+	}
+
+	nrfs_pmic_ma_io_on_req_t req;
+
+	NRFS_SERVICE_HDR_FILL(&req, NRFS_PMIC_MA_IO_ON);
+	req.ctx.ctx = (uint32_t)p_context;
+
+	return nrfs_backend_send(&req, sizeof(req));
+}
+
+nrfs_err_t nrfs_pmic_ma_io_on_no_rsp(void)
+{
+	if (!m_cb.is_initialized) {
+		return NRFS_ERR_INVALID_STATE;
+	}
+
+	nrfs_pmic_ma_io_on_req_t req;
+
+	NRFS_SERVICE_HDR_FILL(&req, NRFS_PMIC_MA_IO_ON);
+	NRFS_HDR_NO_RSP_SET(&req.hdr);
+
+	return nrfs_backend_send(&req, sizeof(req));
+}
+
+nrfs_err_t nrfs_pmic_ma_io_off(void * p_context)
+{
+	if (!m_cb.is_initialized) {
+		return NRFS_ERR_INVALID_STATE;
+	}
+
+	nrfs_pmic_ma_io_off_req_t req;
+
+	NRFS_SERVICE_HDR_FILL(&req, NRFS_PMIC_MA_IO_OFF);
+	req.ctx.ctx = (uint32_t)p_context;
+
+	return nrfs_backend_send(&req, sizeof(req));
+}
+
+nrfs_err_t nrfs_pmic_ma_io_off_no_rsp(void)
+{
+	if (!m_cb.is_initialized) {
+		return NRFS_ERR_INVALID_STATE;
+	}
+
+	nrfs_pmic_ma_io_off_req_t req;
+
+	NRFS_SERVICE_HDR_FILL(&req, NRFS_PMIC_MA_IO_OFF);
+	NRFS_HDR_NO_RSP_SET(&req.hdr);
+
+	return nrfs_backend_send(&req, sizeof(req));
+}
+
 nrfs_err_t nrfs_pmic_test_if_read(uint16_t addr, void *p_context)
 {
 	if (!m_cb.is_initialized) {
@@ -332,6 +388,8 @@ void nrfs_pmic_service_notify(void *p_notification, size_t size)
 	case NRFS_PMIC_BLE_RADIO_OFF:
 	case NRFS_PMIC_PWM_DEFAULT:
 	case NRFS_PMIC_PWM_GHOST_AVOID:
+	case NRFS_PMIC_MA_IO_ON:
+	case NRFS_PMIC_MA_IO_OFF:
 		evt.type = NRFS_PMIC_EVT_APPLIED;
 		m_cb.handler(&evt, (void *)p_data->ctx.ctx);
 		break;

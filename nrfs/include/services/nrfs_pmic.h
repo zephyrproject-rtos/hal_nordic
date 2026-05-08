@@ -224,6 +224,46 @@ nrfs_err_t nrfs_pmic_pwm_ghost_avoid_set(void * p_context);
 nrfs_err_t nrfs_pmic_pwm_ghost_avoid_set_no_rsp(void);
 
 /**
+ * @brief Function for requesting MA (Modem and Application) I/O power on
+ *
+ * @param[in] p_context  Pointer to the context to be associated with request.
+ *
+ * @retval NRFS_SUCCESS           Request sent successfully.
+ * @retval NRFS_ERR_INVALID_STATE Service is uninitialized.
+ * @retval NRFS_ERR_IPC           Backend returned error during request sending.
+ */
+nrfs_err_t nrfs_pmic_ma_io_on(void * p_context);
+
+/**
+ * @brief Function for requesting MA (Modem and Application) I/O power on with no response
+ *
+ * @retval NRFS_SUCCESS           Request sent successfully.
+ * @retval NRFS_ERR_INVALID_STATE Service is uninitialized.
+ * @retval NRFS_ERR_IPC           Backend returned error during request sending.
+ */
+nrfs_err_t nrfs_pmic_ma_io_on_no_rsp(void);
+
+/**
+ * @brief Function for requesting MA (Modem and Application) I/O power off
+ *
+ * @param[in] p_context  Pointer to the context to be associated with request.
+ *
+ * @retval NRFS_SUCCESS           Request sent successfully.
+ * @retval NRFS_ERR_INVALID_STATE Service is uninitialized.
+ * @retval NRFS_ERR_IPC           Backend returned error during request sending.
+ */
+nrfs_err_t nrfs_pmic_ma_io_off(void * p_context);
+
+/**
+ * @brief Function for requesting MA (Modem and Application) I/O power off with no response
+ *
+ * @retval NRFS_SUCCESS           Request sent successfully.
+ * @retval NRFS_ERR_INVALID_STATE Service is uninitialized.
+ * @retval NRFS_ERR_IPC           Backend returned error during request sending.
+ */
+nrfs_err_t nrfs_pmic_ma_io_off_no_rsp(void);
+
+/**
  * @brief Function for checking PMIC existence
  *
  * Value will be available for handler.
