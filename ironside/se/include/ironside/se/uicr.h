@@ -221,7 +221,9 @@ struct UICR_SECONDARY {
 #define UICR_SECONDARY_PROCESSOR_RADIOCORE   UICR_ENUM_CHOICE_1
 
 /* SECONDARY field access macros */
+#ifndef UICR_SECONDARY_ADDRESS_ADDRESS_Msk
 #define UICR_SECONDARY_ADDRESS_ADDRESS_Msk (0xFFFFF000UL)
+#endif
 
 /* LOCK enum values */
 /* NVR page 0 can be written, and is not integrity checked by Nordic IronSide SE*/
