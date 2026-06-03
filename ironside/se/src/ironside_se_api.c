@@ -495,6 +495,27 @@ ironside_se_mpcconf_write(const struct mpcconf_entry *entries, size_t count)
 	return status;
 }
 
+int ironside_se_mpcconf_radioram_access(enum ironside_se_mpcconf_radioram_access access)
+{
+	int status;
+
+	struct ironside_se_call_buf *const buf = ironside_se_call_alloc();
+
+	buf->id = IRONSIDE_SE_CALL_ID_MPCCONF_RADIORAM_ACCESS_V1;
+	buf->args[IRONSIDE_SE_MPCCONF_RADIORAM_ACCESS_REQ_IDX_OPEN] = access;
+
+	ironside_se_call_dispatch(buf);
+
+	status = buf->status;
+	if (status == IRONSIDE_SE_CALL_STATUS_RSP_SUCCESS) {
+		status = buf->args[IRONSIDE_SE_MPCCONF_RADIORAM_ACCESS_RSP_IDX_RETCODE];
+	}
+
+	ironside_se_call_release(buf);
+
+	return status;
+}
+
 int IRONSIDE_SE_MPCCONF_FINISH_INIT_FUNC_ATTR ironside_se_mpcconf_finish_init(void)
 {
 	int status;

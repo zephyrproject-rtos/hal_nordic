@@ -16,7 +16,19 @@
 extern "C" {
 #endif
 
-/** Entry in the PERIPHCONF table. */
+/**
+ * @defgroup ironside_se_periphconf Peripheral configuration
+ * @ingroup ironside_se
+ * @{
+ */
+
+/** PERIPHCONF entry describing a peripheral register value.
+ *
+ * Used with either @ref UICR::PERIPHCONF / @ref UICR_SECONDARY::PERIPHCONF or the APIs in
+ * @ref ironside_se_ipc_periphconf.
+ *
+ * Typically constructed using one of the helper macros.
+ */
 struct periphconf_entry {
 	/** Register pointer. */
 	uint32_t regptr;
@@ -535,6 +547,8 @@ struct periphconf_entry {
 #define PERIPHCONF_L2CACHE_ENABLE_VALUE(_enable)                                                   \
 	(uint32_t)(((_enable) ? CACHE_ENABLE_ENABLE_Enabled : CACHE_ENABLE_ENABLE_Disabled)        \
 		   << CACHE_ENABLE_ENABLE_Pos)
+
+/** @} */
 
 #ifdef __cplusplus
 }

@@ -23,7 +23,20 @@ extern "C" {
 #endif
 
 /**
- * @name Update service error codes.
+ * @defgroup ironside_se_ipc IPC interface
+ * @ingroup ironside_se
+ * @{
+ */
+
+/**
+ * @defgroup ironside_se_ipc_update Update
+ * @ingroup ironside_se_ipc
+ * @{
+ */
+
+/**
+ * @defgroup ironside_se_update_errors Error codes
+ * @ingroup ironside_se_ipc_update
  * @{
  */
 
@@ -45,11 +58,15 @@ extern "C" {
 /** Length of the update signature in bytes. */
 #define IRONSIDE_SE_UPDATE_SIGNATURE_LENGTH (64)
 
-/** @brief IronSide SE update blob. */
+/** @brief IronSide SE update blob (maximum size @ref IRONSIDE_SE_UPDATE_BLOB_SIZE). */
 struct ironside_se_update_blob {
+	/** Update manifest (@ref IRONSIDE_SE_UPDATE_MANIFEST_LENGTH bytes). */
 	uint8_t manifest[IRONSIDE_SE_UPDATE_MANIFEST_LENGTH];
+	/** Update signing public key (@ref IRONSIDE_SE_UPDATE_PUBKEY_LENGTH bytes). */
 	uint8_t pubkey[IRONSIDE_SE_UPDATE_PUBKEY_LENGTH];
+	/** Signature over the update (@ref IRONSIDE_SE_UPDATE_SIGNATURE_LENGTH bytes). */
 	uint8_t signature[IRONSIDE_SE_UPDATE_SIGNATURE_LENGTH];
+	/** Firmware image payload (variable size). */
 	uint32_t firmware[];
 };
 
@@ -60,18 +77,28 @@ struct ironside_se_update_blob {
  * to be installed. Check the update status in the application boot report to see if the update
  * was successfully installed.
  *
+ * Negative service codes are listed in @ref ironside_se_update_errors.
+ *
  * @param update Pointer to update blob
  *
  * @retval 0 on a successful request (although the update itself may still fail).
  * @retval -IRONSIDE_SE_UPDATE_ERROR_NOT_PERMITTED if missing access to the update candidate.
  * @retval -IRONSIDE_SE_UPDATE_ERROR_SICR_WRITE_FAILED if writing update parameters to SICR failed.
- * @returns Positive error status if reported by IronSide call (see error codes in @ref call.h).
- *
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_update(const struct ironside_se_update_blob *update);
 
+/** @} */
+
 /**
- * @name CPUCONF service error codes.
+ * @defgroup ironside_se_ipc_cpuconf CPUCONF
+ * @ingroup ironside_se_ipc
+ * @{
+ */
+
+/**
+ * @defgroup ironside_se_cpuconf_errors Error codes
+ * @ingroup ironside_se_ipc_cpuconf
  * @{
  */
 
@@ -86,7 +113,7 @@ int ironside_se_update(const struct ironside_se_update_blob *update);
  * @}
  */
 
-/* Maximum size of the CPUCONF message parameter. */
+/** Maximum size of the CPUCONF message parameter. */
 #define IRONSIDE_SE_CPUCONF_REQ_MSG_MAX_SIZE (4 * sizeof(uint32_t))
 
 /**
@@ -104,37 +131,68 @@ int ironside_se_update(const struct ironside_se_update_blob *update);
  * @note the call always sends IRONSIDE_SE_CPUCONF_REQ_MSG_MAX_SIZE message bytes.
  * If the given msg_size is less than that, the remaining bytes are set to zero.
  *
+ * Negative service codes are listed in @ref ironside_se_cpuconf_errors.
+ *
  * @retval 0 on success or if the CPU has already booted.
  * @retval -IRONSIDE_SE_CPUCONF_ERROR_WRONG_CPU if cpu is unrecognized.
  * @retval -IRONSIDE_SE_CPUCONF_ERROR_MESSAGE_TOO_LARGE if msg_size is greater than
  * IRONSIDE_SE_CPUCONF_REQ_MSG_MAX_SIZE.
  * @retval -IRONSIDE_SE_CPUCONF_ERROR_CORRUPTED_MEMORY if the target CPU boot memory
  * region has been flagged as corrupted. Applies only to 92 Series devices.
- * @returns Positive error status if reported by IronSide call (see error codes in @ref call.h).
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_cpuconf(NRF_PROCESSORID_Type cpu, const void *vector_table, bool cpu_wait,
 			const uint8_t *msg, size_t msg_size);
 
-/** Invalid configuration enum. */
+/** @} */
+
+/**
+ * @defgroup ironside_se_ipc_tdd TDD
+ * @ingroup ironside_se_ipc
+ * @{
+ */
+
+/**
+ * @defgroup ironside_se_tdd_errors Error codes
+ * @ingroup ironside_se_ipc_tdd
+ * @{
+ */
+
+/** Invalid configuration enum value. */
 #define IRONSIDE_SE_TDD_ERROR_INVALID_CONFIG (1)
 
+/**
+ * @}
+ */
+
+/** Trace and Debug Domain (TDD) configuration selector. */
 enum ironside_se_tdd_config {
-	/** Turn off the TDD */
+	/** Turn off the TDD. */
 	IRONSIDE_SE_TDD_CONFIG_OFF = 1,
-	/** Turn on the TDD with default configuration */
+	/** Turn on the TDD with default configuration. */
 	IRONSIDE_SE_TDD_CONFIG_ON_DEFAULT = 2,
 };
 
 /**
  * @brief Control the Trace and Debug Domain (TDD).
  *
+ * Negative service codes are listed in @ref ironside_se_tdd_errors.
+ *
  * @param config The configuration to be applied.
  *
  * @retval 0 on success.
- * @retval -IRONSIDE_SE_SE_TDD_SERVICE_ERROR_INVALID_CONFIG if the configuration is invalid.
- * @returns Positive error status if reported by IronSide call (see error codes in @ref call.h).
+ * @retval -IRONSIDE_SE_TDD_ERROR_INVALID_CONFIG if the configuration is invalid.
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_tdd_configure(const enum ironside_se_tdd_config config);
+
+/** @} */
+
+/**
+ * @defgroup ironside_se_ipc_dvfs DVFS
+ * @ingroup ironside_se_ipc
+ * @{
+ */
 
 /** Supported DVFS operational points. */
 enum ironside_se_dvfs_oppoint {
@@ -147,12 +205,13 @@ enum ironside_se_dvfs_oppoint {
  * @brief Number of DVFS oppoints supported by IronSide.
  *
  * This is the number of different DVFS oppoints that can be set on IronSide.
- * The oppoints are defined in the `ironside_dvfs_oppoint` enum.
+ * The oppoints are defined in the @ref ironside_se_dvfs_oppoint enum.
  */
 #define IRONSIDE_SE_DVFS_OPPOINT_COUNT (3)
 
 /**
- * @name IronSide DVFS service error codes.
+ * @defgroup ironside_se_dvfs_errors Error codes
+ * @ingroup ironside_se_ipc_dvfs
  * @{
  */
 
@@ -179,6 +238,8 @@ enum ironside_se_dvfs_oppoint {
  * Requests a change of the current DVFS oppoint to the specified value.
  * It will block until the change is applied.
  *
+ * Negative service codes are listed in @ref ironside_se_dvfs_errors.
+ *
  * @param dvfs_oppoint The new DVFS oppoint to set.
  *
  * @retval 0 on success.
@@ -189,7 +250,7 @@ enum ironside_se_dvfs_oppoint {
  * @retval -IRONSIDE_SE_DVFS_ERROR_NO_CHANGE_NEEDED if the requested DVFS oppoint is already set.
  * @retval -IRONSIDE_SE_DVFS_ERROR_TIMEOUT if the operation timed out, possibly due to a hardware
  * issue.
- * @returns Positive error status if reported by IronSide call (see error codes in @ref call.h).
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_dvfs_req_oppoint(enum ironside_se_dvfs_oppoint dvfs_oppoint);
 
@@ -210,8 +271,17 @@ static inline bool ironside_se_dvfs_is_oppoint_valid(enum ironside_se_dvfs_oppoi
 	return true;
 }
 
+/** @} */
+
 /**
- * @name Boot mode service error codes.
+ * @defgroup ironside_se_ipc_bootmode Boot mode
+ * @ingroup ironside_se_ipc
+ * @{
+ */
+
+/**
+ * @defgroup ironside_se_bootmode_errors Error codes
+ * @ingroup ironside_se_ipc_bootmode
  * @{
  */
 
@@ -226,7 +296,7 @@ static inline bool ironside_se_dvfs_is_oppoint_valid(enum ironside_se_dvfs_oppoi
  * @}
  */
 
-/* Maximum size of the message parameter. */
+/** Maximum size of the message parameter. */
 #define IRONSIDE_SE_BOOTMODE_REQ_MSG_MAX_SIZE (4 * sizeof(uint32_t))
 
 /**
@@ -242,6 +312,8 @@ static inline bool ironside_se_dvfs_is_oppoint_valid(enum ironside_se_dvfs_oppoi
  * @note The device will boot into the secondary firmware instead of primary firmware.
  * @note The request does not fail if the secondary firmware is not defined.
  *
+ * Negative service codes are listed in @ref ironside_se_bootmode_errors.
+ *
  * @param msg A message that can be placed in the cpu's boot report.
  * @param msg_size Size of the message in bytes.
  *
@@ -249,13 +321,22 @@ static inline bool ironside_se_dvfs_is_oppoint_valid(enum ironside_se_dvfs_oppoi
  * @retval -IRONSIDE_SE_BOOTMODE_ERROR_UNSUPPORTED_MODE if the secondary boot mode is unsupported.
  * @retval -IRONSIDE_SE_BOOTMODE_ERROR_BUSY if the reboot was blocked.
  * @retval -IRONSIDE_SE_BOOTMODE_ERROR_MESSAGE_TOO_LARGE if msg_size is greater than
- * IRONSIDE_SE_BOOTMODE_REQ_MSG_MAX_SIZE.
- * @returns Positive error status if reported by IronSide call (see error codes in @ref call.h).
+ * @ref IRONSIDE_SE_BOOTMODE_REQ_MSG_MAX_SIZE.
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_bootmode_secondary_reboot(const uint8_t *msg, size_t msg_size);
 
+/** @} */
+
 /**
- * @name Counter service error codes.
+ * @defgroup ironside_se_ipc_counter Counter
+ * @ingroup ironside_se_ipc
+ * @{
+ */
+
+/**
+ * @defgroup ironside_se_counter_errors Error codes
+ * @ingroup ironside_se_ipc_counter
  * @{
  */
 
@@ -300,6 +381,8 @@ enum ironside_se_counter {
  * @note Counters are automatically initialized to 0 during the first boot in LCS ROT.
  *       The monotonic constraint applies to all subsequent writes.
  *
+ * Negative service codes are listed in @ref ironside_se_counter_errors.
+ *
  * @param counter_id Counter identifier.
  * @param value New counter value.
  *
@@ -308,7 +391,7 @@ enum ironside_se_counter {
  * @retval -IRONSIDE_SE_COUNTER_ERROR_TOO_LOW if value is lower than current value.
  * @retval -IRONSIDE_SE_COUNTER_ERROR_LOCKED if counter is locked.
  * @retval -IRONSIDE_SE_COUNTER_ERROR_STORAGE_FAILURE if storage operation failed.
- * @returns Positive error status if reported by IronSide call (see error codes in @ref call.h).
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_counter_set(enum ironside_se_counter counter_id, uint32_t value);
 
@@ -320,6 +403,8 @@ int ironside_se_counter_set(enum ironside_se_counter counter_id, uint32_t value)
  * @note Counters are automatically initialized to 0 during the first boot in LCS ROT,
  *       so this function will always succeed for valid counter IDs.
  *
+ * Negative service codes are listed in @ref ironside_se_counter_errors.
+ *
  * @param counter_id Counter identifier.
  * @param value Pointer to store the counter value.
  *
@@ -327,7 +412,7 @@ int ironside_se_counter_set(enum ironside_se_counter counter_id, uint32_t value)
  * @retval -IRONSIDE_SE_COUNTER_ERROR_INVALID_ID if counter_id is invalid.
  * @retval -IRONSIDE_SE_COUNTER_ERROR_INVALID_PARAM if value is NULL.
  * @retval -IRONSIDE_SE_COUNTER_ERROR_STORAGE_FAILURE if storage operation failed.
- * @returns Positive error status if reported by IronSide call (see error codes in @ref call.h).
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_counter_get(enum ironside_se_counter counter_id, uint32_t *value);
 
@@ -340,16 +425,27 @@ int ironside_se_counter_get(enum ironside_se_counter counter_id, uint32_t *value
  * @note The intended use case is for a bootloader to lock a counter before transferring control
  *       to the next boot stage, preventing that image from modifying the counter value.
  *
+ * Negative service codes are listed in @ref ironside_se_counter_errors.
+ *
  * @param counter_id Counter identifier.
  *
  * @retval 0 on success.
  * @retval -IRONSIDE_SE_COUNTER_ERROR_INVALID_ID if counter_id is invalid.
- * @returns Positive error status if reported by IronSide call (see error codes in @ref call.h).
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_counter_lock(enum ironside_se_counter counter_id);
 
+/** @} */
+
 /**
- * @name Event enable service error codes.
+ * @defgroup ironside_se_ipc_events Hardware events
+ * @ingroup ironside_se_ipc
+ * @{
+ */
+
+/**
+ * @defgroup ironside_se_event_enable_errors Error codes
+ * @ingroup ironside_se_ipc_events
  * @{
  */
 
@@ -361,7 +457,8 @@ int ironside_se_counter_lock(enum ironside_se_counter counter_id);
  */
 
 /**
- * @name Event mask bit positions for per-instance control.
+ * @defgroup ironside_se_event_mask_pos Event mask bit positions for per-instance control
+ * @ingroup ironside_se_ipc_events
  *
  * The event mask uses 64 bits to allow per-instance enable/disable:
  * - Bits 0-12:  SPU instances (SPU110-SPU137)
@@ -372,84 +469,127 @@ int ironside_se_counter_lock(enum ironside_se_counter counter_id);
  * @{
  */
 
-/* SPU instance bit positions (bits 0-12) */
+/** Bit position for SPU instance 110 in the event mask. */
 #define IRONSIDE_SE_EVENT_SPU110_POS (0UL)
+/** Bit position for SPU instance 111 in the event mask. */
 #define IRONSIDE_SE_EVENT_SPU111_POS (1UL)
+/** Bit position for SPU instance 120 in the event mask. */
 #define IRONSIDE_SE_EVENT_SPU120_POS (2UL)
+/** Bit position for SPU instance 121 in the event mask. */
 #define IRONSIDE_SE_EVENT_SPU121_POS (3UL)
+/** Bit position for SPU instance 122 in the event mask. */
 #define IRONSIDE_SE_EVENT_SPU122_POS (4UL)
+/** Bit position for SPU instance 130 in the event mask. */
 #define IRONSIDE_SE_EVENT_SPU130_POS (5UL)
+/** Bit position for SPU instance 131 in the event mask. */
 #define IRONSIDE_SE_EVENT_SPU131_POS (6UL)
+/** Bit position for SPU instance 132 in the event mask. */
 #define IRONSIDE_SE_EVENT_SPU132_POS (7UL)
+/** Bit position for SPU instance 133 in the event mask. */
 #define IRONSIDE_SE_EVENT_SPU133_POS (8UL)
+/** Bit position for SPU instance 134 in the event mask. */
 #define IRONSIDE_SE_EVENT_SPU134_POS (9UL)
+/** Bit position for SPU instance 135 in the event mask. */
 #define IRONSIDE_SE_EVENT_SPU135_POS (10UL)
+/** Bit position for SPU instance 136 in the event mask. */
 #define IRONSIDE_SE_EVENT_SPU136_POS (11UL)
+/** Bit position for SPU instance 137 in the event mask. */
 #define IRONSIDE_SE_EVENT_SPU137_POS (12UL)
 
-/* MPC instance bit positions (bits 13-16) */
+/** Bit position for MPC instance 110 in the event mask. */
 #define IRONSIDE_SE_EVENT_MPC110_POS (13UL)
+/** Bit position for MPC instance 111 in the event mask. */
 #define IRONSIDE_SE_EVENT_MPC111_POS (14UL)
+/** Bit position for MPC instance 120 in the event mask. */
 #define IRONSIDE_SE_EVENT_MPC120_POS (15UL)
+/** Bit position for MPC instance 130 in the event mask. */
 #define IRONSIDE_SE_EVENT_MPC130_POS (16UL)
 
-/* MRAMC ECCERROR instance bit positions (bits 17-18) */
+/** Bit position for MRAMC instance 110 ECCERROR in the event mask. */
 #define IRONSIDE_SE_EVENT_MRAMC110_ECCERROR_POS (17UL)
+/** Bit position for MRAMC instance 111 ECCERROR in the event mask. */
 #define IRONSIDE_SE_EVENT_MRAMC111_ECCERROR_POS (18UL)
 
-/* MRAMC ECCERRORCORR instance bit positions (bits 19-20) */
+/** Bit position for MRAMC instance 110 ECCERRORCORR in the event mask. */
 #define IRONSIDE_SE_EVENT_MRAMC110_ECCERRORCORR_POS (19UL)
+/** Bit position for MRAMC instance 111 ECCERRORCORR in the event mask. */
 #define IRONSIDE_SE_EVENT_MRAMC111_ECCERRORCORR_POS (20UL)
 
-/* MRAMC ACCESSERR instance bit positions (bits 21-22) */
+/** Bit position for MRAMC instance 110 ACCESSERR in the event mask. */
 #define IRONSIDE_SE_EVENT_MRAMC110_ACCESSERR_POS (21UL)
+/** Bit position for MRAMC instance 111 ACCESSERR in the event mask. */
 #define IRONSIDE_SE_EVENT_MRAMC111_ACCESSERR_POS (22UL)
 
 /** @} */
 
 /**
- * @name Event mask values for per-instance control.
+ * @defgroup ironside_se_event_mask_values Event mask values for per-instance control
+ * @ingroup ironside_se_ipc_events
  * @{
  */
 
-/* SPU instance masks */
+/** Bit mask for SPU instance 110 event. */
 #define IRONSIDE_SE_EVENT_SPU110_MASK (1ULL << IRONSIDE_SE_EVENT_SPU110_POS)
+/** Bit mask for SPU instance 111 event. */
 #define IRONSIDE_SE_EVENT_SPU111_MASK (1ULL << IRONSIDE_SE_EVENT_SPU111_POS)
+/** Bit mask for SPU instance 120 event. */
 #define IRONSIDE_SE_EVENT_SPU120_MASK (1ULL << IRONSIDE_SE_EVENT_SPU120_POS)
+/** Bit mask for SPU instance 121 event. */
 #define IRONSIDE_SE_EVENT_SPU121_MASK (1ULL << IRONSIDE_SE_EVENT_SPU121_POS)
+/** Bit mask for SPU instance 122 event. */
 #define IRONSIDE_SE_EVENT_SPU122_MASK (1ULL << IRONSIDE_SE_EVENT_SPU122_POS)
+/** Bit mask for SPU instance 130 event. */
 #define IRONSIDE_SE_EVENT_SPU130_MASK (1ULL << IRONSIDE_SE_EVENT_SPU130_POS)
+/** Bit mask for SPU instance 131 event. */
 #define IRONSIDE_SE_EVENT_SPU131_MASK (1ULL << IRONSIDE_SE_EVENT_SPU131_POS)
+/** Bit mask for SPU instance 132 event. */
 #define IRONSIDE_SE_EVENT_SPU132_MASK (1ULL << IRONSIDE_SE_EVENT_SPU132_POS)
+/** Bit mask for SPU instance 133 event. */
 #define IRONSIDE_SE_EVENT_SPU133_MASK (1ULL << IRONSIDE_SE_EVENT_SPU133_POS)
+/** Bit mask for SPU instance 134 event. */
 #define IRONSIDE_SE_EVENT_SPU134_MASK (1ULL << IRONSIDE_SE_EVENT_SPU134_POS)
+/** Bit mask for SPU instance 135 event. */
 #define IRONSIDE_SE_EVENT_SPU135_MASK (1ULL << IRONSIDE_SE_EVENT_SPU135_POS)
+/** Bit mask for SPU instance 136 event. */
 #define IRONSIDE_SE_EVENT_SPU136_MASK (1ULL << IRONSIDE_SE_EVENT_SPU136_POS)
+/** Bit mask for SPU instance 137 event. */
 #define IRONSIDE_SE_EVENT_SPU137_MASK (1ULL << IRONSIDE_SE_EVENT_SPU137_POS)
 
-/* MPC instance masks */
+/** Bit mask for MPC instance 110 event. */
 #define IRONSIDE_SE_EVENT_MPC110_MASK (1ULL << IRONSIDE_SE_EVENT_MPC110_POS)
+/** Bit mask for MPC instance 111 event. */
 #define IRONSIDE_SE_EVENT_MPC111_MASK (1ULL << IRONSIDE_SE_EVENT_MPC111_POS)
+/** Bit mask for MPC instance 120 event. */
 #define IRONSIDE_SE_EVENT_MPC120_MASK (1ULL << IRONSIDE_SE_EVENT_MPC120_POS)
+/** Bit mask for MPC instance 130 event. */
 #define IRONSIDE_SE_EVENT_MPC130_MASK (1ULL << IRONSIDE_SE_EVENT_MPC130_POS)
 
-/* MRAMC ECCERROR instance masks */
+/** Bit mask for MRAMC instance 110 ECCERROR event. */
 #define IRONSIDE_SE_EVENT_MRAMC110_ECCERROR_MASK (1ULL << IRONSIDE_SE_EVENT_MRAMC110_ECCERROR_POS)
+/** Bit mask for MRAMC instance 111 ECCERROR event. */
 #define IRONSIDE_SE_EVENT_MRAMC111_ECCERROR_MASK (1ULL << IRONSIDE_SE_EVENT_MRAMC111_ECCERROR_POS)
 
-/* MRAMC ECCERRORCORR instance masks */
+/** Bit mask for MRAMC instance 110 ECCERRORCORR event. */
 #define IRONSIDE_SE_EVENT_MRAMC110_ECCERRORCORR_MASK                                               \
 	(1ULL << IRONSIDE_SE_EVENT_MRAMC110_ECCERRORCORR_POS)
+/** Bit mask for MRAMC instance 111 ECCERRORCORR event. */
 #define IRONSIDE_SE_EVENT_MRAMC111_ECCERRORCORR_MASK                                               \
 	(1ULL << IRONSIDE_SE_EVENT_MRAMC111_ECCERRORCORR_POS)
 
-/* MRAMC ACCESSERR instance masks */
+/** Bit mask for MRAMC instance 110 ACCESSERR event. */
 #define IRONSIDE_SE_EVENT_MRAMC110_ACCESSERR_MASK (1ULL << IRONSIDE_SE_EVENT_MRAMC110_ACCESSERR_POS)
+/** Bit mask for MRAMC instance 111 ACCESSERR event. */
 #define IRONSIDE_SE_EVENT_MRAMC111_ACCESSERR_MASK (1ULL << IRONSIDE_SE_EVENT_MRAMC111_ACCESSERR_POS)
 
 /** @} */
 
-/* Convenience masks for enabling/disabling all instances of a peripheral type */
+/**
+ * @defgroup ironside_se_event_masks Convenience masks for event reporting
+ * @ingroup ironside_se_ipc_events
+ * @{
+ */
+
+/** Bit mask for all SPU instance events. */
 #define IRONSIDE_SE_EVENT_SPU_ALL_MASK                                                             \
 	(IRONSIDE_SE_EVENT_SPU110_MASK | IRONSIDE_SE_EVENT_SPU111_MASK |                           \
 	 IRONSIDE_SE_EVENT_SPU120_MASK | IRONSIDE_SE_EVENT_SPU121_MASK |                           \
@@ -459,25 +599,32 @@ int ironside_se_counter_lock(enum ironside_se_counter counter_id);
 	 IRONSIDE_SE_EVENT_SPU135_MASK | IRONSIDE_SE_EVENT_SPU136_MASK |                           \
 	 IRONSIDE_SE_EVENT_SPU137_MASK)
 
+/** Bit mask for all MPC instance events. */
 #define IRONSIDE_SE_EVENT_MPC_ALL_MASK                                                             \
 	(IRONSIDE_SE_EVENT_MPC110_MASK | IRONSIDE_SE_EVENT_MPC111_MASK |                           \
 	 IRONSIDE_SE_EVENT_MPC120_MASK | IRONSIDE_SE_EVENT_MPC130_MASK)
 
+/** Bit mask for all MRAMC ECCERROR instance events. */
 #define IRONSIDE_SE_EVENT_MRAMC_ECCERROR_ALL_MASK                                                  \
 	(IRONSIDE_SE_EVENT_MRAMC110_ECCERROR_MASK | IRONSIDE_SE_EVENT_MRAMC111_ECCERROR_MASK)
 
+/** Bit mask for all MRAMC ECCERRORCORR instance events. */
 #define IRONSIDE_SE_EVENT_MRAMC_ECCERRORCORR_ALL_MASK                                              \
 	(IRONSIDE_SE_EVENT_MRAMC110_ECCERRORCORR_MASK |                                            \
 	 IRONSIDE_SE_EVENT_MRAMC111_ECCERRORCORR_MASK)
 
+/** Bit mask for all MRAMC ACCESSERR instance events. */
 #define IRONSIDE_SE_EVENT_MRAMC_ACCESSERR_ALL_MASK                                                 \
 	(IRONSIDE_SE_EVENT_MRAMC110_ACCESSERR_MASK | IRONSIDE_SE_EVENT_MRAMC111_ACCESSERR_MASK)
 
+/** Bit mask for all event report events. */
 #define IRONSIDE_SE_EVENT_ALL_MASK                                                                 \
 	(IRONSIDE_SE_EVENT_SPU_ALL_MASK | IRONSIDE_SE_EVENT_MPC_ALL_MASK |                         \
 	 IRONSIDE_SE_EVENT_MRAMC_ECCERROR_ALL_MASK |                                               \
 	 IRONSIDE_SE_EVENT_MRAMC_ECCERRORCORR_ALL_MASK |                                           \
 	 IRONSIDE_SE_EVENT_MRAMC_ACCESSERR_ALL_MASK)
+
+/** @} */
 
 /**
  * @brief Enable hardware events.
@@ -495,13 +642,15 @@ int ironside_se_counter_lock(enum ironside_se_counter counter_id);
  *       disabled. To avoid power consumption from repeatedly waking the Secure Domain, keep events
  *       disabled when not required.
  *
+ * Negative service codes are listed in @ref ironside_se_event_enable_errors.
+ *
  * @param event_mask Mask specifying which events to enable the IRQ and event reporting for.
  *                   Unsupported fields being set result in an error.
- *                   Use IRONSIDE_SE_EVENT_*_MASK defines for bit masking.
+ *                   Use @ref ironside_se_event_mask_values and @ref ironside_se_event_masks.
  *
  * @retval 0 on success.
- * @retval IRONSIDE_SE_EVENT_ENABLE_ERROR_INVALID_EVENT if invalid event is indicated.
- * @returns Positive error status if reported by IronSide call (see error codes in @ref call.h).
+ * @retval -IRONSIDE_SE_EVENT_ENABLE_ERROR_INVALID_EVENT if invalid event is indicated.
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_events_enable(uint64_t event_mask);
 
@@ -510,18 +659,29 @@ int ironside_se_events_enable(uint64_t event_mask);
  *
  * See @ref ironside_se_events_enable
  *
+ * Negative service codes are listed in @ref ironside_se_event_enable_errors.
+ *
  * @param event_mask Mask specifying which events to disable the IRQ and event reporting for.
  *                   Unsupported fields being set result in an error.
- *                   Use IRONSIDE_SE_EVENT_*_MASK defines for bit masking.
+ *                   Use @ref ironside_se_event_mask_values and @ref ironside_se_event_masks.
  *
  * @retval 0 on success.
- * @retval IRONSIDE_SE_EVENT_ENABLE_ERROR_INVALID_EVENT if invalid event is indicated.
- * @returns Positive error status if reported by IronSide call (see error codes in @ref call.h).
+ * @retval -IRONSIDE_SE_EVENT_ENABLE_ERROR_INVALID_EVENT if invalid event is indicated.
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_events_disable(uint64_t event_mask);
 
+/** @} */
+
 /**
- * @name Snapshot service error codes.
+ * @defgroup ironside_se_ipc_snapshot Snapshot
+ * @ingroup ironside_se_ipc
+ * @{
+ */
+
+/**
+ * @defgroup ironside_se_snapshot_ipc_errors Error codes
+ * @ingroup ironside_se_ipc_snapshot
  * @{
  */
 
@@ -559,6 +719,8 @@ enum ironside_se_snapshot_capture_mode {
  *
  * Capturing without incrementing the counter has no limit on the amount of possible captures.
  *
+ * Negative service codes are listed in @ref ironside_se_snapshot_ipc_errors.
+ *
  * @note The intended use case for capturing with incrementing the capture counter is for enforcing
  *       downgrade prevention after production while the device is the in the field.
  *
@@ -570,6 +732,7 @@ enum ironside_se_snapshot_capture_mode {
  * @retval -IRONSIDE_SE_SNAPSHOT_ERROR_UNEXPECTED_RETURN
  * @retval -IRONSIDE_SE_SNAPSHOT_ERROR_INVALID_MODE for an invalid mode.
  * @retval -IRONSIDE_SE_SNAPSHOT_ERROR_NOT_ENABLED if snapshot is not enabled.
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_snapshot_capture(enum ironside_se_snapshot_capture_mode mode);
 
@@ -583,15 +746,27 @@ int ironside_se_snapshot_capture(enum ironside_se_snapshot_capture_mode mode);
  * itself is performed by the secure domain ROM as part of the system boot following the reset.
  * The result of the recovery operation is found in the boot report.
  *
+ * Negative service codes are listed in @ref ironside_se_snapshot_ipc_errors.
+ *
  * @note On success, function does not return.
  *
  * @retval -IRONSIDE_SE_SNAPSHOT_ERROR_UNEXPECTED_RETURN
  * @retval -IRONSIDE_SE_SNAPSHOT_ERROR_NOT_ENABLED if snapshot is not enabled.
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_snapshot_recovery(void);
 
+/** @} */
+
 /**
- * @name Peripheral configuration service error codes.
+ * @defgroup ironside_se_ipc_periphconf PERIPHCONF
+ * @ingroup ironside_se_ipc
+ * @{
+ */
+
+/**
+ * @defgroup ironside_se_periphconf_errors Error codes
+ * @ingroup ironside_se_ipc_periphconf
  * @{
  */
 
@@ -616,8 +791,8 @@ int ironside_se_snapshot_recovery(void);
 
 /** Result from a PERIPHCONF API call. */
 struct ironside_se_periphconf_status {
-	/** Positive error status if reported by IronSide call,
-	 *  Negative IRONSIDE_SE_PERIPHCONF_ERROR_* if the PERIPHCONF API returned an error.
+	/** Negative error \c status from @ref ironside_se_periphconf_errors on PERIPHCONF error.
+	 *  Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
 	 *  Zero if successful.
 	 */
 	int16_t status;
@@ -627,8 +802,8 @@ struct ironside_se_periphconf_status {
 	uint16_t index;
 };
 
-/* Maximum number of registers that can be read by passing the data inline in the IPC buffer.
- * If more registers than this are written, the entries pointer is passed instead.
+/** Maximum number of registers that can be read by passing the data inline in the IPC buffer.
+ * If more registers than this are read, the entries pointer is passed instead.
  */
 #define IRONSIDE_SE_PERIPHCONF_INLINE_READ_MAX_COUNT (6)
 
@@ -643,23 +818,25 @@ struct ironside_se_periphconf_status {
  * @ref IRONSIDE_SE_PERIPHCONF_INLINE_READ_MAX_COUNT.
  *
  * The result status consists of an error code and an array index.
- * If the error code is set to -IRONSIDE_SE_PERIPHCONF_ERROR_REGISTER_NOT_PERMITTED,
+ * If \c status is -@ref IRONSIDE_SE_PERIPHCONF_ERROR_REGISTER_NOT_PERMITTED,
  * the index points to the array index that caused the error.
  * If the index > 0 in this situation, entries up to but not including the reported index
  * contain valid data.
- * For other error codes, the index is always set to 0.
+ * For any other negative \c status from @ref ironside_se_periphconf_errors, the index is always set
+ * to 0.
  *
  * @note The API currently does not support bounce buffer allocations for the output buffer, because
  * the alignment requirements of the entry structure should ensure that it is never needed.
  *
  * @param entries Pointer to a list of register addresses and output values.
  * @param count Number of entries to read.
- * @returns A status structure with error details (see @ref struct ironside_se_periphconf_status)
+ * @returns @ref ironside_se_periphconf_status. Positive \c status from
+ * @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 struct ironside_se_periphconf_status ironside_se_periphconf_read(struct periphconf_entry *entries,
 								 size_t count);
 
-/* Maximum number of registers that can be written by passing the data inline in the IPC buffer.
+/** Maximum number of registers that can be written by passing the data inline in the IPC buffer.
  * If more registers than this are written, the entries pointer is passed instead.
  */
 #define IRONSIDE_SE_PERIPHCONF_INLINE_WRITE_MAX_COUNT (3)
@@ -676,19 +853,22 @@ struct ironside_se_periphconf_status ironside_se_periphconf_read(struct periphco
  * @ref IRONSIDE_SE_PERIPHCONF_INLINE_WRITE_MAX_COUNT.
  *
  * The result status consists of an error code and an array index.
- * If the error code is set to one of
- * -IRONSIDE_SE_PERIPHCONF_ERROR_REGISTER_NOT_PERMITTED,
- * -IRONSIDE_SE_PERIPHCONF_ERROR_READBACK_MISMATCH,
- * -IRONSIDE_SE_PERIPHCONF_ERROR_VALUE_OLD_NOT_PERMITTED or
- * -IRONSIDE_SE_PERIPHCONF_ERROR_VALUE_NEW_NOT_PERMITTED,
+ * If \c status is
+ * -@ref IRONSIDE_SE_PERIPHCONF_ERROR_REGISTER_NOT_PERMITTED,
+ * -@ref IRONSIDE_SE_PERIPHCONF_ERROR_READBACK_MISMATCH,
+ * -@ref IRONSIDE_SE_PERIPHCONF_ERROR_VALUE_OLD_NOT_PERMITTED, or
+ * -@ref IRONSIDE_SE_PERIPHCONF_ERROR_VALUE_NEW_NOT_PERMITTED
+ * (@ref ironside_se_periphconf_errors),
  * the index points to the array index that caused the error.
  * If the index > 0 in this situation, entries up to but not including the reported index
  * were written successfully.
- * For other error codes, the index is always set to 0.
+ * For any other negative \c status from @ref ironside_se_periphconf_errors, the index is always set
+ * to 0.
  *
  * @param entries Pointer to entries to write.
  * @param count Number of entries to write.
- * @returns A status structure with error details (see @ref struct ironside_se_periphconf_status).
+ * @returns @ref ironside_se_periphconf_status. Positive \c status from
+ * @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 struct ironside_se_periphconf_status
 ironside_se_periphconf_write(const struct periphconf_entry *entries, size_t count);
@@ -713,13 +893,24 @@ ironside_se_periphconf_write(const struct periphconf_entry *entries, size_t coun
  *
  * @note A system reset is required to re-enter the initialization stage.
  *
+ * Negative service codes are listed in @ref ironside_se_periphconf_errors.
+ *
  * @retval 0 on success.
- * @returns Positive error status if reported by IronSide call (see error codes in @ref call.h).
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_periphconf_finish_init(void);
 
+/** @} */
+
 /**
- * @name MPCCONF configuration service error codes.
+ * @defgroup ironside_se_ipc_mpcconf MPCCONF
+ * @ingroup ironside_se_ipc
+ * @{
+ */
+
+/**
+ * @defgroup ironside_se_mpcconf_errors Error codes
+ * @ingroup ironside_se_ipc_mpcconf
  * @{
  */
 
@@ -740,8 +931,8 @@ int ironside_se_periphconf_finish_init(void);
 
 /** Result from an MPCCONF API call. */
 struct ironside_se_mpcconf_status {
-	/** Positive error status if reported by IronSide call,
-	 *  Negative IRONSIDE_SE_MPCCONF_ERROR_* if the MPCCONF API returned an error.
+	/** Negative error \c status from @ref ironside_se_mpcconf_errors on PERIPHCONF error.
+	 *  Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
 	 *  Zero if successful.
 	 */
 	int16_t status;
@@ -759,18 +950,20 @@ struct ironside_se_mpcconf_status {
  * other fields in place, based on the values read from the register set.
  *
  * The result status consists of an error code and an array index.
- * If the error code is set to -IRONSIDE_SE_MPCCONF_ERROR_REGISTER_NOT_PERMITTED,
+ * If \c status is -@ref IRONSIDE_SE_MPCCONF_ERROR_REGISTER_NOT_PERMITTED,
  * the index points to the array index that caused the error.
  * If the index > 0 in this situation, entries up to but not including the reported index
  * contain valid data.
- * For other error codes, the index is always set to 0.
+ * For any other negative \c status from @ref ironside_se_mpcconf_errors, the index is always set to
+ * 0.
  *
  * @note The API currently does not support bounce buffer allocations for the output buffer, because
  * the alignment requirements of the entry structure should ensure that it is never needed.
  *
  * @param entries Pointer to a list of MPC configuration entries.
  * @param count Number of entries to read.
- * @returns A status structure with error details (see @ref struct ironside_se_mpcconf_status)
+ * @returns @ref ironside_se_mpcconf_status. Positive \c status from
+ * @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 struct ironside_se_mpcconf_status ironside_se_mpcconf_read(struct mpcconf_entry *entries,
 							   size_t count);
@@ -783,21 +976,53 @@ struct ironside_se_mpcconf_status ironside_se_mpcconf_read(struct mpcconf_entry 
  * the processing does not terminate on an all-ones register pointer.
  *
  * The result status consists of an error code and an array index.
- * If the error code is set to one of
- * -IRONSIDE_SE_MPCCONF_ERROR_REGISTER_NOT_PERMITTED,
- * -IRONSIDE_SE_MPCCONF_ERROR_ADDRESSES_NOT_PERMITTED or
- * -IRONSIDE_SE_MPCCONF_ERROR_READBACK_MISMATCH,
+ * If \c status is one of
+ * -@ref IRONSIDE_SE_MPCCONF_ERROR_REGISTER_NOT_PERMITTED,
+ * -@ref IRONSIDE_SE_MPCCONF_ERROR_ADDRESSES_NOT_PERMITTED, or
+ * -@ref IRONSIDE_SE_MPCCONF_ERROR_READBACK_MISMATCH
+ * (members of @ref ironside_se_mpcconf_errors),
  * the index points to the array index that caused the error.
  * If the index > 0 in this situation, entries up to but not including the reported index
  * were written successfully.
- * For other error codes, the index is always set to 0.
+ * For any other negative \c status from @ref ironside_se_mpcconf_errors, the index is always set to
+ * 0.
  *
  * @param entries Pointer to entries to write.
  * @param count Number of entries to write.
- * @returns A status structure with error details (see @ref struct ironside_se_mpcconf_status).
+ * @returns @ref ironside_se_mpcconf_status. Positive \c status from
+ * @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 struct ironside_se_mpcconf_status ironside_se_mpcconf_write(const struct mpcconf_entry *entries,
 							    size_t count);
+
+/**
+ * @brief Access modes for @ref ironside_se_mpcconf_radioram_access.
+ */
+enum ironside_se_mpcconf_radioram_access {
+	/** Close radiocore RAM access, restoring default MPC configuration. */
+	IRONSIDE_SE_MPCCONF_RADIORAM_ACCESS_CLOSE = 0,
+	/** Open radiocore RAM for read/write access from all domains. */
+	IRONSIDE_SE_MPCCONF_RADIORAM_ACCESS_OPEN = 1,
+};
+
+/**
+ * @brief Open or close access to the radiocore RAM from all domains.
+ *
+ * When opened, configures a RADIOCORE MPC override to grant read/write access to
+ * the radiocore RAM from all domains. When closed, the override is disabled and
+ * default access restrictions apply.
+ *
+ * This call is only permitted while the mpcconf service is in the initialization
+ * stage (before @ref ironside_se_mpcconf_finish_init has been called).
+ *
+ * @param access @ref IRONSIDE_SE_MPCCONF_RADIORAM_ACCESS_OPEN or
+ *               @ref IRONSIDE_SE_MPCCONF_RADIORAM_ACCESS_CLOSE.
+ * @retval 0 on success.
+ * @retval -IRONSIDE_SE_MPCCONF_ERROR_REGISTER_NOT_PERMITTED if called after initialization.
+ * @retval -IRONSIDE_SE_MPCCONF_ERROR_READBACK_MISMATCH if the configuration could not be verified.
+ * @returns Positive \c status from @ref ironside_se_call_status_codes if reported by IronSide call.
+ */
+int ironside_se_mpcconf_radioram_access(enum ironside_se_mpcconf_radioram_access access);
 
 /**
  * @brief Finish MPC initialization, restricting @ref ironside_se_mpcconf_write.
@@ -816,10 +1041,16 @@ struct ironside_se_mpcconf_status ironside_se_mpcconf_write(const struct mpcconf
  *
  * @note A system reset is required to re-enter the initialization stage.
  *
+ * Negative service codes are listed in @ref ironside_se_mpcconf_errors.
+ *
  * @retval 0 on success.
- * @returns Positive error status if reported by IronSide call (see error codes in @ref call.h).
+ * @returns Positive status from @ref ironside_se_call_status_codes if reported by IronSide call.
  */
 int ironside_se_mpcconf_finish_init(void);
+
+/** @} */
+
+/** @} */
 
 #ifdef __cplusplus
 }

@@ -10,6 +10,10 @@
 extern "C" {
 #endif
 
+/** @addtogroup ironside_se_uicr
+ *  @{
+ */
+
 /**
  * @brief Enable UICR.LOCK to lock contents of UICR and NVR0 from further configuration.
  *
@@ -32,6 +36,8 @@ int uicr_deploy_lock_contents(void);
  * @retval -1 if the UICR configuration is locked.
  */
 int uicr_deploy_block_eraseall(void);
+
+/** @} */
 
 #ifdef __cplusplus
 }

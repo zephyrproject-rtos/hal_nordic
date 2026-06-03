@@ -12,8 +12,18 @@
 extern "C" {
 #endif
 
-/** @brief Entry in the MPCCONF table.
- *  @note Bitfields are described by the MPCCONF_ENTRY_CONFIG* macros below.
+/**
+ * @defgroup ironside_se_mpcconf MPC configuration
+ * @ingroup ironside_se
+ * @{
+ */
+
+/** MPCCONF entry describing the configuration for a MPC REGION or OVERRIDE.
+ *
+ * Used with either @ref UICR::MPCCONF / @ref UICR_SECONDARY::MPCCONF or the APIs in
+ * @ref ironside_se_ipc_mpcconf.
+ *
+ * Field values can be constructed using the MPCCONF_ENTRY_CONFIG* macros.
  */
 struct mpcconf_entry {
 	/** Packed value containing: LOCK, ENABLE, REGPTR */
@@ -70,50 +80,52 @@ struct mpcconf_entry {
 	(uint32_t)(((_masterport) << MPCCONF_ENTRY_CONFIG3_MASTERPORT_Pos) &                       \
 		   MPCCONF_ENTRY_CONFIG3_MASTERPORT_Msk)
 
-/** @ref mpcconf_entry config0 @Bit 0 contains LOCK */
+/** @ref mpcconf_entry config0 bit 0 contains LOCK */
 #define MPCCONF_ENTRY_CONFIG0_LOCK_Pos (0)
 #define MPCCONF_ENTRY_CONFIG0_LOCK_Msk (0x1UL << MPCCONF_ENTRY_CONFIG0_LOCK_Pos)
 
-/** @ref mpcconf_entry config0 @Bit 1 contains ENABLE */
+/** @ref mpcconf_entry config0 bit 1 contains ENABLE */
 #define MPCCONF_ENTRY_CONFIG0_ENABLE_Pos (1)
 #define MPCCONF_ENTRY_CONFIG0_ENABLE_Msk (0x1UL << MPCCONF_ENTRY_CONFIG0_ENABLE_Pos)
 
-/** @ref mpcconf_entry config0 @Bits 4..31 contain REGPTR */
+/** @ref mpcconf_entry config0 bits 4..31 contain REGPTR */
 #define MPCCONF_ENTRY_CONFIG0_REGPTR_Pos (4)
 #define MPCCONF_ENTRY_CONFIG0_REGPTR_Msk (0xFFFFFFFUL << MPCCONF_ENTRY_CONFIG0_REGPTR_Pos)
 
-/** @ref mpcconf_entry config1 @Bit 0 contains READ */
+/** @ref mpcconf_entry config1 bit 0 contains READ */
 #define MPCCONF_ENTRY_CONFIG1_READ_Pos (0)
 #define MPCCONF_ENTRY_CONFIG1_READ_Msk (0x1UL << MPCCONF_ENTRY_CONFIG1_READ_Pos)
 
-/** @ref mpcconf_entry config1 @Bit 1 contains WRITE */
+/** @ref mpcconf_entry config1 bit 1 contains WRITE */
 #define MPCCONF_ENTRY_CONFIG1_WRITE_Pos (1)
 #define MPCCONF_ENTRY_CONFIG1_WRITE_Msk (0x1UL << MPCCONF_ENTRY_CONFIG1_WRITE_Pos)
 
-/** @ref mpcconf_entry config1 @Bit 2 contains EXECUTE */
+/** @ref mpcconf_entry config1 bit 2 contains EXECUTE */
 #define MPCCONF_ENTRY_CONFIG1_EXECUTE_Pos (2)
 #define MPCCONF_ENTRY_CONFIG1_EXECUTE_Msk (0x1UL << MPCCONF_ENTRY_CONFIG1_EXECUTE_Pos)
 
-/** @ref mpcconf_entry config1 @Bit 3 contains SECATTR */
+/** @ref mpcconf_entry config1 bit 3 contains SECATTR */
 #define MPCCONF_ENTRY_CONFIG1_SECATTR_Pos (3)
 #define MPCCONF_ENTRY_CONFIG1_SECATTR_Msk (0x1UL << MPCCONF_ENTRY_CONFIG1_SECATTR_Pos)
 
-/** @ref mpcconf_entry config1 @Bits 5..31 contain STARTADDR */
+/** @ref mpcconf_entry config1 bits 5..31 contain STARTADDR */
 #define MPCCONF_ENTRY_CONFIG1_STARTADDR_Pos (5)
 #define MPCCONF_ENTRY_CONFIG1_STARTADDR_Msk (0x7FFFFFFUL << MPCCONF_ENTRY_CONFIG1_STARTADDR_Pos)
 
-/** @ref mpcconf_entry config2 @Bits 0..3 contain OWNERID */
+/** @ref mpcconf_entry config2 bits 0..3 contain OWNERID */
 #define MPCCONF_ENTRY_CONFIG2_OWNERID_Pos (0)
 #define MPCCONF_ENTRY_CONFIG2_OWNERID_Msk (0xFUL << MPCCONF_ENTRY_CONFIG2_OWNERID_Pos)
 
-/** @ref mpcconf_entry config2 @Bits 5..31 contain ENDADDR_OR_MASK */
+/** @ref mpcconf_entry config2 bits 5..31 contain ENDADDR_OR_MASK */
 #define MPCCONF_ENTRY_CONFIG2_ENDADDR_OR_MASK_Pos (5)
 #define MPCCONF_ENTRY_CONFIG2_ENDADDR_OR_MASK_Msk                                                  \
 	(0x7FFFFFFUL << MPCCONF_ENTRY_CONFIG2_ENDADDR_OR_MASK_Pos)
 
-/** @ref mpcconf_entry config3 @Bits 0..31 contain MASTERPORT */
+/** @ref mpcconf_entry config3 bits 0..31 contain MASTERPORT */
 #define MPCCONF_ENTRY_CONFIG3_MASTERPORT_Pos (0)
 #define MPCCONF_ENTRY_CONFIG3_MASTERPORT_Msk (0xFFFFFFFFUL << MPCCONF_ENTRY_CONFIG3_MASTERPORT_Pos)
+
+/** @} */
 
 #ifdef __cplusplus
 }

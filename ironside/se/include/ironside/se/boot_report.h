@@ -20,6 +20,16 @@
 extern "C" {
 #endif
 
+/**
+ * @defgroup ironside_se_boot_report Boot report
+ * @ingroup ironside_se
+ * @{
+ */
+
+/** @name Boot report access
+ * @{
+ */
+
 #if defined(IRONSIDE_SE_BOOT_REPORT_ADDRESS)
 /** Boot report for the current processor. */
 #define IRONSIDE_SE_BOOT_REPORT ((struct ironside_se_boot_report *)IRONSIDE_SE_BOOT_REPORT_ADDRESS)
@@ -27,6 +37,13 @@ extern "C" {
 
 /** Constant used to check if an Nordic IronSide SE boot report has been written. */
 #define IRONSIDE_SE_BOOT_REPORT_MAGIC (0x4D69546FUL)
+
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_status UICR status codes
+ * @{
+ */
 
 /** UICR had no errors. */
 #define IRONSIDE_SE_UICR_SUCCESS          0
@@ -40,6 +57,14 @@ extern "C" {
 #define IRONSIDE_SE_UICR_ERROR_CONFIG     4
 /** Unsupported UICR format version. */
 #define IRONSIDE_SE_UICR_ERROR_FORMAT     5
+
+/** @} */
+
+/** @name UICR register IDs
+ * Values for @ref ironside_se_boot_report_init_status::uicr_regid when UICR status
+ * indicates content or config error.
+ * @{
+ */
 
 /** Error found in UICR.PROTECTEDMEM. */
 #define IRONSIDE_SE_UICR_REGID_PROTECTEDMEM           offsetof(struct UICR, PROTECTEDMEM)
@@ -60,6 +85,15 @@ extern "C" {
 /** Error found in UICR.SNAPSHOT_REGIONS. */
 #define IRONSIDE_SE_UICR_REGID_SNAPSHOT_REGIONS       offsetof(struct UICR, SNAPSHOT_REGIONS)
 
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_securestorage_errors UICR SECURESTORAGE error codes
+ * Values for the status field of the securestorage member of
+ * @ref ironside_se_boot_report_init_status::uicr_detail.
+ * @{
+ */
+
 /** Failed to mount a CRYPTO secure storage partition in MRAM. */
 #define IRONSIDE_SE_UICR_SECURESTORAGE_ERROR_MOUNT_CRYPTO_FAILED 1
 /** Failed to mount an ITS secure storage partition in MRAM. */
@@ -67,12 +101,30 @@ extern "C" {
 /** The start address and total size of all ITS partitions are not aligned to 4 KB. */
 #define IRONSIDE_SE_UICR_SECURESTORAGE_ERROR_MISALIGNED          3
 
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_periphconf_errors UICR PERIPHCONF error codes
+ * Values for the status field of the periphconf member of
+ * @ref ironside_se_boot_report_init_status::uicr_detail.
+ * @{
+ */
+
 /** There was an unexpected error processing UICR.PERIPHCONF. */
 #define IRONSIDE_SE_UICR_PERIPHCONF_ERROR_UNEXPECTED        1
 /** The address contained in a UICR.PERIPHCONF array entry is not permitted. */
 #define IRONSIDE_SE_UICR_PERIPHCONF_ERROR_NOT_PERMITTED     2
 /** The readback of the value for a UICR.PERIPHCONF array entry did not match. */
 #define IRONSIDE_SE_UICR_PERIPHCONF_ERROR_READBACK_MISMATCH 3
+
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_mpcconf_errors UICR MPCCONF error codes
+ * Values for the status field of the mpcconf member of
+ * @ref ironside_se_boot_report_init_status::uicr_detail.
+ * @{
+ */
 
 /** There was an unexpected error processing UICR.MPCCONF. */
 #define IRONSIDE_SE_UICR_MPCCONF_ERROR_UNEXPECTED              1
@@ -83,6 +135,15 @@ extern "C" {
 /** The readback of the value for a UICR.MPCCONF array entry did not match. */
 #define IRONSIDE_SE_UICR_MPCCONF_ERROR_READBACK_MISMATCH       4
 
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_snapshot_regions_errors UICR SNAPSHOT_REGIONS error codes
+ * Values for the status field of the snapshot_regions member of
+ * @ref ironside_se_boot_report_init_status::uicr_detail.
+ * @{
+ */
+
 /** There was an unexpected error processing UICR.SNAPSHOT_REGIONS. */
 #define IRONSIDE_SE_UICR_SNAPSHOT_REGIONS_ERROR_UNEXPECTED    1
 /** The address contained in a UICR.SNAPSHOT_REGIONS array entry is not permitted. */
@@ -90,8 +151,21 @@ extern "C" {
 /** The UICR.SNAPSHOT_REGIONS array entry values are invalid. */
 #define IRONSIDE_SE_UICR_SNAPSHOT_REGIONS_ERROR_MALFORMED     3
 
+/** @} */
+
+/** @name Boot mode flags
+ * @{
+ */
+
 /** Booted in secondary mode. */
 #define IRONSIDE_SE_BOOT_MODE_FLAGS_SECONDARY_MASK 0x1
+
+/** @} */
+
+/** @name Boot reason
+ * Values for @ref ironside_se_boot_report_init_context::boot_reason.
+ * @{
+ */
 
 /** Booted normally by IronSide SE.*/
 #define IRONSIDE_SE_BOOT_REASON_DEFAULT                 0
@@ -106,10 +180,26 @@ extern "C" {
 /** Booted in secondary mode via the CTRL-AP. */
 #define IRONSIDE_SE_BOOT_REASON_CTRLAP_SECONDARYMODE    5
 
+/** @} */
+
+/** @name Secondary RESETREAS domain indices
+ * Indices into @ref ironside_se_boot_report_init_context::trigger_resetreas when
+ * boot reason is @ref IRONSIDE_SE_BOOT_REASON_TRIGGER_RESETREAS.
+ * @{
+ */
+
 /** Index for RESETREAS.DOMAIN[NRF_DOMAIN_APPLICATION]. */
 #define IRONSIDE_SE_SECONDARY_RESETREAS_APPLICATION 0
 /** Index for RESETREAS.DOMAIN[NRF_DOMAIN_RADIOCORE]. */
 #define IRONSIDE_SE_SECONDARY_RESETREAS_RADIOCORE   1
+
+/** @} */
+
+/**
+ * @defgroup ironside_se_boot_report_snapshot_status Snapshot status codes
+ * Values for @ref ironside_se_boot_report_snapshot::status.
+ * @{
+ */
 
 /** No snapshot operation occurred. */
 #define IRONSIDE_SE_SNAPSHOT_STATUS_NONE                0
@@ -124,6 +214,12 @@ extern "C" {
 /** MRAM corruption was detected outside of a snapshot region. */
 #define IRONSIDE_SE_SNAPSHOT_STATUS_CORRUPTION_DETECTED 5
 
+/** @} */
+
+/** @name Boot report buffer sizes
+ * @{
+ */
+
 /** Length of the local domain context buffer in bytes. */
 #define IRONSIDE_SE_BOOT_REPORT_LOCAL_DOMAIN_CONTEXT_SIZE (16UL)
 /** Length of the random data buffer in bytes. */
@@ -131,48 +227,59 @@ extern "C" {
 /** Length of the UUID buffer in bytes. */
 #define IRONSIDE_SE_BOOT_REPORT_UUID_SIZE                 (16UL)
 
+/** @} */
+
 /** @brief Initialization/boot status description contained in the boot report. */
 struct ironside_se_boot_report_init_status {
 	/** Reserved for Future Use. */
 	uint8_t rfu1[3];
-	/** Boot error for the current boot (same as reported in BOOTSTATUS)*/
+	/** Boot error for the current boot (BOOTSTATUS; @ref ironside_se_ctrlap_boot_errors). */
 	uint8_t boot_error;
-	/** Overall UICR status. */
+	/** Overall UICR status (@ref ironside_se_uicr_status). */
 	uint8_t uicr_status;
 	/** Reserved for Future Use. */
 	uint8_t rfu2;
 	/** ID of the register that caused the error. Only relevant for
-	 *  IRONSIDE_SE_UICR_ERROR_CONTENT and IRONSIDE_SE_UICR_ERROR_CONFIG.
+	 *  @ref IRONSIDE_SE_UICR_ERROR_CONTENT and @ref IRONSIDE_SE_UICR_ERROR_CONFIG.
 	 */
 	uint16_t uicr_regid;
-	/** Additional description for IRONSIDE_SE_UICR_ERROR_CONFIG. */
+	/** Additional description for @ref IRONSIDE_SE_UICR_ERROR_CONFIG. */
 	union {
 		/** UICR.SECURESTORAGE error description. */
 		struct {
-			/** Reason that UICR.SECURESTORAGE configuration failed. */
+			/** Reason that UICR.SECURESTORAGE configuration failed
+			 *  (@ref ironside_se_uicr_securestorage_errors).
+			 */
 			uint16_t status;
 			/** Owner ID of the failing secure storage partition. Only relevant for
-			 *  IRONSIDE_SE_UICR_SECURESTORAGE_ERROR_MOUNT_CRYPTO_FAILED and
-			 *  IRONSIDE_SE_UICR_SECURESTORAGE_ERROR_MOUNT_ITS_FAILED.
+			 *  @ref IRONSIDE_SE_UICR_SECURESTORAGE_ERROR_MOUNT_CRYPTO_FAILED and
+			 *  @ref IRONSIDE_SE_UICR_SECURESTORAGE_ERROR_MOUNT_ITS_FAILED.
 			 */
 			uint16_t owner_id;
 		} securestorage;
 		/** UICR.PERIPHCONF error description. */
 		struct {
-			/** Reason that UICR.PERIPHCONF configuration failed. */
+			/** Reason that UICR.PERIPHCONF configuration failed
+			 *  (@ref ironside_se_uicr_periphconf_errors).
+			 */
 			uint16_t status;
 			/** Index of the failing entry in the UICR.PERIPHCONF array. */
 			uint16_t index;
 		} periphconf;
 		/** UICR.MPCCONF error description. */
 		struct {
-			/** Reason that UICR.MPCCONF configuration failed. */
+			/** Reason that UICR.MPCCONF configuration failed
+			 *  (@ref ironside_se_uicr_mpcconf_errors).
+			 */
 			uint16_t status;
 			/** Index of the failing entry in the UICR.MPCCONF array. */
 			uint16_t index;
 		} mpcconf;
+		/** UICR.SNAPSHOT_REGIONS error description. */
 		struct {
-			/** Reason that UICR.SNAPSHOT_REGIONS configuration failed. */
+			/** Reason that UICR.SNAPSHOT_REGIONS configuration failed
+			 *  (@ref ironside_se_uicr_snapshot_regions_errors).
+			 */
 			uint16_t status;
 			/** Index of the failing entry in the UICR.SNAPSHOT_REGIONS array. */
 			uint16_t index;
@@ -191,20 +298,20 @@ struct ironside_se_boot_report_init_context {
 		/** Data passed from booting local domain to local domain being booted.
 		 *
 		 * Valid if the boot reason is one of the following:
-		 * - IRONSIDE_SE_BOOT_REASON_CPUCONF_CALL
-		 * - IRONSIDE_SE_BOOT_REASON_BOOTMODE_SECONDARY_CALL
+		 * - @ref IRONSIDE_SE_BOOT_REASON_CPUCONF_CALL
+		 * - @ref IRONSIDE_SE_BOOT_REASON_BOOTMODE_SECONDARY_CALL
 		 */
 		uint8_t local_domain_context[IRONSIDE_SE_BOOT_REPORT_LOCAL_DOMAIN_CONTEXT_SIZE];
 
-		/** Initialiation error that triggered the boot.
+		/** Initialization error that triggered the boot.
 		 *
-		 * Valid if the boot reason is IRONSIDE_SE_BOOT_REASON_BOOTERROR.
+		 * Valid if the boot reason is @ref IRONSIDE_SE_BOOT_REASON_BOOTERROR.
 		 */
 		struct ironside_se_boot_report_init_status trigger_init_status;
 
 		/** RESETREAS.DOMAIN that triggered the boot.
 		 *
-		 * Valid if the boot reason is IRONSIDE_SE_BOOT_REASON_TRIGGER_RESETREAS.
+		 * Valid if the boot reason is @ref IRONSIDE_SE_BOOT_REASON_TRIGGER_RESETREAS.
 		 */
 		uint32_t trigger_resetreas[4];
 	};
@@ -221,12 +328,11 @@ struct ironside_se_boot_report_snapshot {
 	 *  0 = disabled, non-zero = enabled.
 	 */
 	uint8_t enabled;
-	/** Snapshot operation status.
-	 *  One of IRONSIDE_SE_SNAPSHOT_STATUS_* values.
-	 */
+	/** Snapshot operation status (@ref ironside_se_boot_report_snapshot_status). */
 	uint8_t status;
 	/** Snapshot operation failure information.
-	 *  Only valid when status is IRONSIDE_SE_SNAPSHOT_STATUS_*_FAILED.
+	 *  Only valid when status is @ref IRONSIDE_SE_SNAPSHOT_STATUS_CAPTURE_FAILED or
+	 *  @ref IRONSIDE_SE_SNAPSHOT_STATUS_RECOVERY_FAILED.
 	 *  Contains the lowest 6 bits from BOOTSTATUS indicating where capture failed:
 	 *  - 0x3E: Operation failed during manifest processing
 	 *  - 0x3F: Operation failed during initialization
@@ -238,7 +344,7 @@ struct ironside_se_boot_report_snapshot {
 	 */
 	uint8_t capture_counter;
 	/** MRAM address where corruption was detected.
-	 *  Only valid when status is IRONSIDE_SE_SNAPSHOT_STATUS_CORRUPTION_DETECTED.
+	 *  Only valid when status is @ref IRONSIDE_SE_SNAPSHOT_STATUS_CORRUPTION_DETECTED.
 	 *  Set to 0 otherwise.
 	 */
 	uint32_t corrupted_address;
@@ -279,6 +385,8 @@ struct ironside_se_boot_report {
 	/** Reserved for Future Use */
 	uint32_t rfu2[58];
 };
+
+/** @} */
 
 #ifdef __cplusplus
 }

@@ -10,16 +10,29 @@
 extern "C" {
 #endif
 
-/* Boot command opcodes used in the BOOTMODE.OPCODE field. */
+/**
+ * @defgroup ironside_se_ctrlap CTRL-AP interface
+ * @ingroup ironside_se
+ * @{
+ */
 
-/* Command "DEBUGWAIT" - start the application CPU with CPUCONF.CPUWAIT = 1. */
+/**
+ * @defgroup ironside_se_ctrlap_boot_opcodes CTRL-AP boot command opcodes
+ * Values for the BOOTMODE.OPCODE field.
+ * @{
+ */
+
+/** Command "DEBUGWAIT" - start the application CPU with CPUCONF.CPUWAIT = 1. */
 #define IRONSIDE_SE_BOOTMODE_OPCODE_DEBUGWAIT 0x2
+/** Command "ERASEALL" - erase all except SDFW and SCFW. */
+#define IRONSIDE_SE_BOOTMODE_OPCODE_ERASEALL  0x1
 
-/* Command "ERASEALL" - eraseall except SDFW and SCFW */
-#define IRONSIDE_SE_BOOTMODE_OPCODE_ERASEALL 0x1
+/** @} */
 
-/* Boot command error codes used in the BOOTSTATUS.CMDERROR field.
- * Each command defines what the numbers in the available range signify.
+/**
+ * @defgroup ironside_se_ctrlap_cmd_errors Boot command error codes
+ * Values for the BOOTSTATUS.CMDERROR field. Each command defines what the numbers signify.
+ * @{
  */
 
 /** The command executed successfully (shared by all commands). */
@@ -33,7 +46,13 @@ extern "C" {
 /** Value reserved for conditions that should never happen (shared by all commands). */
 #define IRONSIDE_SE_CMDERROR_UNEXPECTED 0x7
 
-/* Boot error codes used in the BOOTSTATUS.BOOTERROR field. */
+/** @} */
+
+/**
+ * @defgroup ironside_se_ctrlap_boot_errors Boot error codes
+ * Values for the BOOTSTATUS.BOOTERROR field.
+ * @{
+ */
 
 /** The boot had no errors. */
 #define IRONSIDE_SE_BOOT_ERROR_SUCCESS                                      0x0
@@ -71,8 +90,14 @@ extern "C" {
 #define IRONSIDE_SE_BOOT_ERROR_COUNTER_SERVICE_INIT_FAILED                  0x10
 /** Failed to initialize snapshot */
 #define IRONSIDE_SE_BOOT_ERROR_SNAPSHOT_REGIONS_INIT_FAILED                 0x11
+/** Integrity check of Micr failed. */
+#define IRONSIDE_SE_BOOT_ERROR_MICR_INTEGRITY_FAILED                        0x12
 /** Value reserved for conditions that should never happen. */
 #define IRONSIDE_SE_BOOT_ERROR_UNEXPECTED                                   0xFF
+
+/** @} */
+
+/** @} */
 
 #ifdef __cplusplus
 }

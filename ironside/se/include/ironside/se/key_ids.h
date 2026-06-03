@@ -6,6 +6,8 @@
 #ifndef IRONSIDE_SE_KEY_IDS_H_
 #define IRONSIDE_SE_KEY_IDS_H_
 
+/** @addtogroup ironside_se */
+
 /* IronSide key IDs with implementation-defined properties */
 #define IRONSIDE_KEY_ID_REVOCABLE_MIN (0x40002000UL)
 #define IRONSIDE_KEY_ID_REVOCABLE_MAX (0x4FFFFFFFUL)

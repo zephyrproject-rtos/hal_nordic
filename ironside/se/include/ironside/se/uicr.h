@@ -14,75 +14,120 @@
 extern "C" {
 #endif
 
+/**
+ * @defgroup ironside_se_uicr UICR
+ * @ingroup ironside_se
+ * @{
+ */
+
 /** UICR structure defined by IronSide SE. */
 #define IRONSIDE_SE_UICR ((struct UICR *)NRF_APPLICATION_UICR_NS_BASE)
 
-/* UICR_VERSION: Version of the UICR format */
+/**
+ * @defgroup ironside_se_uicr_version UICR format versions
+ * @{
+ */
 
-/* List of supported versions */
-/* UICR version 2.0 */
+/** UICR format version 2.0.
+ *  @since Supported from IronSide SE v23.0.2+17 (@ref IRONSIDE_SE_V23_0_2_17)
+ */
 #define UICR_VERSION_2_0 0x00020000UL
-/* UICR version 2.1 */
+/** UICR format version 2.1.
+ *  @since Supported from IronSide SE v23.3.0+26 (@ref IRONSIDE_SE_V23_3_0_26)
+ */
 #define UICR_VERSION_2_1 0x00020001UL
-/* UICR version 2.2 */
+/** UICR format version 2.2.
+ *  @since Supported from IronSide SE v23.4.0+27 (@ref IRONSIDE_SE_V23_4_0_27)
+ */
 #define UICR_VERSION_2_2 0x00020002UL
-/* UICR version 2.3 */
+/** UICR version 2.3
+ *  @since Supported from IronSide SE v23.5.0+28 (@ref IRONSIDE_SE_V23_5_0_28)
+ */
 #define UICR_VERSION_2_3 0x00020003UL
-/* Maximum UICR version supported by this header. */
+/** Maximum UICR version supported by this header. */
 #define UICR_VERSION_MAX UICR_VERSION_2_3
 
-/* Common enum values */
-/* Default erased value for all UICR fields */
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_common Common values
+ * @{
+ */
+
+/** Default erased value for all UICR fields. */
 #define UICR_MAGIC_ERASE_VALUE (0xBD2328A8UL)
-/* Common disabled value */
+/** Common disabled value. */
 #define UICR_DISABLED          UICR_MAGIC_ERASE_VALUE
-/* Common enabled value.
- * Note that any value other than UICR_DISABLED is interpreted as UICR_ENABLED.
- */
+/** Common enabled value. Any value other than UICR_DISABLED is interpreted as enabled. */
 #define UICR_ENABLED           (0xFFFFFFFFUL)
-/* Common unprotected value */
+/** Common unprotected value. */
 #define UICR_UNPROTECTED       UICR_MAGIC_ERASE_VALUE
-/* Common protected value
- * Note that any value other than UICR_UNPROTECTED is interpreted as UICR_PROTECTED.
- */
+/** Common protected value. Any value other than UICR_UNPROTECTED is interpreted as protected. */
 #define UICR_PROTECTED         UICR_ENABLED
 
-/* Common values for enumeration choices. */
+/** First enumeration choice (typically "option 0" or disabled/default). */
 #define UICR_ENUM_CHOICE_0 UICR_MAGIC_ERASE_VALUE
+/** Second enumeration choice (typically "option 1" or enabled). */
 #define UICR_ENUM_CHOICE_1 (0x1730C77FUL)
+
+/** @} */
 
 /**
  * @brief Access port protection.
  */
 struct UICR_APPROTECT {
-	/* APPLICATION access port protection */
+	/** APPLICATION access port protection (see @ref ironside_se_uicr_approtect_application). */
 	volatile uint32_t APPLICATION;
-	/* RADIOCORE access port protection */
+	/** RADIOCORE access port protection (see @ref ironside_se_uicr_approtect_radiocore). */
 	volatile uint32_t RADIOCORE;
 	volatile const uint32_t RESERVED;
-	/* CoreSight access port protection */
+	/** CoreSight access port protection (see @ref ironside_se_uicr_approtect_coresight). */
 	volatile uint32_t CORESIGHT;
 };
 
-/* APPROTECT APPLICATION enum values */
+/**
+ * @defgroup ironside_se_uicr_approtect_application UICR_APPROTECT APPLICATION values
+ * @{
+ */
+
+/** APPLICATION access port is not protected. */
 #define UICR_APPROTECT_APPLICATION_UNPROTECTED UICR_MAGIC_ERASE_VALUE
+/** APPLICATION access port is protected. */
 #define UICR_APPROTECT_APPLICATION_PROTECTED   UICR_PROTECTED
 
-/* APPROTECT RADIOCORE enum values */
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_approtect_radiocore UICR_APPROTECT RADIOCORE values
+ * @{
+ */
+
+/** RADIOCORE access port is not protected. */
 #define UICR_APPROTECT_RADIOCORE_UNPROTECTED UICR_MAGIC_ERASE_VALUE
+/** RADIOCORE access port is protected. */
 #define UICR_APPROTECT_RADIOCORE_PROTECTED   UICR_PROTECTED
 
-/* APPROTECT CORESIGHT enum values */
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_approtect_coresight UICR_APPROTECT CORESIGHT values
+ * @{
+ */
+
+/** CoreSight access port is not protected. */
 #define UICR_APPROTECT_CORESIGHT_UNPROTECTED UICR_MAGIC_ERASE_VALUE
+/** CoreSight access port is protected. */
 #define UICR_APPROTECT_CORESIGHT_PROTECTED   UICR_PROTECTED
+
+/** @} */
 
 /**
  * @brief Protected Memory region configuration
  */
 struct UICR_PROTECTEDMEM {
-	/* Enable the Protected Memory region */
+	/** Enable the Protected Memory region (see @ref ironside_se_uicr_common). */
 	volatile uint32_t ENABLE;
-	/* Protected Memory region size in 4 kiB blocks. */
+	/** Protected Memory region size in 4 kiB blocks. */
 	volatile uint32_t SIZE4KB;
 };
 
@@ -90,33 +135,45 @@ struct UICR_PROTECTEDMEM {
  * @brief Start a local watchdog timer ahead of the CPU boot.
  */
 struct UICR_WDTSTART {
-	/* Enable watchdog timer start. */
+	/** Enable watchdog timer start (see @ref ironside_se_uicr_common). */
 	volatile uint32_t ENABLE;
-	/* Watchdog timer instance. */
+	/** Watchdog timer instance (see @ref ironside_se_uicr_wdtstart_instance). */
 	volatile uint32_t INSTANCE;
-	/* Initial CRV (Counter Reload Value) register value. */
+	/** Initial value of CRV (Counter Reload Value) (see @ref ironside_se_uicr_wdtstart_crv). */
 	volatile uint32_t CRV;
 };
 
-/* WDTSTART enum values */
-/* Start WDT0 in the domain of the processor being booted. */
+/**
+ * @defgroup ironside_se_uicr_wdtstart_instance UICR_WDTSTART INSTANCE values
+ * @{
+ */
+
+/** Start WDT0 in the domain of the processor being booted. */
 #define UICR_WDTSTART_INSTANCE_WDT0 UICR_ENUM_CHOICE_0
-/* Start WDT1 in the domain of the processor being booted. */
+/** Start WDT1 in the domain of the processor being booted. */
 #define UICR_WDTSTART_INSTANCE_WDT1 UICR_ENUM_CHOICE_1
 
-/* WDTSTART CRV validation */
-/* Minimum CRV value. */
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_wdtstart_crv UICR_WDTSTART CRV limits
+ * @{
+ */
+
+/** Minimum CRV value. */
 #define UICR_WDTSTART_CRV_CRV_MIN (0xFUL)
-/* Maximum CRV value. */
+/** Maximum CRV value. */
 #define UICR_WDTSTART_CRV_CRV_MAX (0xFFFFFFFFUL)
+
+/** @} */
 
 /**
  * @brief Secure Storage partition sizes
  */
 struct UICR_SECURESTORAGE_SIZES {
-	/* Size of the APPLICATION partition in 1 kiB blocks */
+	/** Size of the APPLICATION partition in 1 kiB blocks. */
 	volatile uint32_t APPLICATIONSIZE1KB;
-	/* Size of the RADIOCORE partition in 1 kiB blocks */
+	/** Size of the RADIOCORE partition in 1 kiB blocks. */
 	volatile uint32_t RADIOCORESIZE1KB;
 };
 
@@ -124,13 +181,13 @@ struct UICR_SECURESTORAGE_SIZES {
  * @brief Secure Storage configuration
  */
 struct UICR_SECURESTORAGE {
-	/* Enable the Secure Storage */
+	/** Enable the Secure Storage (see @ref ironside_se_uicr_common). */
 	volatile uint32_t ENABLE;
-	/* Start address of the Secure Storage region */
+	/** Start address of the Secure Storage region. */
 	volatile uint32_t ADDRESS;
-	/* Secure Storage partitions for the Cryptographic service */
+	/** Secure Storage partitions for the Cryptographic service. */
 	volatile struct UICR_SECURESTORAGE_SIZES CRYPTO;
-	/* Secure Storage partitions for the Internal Trusted Storage service */
+	/** Secure Storage partitions for the Internal Trusted Storage service. */
 	volatile struct UICR_SECURESTORAGE_SIZES ITS;
 };
 
@@ -138,11 +195,11 @@ struct UICR_SECURESTORAGE {
  * @brief Global domain peripheral configuration
  */
 struct UICR_PERIPHCONF {
-	/* Enable the global domain peripheral configuration */
+	/** Enable the global domain peripheral configuration (see @ref ironside_se_uicr_common). */
 	volatile uint32_t ENABLE;
-	/* Start address of the array of peripheral configuration entries*/
+	/** Start address of the array of peripheral configuration entries. */
 	volatile uint32_t ADDRESS;
-	/* Maximum number of peripheral configuration entries */
+	/** Maximum number of peripheral configuration entries. */
 	volatile uint32_t MAXCOUNT;
 };
 
@@ -150,11 +207,11 @@ struct UICR_PERIPHCONF {
  * @brief Global domain MPC configuration
  */
 struct UICR_MPCCONF {
-	/* Enable the global domain MPC configuration */
+	/** Enable the global domain MPC configuration (see @ref ironside_se_uicr_common). */
 	volatile uint32_t ENABLE;
-	/* Start address of the array of MPC configuration entries*/
+	/** Start address of the array of MPC configuration entries. */
 	volatile uint32_t ADDRESS;
-	/* Maximum number of MPC configuration entries */
+	/** Maximum number of MPC configuration entries. */
 	volatile uint32_t MAXCOUNT;
 };
 
@@ -162,159 +219,250 @@ struct UICR_MPCCONF {
  * @brief Automatic triggers for reset into secondary firmware
  */
 struct UICR_SECONDARY_TRIGGER {
-	/* Enable automatic triggers for reset into secondary firmware*/
+	/** Automatic reset triggers for secondary firmware (see @ref ironside_se_uicr_common). */
 	volatile uint32_t ENABLE;
-	/* Reset reasons that trigger automatic reset into secondary firmware*/
+	/**
+	 * Reset reasons that trigger automatic reset into secondary firmware
+	 * (see @ref ironside_se_uicr_secondary_trigger_resetreas).
+	 */
 	volatile uint32_t RESETREAS;
 	volatile const uint32_t RESERVED;
 };
 
-/* SECONDARY TRIGGER RESETREAS field access macros */
+/**
+ * @defgroup ironside_se_uicr_secondary_trigger_resetreas UICR_SECONDARY_TRIGGER RESETREAS bits
+ * @{
+ */
+
+/** Bit position for application WDT0 reset reason. */
 #define UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT0_Pos (0UL)
 #define UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT0_Msk                                       \
 	(0x1UL << UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT0_Pos)
+/** Bit position for application WDT1 reset reason. */
 #define UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT1_Pos (1UL)
 #define UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT1_Msk                                       \
 	(0x1UL << UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONWDT1_Pos)
+/** Bit position for application lockup reset reason. */
 #define UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONLOCKUP_Pos (3UL)
 #define UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONLOCKUP_Msk                                     \
 	(0x1UL << UICR_SECONDARY_TRIGGER_RESETREAS_APPLICATIONLOCKUP_Pos)
+/** Bit position for radio core WDT0 reset reason. */
 #define UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT0_Pos (5UL)
 #define UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT0_Msk                                         \
 	(0x1UL << UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT0_Pos)
+/** Bit position for radio core WDT1 reset reason. */
 #define UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT1_Pos (6UL)
 #define UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT1_Msk                                         \
 	(0x1UL << UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCOREWDT1_Pos)
+/** Bit position for radio core lockup reset reason. */
 #define UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCORELOCKUP_Pos (8UL)
 #define UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCORELOCKUP_Msk                                       \
 	(0x1UL << UICR_SECONDARY_TRIGGER_RESETREAS_RADIOCORELOCKUP_Pos)
+
+/** @} */
 
 /**
  * @brief Secondary firmware configuration
  */
 struct UICR_SECONDARY {
-	/* Enable booting of secondary firmware. */
+	/** Enable booting of secondary firmware (see @ref ironside_se_uicr_common). */
 	volatile uint32_t ENABLE;
-	/* Processor to boot for the secondary firmware. */
+	/** Processor for the secondary firmware (see @ref ironside_se_uicr_secondary_processor). */
 	volatile uint32_t PROCESSOR;
-	/* Automatic triggers for reset into secondary firmware */
+	/** Automatic triggers for reset into secondary firmware. */
 	volatile struct UICR_SECONDARY_TRIGGER TRIGGER;
-	/* Start address of the secondary firmware.
-	 * This value is used as the initial value of the secure VTOR
-	 * (Vector Table Offset Register) after CPU reset.
+	/**
+	 * Start address of the secondary firmware (initial secure VTOR after CPU reset);
+	 * address bits in @ref ironside_se_uicr_secondary_address.
 	 */
 	volatile uint32_t ADDRESS;
-	/* Protected Memory region for the secondary firmware.*/
+	/** Protected Memory region for the secondary firmware. */
 	volatile struct UICR_PROTECTEDMEM PROTECTEDMEM;
-	/* Start a local watchdog timer ahead of the CPU boot.   */
+	/** Start a local watchdog timer ahead of the CPU boot. */
 	volatile struct UICR_WDTSTART WDTSTART;
-	/* Global domain peripheral configuration used when booting the secondary firmware.*/
+	/** Global domain peripheral configuration used when booting the secondary firmware. */
 	volatile struct UICR_PERIPHCONF PERIPHCONF;
-	/* Global domain MPC configuration used when booting the secondary firmware*/
+	/** Global domain MPC configuration used when booting the secondary firmware. */
 	volatile struct UICR_MPCCONF MPCCONF;
 };
 
-/* SECONDARY enum values */
-/* Boot the application core. */
+/**
+ * @defgroup ironside_se_uicr_secondary_processor UICR_SECONDARY PROCESSOR values
+ * @{
+ */
+
+/** Boot the application core. */
 #define UICR_SECONDARY_PROCESSOR_APPLICATION UICR_ENUM_CHOICE_0
-/* Boot the radio core. */
+/** Boot the radio core. */
 #define UICR_SECONDARY_PROCESSOR_RADIOCORE   UICR_ENUM_CHOICE_1
 
-/* SECONDARY field access macros */
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_secondary_address UICR_SECONDARY ADDRESS field mask
+ * @{
+ */
+
+/** Bit mask for SECONDARY ADDRESS field (address bits, 4 kB aligned). */
 #define UICR_SECONDARY_ADDRESS_ADDRESS_Msk (0xFFFFF000UL)
 
-/* LOCK enum values */
-/* NVR page 0 can be written, and is not integrity checked by Nordic IronSide SE*/
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_lock UICR LOCK values
+ * @{
+ */
+
+/** NVR page 0 can be written; not integrity checked by IronSide SE. */
 #define UICR_LOCK_PALL_UNLOCKED UICR_MAGIC_ERASE_VALUE
-/* NVR page 0 is read-only, and is integrity checked by Nordic IronSide SE on boot*/
+/** NVR page 0 is read-only; integrity checked by IronSide SE on boot. */
 #define UICR_LOCK_PALL_LOCKED   (0xFFFFFFFFUL)
 
-/* ERASEPROTECT enum values */
-/* Erase protection disabled */
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_eraseprotect UICR ERASEPROTECT values
+ * @{
+ */
+
+/** Erase protection disabled. */
 #define UICR_ERASEPROTECT_PALL_UNPROTECTED UICR_MAGIC_ERASE_VALUE
-/* Erase protection enabled */
+/** Erase protection enabled. */
 #define UICR_ERASEPROTECT_PALL_PROTECTED   UICR_PROTECTED
 
-/* POLICY_MPCCONFSTAGE enum values */
-/* MPCCONF API stage is set to initialization stage at application boot. */
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_policy_mpcconfstage UICR POLICY_MPCCONFSTAGE values
+ * @{
+ */
+
+/** MPCCONF API stage is set to initialization stage at application boot. */
 #define UICR_POLICY_MPCCONFSTAGE_INIT   UICR_ENUM_CHOICE_0
-/* MPCCONF API stage is set to normal stage at application boot. */
+/** MPCCONF API stage is set to normal stage at application boot. */
 #define UICR_POLICY_MPCCONFSTAGE_NORMAL UICR_ENUM_CHOICE_1
 
-/* POLICY_PERIPHCONFSTAGE enum values */
-/* PERIPHCONF API stage is set to initialization stage at application boot. */
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_policy_periphconfstage UICR POLICY_PERIPHCONFSTAGE values
+ * @{
+ */
+
+/** PERIPHCONF API stage is set to initialization stage at application boot. */
 #define UICR_POLICY_PERIPHCONFSTAGE_INIT   UICR_ENUM_CHOICE_0
-/* PERIPHCONF API stage is set to normal stage at application boot. */
+/** PERIPHCONF API stage is set to normal stage at application boot. */
 #define UICR_POLICY_PERIPHCONFSTAGE_NORMAL UICR_ENUM_CHOICE_1
 
-/* SNAPSHOT enum values */
-/* Maximum configurable snapshot regions. */
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_snapshot_regions UICR snapshot region count
+ * @{
+ */
+
+/** Maximum configurable snapshot regions. */
 #define UICR_SNAPSHOT_REGIONS_MAX_REGIONS (7UL)
 
-/* SNAPSHOT_REGION field access macros */
+/** @} */
+
+/**
+ * @defgroup ironside_se_uicr_snapshot_region_fields UICR_SNAPSHOT_REGIONS REGION[] field encoding
+ * @{
+ */
+
+/** Bit position for the snapshot region size field (in kiB). */
 #define UICR_SNAPSHOT_REGIONS_REGION_SIZEKB_Pos  (0UL)
+/** Bit mask for the snapshot region size field (in kiB). */
 #define UICR_SNAPSHOT_REGIONS_REGION_SIZEKB_Msk  (0xFFFUL << UICR_SNAPSHOT_REGIONS_REGION_SIZEKB_Pos)
+/** Bit position for the snapshot region start address field. */
 #define UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Pos (12UL)
+/** Bit mask for the snapshot region start address field. */
 #define UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Msk                                                   \
 	(0xFFFFFUL << UICR_SNAPSHOT_REGIONS_REGION_ADDRESS_Pos)
+
+/** @} */
 
 /**
  * @brief Snapshot configuration.
  */
 struct UICR_SNAPSHOT_REGIONS {
-	/* Enable parsing of snapshot regions. */
+	/** Enable parsing of snapshot regions (see @ref ironside_se_uicr_common). */
 	volatile uint32_t ENABLE;
-	/* Number of region configuration entries */
+	/** Number of snapshot region entries (at most @ref UICR_SNAPSHOT_REGIONS_MAX_REGIONS). */
 	volatile uint32_t COUNT;
-	/* List of snapshot region configurations. */
+	/** Snapshot region entries (see @ref ironside_se_uicr_snapshot_region_fields). */
 	volatile uint32_t REGION[UICR_SNAPSHOT_REGIONS_MAX_REGIONS];
 };
 
 /**
  * @brief User information configuration region.
  *
+ * @note Certain fields do not take effect unless @ref UICR::VERSION is set to a specific version
+ * or higher. The minimum version requirement is described per-field.
+ *
  * Any fields named "RESERVED" or similar are reserved for future extensions
  * by the IronSide SE and should not be used for other data.
  */
 struct UICR {
-	/* Version of the UICR format */
+	/** Version of the UICR format (see @ref ironside_se_uicr_version).
+	 *
+	 * @note If set to @ref UICR_MAGIC_ERASE_VALUE, it is interpreted as the highest version
+	 * supported by the installed IronSide SE.
+	 */
 	volatile uint32_t VERSION;
 	volatile const uint32_t RESERVED;
-	/* Lock the UICR from modification */
+	/** Lock the UICR from modification (see @ref ironside_se_uicr_lock). */
 	volatile uint32_t LOCK;
 	volatile const uint32_t RESERVED1;
-	/* AP protection */
+	/** AP protection. */
 	volatile struct UICR_APPROTECT APPROTECT;
-	/* ERASEALL protection */
+	/** ERASEALL protection (see @ref ironside_se_uicr_eraseprotect). */
 	volatile uint32_t ERASEPROTECT;
-	/* Protected memory region */
+	/** Protected memory region. */
 	volatile struct UICR_PROTECTEDMEM PROTECTEDMEM;
-	/* Start a local watchdog timer ahead of the CPU boot. */
+	/** Start a local watchdog timer ahead of the CPU boot. */
 	volatile struct UICR_WDTSTART WDTSTART;
 	volatile const uint32_t RESERVED2;
-	/* Secure Storage configuration */
+	/** Secure Storage configuration. */
 	volatile struct UICR_SECURESTORAGE SECURESTORAGE;
 	volatile const uint32_t RESERVED3[5];
-	/* Global domain peripheral configuration */
+	/** Global domain peripheral configuration. */
 	volatile struct UICR_PERIPHCONF PERIPHCONF;
-	/* Global domain MPC configuration */
+	/** Global domain MPC configuration. */
 	volatile struct UICR_MPCCONF MPCCONF;
-	/* Secondary firmware configuration */
+	/** Secondary firmware configuration. */
 	volatile struct UICR_SECONDARY SECONDARY;
 	volatile const uint32_t RESERVED4[8];
-	/* Snapshot region configuration */
+	/** Snapshot region configuration.
+	 *
+	 * @since Effective if @ref UICR::VERSION is @ref UICR_VERSION_2_3 or higher.
+	 */
 	volatile struct UICR_SNAPSHOT_REGIONS SNAPSHOT_REGIONS;
 	volatile const uint32_t RESERVED5[60];
-	/* MPCCONF API stage at application boot. */
+	/** MPCCONF API stage at application boot
+	 *  (see @ref ironside_se_uicr_policy_mpcconfstage).
+	 *
+	 * @since Effective if @ref UICR::VERSION is @ref UICR_VERSION_2_2 or higher.
+	 */
 	volatile uint32_t POLICY_MPCCONFSTAGE;
-	/* PERIPHCONF API stage at application boot. */
+	/** PERIPHCONF API stage at application boot
+	 *  (see @ref ironside_se_uicr_policy_periphconfstage).
+	 *
+	 * @since Effective if @ref UICR::VERSION is @ref UICR_VERSION_2_1 or higher.
+	 */
 	volatile uint32_t POLICY_PERIPHCONFSTAGE;
 #if !defined(UICR_DEF_OMIT_CUSTOMER)
-	/* Reserved for customer. */
+	/** Reserved for user defined data.
+	 *
+	 *  This area is also write protected and integrity checked when @ref UICR::LOCK is enabled.
+	 */
 	volatile uint32_t CUSTOMER[320];
 	volatile const uint32_t RESERVED6[44];
 #endif
 };
+
+/** @} */
 
 #ifdef __cplusplus
 }
