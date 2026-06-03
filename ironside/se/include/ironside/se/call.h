@@ -13,6 +13,12 @@
 extern "C" {
 #endif
 
+/**
+ * @defgroup ironside_se_call IronSide SE call (IPC protocol)
+ * @ingroup ironside_se_ipc
+ * @{
+ */
+
 #if defined(IRONSIDE_SE_IPC_BUFFER_ADDRESS)
 /** IPC buffer for the current processor. */
 #define IRONSIDE_SE_IPC_BUFFER ((struct ironside_se_call_buf *)IRONSIDE_SE_IPC_BUFFER_ADDRESS)
@@ -30,7 +36,7 @@ extern "C" {
 
 /** @brief Message buffer. */
 struct ironside_se_call_buf {
-	/** Status code. This is set by the API. */
+	/** Status code set by the API (@ref ironside_se_call_status_codes). */
 	uint16_t status;
 	/** Operation identifier. This is set by the user. */
 	uint16_t id;
@@ -39,7 +45,7 @@ struct ironside_se_call_buf {
 };
 
 /**
- * @name Message buffer status codes.
+ * @defgroup ironside_se_call_status_codes Message buffer status codes
  * @{
  */
 
@@ -61,6 +67,8 @@ struct ironside_se_call_buf {
 /**
  * @}
  */
+
+/** @} */
 
 #ifdef __cplusplus
 }

@@ -20,6 +20,8 @@
 extern "C" {
 #endif
 
+/** @addtogroup ironside_se */
+
 #ifndef IRONSIDE_SE_ALWAYS_INLINE
 /* The default supports GCC / Clang */
 #define IRONSIDE_SE_ALWAYS_INLINE __attribute__((always_inline)) inline
