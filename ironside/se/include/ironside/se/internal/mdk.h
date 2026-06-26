@@ -12,8 +12,8 @@
 extern "C" {
 #endif
 
-/* Only add these definitions for Haltium architecture based products. */
-#if defined(HALTIUM_XXAA)
+/* Only add these definitions for specific product series. */
+#if defined(NRF54H_SERIES) || defined(NRF92_SERIES)
 
 /* The definitions below are not currently available in the MDK but are needed for certain
  * macros in this package. When they are, this can be deleted.
@@ -183,7 +183,7 @@ typedef struct {
 #define NRF_SYSCTRL_L2CACHE ((NRF_CACHE_Type *)0x5F082000UL)
 #endif
 
-#endif /* NRF_HALTIUM_XXAA */
+#endif /* defined(NRF54H_SERIES) || defined(NRF92_SERIES) */
 
 #ifdef __cplusplus
 }
