@@ -61,7 +61,7 @@ void nrfs_gswdt_uninit(void)
 	m_cb.is_initialized = false;
 }
 
-nrfs_err_t nrfs_gswdt_timeout_set(uint32_t timeout_ms, void *p_context)
+nrfs_err_t nrfs_gswdt_timeout_rsp_set(uint32_t timeout_ms, void *p_context, bool rsp)
 {
 	if (!m_cb.is_initialized) {
 		return NRFS_ERR_INVALID_STATE;
@@ -70,13 +70,21 @@ nrfs_err_t nrfs_gswdt_timeout_set(uint32_t timeout_ms, void *p_context)
 	nrfs_gswdt_timeout_set_req_t req;
 
 	NRFS_SERVICE_HDR_FILL(&req, NRFS_GSWDT_TIMEOUT_SET_REQ);
+	if (!rsp) {
+		NRFS_HDR_NO_RSP_SET(&req.hdr);
+	}
 	req.ctx.ctx = (uint32_t)p_context;
 	req.timeout_ms = timeout_ms;
 
 	return nrfs_backend_send(&req, sizeof(req));
 }
 
-nrfs_err_t nrfs_gswdt_stop(void *p_context)
+nrfs_err_t nrfs_gswdt_timeout_set(uint32_t timeout_ms, void *p_context)
+{
+	return nrfs_gswdt_timeout_rsp_set(timeout_ms, p_context, false);
+}
+
+nrfs_err_t nrfs_gswdt_stop_rsp(void *p_context, bool rsp)
 {
 	if (!m_cb.is_initialized) {
 		return NRFS_ERR_INVALID_STATE;
@@ -85,7 +93,15 @@ nrfs_err_t nrfs_gswdt_stop(void *p_context)
 	nrfs_gswdt_stop_req_t req;
 
 	NRFS_SERVICE_HDR_FILL(&req, NRFS_GSWDT_STOP_REQ);
+	if (!rsp) {
+		NRFS_HDR_NO_RSP_SET(&req.hdr);
+	}
 	req.ctx.ctx = (uint32_t)p_context;
 
 	return nrfs_backend_send(&req, sizeof(req));
+}
+
+nrfs_err_t nrfs_gswdt_stop(void *p_context)
+{
+	return nrfs_gswdt_stop_rsp(p_context, false);
 }

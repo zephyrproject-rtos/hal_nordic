@@ -46,6 +46,19 @@ nrfs_err_t nrfs_gswdt_init(nrfs_gswdt_evt_handler_t handler);
 void nrfs_gswdt_uninit(void);
 
 /**
+ * @brief Function for requesting a watchdog timeout change, with an optional response.
+ *
+ * @param[in] timeout_ms  Watchdog timeout in milliseconds.
+ * @param[in] p_context   Opaque user data that will be passed to registered callback.
+ * @param[in] rsp         If true, a response is expected from the backend.
+ *
+ * @retval NRFS_SUCCESS           Request sent successfully.
+ * @retval NRFS_ERR_INVALID_STATE Service is uninitialized.
+ * @retval NRFS_ERR_IPC           Backend returned error during request sending.
+ */
+nrfs_err_t nrfs_gswdt_timeout_rsp_set(uint32_t timeout_ms, void *p_context, bool rsp);
+
+/**
  * @brief Function for requesting a watchdog timeout change.
  *
  * @param[in] timeout_ms  Watchdog timeout in milliseconds.
@@ -58,7 +71,19 @@ void nrfs_gswdt_uninit(void);
 nrfs_err_t nrfs_gswdt_timeout_set(uint32_t timeout_ms, void *p_context);
 
 /**
- * @brief Function for requesting the watchdog to stop.
+ * @brief Function for requesting the watchdog to stop, with an optional response.
+ *
+ * @param[in] p_context   Opaque user data that will be passed to registered callback.
+ * @param[in] rsp         If true, a response is expected from the backend.
+ *
+ * @retval NRFS_SUCCESS           Request sent successfully.
+ * @retval NRFS_ERR_INVALID_STATE Service is uninitialized.
+ * @retval NRFS_ERR_IPC           Backend returned error during request sending.
+ */
+nrfs_err_t nrfs_gswdt_stop_rsp(void *p_context, bool rsp);
+
+/**
+ * @brief Function for requesting the watchdog to stop, without expecting a response.
  *
  * @param[in] p_context   Opaque user data that will be passed to registered callback.
  *
