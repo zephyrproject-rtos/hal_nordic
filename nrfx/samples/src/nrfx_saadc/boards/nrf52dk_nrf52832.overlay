@@ -1,8 +1,0 @@
-&adc {
-    status = "okay";
-    compatible = "nordic,nrf-saadc";
-};
-
-&gpiote {
-    status = "okay";
-};
