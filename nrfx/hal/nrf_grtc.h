@@ -1749,9 +1749,21 @@ NRF_STATIC_INLINE uint32_t nrf_grtc_sys_counter_high_get(NRF_GRTC_Type const * p
 
 NRF_STATIC_INLINE uint64_t nrf_grtc_sys_counter_get(NRF_GRTC_Type const * p_reg)
 {
-    uintptr_t ptr = (uintptr_t)&p_reg->GRTC_SYSCOUNTER.SYSCOUNTERL;
+    /* SYSCOUNTERL must be read before SYSCOUNTERH: reading SYSCOUNTERL latches
+     * the counter value and arms the SYSCOUNTERH.OVERFLOW indication. A single
+     * 64-bit (LDRD) access does not guarantee this low-word-first ordering (and
+     * SYSCOUNTERL is not 8-byte aligned), which returns a corrupt high word on
+     * some devices. Read the two 32-bit words explicitly in the required order.
+     * The compiler barrier keeps the two loads separate (it must not merge them
+     * back into an LDRD) and preserves the low-before-high ordering.
+     */
+    uint32_t counter_l = p_reg->GRTC_SYSCOUNTER.SYSCOUNTERL;
+    uint32_t counter_h;
 
-    return *(const uint64_t volatile *)ptr;
+    __asm__ volatile ("" ::: "memory");
+    counter_h = p_reg->GRTC_SYSCOUNTER.SYSCOUNTERH;
+
+    return (uint64_t)counter_l | ((uint64_t)counter_h << 32);
 }
 
 NRF_STATIC_INLINE bool nrf_grtc_sys_counter_overflow_check(NRF_GRTC_Type const * p_reg)
@@ -1778,8 +1790,18 @@ NRF_STATIC_INLINE uint64_t nrf_grtc_sys_counter_indexed_get(NRF_GRTC_Type const 
                                                             uint8_t               index)
 {
     NRFX_ASSERT(index < NRF_GRTC_SYSCOUNTER_COUNT);
-    uintptr_t ptr = (uintptr_t)&p_reg->SYSCOUNTER[index];
-    return *(const uint64_t volatile *)ptr;
+
+    /* See nrf_grtc_sys_counter_get(): SYSCOUNTERL must be read before
+     * SYSCOUNTERH, which a single 64-bit (LDRD) access does not guarantee. The
+     * compiler barrier stops the two loads from merging back into an LDRD.
+     */
+    uint32_t counter_l = p_reg->SYSCOUNTER[index].SYSCOUNTERL;
+    uint32_t counter_h;
+
+    __asm__ volatile ("" ::: "memory");
+    counter_h = p_reg->SYSCOUNTER[index].SYSCOUNTERH;
+
+    return (uint64_t)counter_l | ((uint64_t)counter_h << 32);
 }
 
 NRF_STATIC_INLINE bool nrf_grtc_sys_counter_overflow_indexed_check(NRF_GRTC_Type const * p_reg,
