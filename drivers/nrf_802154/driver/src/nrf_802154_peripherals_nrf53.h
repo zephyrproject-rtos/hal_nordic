@@ -40,9 +40,12 @@
 #ifndef NRF_802154_PERIPHERALS_NRF53_H__
 #define NRF_802154_PERIPHERALS_NRF53_H__
 
-#include <nrfx.h>
+/* This file must not include nrf.h or nrfx.h directly or indirectly,
+ * to avoid circular dependencies.
+ */
+
+#include "nrf_802154_config_soc.h"
 #include "nrf_802154_config.h"
-#include "nrf_802154_debug.h"
 #include "nrf_802154_sl_periphs.h"
 
 #ifdef __cplusplus
@@ -99,7 +102,7 @@ extern "C" {
  * The channel number of the @ref NRF_802154_EGU_INSTANCE used for starting the TIMER.
  * Used only when @ref NRF_802154_CCAIDLE_TO_TXEN_EXTRA_TIME_US is non-zero.
  */
-#define NRF_802154_EGU_TIMER_START_CHANNEL_NO 14
+#define NRF_802154_EGU_TIMER_START_CHANNEL_NO 13
 
 #define NRF_802154_EGU_TIMER_START_USED_CHANNELS_MASK \
     (1U << NRF_802154_EGU_TIMER_START_CHANNEL_NO)
@@ -110,7 +113,7 @@ extern "C" {
  * The channel number of the @ref NRF_802154_EGU_INSTANCE used for starting the TIMER (second source).
  * Used only when @ref NRF_802154_CCAIDLE_TO_TXEN_EXTRA_TIME_US is non-zero.
  */
-#define NRF_802154_EGU_TIMER_START2_CHANNEL_NO 13
+#define NRF_802154_EGU_TIMER_START2_CHANNEL_NO 12
 
 #define NRF_802154_EGU_TIMER_START2_USED_CHANNELS_MASK \
     (1U << NRF_802154_EGU_TIMER_START2_CHANNEL_NO)
@@ -332,6 +335,8 @@ extern "C" {
 #ifndef NRF_802154_DPPI_GROUPS_USED_MASK
 #define NRF_802154_DPPI_GROUPS_USED_MASK 0UL
 #endif // NRF_802154_DPPI_GROUPS_USED_MASK
+
+#define NRF_802154_ENCRYPTION_ACCELERATOR_ECB
 
 #ifdef __cplusplus
 }

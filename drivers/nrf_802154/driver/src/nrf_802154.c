@@ -49,6 +49,7 @@
 #include <string.h>
 
 #include "nrf_802154_config.h"
+#include "nrf_802154_facade_helpers.h"
 #include "nrf_802154_utils.h"
 #include "nrf_802154_const.h"
 #include "nrf_802154_core.h"
@@ -58,6 +59,7 @@
 #include "nrf_802154_pib.h"
 #include "nrf_802154_request.h"
 #include "nrf_802154_rx_buffer.h"
+#include "nrf_802154_trx.h"
 #include "nrf_802154_tx_power.h"
 #include "nrf_802154_stats.h"
 #include "nrf_802154_swi.h"
@@ -91,25 +93,6 @@
 static uint8_t m_tx_buffer[RAW_PAYLOAD_OFFSET + MAX_PACKET_SIZE];
 
 #endif // NRF_802154_CARRIER_FUNCTIONS_ENABLED
-
-static inline bool are_frame_properties_valid(const nrf_802154_transmitted_frame_props_t * p_props)
-{
-    return p_props->dynamic_data_is_set || !(p_props->is_secured);
-}
-
-static inline bool are_extra_cca_attempts_valid(const nrf_802154_transmit_at_metadata_t * p_data)
-{
-    return !p_data->cca || (p_data->extra_cca_attempts < UINT8_MAX);
-}
-
-static inline bool is_tx_timestamp_request_valid(const bool tx_timestamp_encode)
-{
-#if NRF_802154_TX_TIMESTAMP_PROVIDER_ENABLED
-    return true;
-#else
-    return !tx_timestamp_encode;
-#endif
-}
 
 void nrf_802154_channel_set(uint8_t channel)
 {
@@ -167,23 +150,94 @@ void nrf_802154_temperature_changed(void)
 
 void nrf_802154_pan_id_set(const uint8_t * p_pan_id)
 {
-    nrf_802154_pib_pan_id_set(p_pan_id);
+    if (p_pan_id)
+    {
+        nrf_802154_pib_pan_id_set(p_pan_id);
+    }
 }
+
+#if NRF_802154_PAN_ID_GET_ENABLED
+
+bool nrf_802154_pan_id_get(uint8_t * p_pan_id)
+{
+    if (p_pan_id)
+    {
+        memcpy(p_pan_id, nrf_802154_pib_pan_id_get(), PAN_ID_SIZE);
+        return true;
+    }
+
+    return false;
+}
+
+#endif /* NRF_802154_PAN_ID_GET_ENABLED */
 
 void nrf_802154_extended_address_set(const uint8_t * p_extended_address)
 {
-    nrf_802154_pib_extended_address_set(p_extended_address);
+    if (p_extended_address)
+    {
+        nrf_802154_pib_extended_address_set(p_extended_address);
+    }
 }
+
+#if NRF_802154_EXTENDED_ADDRESS_GET_ENABLED
+
+bool nrf_802154_extended_address_get(uint8_t * p_extended_address)
+{
+    if (p_extended_address)
+    {
+        memcpy(p_extended_address, nrf_802154_pib_extended_address_get(), EXTENDED_ADDRESS_SIZE);
+        return true;
+    }
+
+    return false;
+}
+
+#endif /* NRF_802154_EXTENDED_ADDRESS_GET_ENABLED */
 
 void nrf_802154_short_address_set(const uint8_t * p_short_address)
 {
-    nrf_802154_pib_short_address_set(p_short_address);
+    if (p_short_address)
+    {
+        nrf_802154_pib_short_address_set(p_short_address);
+    }
 }
+
+#if NRF_802154_SHORT_ADDRESS_GET_ENABLED
+
+bool nrf_802154_short_address_get(uint8_t * p_short_address)
+{
+    if (p_short_address)
+    {
+        memcpy(p_short_address, nrf_802154_pib_short_address_get(), SHORT_ADDRESS_SIZE);
+        return true;
+    }
+
+    return false;
+}
+
+#endif /* NRF_802154_SHORT_ADDRESS_GET_ENABLED */
 
 void nrf_802154_alternate_short_address_set(const uint8_t * p_short_address)
 {
     nrf_802154_pib_alternate_short_address_set(p_short_address);
 }
+
+#if NRF_802154_ALTERNATE_SHORT_ADDRESS_GET_ENABLED
+
+bool nrf_802154_alternate_short_address_get(uint8_t * p_short_address)
+{
+    const uint8_t * alternate_address = nrf_802154_pib_alternate_short_address_get();
+
+    if (alternate_address && p_short_address)
+    {
+        memcpy(p_short_address, alternate_address, SHORT_ADDRESS_SIZE);
+        return true;
+    }
+
+    return false;
+}
+
+#endif /* NRF_802154_ALTERNATE_SHORT_ADDRESS_GET_ENABLED */
 
 void nrf_802154_init(void)
 {
@@ -213,11 +267,71 @@ void nrf_802154_init(void)
     nrf_802154_timer_coord_init();
 #if NRF_802154_ACK_TIMEOUT_ENABLED
     nrf_802154_ack_timeout_init();
-#endif
+#endif /* NRF_802154_ACK_TIMEOUT_ENABLED */
 #if NRF_802154_DELAYED_TRX_ENABLED
     nrf_802154_delayed_trx_init();
-#endif
+#endif /* NRF_802154_DELAYED_TRX_ENABLED */
 }
+
+#if NRF_802154_DRV_REINIT_ENABLED
+
+/* Missing modules cause errors if not enabled */
+#if !NRF_802154_NOTIFICATION_QUEUE_FLUSH_ENABLED
+#error "Notification queue flush is not enabled. Please enable it in the configuration."
+#endif // !NRF_802154_NOTIFICATION_QUEUE_FLUSH_ENABLED
+
+#if NRF_802154_DELAYED_TRX_ENABLED && !NRF_802154_DELAYED_TRX_CANCEL_ALL_ENABLED
+#error "Delayed receive cancellation all is not enabled. Please enable it in the configuration."
+#endif // NRF_802154_DELAYED_TRX_ENABLED && !NRF_802154_DELAYED_TRX_CANCEL_ALL_ENABLED
+
+#if NRF_802154_CSMA_CA_ENABLED && !NRF_802154_CSMA_CA_CANCEL_ENABLED
+#error "CSMA-CA cancel is not enabled. Please enable it in the configuration."
+#endif // NRF_802154_CSMA_CA_ENABLED && !NRF_802154_CSMA_CA_CANCEL_ENABLED
+
+bool nrf_802154_reinit(void)
+{
+    bool result = false;
+
+    /* Cancel the delayed transmit and receive operations. */
+#if NRF_802154_DELAYED_TRX_ENABLED
+    (void)nrf_802154_delayed_trx_transmit_cancel();
+    nrf_802154_delayed_trx_receive_cancel_all();
+#endif // NRF_802154_DELAYED_TRX_ENABLED
+
+    nrf_802154_notification_block_all_notifications();
+
+#if NRF_802154_CSMA_CA_ENABLED
+    /* Put the radio into sleep mode and cancel the CSMA-CA procedure. */
+    result = nrf_802154_request_sleep_with_cancel_csma_ca(NRF_802154_TERM_802154);
+#else // NRF_802154_CSMA_CA_ENABLED
+    /* Put the radio into sleep mode. */
+    result = nrf_802154_request_sleep(NRF_802154_TERM_802154);
+#endif // NRF_802154_CSMA_CA_ENABLED
+
+    if (!result)
+    {
+        nrf_802154_notification_unblock_notifications();
+        return result;
+    }
+
+    /* Drain the notification queue without involving the upper layer. */
+    nrf_802154_notification_queue_flush();
+
+    /* Reset the security global frame counter */
+    nrf_802154_security_global_frame_counter_set(0);
+
+    /* Reinitialize the driver */
+    nrf_802154_ack_data_init();
+    nrf_802154_pib_init();
+    nrf_802154_security_key_remove_all();
+    nrf_802154_rx_buffer_init();
+
+    nrf_802154_notification_unblock_notifications();
+
+    return result;
+}
+
+#endif /* NRF_802154_DRV_REINIT_ENABLED */
 
 void nrf_802154_deinit(void)
 {
@@ -403,16 +517,7 @@ nrf_802154_tx_error_t nrf_802154_transmit_raw(uint8_t                           
 
     if (p_metadata == NULL)
     {
-        static const nrf_802154_transmit_metadata_t metadata_default =
-        {
-            .frame_props         = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
-            .cca                 = true,
-            .tx_power            = {.use_metadata_value = false},
-            .tx_channel          = {.use_metadata_value = false},
-            .tx_timestamp_encode = false
-        };
-
-        p_metadata = &metadata_default;
+        p_metadata = nrf_802154_transmit_metadata_default_ptr_get();
     }
 
     result = nrf_802154_frame_parser_data_init(p_data,
@@ -432,8 +537,7 @@ nrf_802154_tx_error_t nrf_802154_transmit_raw(uint8_t                           
 
     if (result)
     {
-        result = are_frame_properties_valid(&p_metadata->frame_props) &&
-                 is_tx_timestamp_request_valid(p_metadata->tx_timestamp_encode);
+        result = nrf_802154_transmit_metadata_is_valid(p_metadata);
     }
 
     if (result)
@@ -459,21 +563,14 @@ nrf_802154_tx_error_t nrf_802154_transmit_raw_at(
     bool                              result;
     nrf_802154_frame_t                frame;
     nrf_802154_tx_error_t             error;
-    nrf_802154_transmit_at_metadata_t metadata_default =
-    {
-        .frame_props         = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
-        .cca                 = true,
-        .tx_power            = {.use_metadata_value = false},
-        .extra_cca_attempts  = 0,
-        .tx_timestamp_encode = false,
-    };
+    nrf_802154_transmit_at_metadata_t metadata_default;
 
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
     if (p_metadata == NULL)
     {
-        metadata_default.channel = nrf_802154_channel_get();
-        p_metadata               = &metadata_default;
+        nrf_802154_transmit_at_metadata_default_prepare(&metadata_default);
+        p_metadata = &metadata_default;
     }
 
     result = nrf_802154_frame_parser_data_init(p_data,
@@ -493,9 +590,7 @@ nrf_802154_tx_error_t nrf_802154_transmit_raw_at(
 
     if (result)
     {
-        result = are_frame_properties_valid(&p_metadata->frame_props) &&
-                 are_extra_cca_attempts_valid(p_metadata) &&
-                 is_tx_timestamp_request_valid(p_metadata->tx_timestamp_encode);
+        result = nrf_802154_transmit_at_metadata_is_valid(p_metadata);
     }
 
     if (result)
@@ -665,6 +760,16 @@ void nrf_802154_promiscuous_set(bool enabled)
     nrf_802154_pib_promiscuous_set(enabled);
 }
 
+bool nrf_802154_pa_modulation_fix_get(void)
+{
+    return nrf_802154_trx_pa_modulation_fix_get();
+}
+
+void nrf_802154_pa_modulation_fix_set(bool enable)
+{
+    nrf_802154_trx_pa_modulation_fix_set(enable);
+}
+
 void nrf_802154_rx_on_when_idle_set(bool enabled)
 {
     nrf_802154_pib_rx_on_when_idle_set(enabled);
@@ -766,15 +871,7 @@ nrf_802154_tx_error_t nrf_802154_transmit_csma_ca_raw(
 
     if (p_metadata == NULL)
     {
-        static const nrf_802154_transmit_csma_ca_metadata_t metadata_default =
-        {
-            .frame_props         = NRF_802154_TRANSMITTED_FRAME_PROPS_DEFAULT_INIT,
-            .tx_power            = {.use_metadata_value = false},
-            .tx_channel          = {.use_metadata_value = false},
-            .tx_timestamp_encode = false
-        };
-
-        p_metadata = &metadata_default;
+        p_metadata = nrf_802154_transmit_csma_ca_metadata_default_ptr_get();
     }
 
     result = nrf_802154_frame_parser_data_init(p_data,
@@ -794,8 +891,7 @@ nrf_802154_tx_error_t nrf_802154_transmit_csma_ca_raw(
 
     if (result)
     {
-        result = are_frame_properties_valid(&p_metadata->frame_props) &&
-                 is_tx_timestamp_request_valid(p_metadata->tx_timestamp_encode);
+        result = nrf_802154_transmit_csma_ca_metadata_is_valid(p_metadata);
     }
 
     if (result)

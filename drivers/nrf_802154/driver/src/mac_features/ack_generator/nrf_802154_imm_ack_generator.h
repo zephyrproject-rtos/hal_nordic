@@ -45,18 +45,23 @@
 #include <stdint.h>
 
 #include "mac_features/nrf_802154_frame.h"
+#include "nrf_802154_ack_data.h"
 
-/** Initializes the Immediate ACK generator module. */
+/**
+ * @brief Initialize the Immediate ACK generator module.
+ */
 void nrf_802154_imm_ack_generator_init(void);
 
-/** @brief Resets the Immediate ACK generator module.
+/**
+ * @brief Reset the Immediate ACK generator module.
  *
  * @note This function should be called for every received frame to be acknowledged before
  *       @ref nrf_802154_imm_ack_generator_create is called for that frame.
  */
 void nrf_802154_imm_ack_generator_reset(void);
 
-/** @brief Creates an Immediate ACK in response to the provided frame.
+/**
+ * @brief Create an Immediate ACK in response to the provided frame.
  *
  * @note Only those contents of the frame being acknowledged marked by @p p_frame_data as valid
  * are used for ACK generation. If any data necessary to generate an ACK is missing or marked as
@@ -66,12 +71,14 @@ void nrf_802154_imm_ack_generator_reset(void);
  *
  * @param [in]  p_frame_data  Pointer to the parser data of the frame for which an Ack
  *                            will be generated.
+ * @param [in]  p_peer_rec    Information record about the peer the @p p_frame_data
+ *                            is received from. May be @c NULL if peer not found.
  *
  * @returns  Either pointer to a constant buffer that contains PHR and PSDU
  *           of the created Immediate ACK frame, or NULL when the response cannot be
  *           created.
  */
-uint8_t * nrf_802154_imm_ack_generator_create(
-    const nrf_802154_frame_t * p_frame_data);
+uint8_t * nrf_802154_imm_ack_generator_create(const nrf_802154_frame_t    * p_frame_data,
+                                              const nrf_802154_peer_rec_t * p_peer_rec);
 
-#endif // NRF_802154_IMM_ACK_GENERATOR_H
+#endif /* NRF_802154_IMM_ACK_GENERATOR_H */

@@ -42,8 +42,6 @@
 
 #include <nrfx.h>
 #include "nrf_802154_config.h"
-#include "nrf_802154_debug.h"
-#include "nrf_802154_debug_core.h"
 
 #if defined(NRF52_SERIES)
 #include "nrf_802154_peripherals_nrf52.h"
@@ -154,24 +152,6 @@ extern "C" {
 #endif
 
 /**
- * @def NRF_802154_GPIO_PINS_USED_MASK
- *
- * Bit mask of GPIO pins used by the 802.15.4 driver.
- */
-#ifndef NRF_802154_GPIO_PINS_USED_MASK
-#define NRF_802154_GPIO_PINS_USED_MASK NRF_802154_DEBUG_PINS_USED_MASK
-#endif // NRF_802154_GPIO_PINS_USED_MASK
-
-/**
- * @def NRF_802154_GPIOTE_CHANNELS_USED_MASK
- *
- * Bit mask of GPIOTE peripherals used by the 802.15.4 driver.
- */
-#ifndef NRF_802154_GPIOTE_CHANNELS_USED_MASK
-#define NRF_802154_GPIOTE_CHANNELS_USED_MASK NRF_802154_DEBUG_GPIOTE_CHANNELS_USED_MASK
-#endif // NRF_802154_GPIOTE_CHANNELS_USED_MASK
-
-/**
  * @def NRF_802154_EGU_NOTIFICATION_USED_CHANNELS_MASK
  *
  * Mask of EGU channels used by the "notification" module.
@@ -235,19 +215,34 @@ extern "C" {
 #define NRF_802154_EGU_SYNC_USED_CHANNELS_MASK        (1U << NRF_802154_EGU_SYNC_CHANNEL_NO)
 
 /**
+ * @def NRF_802154_EGU_TRIGGER_CHANNEL_NO
+ *
+ * The channel number of the @ref NRF_802154_EGU_INSTANCE used for triggering the radio hardware.
+ */
+#define NRF_802154_EGU_TRIGGER_CHANNEL_NO             14
+
+/**
+ * @def NRF_802154_EGU_TRIGGER_EVENT
+ *
+ * The EGU event used by the driver to trigger the radio hardware.
+ */
+#define NRF_802154_EGU_TRIGGER_EVENT                  NRFX_CONCAT_2(NRF_EGU_EVENT_TRIGGERED, \
+                                                                    NRF_802154_EGU_TRIGGER_CHANNEL_NO)
+
+/**
+ * @def NRF_802154_EGU_TRIGGER_TASK
+ *
+ * The EGU task used by the driver to trigger the radio hardware.
+ */
+#define NRF_802154_EGU_TRIGGER_TASK                   NRFX_CONCAT_2(NRF_EGU_TASK_TRIGGER, \
+                                                                    NRF_802154_EGU_TRIGGER_CHANNEL_NO)
+
+/**
  * @def NRF_802154_EGU_RAMP_UP_CHANNEL_NO
  *
  * The channel number of the @ref NRF_802154_EGU_INSTANCE used for triggering the ramp-up of the RADIO.
  */
 #define NRF_802154_EGU_RAMP_UP_CHANNEL_NO             15
-
-/**
- * @def NRF_802154_EGU_RAMP_UP_USED_CHANNELS_MASK
- *
- * Mask of EGU channels used for triggering the ramp-up of the RADIO.
- * See @ref NRF_802154_EGU_USED_CHANNELS_MASK.
- */
-#define NRF_802154_EGU_RAMP_UP_USED_CHANNELS_MASK     (1U << NRF_802154_EGU_RAMP_UP_CHANNEL_NO)
 
 /**
  * @def NRF_802154_EGU_RAMP_UP_EVENT
@@ -264,6 +259,15 @@ extern "C" {
  */
 #define NRF_802154_EGU_RAMP_UP_TASK                   NRFX_CONCAT_2(NRF_EGU_TASK_TRIGGER, \
                                                                     NRF_802154_EGU_RAMP_UP_CHANNEL_NO)
+
+/**
+ * @def NRF_802154_EGU_RAMP_UP_USED_CHANNELS_MASK
+ *
+ * Mask of EGU channels used for triggering the ramp-up of the RADIO.
+ * See @ref NRF_802154_EGU_USED_CHANNELS_MASK.
+ */
+#define NRF_802154_EGU_RAMP_UP_USED_CHANNELS_MASK     (1U << NRF_802154_EGU_RAMP_UP_CHANNEL_NO) | \
+    (1U << NRF_802154_EGU_TRIGGER_CHANNEL_NO)
 
 #ifndef NRF_802154_EGU_TIMER_START_USED_CHANNELS_MASK
 #define NRF_802154_EGU_TIMER_START_USED_CHANNELS_MASK 0U

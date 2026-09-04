@@ -35,9 +35,6 @@
 #ifndef NRF_802154_SWI_H__
 #define NRF_802154_SWI_H__
 
-#include <stdbool.h>
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -42,19 +42,21 @@
 #include "nrf_802154_compiler.h"
 #include "nrf_802154_config.h"
 #include "nrf_802154_const.h"
+#include "nrf_802154_debug.h"
 #include "nrf_802154_peripherals.h"
 #include "nrf_802154_pib.h"
 #include "nrf_802154_rssi.h"
 #include "nrf_802154_trx_ppi_api.h"
 #include "nrf_802154_utils.h"
+#include "nrf_802154_hw_utils.h"
 
 #include <nrfx.h>
 #include "hal/nrf_egu.h"
 #include "hal/nrf_radio.h"
 #include "hal/nrf_timer.h"
-#if defined(NRF53_SERIES)
+#ifdef NRF53_SERIES
 #include "hal/nrf_vreqctrl.h"
-#endif
+#endif /* NRF53_SERIES */
 
 #include "nrf_802154_procedures_duration.h"
 #include "nrf_802154_critical_section.h"
@@ -73,14 +75,10 @@
 #define EGU_SYNC_TASK         NRFX_CONCAT_2(NRF_EGU_TASK_TRIGGER, NRF_802154_EGU_SYNC_CHANNEL_NO)
 #define EGU_SYNC_INTMASK      NRFX_CONCAT_2(NRF_EGU_INT_TRIGGERED, NRF_802154_EGU_SYNC_CHANNEL_NO)
 
-#define RADIO_BASE            ((uintptr_t)NRF_RADIO)
-
-#if defined(DPPI_PRESENT)
-#define FICR_BASE             NRF_FICR_NS_BASE
-#else
+#if !defined(DPPI_PRESENT)
 #define PPI_CCAIDLE_FEM       NRF_802154_PPI_RADIO_CCAIDLE_TO_FEM_GPIOTE ///< PPI that connects RADIO CCAIDLE event with GPIOTE tasks used by FEM
 #define PPI_CHGRP_ABORT       NRF_802154_PPI_ABORT_GROUP                 ///< PPI group used to disable PPIs when async event aborting radio operation is propagated through the system
-#endif
+#endif /* !defined(DPPI_PRESENT) */
 
 #define SHORT_ADDRESS_BCSTART NRF_RADIO_SHORT_ADDRESS_BCSTART_MASK
 
@@ -150,6 +148,25 @@
 #define MAX_RAMPDOWN_CYCLES 10
 #endif
 
+/* Macro to turn off radio high voltage.
+ * High voltage may be enabled for TX power above 0 dBm, with it left on, RX draws more current.
+ * Disabling it here avoids that extra RX power consumption.
+ */
+#ifdef NRF53_SERIES
+#define RADIO_HIGH_VOLTAGE_DISABLE()                              \
+    do                                                            \
+    {                                                             \
+        nrf_vreqctrl_radio_high_voltage_set(NRF_VREQCTRL, false); \
+    }                                                             \
+    while (0)
+#else /* NRF53_SERIES */
+#define RADIO_HIGH_VOLTAGE_DISABLE()\
+    do                              \
+    {                               \
+    }                               \
+    while (0)
+#endif /* NRF53_SERIES */
+
 #if NRF_802154_INTERNAL_RADIO_IRQ_HANDLING
 void nrf_802154_radio_irq_handler(void); ///< Prototype required by internal RADIO IRQ handler
 #endif  // NRF_802154_INTERNAL_RADIO_IRQ_HANDLING
@@ -172,6 +189,11 @@ void nrf_802154_radio_irq_handler(void); ///< Prototype required by internal RAD
 
 #ifndef NRF_802154_TRX_TEST_MODE_ALLOW_LATE_TX_ACK
 #define NRF_802154_TRX_TEST_MODE_ALLOW_LATE_TX_ACK 0
+#endif
+
+#if !defined(CONFIG_SOC_SERIES_BSIM_NRFXX) && (defined(NRF5340_XXAA) || \
+    NRF54L_CONFIGURATION_56_ENABLE)
+#define NRF_802154_TRX_PA_MODULATION_FIX
 #endif
 
 #if !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
@@ -242,6 +264,10 @@ static volatile uint32_t m_timer_value_on_radio_end_event;
 static volatile bool     m_transmit_with_cca;
 static volatile uint8_t  m_remaining_cca_attempts;
 
+#if defined(NRF_802154_TRX_PA_MODULATION_FIX)
+static bool m_pa_modulation_fix_enabled = true;
+#endif /* NRF_802154_TRX_PA_MODULATION_FIX */
+
 static void timer_frequency_set_1mhz(void);
 
 static void rxframe_finish_disable_ppis(void);
@@ -293,8 +319,9 @@ static void txpower_set(int8_t txpower)
         /* To get higher than 0dBm raise operating voltage of the radio, giving 3dBm power boost */
         radio_high_voltage_enable = true;
     }
-    nrf_vreqctrl_radio_high_voltage_set(NRF_VREQCTRL_NS, radio_high_voltage_enable);
-#endif
+    nrf_vreqctrl_radio_high_voltage_set(NRF_VREQCTRL, radio_high_voltage_enable);
+#endif /* NRF53_SERIES */
+
     uint32_t reg = mpsl_tx_power_dbm_to_radio_register_convert(txpower);
 
     nrf_radio_txpower_set(NRF_RADIO, reg);
@@ -308,37 +335,6 @@ static void nrf_timer_init(void)
     nrf_timer_bit_width_set(NRF_802154_TIMER_INSTANCE, NRF_TIMER_BIT_WIDTH_32);
     timer_frequency_set_1mhz();
 }
-
-#if defined(NRF53_SERIES)
-/** Implement the YOPAN-158 workaround. */
-static void yopan_158_workaround(void)
-{
-#define RADIO_ADDRESS_MASK        0xFFFFF000UL
-#define FICR_TRIM_REGISTERS_COUNT 32UL
-    /* This is a workaround for an issue reported in YOPAN-158.
-     *
-     * After RADIO peripheral reset with RADIO.POWER register the trim-values, loaded from FICR at
-     * network core boot time by MDK, are lost. The trim-values are not preserved and re-applied by
-     * hardware.
-     *
-     * Only selected trim-values are restored, those that apply to RADIO peripheral. The check
-     * is done based on destination address.
-     */
-
-    /* Copy all the trimming values from FICR into the target addresses. Trim until one ADDR
-       is not initialized. */
-    for (uint32_t index = 0; index < FICR_TRIM_REGISTERS_COUNT; index++)
-    {
-        if (((volatile uint32_t *)((volatile uintptr_t)NRF_FICR_NS->TRIMCNF[index].ADDR &
-                                   (uintptr_t)RADIO_ADDRESS_MASK) == (uint32_t *)NRF_RADIO))
-        {
-            *((volatile uint32_t *)NRF_FICR_NS->TRIMCNF[index].ADDR) =
-                NRF_FICR_NS->TRIMCNF[index].DATA;
-        }
-    }
-}
-
-#endif /* NRF53_SERIES */
 
 /** Sets the frequency of 1 MHz for NRF_802154_TIMER_INSTANCE. */
 static void timer_frequency_set_1mhz(void)
@@ -390,128 +386,10 @@ static inline void wait_until_radio_is_disabled(void)
 #if !defined(RADIO_POWER_POWER_Msk)
 static inline void radio_reset_without_power_reg(void)
 {
-    /* SUBSCRIBE registers */
-    NRF_RADIO->SUBSCRIBE_TXEN      = 0;
-    NRF_RADIO->SUBSCRIBE_RXEN      = 0;
-    NRF_RADIO->SUBSCRIBE_START     = 0;
-    NRF_RADIO->SUBSCRIBE_STOP      = 0;
-    NRF_RADIO->SUBSCRIBE_DISABLE   = 0;
-    NRF_RADIO->SUBSCRIBE_RSSISTART = 0;
-    NRF_RADIO->SUBSCRIBE_BCSTART   = 0;
-    NRF_RADIO->SUBSCRIBE_BCSTOP    = 0;
-    NRF_RADIO->SUBSCRIBE_EDSTART   = 0;
-    NRF_RADIO->SUBSCRIBE_EDSTOP    = 0;
-    NRF_RADIO->SUBSCRIBE_CCASTART  = 0;
-    NRF_RADIO->SUBSCRIBE_CCASTOP   = 0;
+    nrf_802154_hw_reset_radio_tasks_events();
 
-    /* EVENT registers */
-    NRF_RADIO->EVENTS_READY      = 0;
-    NRF_RADIO->EVENTS_ADDRESS    = 0;
-    NRF_RADIO->EVENTS_PAYLOAD    = 0;
-    NRF_RADIO->EVENTS_END        = 0;
-    NRF_RADIO->EVENTS_DISABLED   = 0;
-    NRF_RADIO->EVENTS_DEVMATCH   = 0;
-    NRF_RADIO->EVENTS_DEVMISS    = 0;
-    NRF_RADIO->EVENTS_BCMATCH    = 0;
-    NRF_RADIO->EVENTS_CRCOK      = 0;
-    NRF_RADIO->EVENTS_CRCERROR   = 0;
-    NRF_RADIO->EVENTS_FRAMESTART = 0;
-    NRF_RADIO->EVENTS_EDEND      = 0;
-    NRF_RADIO->EVENTS_EDSTOPPED  = 0;
-    NRF_RADIO->EVENTS_CCAIDLE    = 0;
-    NRF_RADIO->EVENTS_CCABUSY    = 0;
-    NRF_RADIO->EVENTS_CCASTOPPED = 0;
-    NRF_RADIO->EVENTS_RATEBOOST  = 0;
-    NRF_RADIO->EVENTS_TXREADY    = 0;
-    NRF_RADIO->EVENTS_RXREADY    = 0;
-    NRF_RADIO->EVENTS_MHRMATCH   = 0;
-    NRF_RADIO->EVENTS_PHYEND     = 0;
-    NRF_RADIO->EVENTS_CTEPRESENT = 0;
-
-    /* PUBLISH registers */
-    NRF_RADIO->PUBLISH_READY      = 0;
-    NRF_RADIO->PUBLISH_ADDRESS    = 0;
-    NRF_RADIO->PUBLISH_PAYLOAD    = 0;
-    NRF_RADIO->PUBLISH_END        = 0;
-    NRF_RADIO->PUBLISH_DISABLED   = 0;
-    NRF_RADIO->PUBLISH_DEVMATCH   = 0;
-    NRF_RADIO->PUBLISH_DEVMISS    = 0;
-    NRF_RADIO->PUBLISH_BCMATCH    = 0;
-    NRF_RADIO->PUBLISH_CRCOK      = 0;
-    NRF_RADIO->PUBLISH_CRCERROR   = 0;
-    NRF_RADIO->PUBLISH_FRAMESTART = 0;
-    NRF_RADIO->PUBLISH_EDEND      = 0;
-    NRF_RADIO->PUBLISH_EDSTOPPED  = 0;
-    NRF_RADIO->PUBLISH_CCAIDLE    = 0;
-    NRF_RADIO->PUBLISH_CCABUSY    = 0;
-    NRF_RADIO->PUBLISH_CCASTOPPED = 0;
-    NRF_RADIO->PUBLISH_RATEBOOST  = 0;
-    NRF_RADIO->PUBLISH_TXREADY    = 0;
-    NRF_RADIO->PUBLISH_RXREADY    = 0;
-    NRF_RADIO->PUBLISH_MHRMATCH   = 0;
-    NRF_RADIO->PUBLISH_PHYEND     = 0;
-    NRF_RADIO->PUBLISH_CTEPRESENT = 0;
-
-    /* INTEN registers */
-    NRF_RADIO->INTENSET00 = 0;
-    NRF_RADIO->INTENCLR00 = 0xffffffff;
-
-#if !defined(NRF54H20_ENGA_XXAA)
-    NRF_RADIO->TASKS_SOFTRESET = 1;
-#else /* defined(NRF54H20_ENGA_XXAA) */
-    NRF_RADIO->TASKS_TXEN       = 0;
-    NRF_RADIO->TASKS_RXEN       = 0;
-    NRF_RADIO->TASKS_START      = 0;
-    NRF_RADIO->TASKS_STOP       = 0;
-    NRF_RADIO->TASKS_DISABLE    = 0;
-    NRF_RADIO->TASKS_RSSISTART  = 0;
-    NRF_RADIO->TASKS_BCSTART    = 0;
-    NRF_RADIO->TASKS_BCSTOP     = 0;
-    NRF_RADIO->TASKS_EDSTART    = 0;
-    NRF_RADIO->TASKS_EDSTOP     = 0;
-    NRF_RADIO->TASKS_CCASTART   = 0;
-    NRF_RADIO->TASKS_CCASTOP    = 0;
-    NRF_RADIO->SHORTS           = 0;
-    NRF_RADIO->PACKETPTR        = 0;
-    NRF_RADIO->FREQUENCY        = 0;
-    NRF_RADIO->TXPOWER          = 0;
-    NRF_RADIO->MODE             = 0;
-    NRF_RADIO->PCNF0            = 0;
-    NRF_RADIO->PCNF1            = 0;
-    NRF_RADIO->BASE0            = 0;
-    NRF_RADIO->BASE1            = 0;
-    NRF_RADIO->PREFIX0          = 0;
-    NRF_RADIO->PREFIX1          = 0;
-    NRF_RADIO->TXADDRESS        = 0;
-    NRF_RADIO->RXADDRESSES      = 0;
-    NRF_RADIO->CRCCNF           = 0;
-    NRF_RADIO->CRCPOLY          = 0;
-    NRF_RADIO->CRCINIT          = 0;
-    NRF_RADIO->TIFS             = 0;
-    NRF_RADIO->DATAWHITEIV      = 0;
-    NRF_RADIO->BCC              = 0;
-    NRF_RADIO->DACNF            = 0;
-    NRF_RADIO->MHRMATCHCONF     = 0;
-    NRF_RADIO->MHRMATCHMASK     = 0;
-    NRF_RADIO->SFD              = 0xA7;
-    NRF_RADIO->EDCTRL           = RADIO_EDCTRL_ResetValue;
-    NRF_RADIO->CCACTRL          = 0x52D0000;
-    NRF_RADIO->DFEMODE          = 0;
-    NRF_RADIO->CTEINLINECONF    = 0x2800;
-    NRF_RADIO->DFECTRL1         = 0x23282;
-    NRF_RADIO->DFECTRL2         = 0;
-    NRF_RADIO->SWITCHPATTERN    = 0;
-    NRF_RADIO->CLEARPATTERN     = 0;
-    NRF_RADIO->DFEPACKET.PTR    = 0;
-    NRF_RADIO->DFEPACKET.MAXCNT = 0x1000;
-
-    for (uint8_t i = 0; i < 8; i++)
-    {
-        NRF_RADIO->DAB[i]          = 0;
-        NRF_RADIO->DAP[i]          = 0;
-        NRF_RADIO->PSEL.DFEGPIO[i] = 0xFFFFFFFF;
-    }
-#endif /* !defined(NRF54H20_ENGA_XXAA) */
+    /* Reset FSM and configuration registers. */
+    nrf_radio_task_trigger(NRF_RADIO, NRF_RADIO_TASK_SOFTRESET);
 }
 
 #endif /* !defined(RADIO_POWER_POWER_Msk) */
@@ -520,6 +398,8 @@ static inline void radio_reset_without_power_reg(void)
 static void nrf_radio_reset(void)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
+
+    RADIO_HIGH_VOLTAGE_DISABLE();
 
 #if defined(RADIO_POWER_POWER_Msk)
     nrf_radio_power_set(NRF_RADIO, false);
@@ -530,9 +410,9 @@ static void nrf_radio_reset(void)
 
     NRF_802154_TRX_RADIO_RESET_INTERNAL();
 
-#if defined(NRF53_SERIES)
+#if NRF53_ERRATA_158_ENABLE_WORKAROUND
     yopan_158_workaround();
-#endif /* NRF53_SERIES */
+#endif /* NRF53_ERRATA_158_ENABLE_WORKAROUND */
 
     nrf_802154_log_global_event(NRF_802154_LOG_VERBOSITY_LOW,
                                 NRF_802154_LOG_GLOBAL_EVENT_ID_RADIO_RESET,
@@ -552,10 +432,8 @@ static void radio_robust_disable(void)
     }
     else
     {
-#if !defined(RADIO_POWER_POWER_Msk)
         /* Disable shorts to ensure no event will be triggered after disabling. */
         nrf_radio_shorts_set(NRF_RADIO, SHORTS_IDLE);
-#endif
         /* RADIO is in a stable state and needs to be transitioned to DISABLED manually.
          * It cannot be disabled if EVENT_DISABLED is set. Clear it first. */
         nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
@@ -591,20 +469,23 @@ static void cca_configuration_update(void)
 /** Initialize interrupts for radio peripheral. */
 static void irq_init(void)
 {
+    IRQn_Type irqn = nrfx_get_irq_number(NRF_RADIO);
+
 #if NRF_802154_INTERNAL_RADIO_IRQ_HANDLING
-    nrf_802154_irq_init(nrfx_get_irq_number(NRF_RADIO),
-                        NRF_802154_IRQ_PRIORITY,
-                        nrf_802154_radio_irq_handler);
+    nrf_802154_irq_init(irqn, NRF_802154_IRQ_PRIORITY, nrf_802154_radio_irq_handler);
 #endif
-    nrf_802154_irq_enable(nrfx_get_irq_number(NRF_RADIO));
+    nrf_802154_irq_enable(irqn);
 }
 
 static void trigger_disable_to_start_rampup(void)
 {
     if (!nrf_802154_trx_ppi_for_ramp_up_was_triggered())
     {
+#if defined(DPPI_PRESENT)
+        nrf_egu_task_trigger(NRF_802154_EGU_INSTANCE, NRF_802154_EGU_TRIGGER_TASK);
+#else
         nrf_radio_task_trigger(NRF_RADIO, NRF_RADIO_TASK_DISABLE);
-        nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_DISABLED);
+#endif
     }
 }
 
@@ -656,7 +537,11 @@ static void fem_for_pa_set(mpsl_fem_pa_power_control_t pa_power_control)
 static void fem_for_pa_reset(void)
 {
     mpsl_fem_pa_configuration_clear();
+
     timer_stop_and_clear();
+    nrf_timer_shorts_disable(m_activate_tx_cc0.event.timer.p_timer_instance,
+                             NRF_TIMER_SHORT_COMPARE0_STOP_MASK);
+
     nrf_802154_trx_ppi_for_fem_clear();
     mpsl_fem_deactivate_now(MPSL_FEM_PA);
 }
@@ -728,62 +613,8 @@ static void fem_for_tx_reset(bool cca)
     timer_stop_and_clear();
 }
 
-#if defined(NRF52840_XXAA) || \
-    defined(NRF52833_XXAA)
-/** @brief Applies DEVICE-CONFIG-254.
- *
- * Shall be called after every RADIO peripheral reset.
- */
-static void device_config_254_apply_tx(void)
-{
-    uint32_t ficr_reg1 = *(volatile uint32_t *)0x10000330UL;
-    uint32_t ficr_reg2 = *(volatile uint32_t *)0x10000334UL;
-    uint32_t ficr_reg3 = *(volatile uint32_t *)0x10000338UL;
-
-    /* Check if the device is fixed by testing every FICR register's value separately. */
-    if (ficr_reg1 != 0xffffffffUL)
-    {
-        volatile uint32_t * p_radio_reg1 = (volatile uint32_t *)0x4000174cUL;
-
-        *p_radio_reg1 = ficr_reg1;
-    }
-
-    if (ficr_reg2 != 0xffffffffUL)
-    {
-        volatile uint32_t * p_radio_reg2 = (volatile uint32_t *)0x40001584UL;
-
-        *p_radio_reg2 = ficr_reg2;
-    }
-
-    if (ficr_reg3 != 0xffffffffUL)
-    {
-        volatile uint32_t * p_radio_reg3 = (volatile uint32_t *)0x40001588UL;
-
-        *p_radio_reg3 = ficr_reg3;
-    }
-}
-
-#endif
-
-#if defined(NRF5340_XXAA) && !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
-
-/** @brief Applies ERRATA-117
- *
- * Shall be called after setting RADIO mode to NRF_RADIO_MODE_IEEE802154_250KBIT.
- */
-static void errata_117_apply(void)
-{
-    /* Register at 0x01FF0084. */
-    uint32_t ficr_reg = *(volatile uint32_t *)(FICR_BASE + 0x84UL);
-    /* Register at 0x41008588. */
-    volatile uint32_t * p_radio_reg = (volatile uint32_t *)(RADIO_BASE + 0x588UL);
-
-    *p_radio_reg = ficr_reg;
-}
-
-#endif /* defined(NRF5340_XXAA) && !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)*/
-
-/** @brief Applies modulation fix when PA is used.
+/**
+ * @brief Applies modulation fix when PA is used.
  *
  * Shall be called after setting RADIO mode to NRF_RADIO_MODE_IEEE802154_250KBIT.
  *
@@ -794,19 +625,25 @@ static void pa_modulation_fix_apply(bool enable)
 {
 #if !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
 #if (defined(NRF5340_XXAA) || NRF54L_CONFIGURATION_56_ENABLE)
-    static uint32_t     m_pa_mod_filter_latched    = 0;
-    static bool         m_pa_mod_filter_is_latched = false;
-    volatile uint32_t * p_radio_reg;
+
+    static uint32_t m_pa_mod_filter_latched    = 0;
+    static bool     m_pa_mod_filter_is_latched = false;
 
 #if defined(NRF5340_XXAA)
-    p_radio_reg = (volatile uint32_t *)(RADIO_BASE + 0x584UL);
-#elif NRF54L_CONFIGURATION_56_ENABLE
-    p_radio_reg = (volatile uint32_t *)(RADIO_BASE + 0x8C4UL);
+
+    const uint32_t m_pa_mod_filter_value = 0x40081B08UL;
+    const uint32_t radio_offset          = 0x584UL;
+
+#elif NRF54L_CONFIGURATION_56_ENABLE /* MLTPAN-56 */
+
+    const uint32_t m_pa_mod_filter_value = 0x01280001UL;
+    const uint32_t radio_offset          = 0x8C4UL;
+
 #else
     #error Unknown SoC
 #endif
 
-    if (enable)
+    if (enable && m_pa_modulation_fix_enabled)
     {
         mpsl_fem_caps_t fem_caps = {};
 
@@ -814,21 +651,14 @@ static void pa_modulation_fix_apply(bool enable)
 
         if ((fem_caps.flags & MPSL_FEM_CAPS_FLAG_PA_SETUP_REQUIRED) != 0)
         {
-#if defined(NRF5340_XXAA)
-            m_pa_mod_filter_latched    = *(p_radio_reg);
+            m_pa_mod_filter_latched    = nrf_802154_hw_offset_read(RADIO_BASE, radio_offset);
             m_pa_mod_filter_is_latched = true;
-            *(p_radio_reg)             = 0x40081B08;
-#elif NRF54L_CONFIGURATION_56_ENABLE
-            // MLTPAN-56
-            m_pa_mod_filter_latched    = *(p_radio_reg);
-            m_pa_mod_filter_is_latched = true;
-            *(p_radio_reg)             = 0x01280001ul;
-#endif
+            nrf_802154_hw_offset_write(RADIO_BASE, radio_offset, m_pa_mod_filter_value);
         }
     }
     else if (m_pa_mod_filter_is_latched)
     {
-        *(p_radio_reg)             = m_pa_mod_filter_latched;
+        nrf_802154_hw_offset_write(RADIO_BASE, radio_offset, m_pa_mod_filter_latched);
         m_pa_mod_filter_is_latched = false;
     }
 #endif /* (defined(NRF5340_XXAA) || NRF54L_CONFIGURATION_56_ENABLE) */
@@ -837,12 +667,33 @@ static void pa_modulation_fix_apply(bool enable)
 #endif /* !defined(CONFIG_SOC_SERIES_BSIM_NRFXX) */
 }
 
+void nrf_802154_trx_pa_modulation_fix_set(bool enable)
+{
+#if defined(NRF_802154_TRX_PA_MODULATION_FIX)
+    m_pa_modulation_fix_enabled = enable;
+#else
+    (void)enable;
+#endif /* NRF_802154_TRX_PA_MODULATION_FIX */
+}
+
+bool nrf_802154_trx_pa_modulation_fix_get(void)
+{
+#if defined(NRF_802154_TRX_PA_MODULATION_FIX)
+    return m_pa_modulation_fix_enabled;
+#else
+    return false;
+#endif /* NRF_802154_TRX_PA_MODULATION_FIX */
+}
+
 void nrf_802154_trx_module_reset(void)
 {
     m_trx_state                      = TRX_STATE_DISABLED;
     m_timer_value_on_radio_end_event = 0;
     m_transmit_with_cca              = false;
     mp_receive_buffer                = NULL;
+#if defined(NRF_802154_TRX_PA_MODULATION_FIX)
+    m_pa_modulation_fix_enabled = true;
+#endif /* NRF_802154_TRX_PA_MODULATION_FIX */
 
     memset(&m_flags, 0, sizeof(m_flags));
 }
@@ -856,28 +707,6 @@ void nrf_802154_trx_init(void)
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
 }
 
-#if defined(NRF54H_SERIES)
-static void radio_trims_apply(void)
-{
-#if defined(NRF54H20_XXAA) && !defined(TEST)
-    /* HMPAN-103 */
-    if ((*(volatile uint32_t *)0x5302C8A0 == 0x80000000) ||
-        (*(volatile uint32_t *)0x5302C8A0 == 0x0058120E))
-    {
-        *(volatile uint32_t *)0x5302C8A0 = 0x0058090E;
-    }
-
-    *(volatile uint32_t *)0x5302C8A4 = 0x00F8AA5F;
-    *(volatile uint32_t *)0x5302C7AC = 0x8672827A;
-    *(volatile uint32_t *)0x5302C7B0 = 0x7E768672;
-    *(volatile uint32_t *)0x5302C7B4 = 0x0406007E;
-#endif
-
-    nrf_radio_fast_ramp_up_enable_set(NRF_RADIO, true);
-}
-
-#endif /* defined(NRF54H_SERIES) */
-
 void nrf_802154_trx_enable(void)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
@@ -887,8 +716,7 @@ void nrf_802154_trx_enable(void)
     nrf_timer_init();
     nrf_radio_reset();
 
-#if defined(NRF52840_XXAA) || \
-    defined(NRF52833_XXAA)
+#if NRF52_CONFIGURATION_254_ENABLE
     // Apply DEVICE-CONFIG-254 if needed.
     if (mpsl_fem_device_config_254_apply_get())
     {
@@ -900,15 +728,20 @@ void nrf_802154_trx_enable(void)
 
     nrf_radio_mode_set(NRF_RADIO, NRF_RADIO_MODE_IEEE802154_250KBIT);
 
-#if defined(NRF54L_SERIES) && !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
-    // Apply MLTPAN-6
-    *(volatile uint32_t *)(RADIO_BASE + 0x810UL) = 2;
-#endif
+#if NRF54L_FIR_4205_ENABLE_WORKAROUND
+    // Apply FIR-4205
+    fir_4205_apply();
+#endif /* NRF54L_FIR_4205_ENABLE_WORKAROUND */
 
-#if defined(NRF5340_XXAA) && !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
+#if NRF54L_ERRATA_6_ENABLE_WORKAROUND
+    // Apply MLTPAN-6
+    mltpan_6_apply();
+#endif /* NRF54L_ERRATA_6_ENABLE_WORKAROUND */
+
+#if NRF53_ERRATA_117_ENABLE_WORKAROUND
     // Apply ERRATA-117 after setting RADIO mode to NRF_RADIO_MODE_IEEE802154_250KBIT.
     errata_117_apply();
-#endif
+#endif /* NRF53_ERRATA_117_ENABLE_WORKAROUND */
 
     pa_modulation_fix_apply(true);
 
@@ -918,10 +751,6 @@ void nrf_802154_trx_enable(void)
     packet_conf.crcinc = true;
     packet_conf.maxlen = MAX_PACKET_SIZE;
     nrf_radio_packet_configure(NRF_RADIO, &packet_conf);
-
-#if defined(NRF54H_SERIES)
-    radio_trims_apply();
-#endif
 
     NRF_802154_TRX_ENABLE_INTERNAL();
 
@@ -951,10 +780,10 @@ void nrf_802154_trx_enable(void)
 #if defined(DPPI_PRESENT)
     mpsl_fem_abort_set(NRF_802154_DPPI_RADIO_DISABLED,
                        0U); /* The group parameter is ignored by FEM for SoCs with DPPIs */
-#else
+#else /* defined(DPPI_PRESENT) */
     mpsl_fem_abort_set(nrf_radio_event_address_get(NRF_RADIO, NRF_RADIO_EVENT_DISABLED),
                        PPI_CHGRP_ABORT);
-#endif
+#endif /* defined(DPPI_PRESENT) */
 
     m_trx_state = TRX_STATE_IDLE;
 
@@ -1017,7 +846,6 @@ static void ppi_all_clear(void)
         default:
             NRF_802154_ASSERT(false);
     }
-    nrf_802154_trx_ppi_for_disable();
 }
 
 static void fem_power_down_now(void)
@@ -1032,23 +860,15 @@ void nrf_802154_trx_disable(void)
 
     if (m_trx_state != TRX_STATE_DISABLED)
     {
-        pa_modulation_fix_apply(false);
-
-#if defined(RADIO_POWER_POWER_Msk)
-        nrf_radio_power_set(NRF_RADIO, false);
-#endif
-
         /* While the RADIO is powered off deconfigure any PPIs used directly by trx module */
         ppi_all_clear();
 
-#if !defined(RADIO_POWER_POWER_Msk)
         radio_robust_disable();
-        wait_until_radio_is_disabled();
-        nrf_radio_reset();
-#endif
 
-        nrf_802154_irq_clear_pending(nrfx_get_irq_number(NRF_RADIO));
-
+        /*
+         * Disabling the radio may take some time.
+         * In the meantime perform other clean-up actions.
+         */
 #if defined(RADIO_INTENSET_SYNC_Msk)
         nrf_egu_int_disable(NRF_802154_EGU_INSTANCE, EGU_SYNC_INTMASK);
         nrf_egu_event_clear(NRF_802154_EGU_INSTANCE, EGU_SYNC_EVENT);
@@ -1060,9 +880,14 @@ void nrf_802154_trx_disable(void)
                                  NRF_TIMER_SHORT_COMPARE1_STOP_MASK);
         timer_stop_and_clear();
 
-#if defined(RADIO_POWER_POWER_Msk)
-        nrf_radio_power_set(NRF_RADIO, true);
-#endif
+        /* Resume clean-up of the radio path. */
+        wait_until_radio_is_disabled();
+        pa_modulation_fix_apply(false);
+        nrf_radio_reset();
+
+        nrf_802154_trx_ppi_for_disable();
+
+        nrf_802154_irq_clear_pending(nrfx_get_irq_number(NRF_RADIO));
 
         mpsl_fem_lna_configuration_clear();
         mpsl_fem_pa_configuration_clear();
@@ -1313,15 +1138,16 @@ bool nrf_802154_trx_receive_buffer_set(void * p_receive_buffer)
     return result;
 }
 
-void nrf_802154_trx_receive_frame(uint8_t                                 bcc,
-                                  nrf_802154_trx_ramp_up_trigger_mode_t   rampup_trigg_mode,
-                                  nrf_802154_trx_receive_notifications_t  notifications_mask,
-                                  const nrf_802154_fal_tx_power_split_t * p_ack_tx_power)
+void nrf_802154_trx_receive_frame(uint8_t                                bcc,
+                                  nrf_802154_trx_ramp_up_trigger_mode_t  rampup_trigg_mode,
+                                  nrf_802154_trx_receive_notifications_t notifications_mask)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
     uint32_t ints_to_enable = 0U;
     uint32_t shorts         = SHORTS_RX;
+
+    RADIO_HIGH_VOLTAGE_DISABLE();
 
     timer_stop_and_clear();
 
@@ -1336,8 +1162,6 @@ void nrf_802154_trx_receive_frame(uint8_t                                 bcc,
     m_flags.rssi_started = false;
 
     m_flags.rssi_settled = false;
-
-    txpower_set(p_ack_tx_power->radio_tx_power);
 
     uint8_t * p_receive_buffer = mp_receive_buffer;
 
@@ -1428,9 +1252,6 @@ void nrf_802154_trx_receive_frame(uint8_t                                 bcc,
         nrf_timer_cc_set(NRF_802154_TIMER_INSTANCE, NRF_TIMER_CC_CHANNEL0, delta_time);
     }
 
-    // Set FEM PA gain for ACK transmission
-    mpsl_fem_pa_power_control_set(p_ack_tx_power->fem_pa_power_control);
-
     m_timer_value_on_radio_end_event = delta_time;
 
     // Select antenna
@@ -1455,12 +1276,13 @@ void nrf_802154_trx_receive_ack(void)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
-    uint32_t shorts         = SHORTS_RX_ACK;
-    uint32_t ints_to_enable = 0U;
+    uint32_t  shorts           = SHORTS_RX_ACK;
+    uint32_t  ints_to_enable   = 0U;
+    uint8_t * p_receive_buffer = mp_receive_buffer;
 
     m_trx_state = TRX_STATE_RXACK;
 
-    uint8_t * p_receive_buffer = mp_receive_buffer;
+    RADIO_HIGH_VOLTAGE_DISABLE();
 
     if (p_receive_buffer != NULL)
     {
@@ -1547,7 +1369,7 @@ bool nrf_802154_trx_rssi_measure_is_started(void)
     return m_flags.rssi_started;
 }
 
-uint8_t nrf_802154_trx_rssi_last_sample_get(void)
+int8_t nrf_802154_trx_rssi_last_sample_get(void)
 {
     int8_t  lna_gain_db                     = 0;
     uint8_t rssi_sample_minus_dbm           = nrf_radio_rssi_sample_get(NRF_RADIO);
@@ -1659,7 +1481,9 @@ void nrf_802154_trx_transmit_frame(const void                            * p_tra
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
 }
 
-bool nrf_802154_trx_transmit_ack(const void * p_transmit_buffer, uint32_t delay_us)
+bool nrf_802154_trx_transmit_ack(const void                            * p_transmit_buffer,
+                                 uint32_t                                delay_us,
+                                 const nrf_802154_fal_tx_power_split_t * p_tx_power_split)
 {
     /* Assumptions on peripherals
      * TIMER is running, is counting from value saved in m_timer_value_on_radio_end_event,
@@ -1668,7 +1492,6 @@ bool nrf_802154_trx_transmit_ack(const void * p_transmit_buffer, uint32_t delay_
      * RADIO is DISABLED
      * PPIs are DISABLED
      */
-
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
     bool result = false;
@@ -1685,6 +1508,8 @@ bool nrf_802154_trx_transmit_ack(const void * p_transmit_buffer, uint32_t delay_
         nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
         return result;
     }
+
+    txpower_set(p_tx_power_split->radio_tx_power);
 
     uint32_t timer_cc_ramp_up_start = m_timer_value_on_radio_end_event + delay_us -
                                       TX_RAMP_UP_TIME -
@@ -1710,6 +1535,9 @@ bool nrf_802154_trx_transmit_ack(const void * p_transmit_buffer, uint32_t delay_
     // Set the moment for FEM at which real transmission starts.
     m_activate_tx_cc0_timeshifted.event.timer.counter_period.end = timer_cc_ramp_up_start +
                                                                    TX_RAMP_UP_TIME;
+
+    // Set FEM PA gain for ACK transmission
+    mpsl_fem_pa_power_control_set(p_tx_power_split->fem_pa_power_control);
 
     if (mpsl_fem_pa_configuration_set(&m_activate_tx_cc0_timeshifted, NULL) == 0)
     {
@@ -1800,6 +1628,8 @@ bool nrf_802154_trx_transmit_ack(const void * p_transmit_buffer, uint32_t delay_
         mpsl_fem_deactivate_now(MPSL_FEM_PA);
 
         timer_stop_and_clear();
+
+        RADIO_HIGH_VOLTAGE_DISABLE();
 
         /* No callbacks will be called */
 #else // !NRF_802154_TRX_TEST_MODE_ALLOW_LATE_TX_ACK
@@ -1993,9 +1823,9 @@ static void go_idle_from_state_finished(void)
 
     m_trx_state = TRX_STATE_GOING_IDLE;
 
-    radio_robust_disable();
-
     nrf_radio_int_enable(NRF_RADIO, NRF_RADIO_INT_DISABLED_MASK);
+
+    radio_robust_disable();
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_HIGH);
 }
@@ -2153,6 +1983,8 @@ void nrf_802154_trx_standalone_cca(void)
 
     m_trx_state = TRX_STATE_STANDALONE_CCA;
 
+    RADIO_HIGH_VOLTAGE_DISABLE();
+
     // Set shorts
     nrf_radio_shorts_set(NRF_RADIO, SHORTS_CCA);
 
@@ -2251,9 +2083,13 @@ static void continuous_carrier_abort(void)
 
     nrf_802154_trx_ppi_for_ramp_up_clear(NRF_RADIO_TASK_TXEN, false);
 
+    nrf_radio_shorts_set(NRF_RADIO, SHORTS_IDLE);
+
     fem_for_pa_reset();
 
     radio_robust_disable();
+
+    RADIO_HIGH_VOLTAGE_DISABLE();
 
     m_trx_state = TRX_STATE_FINISHED;
 
@@ -2319,6 +2155,8 @@ static void modulated_carrier_abort()
 
     radio_robust_disable();
 
+    RADIO_HIGH_VOLTAGE_DISABLE();
+
     m_trx_state = TRX_STATE_FINISHED;
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_HIGH);
@@ -2339,6 +2177,8 @@ void nrf_802154_trx_energy_detection(uint32_t ed_count)
 #if defined(RADIO_EDCNT_EDCNT_Msk)
     NRF_802154_ASSERT( (ed_count & (~RADIO_EDCNT_EDCNT_Msk)) == 0U);
 #endif
+
+    RADIO_HIGH_VOLTAGE_DISABLE();
 
     nrf_radio_ed_loop_count_set(NRF_RADIO, ed_count);
 
@@ -2617,6 +2457,8 @@ static void txframe_finish(void)
     m_flags.tx_started             = false;
     m_flags.missing_receive_buffer = false;
 
+    RADIO_HIGH_VOLTAGE_DISABLE();
+
     /* Current state of peripherals
      * RADIO is either in TXDISABLE or DISABLED
      * FEM is powered but PA mode will be turned off on entry into DISABLED state or is already turned off
@@ -2644,6 +2486,8 @@ static void transmit_frame_abort(void)
 
     nrf_radio_task_trigger(NRF_RADIO, NRF_RADIO_TASK_CCASTOP);
     radio_robust_disable();
+
+    RADIO_HIGH_VOLTAGE_DISABLE();
 
     m_trx_state = TRX_STATE_FINISHED;
 
@@ -2680,6 +2524,8 @@ static void txack_finish(void)
 
     timer_stop_and_clear();
 
+    RADIO_HIGH_VOLTAGE_DISABLE();
+
     nrf_radio_int_disable(NRF_RADIO,
                           NRF_RADIO_INT_PHYEND_MASK | NRF_RADIO_INT_ADDRESS_MASK |
                           NRF_RADIO_INT_DISABLED_MASK);
@@ -2714,6 +2560,8 @@ static void transmit_ack_abort(void)
     nrf_radio_int_disable(NRF_RADIO, NRF_RADIO_INT_PHYEND_MASK | NRF_RADIO_INT_ADDRESS_MASK);
 
     radio_robust_disable();
+
+    RADIO_HIGH_VOLTAGE_DISABLE();
 
     m_trx_state = TRX_STATE_FINISHED;
 
