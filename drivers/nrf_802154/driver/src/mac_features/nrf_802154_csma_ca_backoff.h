@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Nordic Semiconductor ASA
+ * Copyright (c) 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -32,62 +32,37 @@
  *
  */
 
-/**
- * @file
- *   This file implements SWI manager for nRF 802.15.4 driver.
- *
- */
-
-#include "nrf_802154_swi.h"
-#include "nrf_802154_swi_callouts.h"
+#ifndef NRF_802154_CSMA_CA_BACKOFF_H__
+#define NRF_802154_CSMA_CA_BACKOFF_H__
 
 #include <stdbool.h>
+#include <stdint.h>
 
-#include "nrfx.h"
-#include "nrf_802154_config.h"
-#if !NRF_802154_INTERNAL_SWI_IRQ_HANDLING
-#include "nrf_802154_irq_handlers.h"
-#endif
-#include "nrf_802154_peripherals.h"
-#include "platform/nrf_802154_irq.h"
+/**
+ * @defgroup nrf_802154_csma_ca_backoff 802.15.4 driver CSMA-CA support
+ * @{
+ * @ingroup nrf_802154_csma_ca
+ * @brief CSMA-CA procedure.
+ */
 
-#if NRF_802154_INTERNAL_SWI_IRQ_HANDLING
-/* SWI interrupt handling functionality is implemented directly by the chosen EGU IRQ handler. */
-#define SWI_IRQHandler NRF_802154_EGU_IRQ_HANDLER ///< Symbol of SWI IRQ handler.
-#else
-#define SWI_IRQHandler nrf_802154_swi_irq_handler ///< Symbol of SWI IRQ handler.
-#endif
+/** @brief Gets the number of backoff periods to wait before the next CCA attempt of CSMA/CA.
+ *
+ * When test modes are not enabled, the number of backoff periods is a random value in the range
+ * from 0 to (2^BE - 1), where BE is the current backoff exponent, as defined in IEEE Std. 802.15.4.
+ *
+ * When test modes are enabled the returned value depends on the value returned by
+ * @c nrf_802154_pib_test_mode_csmaca_backoff_get .
+ *
+ * @note Consecutive calls to this function may return different values.
+ *
+ * @param[in] be Backoff Exponent. Allowed range 0...8.
+ *
+ * @return Number of backoff periods to wait before the next CCA attempt
+ */
+uint8_t nrf_802154_csma_ca_backoff_periods_get(uint8_t be);
 
-static bool initialized = false;
+/**
+ *@}
+ **/
 
-static void swi_irq_handler(void)
-{
-    nrf_802154_trx_swi_irq_handler();
-    nrf_802154_notification_swi_irq_handler();
-    nrf_802154_request_swi_irq_handler();
-}
-
-void nrf_802154_swi_init(void)
-{
-    if (!initialized)
-    {
-        IRQn_Type irq_number = nrfx_get_irq_number(NRF_802154_EGU_INSTANCE);
-
-        nrf_802154_irq_init(irq_number, NRF_802154_SWI_PRIORITY, &swi_irq_handler);
-        nrf_802154_irq_enable(irq_number);
-        initialized = true;
-    }
-}
-
-void SWI_IRQHandler(void)
-{
-    swi_irq_handler();
-}
-
-#ifdef TEST
-void nrf_802154_swi_module_reset(void)
-{
-    initialized = false;
-}
-
-#endif // TEST
+#endif // NRF_802154_CSMA_CA_BACKOFF_H__

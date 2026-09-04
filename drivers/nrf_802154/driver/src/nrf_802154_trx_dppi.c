@@ -124,9 +124,7 @@ void nrf_802154_trx_ppi_for_disable(void)
     nrf_egu_publish_clear(NRF_802154_EGU_INSTANCE, EGU_TIMER_START_EVENT);
 #endif
 
-#if NRF_802154_TEST_MODES_ENABLED
     nrf_radio_publish_clear(NRF_RADIO, NRF_RADIO_EVENT_CCABUSY);
-#endif // NRF_802154_TEST_MODES_ENABLED
     nrf_radio_publish_clear(NRF_RADIO, NRF_RADIO_EVENT_CCAIDLE);
     nrf_radio_publish_clear(NRF_RADIO, NRF_RADIO_EVENT_PHYEND);
     nrf_radio_publish_clear(NRF_RADIO, NRF_RADIO_EVENT_END);
@@ -168,6 +166,7 @@ void nrf_802154_trx_ppi_for_ramp_up_set(nrf_radio_task_t                      ra
     }
 
     nrf_egu_publish_set(NRF_802154_EGU_INSTANCE, EGU_EVENT, PPI_EGU_RAMP_UP);
+    nrf_egu_publish_set(NRF_802154_EGU_INSTANCE, NRF_802154_EGU_TRIGGER_EVENT, PPI_DISABLED_EGU);
 
     nrf_egu_subscribe_set(NRF_802154_EGU_INSTANCE, EGU_TASK, PPI_DISABLED_EGU);
 
@@ -176,9 +175,9 @@ void nrf_802154_trx_ppi_for_ramp_up_set(nrf_radio_task_t                      ra
 
     if (trigg_mode == TRX_RAMP_UP_HW_TRIGGER)
     {
-        nrf_radio_subscribe_set(NRF_RADIO,
-                                NRF_RADIO_TASK_DISABLE,
-                                NRF_802154_DPPI_RADIO_HW_TRIGGER);
+        nrf_egu_subscribe_set(NRF_802154_EGU_INSTANCE,
+                              NRF_802154_EGU_TRIGGER_TASK,
+                              NRF_802154_DPPI_RADIO_HW_TRIGGER);
     }
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_HIGH);
@@ -271,6 +270,11 @@ void nrf_802154_trx_ppi_for_ramp_up_clear(nrf_radio_task_t ramp_up_task, bool st
                               (1UL << PPI_EGU_RAMP_UP));
 
     nrf_egu_publish_clear(NRF_802154_EGU_INSTANCE, EGU_EVENT);
+    nrf_egu_publish_clear(NRF_802154_EGU_INSTANCE, NRF_802154_EGU_TRIGGER_EVENT);
+
+    nrf_egu_subscribe_clear(NRF_802154_EGU_INSTANCE, EGU_TASK);
+    nrf_egu_subscribe_clear(NRF_802154_EGU_INSTANCE, NRF_802154_EGU_TRIGGER_TASK);
+
     nrf_radio_subscribe_clear(NRF_RADIO, ramp_up_task);
     nrf_radio_subscribe_clear(NRF_RADIO, NRF_RADIO_TASK_DISABLE);
 

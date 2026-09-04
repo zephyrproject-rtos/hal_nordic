@@ -35,12 +35,13 @@
 #ifndef NRF_802154_CONFIG_H__
 #define NRF_802154_CONFIG_H__
 
+/* This file must not include nrf.h or nrfx.h directly or indirectly,
+ * to avoid circular dependencies.
+ */
+
 #ifdef NRF_802154_PROJECT_CONFIG
 #include NRF_802154_PROJECT_CONFIG
 #endif
-
-#include <nrfx.h>
-#include "nrf_802154_nrfx_addons.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,6 +58,20 @@ extern "C" {
  * @defgroup nrf_802154_config_radio Radio driver configuration
  * @{
  */
+
+/**
+ * @def NRF_802154_DRV_REINIT_ENABLED
+ *
+ * Enables the driver reinitialization feature.
+ * 
+ * @note This option implies the following options to be enabled:
+ *       - NRF_802154_DELAYED_TRX_CANCEL_ALL_ENABLED
+ *       - NRF_802154_CSMA_CA_CANCEL_ENABLED
+ *       - NRF_802154_NOTIFICATION_QUEUE_FLUSH_ENABLED
+ */
+#ifndef NRF_802154_DRV_REINIT_ENABLED
+#define NRF_802154_DRV_REINIT_ENABLED 0
+#endif
 
 /**
  * @def NRF_802154_CCA_MODE_DEFAULT
@@ -261,6 +276,18 @@ extern "C" {
 #endif
 
 /**
+ * @def NRF_802154_DELAYED_TRX_CANCEL_ALL_ENABLED
+ *
+ * When @ref NRF_802154_DELAYED_TRX_ENABLED is set to 1, this option can be set to 1
+ * to enable the @ref nrf_802154_delayed_trx_receive_cancel_all() function.
+ */
+#if NRF_802154_DELAYED_TRX_ENABLED
+#ifndef NRF_802154_DELAYED_TRX_CANCEL_ALL_ENABLED
+#define NRF_802154_DELAYED_TRX_CANCEL_ALL_ENABLED NRF_802154_DRV_REINIT_ENABLED
+#endif
+#endif /* NRF_802154_DELAYED_TRX_ENABLED */
+
+/**
  * @def NRF_802154_TEST_MODES_ENABLED
  *
  * Enables test modes. Test modes are normally disabled in end products.
@@ -283,6 +310,42 @@ extern "C" {
 #endif
 
 /**
+ * @def NRF_802154_PAN_ID_GET_ENABLED
+ *
+ * Enables the @ref nrf_802154_pan_id_get function.
+ */
+#ifndef NRF_802154_PAN_ID_GET_ENABLED
+#define NRF_802154_PAN_ID_GET_ENABLED 0
+#endif
+
+/**
+ * @def NRF_802154_SHORT_ADDRESS_GET_ENABLED
+ *
+ * Enables the @ref nrf_802154_short_address_get function.
+ */
+#ifndef NRF_802154_SHORT_ADDRESS_GET_ENABLED
+#define NRF_802154_SHORT_ADDRESS_GET_ENABLED 0
+#endif
+
+/**
+ * @def NRF_802154_ALTERNATE_SHORT_ADDRESS_GET_ENABLED
+ *
+ * Enables the @ref nrf_802154_alternate_short_address_get function.
+ */
+#ifndef NRF_802154_ALTERNATE_SHORT_ADDRESS_GET_ENABLED
+#define NRF_802154_ALTERNATE_SHORT_ADDRESS_GET_ENABLED 0
+#endif
+
+/**
+ * @def NRF_802154_EXTENDED_ADDRESS_GET_ENABLED
+ *
+ * Enables the @ref nrf_802154_extended_address_get function.
+ */
+#ifndef NRF_802154_EXTENDED_ADDRESS_GET_ENABLED
+#define NRF_802154_EXTENDED_ADDRESS_GET_ENABLED 0
+#endif
+
+/**
  * @}
  * @defgroup nrf_802154_config_csma CSMA/CA procedure configuration
  * @{
@@ -300,6 +363,20 @@ extern "C" {
 #define NRF_802154_CSMA_CA_ENABLED 1
 #endif
 #endif
+
+/**
+ * @def NRF_802154_CSMA_CA_CANCEL_ENABLED
+ *
+ * Indicates whether the CSMA-CA cancel feature is to be enabled in the driver.
+ * When @ref NRF_802154_CSMA_CA_ENABLED is set to 1, this option can be set to 1
+ * to enable the @ref nrf_802154_csma_ca_cancel() function.
+ *
+ */
+#if NRF_802154_CSMA_CA_ENABLED
+#ifndef NRF_802154_CSMA_CA_CANCEL_ENABLED
+#define NRF_802154_CSMA_CA_CANCEL_ENABLED NRF_802154_DRV_REINIT_ENABLED
+#endif
+#endif /* NRF_802154_CSMA_CA_ENABLED */
 
 /**
  * @def NRF_802154_CSMA_CA_MIN_BE_DEFAULT
@@ -500,19 +577,6 @@ extern "C" {
 #endif
 
 /**
- * @def NRF_802154_ENCRYPTION_ACCELERATOR_ECB
- *
- * Enables ECB peripheral to be used as hardware accelerator for on-the-fly AES-CCM* encryption.
- */
-#if !defined(NRF_802154_ENCRYPTION_ACCELERATOR_ECB) || defined(__DOXYGEN__)
-#if defined(NRF52_SERIES) || defined(NRF5340_XXAA) || defined(__DOXYGEN__)
-#define NRF_802154_ENCRYPTION_ACCELERATOR_ECB 1
-#elif defined(NRF54H_SERIES) || defined(NRF54L_SERIES)
-#define NRF_802154_ENCRYPTION_ACCELERATOR_ECB 0
-#endif
-#endif
-
-/**
  * @}
  * @defgroup nrf_802154_ie Information Elements configuration
  * @{
@@ -554,6 +618,15 @@ extern "C" {
  * See @ref NRF_802154_NOTIFICATION_IMPL.
  */
 #define NRF_802154_NOTIFICATION_IMPL_SWI  1
+
+/**
+ * @def NRF_802154_NOTIFICATION_QUEUE_FLUSH_ENABLED
+ *
+ * Enables the notification queue flush feature.
+ */
+#ifndef NRF_802154_NOTIFICATION_QUEUE_FLUSH_ENABLED
+#define NRF_802154_NOTIFICATION_QUEUE_FLUSH_ENABLED NRF_802154_DRV_REINIT_ENABLED
+#endif
 
 /**
  * @def NRF_802154_NOTIFICATION_IMPL
@@ -653,4 +726,4 @@ extern "C" {
 }
 #endif
 
-#endif // NRF_802154_CONFIG_H__
+#endif /* NRF_802154_CONFIG_H__ */

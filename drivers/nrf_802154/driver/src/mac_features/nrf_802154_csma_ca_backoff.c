@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Nordic Semiconductor ASA
+ * Copyright (c) 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -32,62 +32,49 @@
  *
  */
 
-/**
- * @file
- *   This file implements SWI manager for nRF 802.15.4 driver.
- *
- */
-
-#include "nrf_802154_swi.h"
-#include "nrf_802154_swi_callouts.h"
-
-#include <stdbool.h>
-
-#include "nrfx.h"
 #include "nrf_802154_config.h"
-#if !NRF_802154_INTERNAL_SWI_IRQ_HANDLING
-#include "nrf_802154_irq_handlers.h"
+
+#if NRF_802154_CSMA_CA_ENABLED
+#include "nrf_802154_compiler.h"
+#include "platform/nrf_802154_random.h"
+#if NRF_802154_TEST_MODES_ENABLED
+#include "nrf_802154_pib.h"
 #endif
-#include "nrf_802154_peripherals.h"
-#include "platform/nrf_802154_irq.h"
+#include "nrf_802154_csma_ca_backoff.h"
 
-#if NRF_802154_INTERNAL_SWI_IRQ_HANDLING
-/* SWI interrupt handling functionality is implemented directly by the chosen EGU IRQ handler. */
-#define SWI_IRQHandler NRF_802154_EGU_IRQ_HANDLER ///< Symbol of SWI IRQ handler.
-#else
-#define SWI_IRQHandler nrf_802154_swi_irq_handler ///< Symbol of SWI IRQ handler.
-#endif
-
-static bool initialized = false;
-
-static void swi_irq_handler(void)
+static inline uint8_t backoff_periods_get_random(uint8_t be)
 {
-    nrf_802154_trx_swi_irq_handler();
-    nrf_802154_notification_swi_irq_handler();
-    nrf_802154_request_swi_irq_handler();
+    return (uint8_t)(nrf_802154_random_get() % (1U << be));
 }
 
-void nrf_802154_swi_init(void)
+uint8_t nrf_802154_csma_ca_backoff_periods_get(uint8_t be)
 {
-    if (!initialized)
+    uint8_t result;
+
+#if NRF_802154_TEST_MODES_ENABLED
+
+    switch (nrf_802154_pib_test_mode_csmaca_backoff_get())
     {
-        IRQn_Type irq_number = nrfx_get_irq_number(NRF_802154_EGU_INSTANCE);
+        case NRF_802154_TEST_MODE_CSMACA_BACKOFF_ALWAYS_MAX:
+            result = (1U << be) - 1U;
+            break;
 
-        nrf_802154_irq_init(irq_number, NRF_802154_SWI_PRIORITY, &swi_irq_handler);
-        nrf_802154_irq_enable(irq_number);
-        initialized = true;
+        case NRF_802154_TEST_MODE_CSMACA_BACKOFF_ALWAYS_MIN:
+            result = 0U;
+            break;
+
+        case NRF_802154_TEST_MODE_CSMACA_BACKOFF_RANDOM:
+            SWITCH_CASE_FALLTHROUGH;
+
+        default:
+            result = backoff_periods_get_random(be);
+            break;
     }
+#else
+    result = backoff_periods_get_random(be);
+#endif
+
+    return result;
 }
 
-void SWI_IRQHandler(void)
-{
-    swi_irq_handler();
-}
-
-#ifdef TEST
-void nrf_802154_swi_module_reset(void)
-{
-    initialized = false;
-}
-
-#endif // TEST
+#endif // NRF_802154_CSMA_CA_ENABLED

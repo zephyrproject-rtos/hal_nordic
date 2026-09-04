@@ -58,6 +58,13 @@
 extern "C" {
 #endif
 
+/* The __deprecated macro is provided by Zephyr. Define a compatible fallback for unit tests
+ * and other toolchains that do not support it.
+ */
+#ifndef __deprecated
+#define __deprecated
+#endif /* __deprecated */
+
 /**
  * @brief Timestamp value indicating that the timestamp is inaccurate.
  */
@@ -110,13 +117,39 @@ extern "C" {
  */
 void nrf_802154_init(void);
 
+#if (!NRF_802154_SERIALIZATION_HOST && NRF_802154_DRV_REINIT_ENABLED) || defined(DOXYGEN)
+
+/**
+ * @brief Reinitializes the 802.15.4 driver.
+ *
+ * This function reinitializes the driver by moving the RADIO peripheral to
+ * @ref RADIO_STATE_SLEEP and restoring driver-managed state to defaults. All ongoing and
+ * delayed operations are cancelled. The configuration, counters, and security keys revert
+ * to their default values.
+ *
+ * @note Call this function only when the application or transport protocol is in idle state,
+ *       i.e. not transmitting nor receiving frames. This is required to keep the radio in the
+ *       @ref RADIO_STATE_SLEEP state and prevent to use the driver during the reinitialization.
+ *
+ * @retval true  Reinitialization was successful.
+ * @retval false Reinitialization failed because the radio was busy and could not be put to sleep.
+ *               Call this function again when the radio can be placed in sleep.
+ */
+bool nrf_802154_reinit(void);
+
+#endif /* !NRF_802154_SERIALIZATION_HOST && NRF_802154_DRV_REINIT_ENABLED */
+
 #if !NRF_802154_SERIALIZATION_HOST || defined(DOXYGEN)
 /**
  * @brief Deinitializes the 802.15.4 driver.
  *
  * This function deinitializes the RADIO peripheral and resets it to the default state.
+ *
+ * @deprecated This function is deprecated. Calling it can crash the driver and it is not recommended
+ *             to use it. Use the @ref nrf_802154_reinit function instead to reinitialize the driver
+ *             when needed.
  */
-void nrf_802154_deinit(void);
+__deprecated void nrf_802154_deinit(void);
 #endif // !NRF_802154_SERIALIZATION_HOST
 
 /**
@@ -333,28 +366,76 @@ uint64_t nrf_802154_time_get(void);
  * @brief Sets the PAN ID used by the device.
  *
  * @param[in]  p_pan_id  Pointer to the PAN ID (2 bytes, little-endian).
+ *                       Must not be NULL.
  *
  * This function makes a copy of the PAN ID.
  */
 void nrf_802154_pan_id_set(const uint8_t * p_pan_id);
 
+#if (!NRF_802154_SERIALIZATION_HOST && NRF_802154_PAN_ID_GET_ENABLED) || defined(DOXYGEN)
+
+/**
+ * @brief Gets the PAN ID used by the device.
+ *
+ * @param[out] p_pan_id  Pointer to the buffer where the PAN ID value will be
+ *                       stored (2 bytes, little-endian).
+ *
+ * @retval true  The PAN ID was retrieved successfully.
+ * @retval false The PAN ID could not be retrieved or the pointer is NULL.
+ */
+bool nrf_802154_pan_id_get(uint8_t * p_pan_id);
+
+#endif /* !NRF_802154_SERIALIZATION_HOST && NRF_802154_PAN_ID_GET_ENABLED */
+
 /**
  * @brief Sets the extended address of the device.
  *
  * @param[in]  p_extended_address  Pointer to the extended address (8 bytes, little-endian).
+ *                                 Must not be NULL.
  *
  * This function makes a copy of the address.
  */
 void nrf_802154_extended_address_set(const uint8_t * p_extended_address);
 
+#if (!NRF_802154_SERIALIZATION_HOST && NRF_802154_EXTENDED_ADDRESS_GET_ENABLED) || defined(DOXYGEN)
+
+/**
+ * @brief Gets the extended address of the device.
+ *
+ * @param[out] p_extended_address  Pointer to the buffer where the extended address will be
+ *                                 stored (8 bytes, little-endian).
+ *
+ * @retval true  The extended address was retrieved successfully.
+ * @retval false The extended address could not be retrieved or the pointer is NULL.
+ */
+bool nrf_802154_extended_address_get(uint8_t * p_extended_address);
+
+#endif /* !NRF_802154_SERIALIZATION_HOST && NRF_802154_EXTENDED_ADDRESS_GET_ENABLED */
+
 /**
  * @brief Sets the short address of the device.
  *
  * @param[in]  p_short_address  Pointer to the short address (2 bytes, little-endian).
+ *                              Must not be NULL.
  *
  * This function makes a copy of the address.
  */
 void nrf_802154_short_address_set(const uint8_t * p_short_address);
+
+#if (!NRF_802154_SERIALIZATION_HOST && NRF_802154_SHORT_ADDRESS_GET_ENABLED) || defined(DOXYGEN)
+
+/**
+ * @brief Gets the short address of the device.
+ *
+ * @param[out] p_short_address  Pointer to the buffer where the short address will be
+ *                              stored (2 bytes, little-endian).
+ *
+ * @retval true  The short address was retrieved successfully.
+ * @retval false The short address could not be retrieved or the pointer is NULL.
+ */
+bool nrf_802154_short_address_get(uint8_t * p_short_address);
+
+#endif /* !NRF_802154_SERIALIZATION_HOST && NRF_802154_SHORT_ADDRESS_GET_ENABLED */
 
 /**
  * @brief Sets the alternate short address of the device.
@@ -378,6 +459,22 @@ void nrf_802154_short_address_set(const uint8_t * p_short_address);
  * This function makes a copy of the address.
  */
 void nrf_802154_alternate_short_address_set(const uint8_t * p_short_address);
+
+#if (!NRF_802154_SERIALIZATION_HOST && NRF_802154_ALTERNATE_SHORT_ADDRESS_GET_ENABLED) || defined(DOXYGEN)
+
+/**
+ * @brief Gets the alternate short address of the device.
+ *
+ * @param[out] p_short_address  Pointer to the buffer where the alternate short address will be
+ *                              stored (2 bytes, little-endian).
+ *
+ * @retval true  The alternate short address was retrieved successfully.
+ * @retval false The alternate short address is not set or could not be retrieved.
+ *               Function returns false also if the pointer is NULL.
+ */
+bool nrf_802154_alternate_short_address_get(uint8_t * p_short_address);
+
+#endif /* !NRF_802154_SERIALIZATION_HOST && NRF_802154_ALTERNATE_SHORT_ADDRESS_GET_ENABLED */
 
 /**
  * @}
@@ -801,8 +898,8 @@ void nrf_802154_promiscuous_set(bool enabled);
 /**
  * @brief Checks if the radio is in the promiscuous mode.
  *
- * @retval True   Radio is in the promiscuous mode.
- * @retval False  Radio is not in the promiscuous mode.
+ * @retval true   Radio is in the promiscuous mode.
+ * @retval false  Radio is not in the promiscuous mode.
  */
 bool nrf_802154_promiscuous_get(void);
 
@@ -833,8 +930,8 @@ void nrf_802154_auto_ack_set(bool enabled);
 /**
  * @brief Checks if the auto ACK is enabled.
  *
- * @retval True   Auto ACK is enabled.
- * @retval False  Auto ACK is disabled.
+ * @retval true   Auto ACK is enabled.
+ * @retval false  Auto ACK is disabled.
  */
 bool nrf_802154_auto_ack_get(void);
 
@@ -926,8 +1023,8 @@ void nrf_802154_src_addr_matching_method_set(nrf_802154_src_addr_match_t match_m
  * @param[in]  length    Length of @p p_data.
  * @param[in]  data_type Type of data to be set. Refer to the @ref nrf_802154_ack_data_t type.
  *
- * @retval True   Address successfully added to the list.
- * @retval False  Not enough memory to store this address in the list.
+ * @retval true   Address successfully added to the list.
+ * @retval false  Not enough memory to store this address in the list.
  */
 bool nrf_802154_ack_data_set(const uint8_t       * p_addr,
                              bool                  extended,
@@ -953,8 +1050,8 @@ bool nrf_802154_ack_data_set(const uint8_t       * p_addr,
  * @param[in]  extended  If the given address is an extended MAC address or a short MAC address.
  * @param[in]  data_type Type of data to be removed. Refer to the @ref nrf_802154_ack_data_t type.
  *
- * @retval True   Address removed from the list.
- * @retval False  Address not found in the list.
+ * @retval true   Address removed from the list.
+ * @retval false  Address not found in the list.
  */
 bool nrf_802154_ack_data_clear(const uint8_t       * p_addr,
                                bool                  extended,
@@ -1007,8 +1104,8 @@ void nrf_802154_auto_pending_bit_set(bool enabled);
  * @param[in]  p_addr    Array of bytes containing the address of the node (little-endian).
  * @param[in]  extended  If the given address is an extended MAC address or a short MAC address.
  *
- * @retval True   The address is successfully added to the list.
- * @retval False  Not enough memory to store the address in the list.
+ * @retval true   The address is successfully added to the list.
+ * @retval false  Not enough memory to store the address in the list.
  */
 bool nrf_802154_pending_bit_for_addr_set(const uint8_t * p_addr, bool extended);
 
@@ -1027,8 +1124,8 @@ bool nrf_802154_pending_bit_for_addr_set(const uint8_t * p_addr, bool extended);
  * @param[in]  p_addr    Array of bytes containing the address of the node (little-endian).
  * @param[in]  extended  If the given address is an extended MAC address or a short MAC address.
  *
- * @retval True   The address is successfully removed from the list.
- * @retval False  No such address in the list.
+ * @retval true   The address is successfully removed from the list.
+ * @retval false  No such address in the list.
  */
 bool nrf_802154_pending_bit_for_addr_clear(const uint8_t * p_addr, bool extended);
 
@@ -1328,8 +1425,8 @@ nrf_802154_ifs_mode_t nrf_802154_ifs_mode_get(void);
  *
  * @param[in] mode  IFS operation mode. Refer to @ref nrf_802154_ifs_mode_t for details.
  *
- * @retval    true  The update of IFS operation mode was successful.
- * @retval    false The update of IFS operation mode failed. Provided mode is unsupported
+ * @retval true     The update of IFS operation mode was successful.
+ * @retval false    The update of IFS operation mode failed. Provided mode is unsupported.
  */
 bool nrf_802154_ifs_mode_set(nrf_802154_ifs_mode_t mode);
 
@@ -1532,6 +1629,23 @@ void nrf_802154_cst_writer_period_set(uint16_t period);
  * @param[in]  anchor_time  Anchor time value.
  */
 void nrf_802154_cst_writer_anchor_time_set(uint64_t anchor_time);
+
+/**
+ * @brief Returns if the radio has PA modulation fix enabled.
+ *
+ * @retval true   PA modulation fix is enabled.
+ * @retval false  PA modulation fix is disabled.
+ */
+bool nrf_802154_pa_modulation_fix_get(void);
+
+/**
+ * @brief Enables or disables the PA modulation fix.
+ *
+ * @note The PA modulation fix is enabled by default on the chips that require it.
+ *
+ * @param[in] enable  True to enable the PA modulation fix; false to disable it.
+ */
+void nrf_802154_pa_modulation_fix_set(bool enable);
 
 /**
  * @}
