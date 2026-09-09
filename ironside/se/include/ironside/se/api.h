@@ -13,6 +13,7 @@
 #include <nrfx.h>
 
 #include <ironside/se/memory_map.h>
+#include <ironside/se/soc_features.h>
 
 #include <ironside/se/boot_report.h>
 #include <ironside/se/periphconf.h>
@@ -466,6 +467,7 @@ int ironside_se_counter_lock(enum ironside_se_counter counter_id);
  * - Bits 17-18: MRAMC ECCERROR (MRAMC110, MRAMC111)
  * - Bits 19-20: MRAMC ECCERRORCORR (MRAMC110, MRAMC111)
  * - Bits 21-22: MRAMC ACCESSERR (MRAMC110, MRAMC111)
+ * - Bits 23-63: reserved for SoC-specific events, declared in the SoC feature header
  * @{
  */
 

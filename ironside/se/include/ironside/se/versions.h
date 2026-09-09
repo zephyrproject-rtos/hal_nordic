@@ -172,19 +172,97 @@
 #define IRONSIDE_SE_V23_7_1_32_SOC_NRF9220_XXAA 1
 /** @} */
 
-#ifdef NRF9220_XXAA
-#define LATEST_IRONSIDE_SE_VERSION                  IRONSIDE_SE_V23_7_1_32
-#define LATEST_IRONSIDE_SE_VERSION_STRING           IRONSIDE_SE_V23_7_1_32_STRING
-#define LATEST_IRONSIDE_SE_VERSION_EXTRA_STRING     IRONSIDE_SE_V23_7_1_32_EXTRA_STRING
-#define LATEST_IRONSIDE_SE_VERSION_SOC_NRF9220_XXAA 1
-#endif /* NRF9220_XXAA */
+/**
+ * @name IronSide SE v23.7.2+33
+ * @{
+ */
+/** Numeric IronSide SE version identifier for v23.7.2+33. */
+#define IRONSIDE_SE_V23_7_2_33                  0x17070221UL
+/** String form of the IronSide SE version v23.7.2+33 (no extraversion suffix). */
+#define IRONSIDE_SE_V23_7_2_33_STRING           "23.7.2+33"
+/** String form of v23.7.2+33, including extraversion. */
+#define IRONSIDE_SE_V23_7_2_33_EXTRA_STRING     "23.7.2-live+33"
+#define IRONSIDE_SE_V23_7_2_33_SOC_NRF9220_XXAA 1
+/** @} */
+
+/**
+ * @name IronSide SE v23.7.3+34
+ * @{
+ */
+/** Numeric IronSide SE version identifier for v23.7.3+34. */
+#define IRONSIDE_SE_V23_7_3_34                  0x17070322UL
+/** String form of the IronSide SE version v23.7.3+34 (no extraversion suffix). */
+#define IRONSIDE_SE_V23_7_3_34_STRING           "23.7.3+34"
+/** String form of v23.7.3+34, including extraversion. */
+#define IRONSIDE_SE_V23_7_3_34_EXTRA_STRING     "23.7.3-live+34"
+#define IRONSIDE_SE_V23_7_3_34_SOC_NRF9220_XXAA 1
+/** @} */
+
+/**
+ * @name IronSide SE v23.7.4+35
+ * @{
+ */
+/** Numeric IronSide SE version identifier for v23.7.4+35. */
+#define IRONSIDE_SE_V23_7_4_35                  0x17070423UL
+/** String form of the IronSide SE version v23.7.4+35 (no extraversion suffix). */
+#define IRONSIDE_SE_V23_7_4_35_STRING           "23.7.4+35"
+/** String form of v23.7.4+35, including extraversion. */
+#define IRONSIDE_SE_V23_7_4_35_EXTRA_STRING     "23.7.4-live+35"
+#define IRONSIDE_SE_V23_7_4_35_SOC_NRF9220_XXAA 1
+/** @} */
+
+/**
+ * @name IronSide SE v23.8.0+33
+ * @{
+ */
+/** Numeric IronSide SE version identifier for v23.8.0+33. */
+#define IRONSIDE_SE_V23_8_0_33                   0x17080021UL
+/** String form of the IronSide SE version v23.8.0+33 (no extraversion suffix). */
+#define IRONSIDE_SE_V23_8_0_33_STRING            "23.8.0+33"
+/** String form of v23.8.0+33, including extraversion. */
+#define IRONSIDE_SE_V23_8_0_33_EXTRA_STRING      "23.8.0-live+33"
+#define IRONSIDE_SE_V23_8_0_33_SOC_NRF54H20_XXAA 1
+/** @} */
+
+/**
+ * @name IronSide SE v23.8.0+36
+ * @{
+ */
+/** Numeric IronSide SE version identifier for v23.8.0+36. */
+#define IRONSIDE_SE_V23_8_0_36                  0x17080024UL
+/** String form of the IronSide SE version v23.8.0+36 (no extraversion suffix). */
+#define IRONSIDE_SE_V23_8_0_36_STRING           "23.8.0+36"
+/** String form of v23.8.0+36, including extraversion. */
+#define IRONSIDE_SE_V23_8_0_36_EXTRA_STRING     "23.8.0-live+36"
+#define IRONSIDE_SE_V23_8_0_36_SOC_NRF9220_XXAA 1
+/** @} */
+
+/**
+ * @name IronSide SE v23.8.1+34
+ * @{
+ */
+/** Numeric IronSide SE version identifier for v23.8.1+34. */
+#define IRONSIDE_SE_V23_8_1_34                   0x17080122UL
+/** String form of the IronSide SE version v23.8.1+34 (no extraversion suffix). */
+#define IRONSIDE_SE_V23_8_1_34_STRING            "23.8.1+34"
+/** String form of v23.8.1+34, including extraversion. */
+#define IRONSIDE_SE_V23_8_1_34_EXTRA_STRING      "23.8.1-live+34"
+#define IRONSIDE_SE_V23_8_1_34_SOC_NRF54H20_XXAA 1
+/** @} */
 
 #ifdef NRF54H20_XXAA
-#define LATEST_IRONSIDE_SE_VERSION                   IRONSIDE_SE_V23_7_0_30
-#define LATEST_IRONSIDE_SE_VERSION_STRING            IRONSIDE_SE_V23_7_0_30_STRING
-#define LATEST_IRONSIDE_SE_VERSION_EXTRA_STRING      IRONSIDE_SE_V23_7_0_30_EXTRA_STRING
+#define LATEST_IRONSIDE_SE_VERSION                   IRONSIDE_SE_V23_8_1_34
+#define LATEST_IRONSIDE_SE_VERSION_STRING            IRONSIDE_SE_V23_8_1_34_STRING
+#define LATEST_IRONSIDE_SE_VERSION_EXTRA_STRING      IRONSIDE_SE_V23_8_1_34_EXTRA_STRING
 #define LATEST_IRONSIDE_SE_VERSION_SOC_NRF54H20_XXAA 1
 #endif /* NRF54H20_XXAA */
+
+#ifdef NRF9220_XXAA
+#define LATEST_IRONSIDE_SE_VERSION                  IRONSIDE_SE_V23_8_0_36
+#define LATEST_IRONSIDE_SE_VERSION_STRING           IRONSIDE_SE_V23_8_0_36_STRING
+#define LATEST_IRONSIDE_SE_VERSION_EXTRA_STRING     IRONSIDE_SE_V23_8_0_36_EXTRA_STRING
+#define LATEST_IRONSIDE_SE_VERSION_SOC_NRF9220_XXAA 1
+#endif /* NRF9220_XXAA */
 
 /* Fallback in case the target version has not been specified. */
 #ifndef TARGET_IRONSIDE_SE_VERSION
@@ -264,6 +342,42 @@
 #define TARGET_IRONSIDE_SE_VERSION_EXTRA_STRING     IRONSIDE_SE_V23_7_1_32_EXTRA_STRING
 #define TARGET_IRONSIDE_SE_VERSION_SOC_NRF9220_XXAA 1
 #endif /* TARGET_IRONSIDE_SE_VERSION == IRONSIDE_SE_V23_7_1_32 */
+
+#if TARGET_IRONSIDE_SE_VERSION == IRONSIDE_SE_V23_7_2_33
+#define TARGET_IRONSIDE_SE_VERSION_STRING           IRONSIDE_SE_V23_7_2_33_STRING
+#define TARGET_IRONSIDE_SE_VERSION_EXTRA_STRING     IRONSIDE_SE_V23_7_2_33_EXTRA_STRING
+#define TARGET_IRONSIDE_SE_VERSION_SOC_NRF9220_XXAA 1
+#endif /* TARGET_IRONSIDE_SE_VERSION == IRONSIDE_SE_V23_7_2_33 */
+
+#if TARGET_IRONSIDE_SE_VERSION == IRONSIDE_SE_V23_7_3_34
+#define TARGET_IRONSIDE_SE_VERSION_STRING           IRONSIDE_SE_V23_7_3_34_STRING
+#define TARGET_IRONSIDE_SE_VERSION_EXTRA_STRING     IRONSIDE_SE_V23_7_3_34_EXTRA_STRING
+#define TARGET_IRONSIDE_SE_VERSION_SOC_NRF9220_XXAA 1
+#endif /* TARGET_IRONSIDE_SE_VERSION == IRONSIDE_SE_V23_7_3_34 */
+
+#if TARGET_IRONSIDE_SE_VERSION == IRONSIDE_SE_V23_7_4_35
+#define TARGET_IRONSIDE_SE_VERSION_STRING           IRONSIDE_SE_V23_7_4_35_STRING
+#define TARGET_IRONSIDE_SE_VERSION_EXTRA_STRING     IRONSIDE_SE_V23_7_4_35_EXTRA_STRING
+#define TARGET_IRONSIDE_SE_VERSION_SOC_NRF9220_XXAA 1
+#endif /* TARGET_IRONSIDE_SE_VERSION == IRONSIDE_SE_V23_7_4_35 */
+
+#if TARGET_IRONSIDE_SE_VERSION == IRONSIDE_SE_V23_8_0_33
+#define TARGET_IRONSIDE_SE_VERSION_STRING            IRONSIDE_SE_V23_8_0_33_STRING
+#define TARGET_IRONSIDE_SE_VERSION_EXTRA_STRING      IRONSIDE_SE_V23_8_0_33_EXTRA_STRING
+#define TARGET_IRONSIDE_SE_VERSION_SOC_NRF54H20_XXAA 1
+#endif /* TARGET_IRONSIDE_SE_VERSION == IRONSIDE_SE_V23_8_0_33 */
+
+#if TARGET_IRONSIDE_SE_VERSION == IRONSIDE_SE_V23_8_0_36
+#define TARGET_IRONSIDE_SE_VERSION_STRING           IRONSIDE_SE_V23_8_0_36_STRING
+#define TARGET_IRONSIDE_SE_VERSION_EXTRA_STRING     IRONSIDE_SE_V23_8_0_36_EXTRA_STRING
+#define TARGET_IRONSIDE_SE_VERSION_SOC_NRF9220_XXAA 1
+#endif /* TARGET_IRONSIDE_SE_VERSION == IRONSIDE_SE_V23_8_0_36 */
+
+#if TARGET_IRONSIDE_SE_VERSION == IRONSIDE_SE_V23_8_1_34
+#define TARGET_IRONSIDE_SE_VERSION_STRING            IRONSIDE_SE_V23_8_1_34_STRING
+#define TARGET_IRONSIDE_SE_VERSION_EXTRA_STRING      IRONSIDE_SE_V23_8_1_34_EXTRA_STRING
+#define TARGET_IRONSIDE_SE_VERSION_SOC_NRF54H20_XXAA 1
+#endif /* TARGET_IRONSIDE_SE_VERSION == IRONSIDE_SE_V23_8_1_34 */
 
 /** @} */
 #endif /* IRONSIDE_SE_VERSIONS_H_ */

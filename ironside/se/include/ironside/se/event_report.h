@@ -7,6 +7,7 @@
 #define IRONSIDE_SE_EVENT_REPORT_H_
 
 #include <ironside/se/memory_map.h>
+#include <ironside/se/soc_features.h>
 #include <ironside/se/internal/mdk.h>
 
 #include <nrfx.h>
@@ -144,6 +145,11 @@ struct ironside_se_event_report {
 
 	/** MRAMC access error per MRAMC instance; any non-zero value indicates an active event. */
 	uint32_t mramc_accesserr[IRONSIDE_SE_EVENT_REPORT_MRAMC_NUM];
+
+	/* Members contributed by the SoC feature header. Expands to nothing on a SoC that has
+	 * none, so the layout above is the layout those SoCs see.
+	 */
+	IRONSIDE_SE_EVENT_REPORT_SOC_MEMBERS
 };
 
 /**
@@ -455,6 +461,10 @@ ironside_se_mramc_accesserr_event_clear(struct ironside_se_event_report *report,
 	}
 
 /** @} */
+
+#ifdef IRONSIDE_SE_EVENT_REPORT_SOC_EXT_FILE_PATH
+#include IRONSIDE_SE_EVENT_REPORT_SOC_EXT_FILE_PATH
+#endif
 
 #ifdef __cplusplus
 }

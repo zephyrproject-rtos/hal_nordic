@@ -9,6 +9,7 @@ import argparse
 import ctypes as c
 import sys
 from itertools import groupby, pairwise
+from pathlib import Path
 from typing import NamedTuple
 
 from .. import SubCommand, SubParsers, c_types
@@ -217,6 +218,12 @@ def add_parser(subparsers: SubParsers) -> argparse.ArgumentParser:
         default=None,
         type=lambda s: int(s, 0),
         help="Size in bytes of the PERIPHCONF partition (decimal or 0x-prefixed hex)",
+    )
+    parser.add_argument(
+        "--in-customer-bin",
+        dest="in_customer_bin",
+        default="",
+        help="Path to .bin file containing CUSTOMER data. Will start from CUSTOMER start address.",
     )
     parser.add_argument(
         "--uicr-address",
@@ -794,6 +801,19 @@ def cmd_handler(args: argparse.Namespace) -> None:
 
             # Add periphconf data to periphconf hex object
             periphconf_hex.frombytes(periphconf_final, offset=args.periphconf_address)
+
+        if args.in_customer_bin:
+            if not Path(args.in_customer_bin).is_file():
+                raise ScriptError(
+                    f"args.in_customer_bin: The file {args.in_customer_bin} does not exist."
+                )
+            customer_data = Path(args.in_customer_bin).read_bytes()
+            if len(customer_data) > c.sizeof(uicr.CUSTOMER):
+                raise ScriptError(
+                    f"args.in_customer_bin was {len(customer_data)}, "
+                    f"but must be smaller than {c.sizeof(uicr.CUSTOMER)}."
+                )
+            c.memmove(uicr.CUSTOMER, customer_data, len(customer_data))
 
         # Handle secondary firmware configuration
         if args.secondary:

@@ -33,6 +33,12 @@ extern "C" {
  * application core.
  */
 #define IRONSIDE_SE_APPLICATION_BELLBOARD_EVENT_RX_BELL_IDX 1
+/**
+ * Event index in the application core BELLBOARD for event report RX of CELL related events from the
+ * secure domain to the application core. Covers the CELL domain reset and access errors whose
+ * master is the CELL core. Only used on SoCs that have a CELL domain.
+ */
+#define IRONSIDE_SE_APPLICATION_BELLBOARD_CELL_EVENT_RX_BELL_IDX 2
 
 /** @} */
 
@@ -70,6 +76,8 @@ extern "C" {
 #define IRONSIDE_SE_BELLBOARD_IPC_TX_BELL_IDX   IRONSIDE_SE_APPLICATION_BELLBOARD_IPC_TX_BELL_IDX
 #define IRONSIDE_SE_BELLBOARD_IPC_RX_BELL_IDX   IRONSIDE_SE_APPLICATION_BELLBOARD_IPC_RX_BELL_IDX
 #define IRONSIDE_SE_BELLBOARD_EVENT_RX_BELL_IDX IRONSIDE_SE_APPLICATION_BELLBOARD_EVENT_RX_BELL_IDX
+#define IRONSIDE_SE_BELLBOARD_CELL_EVENT_RX_BELL_IDX                                               \
+	IRONSIDE_SE_APPLICATION_BELLBOARD_CELL_EVENT_RX_BELL_IDX
 
 /** @} */
 
