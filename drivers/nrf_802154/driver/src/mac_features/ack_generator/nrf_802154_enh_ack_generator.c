@@ -53,8 +53,6 @@
 #include "nrf_802154_pib.h"
 #include "nrf_802154_utils_byteorder.h"
 
-#define ENH_ACK_MAX_SIZE MAX_PACKET_SIZE
-
 typedef enum
 {
     ACK_STATE_RESET,
@@ -111,9 +109,10 @@ static void fcf_security_enabled_set(const nrf_802154_frame_t * p_frame_data)
     }
 }
 
-static void fcf_frame_pending_set(const nrf_802154_frame_t * p_frame_data)
+static void fcf_frame_pending_set(const nrf_802154_frame_t    * p_frame_data,
+                                  const nrf_802154_peer_rec_t * p_peer_rec)
 {
-    if (nrf_802154_ack_data_pending_bit_should_be_set(p_frame_data))
+    if (nrf_802154_ack_data_pending_bit_should_be_set(p_frame_data, p_peer_rec))
     {
         m_ack[FRAME_PENDING_OFFSET] |= FRAME_PENDING_BIT;
     }
@@ -169,8 +168,9 @@ static void fcf_frame_version_set(void)
     m_ack[FRAME_VERSION_OFFSET] |= FRAME_VERSION_2;
 }
 
-static uint8_t frame_control_set(const nrf_802154_frame_t * p_frame_data,
-                                 bool                       ie_present)
+static uint8_t frame_control_set(const nrf_802154_frame_t    * p_frame_data,
+                                 const nrf_802154_peer_rec_t * p_peer_rec,
+                                 bool                          ie_present)
 {
     nrf_802154_frame_parser_level_t level = nrf_802154_frame_parse_level_get(p_frame_data);
 
@@ -188,9 +188,10 @@ static uint8_t frame_control_set(const nrf_802154_frame_t * p_frame_data,
 
     if (level >= PARSE_LEVEL_FULL)
     {
-        // As some frame pending bit setting algorithms depend on MAC payload,
-        // the entire frame must be known to set this field.
-        fcf_frame_pending_set(p_frame_data);
+        /* As some frame pending bit setting algorithms depend on MAC payload,
+         * the entire frame must be known to set this field.
+         */
+        fcf_frame_pending_set(p_frame_data, p_peer_rec);
     }
 
     return FCF_SIZE;
@@ -213,7 +214,7 @@ static uint8_t destination_set(const nrf_802154_frame_t * p_frame_data,
 
     uint8_t src_addr_size = nrf_802154_frame_src_addr_size_get(p_frame_data);
 
-    // Fill the Ack destination PAN ID field.
+    /* Fill the Ack destination PAN ID field. */
     if (p_ack_dst_panid != NULL)
     {
         const uint8_t * p_dst_panid;
@@ -235,7 +236,7 @@ static uint8_t destination_set(const nrf_802154_frame_t * p_frame_data,
         bytes_written += PAN_ID_SIZE;
     }
 
-    // Fill the Ack destination address field.
+    /* Fill the Ack destination address field. */
     if ((p_ack_dst_addr != NULL) && (p_frame_src_addr != NULL))
     {
         NRF_802154_ASSERT(nrf_802154_frame_dst_addr_is_extended(p_ack_data) ==
@@ -250,7 +251,7 @@ static uint8_t destination_set(const nrf_802154_frame_t * p_frame_data,
 
 static void source_set(void)
 {
-    // Intentionally empty: source address type is None.
+    /* Intentionally empty: source address type is None. */
 }
 
 /***************************************************************************************************
@@ -309,7 +310,7 @@ static bool frame_counter_set(nrf_802154_frame_t * p_ack_data,
 
     if (p_frame_counter == NULL)
     {
-        // The frame counter is suppressed
+        /* The frame counter is suppressed */
         *p_bytes_written = 0;
         return true;
     }
@@ -324,7 +325,7 @@ static bool frame_counter_set(nrf_802154_frame_t * p_ack_data,
         return false;
     }
 
-    // Set the frame counter value in security header of the ACK frame
+    /* Set the frame counter value in security header of the ACK frame */
     host_32_to_little(new_fc_value, p_frame_counter);
     *p_bytes_written = FRAME_COUNTER_SIZE;
 
@@ -352,11 +353,11 @@ static bool security_header_set(const nrf_802154_frame_t * p_frame_data,
         return true;
     }
 
-    // All the bits in the security control byte can be copied.
+    /* All the bits in the security control byte can be copied. */
     *ack_sec_ctrl  = *frame_sec_ctrl;
     bytes_written += SECURITY_CONTROL_SIZE;
 
-    // Security control field is now ready. The parsing of the frame can advance.
+    /* Security control field is now ready. The parsing of the frame can advance. */
     result = nrf_802154_frame_parser_valid_data_extend(p_ack_data,
                                                        ack_sec_ctrl_offset + PHR_SIZE,
                                                        PARSE_LEVEL_SEC_CTRL_OFFSETS);
@@ -365,10 +366,11 @@ static bool security_header_set(const nrf_802154_frame_t * p_frame_data,
 
     if (nrf_802154_frame_sec_ctrl_sec_lvl_get(p_frame_data) == SECURITY_LEVEL_NONE)
     {
-        // The security level value is zero, therefore no auxiliary security header processing
-        // is performed according to 802.15.4 specification. This also applies to the frame counter,
-        // the value of which is left as it is in the message to which the ACK responds.
-        // The entire auxiliary security header content is simply copied to ACK.
+        /* The security level value is zero, therefore no auxiliary security header processing
+         * is performed according to 802.15.4 specification. This also applies to the frame counter,
+         * the value of which is left as it is in the message to which the ACK responds.
+         * The entire auxiliary security header content is simply copied to ACK.
+         */
         uint8_t sec_hdr_size = security_header_size(p_frame_data) - SECURITY_CONTROL_SIZE;
 
         memcpy(ack_sec_ctrl + SECURITY_CONTROL_SIZE,
@@ -413,8 +415,10 @@ static void ie_header_set(const uint8_t      * p_ie_data,
     memcpy(p_ack_ie, p_ie_data, ie_data_len);
 
 #if NRF_802154_IE_WRITER_ENABLED
+
     nrf_802154_ie_writer_prepare(p_ack_ie, p_ack_ie + ie_data_len);
-#endif
+
+#endif /* NRF_802154_IE_WRITER_ENABLED */
 }
 
 /***************************************************************************************************
@@ -424,7 +428,6 @@ static void ie_header_set(const uint8_t      * p_ie_data,
 static bool encryption_prepare(const nrf_802154_frame_t * p_ack_data)
 {
 #if NRF_802154_ENCRYPTION_ENABLED
-    nrf_802154_encrypt_ack_reset();
 
     if (nrf_802154_frame_security_enabled_bit_is_set(p_ack_data) == false)
     {
@@ -437,20 +440,25 @@ static bool encryption_prepare(const nrf_802154_frame_t * p_ack_data)
     }
 
     return nrf_802154_encrypt_ack_prepare(p_ack_data);
-#else // NRF_802154_ENCRYPTION_ENABLED
+
+#else /* NRF_802154_ENCRYPTION_ENABLED */
+
     return true;
-#endif  // NRF_802154_ENCRYPTION_ENABLED
+
+#endif /* NRF_802154_ENCRYPTION_ENABLED */
 }
 
 /***************************************************************************************************
  * @section Enhanced ACK generation
  **************************************************************************************************/
 
-static void fcf_process(const nrf_802154_frame_t * p_frame_data)
+static void fcf_process(const nrf_802154_frame_t    * p_frame_data,
+                        const nrf_802154_peer_rec_t * p_peer_rec)
 {
-    // Set Frame Control field bits.
-    // Some of them might require correction when higher parse level is available
-    m_ack[PHR_OFFSET] += frame_control_set(p_frame_data, false);
+    /* Set Frame Control field bits.
+     * Some of them might require correction when higher parse level is available.
+     */
+    m_ack[PHR_OFFSET] += frame_control_set(p_frame_data, p_peer_rec, false);
 
     bool result = nrf_802154_frame_parser_valid_data_extend(&m_ack_data,
                                                             m_ack[PHR_OFFSET] + PHR_SIZE,
@@ -460,24 +468,30 @@ static void fcf_process(const nrf_802154_frame_t * p_frame_data)
     (void)result;
 }
 
-static void addr_end_process(const nrf_802154_frame_t * p_frame_data)
+static void addr_end_process(const nrf_802154_frame_t    * p_frame_data,
+                             const nrf_802154_peer_rec_t * p_peer_rec)
 {
-    // Set valid sequence number in ACK frame.
+    /* Set valid sequence number in ACK frame. */
     m_ack[PHR_OFFSET] += sequence_number_set(p_frame_data);
-    // Set destination address and PAN ID.
+    /* Set destination address and PAN ID. */
     m_ack[PHR_OFFSET] += destination_set(p_frame_data, &m_ack_data);
 
-    // Set source address and PAN ID.
+    /* Set source address and PAN ID. */
     source_set();
 
-    // Having the frame's source address, presence of IEs can be determined.
-    // coverity[unchecked_value]
-    mp_ie_data = nrf_802154_ack_data_ie_get(
-        nrf_802154_frame_src_addr_get(p_frame_data),
-        nrf_802154_frame_src_addr_is_extended(p_frame_data),
-        &m_ie_data_len);
+    /* Having the frame's source address, presence of IEs can be determined. */
+    if ((p_peer_rec != NULL) && (p_peer_rec->ie_data.len != 0))
+    {
+        mp_ie_data    = &p_peer_rec->ie_data.data[0];
+        m_ie_data_len = p_peer_rec->ie_data.len;
+    }
+    else
+    {
+        mp_ie_data    = NULL;
+        m_ie_data_len = 0U;
+    }
 
-    // Update the IE present bit in Frame Control field knowing if IEs should be present.
+    /* Update the IE present bit in Frame Control field knowing if IEs should be present. */
     fcf_ie_present_set(mp_ie_data != NULL);
 
     bool result = nrf_802154_frame_parser_valid_data_extend(&m_ack_data,
@@ -511,11 +525,11 @@ static bool aux_sec_hdr_process(const nrf_802154_frame_t * p_frame_data)
 
 static void ie_process(const nrf_802154_frame_t * p_frame_data)
 {
-    // Set IE header.
+    /* Set IE header. */
     ie_header_set(mp_ie_data, m_ie_data_len, &m_ack_data);
     m_ack[PHR_OFFSET] += m_ie_data_len;
 
-    // Add space for the FCS field.
+    /* Add space for the FCS field. */
     m_ack[PHR_OFFSET] += FCS_SIZE;
 
     bool result = nrf_802154_frame_parser_valid_data_extend(&m_ack_data,
@@ -532,8 +546,9 @@ static bool encryption_process(void)
 }
 
 static uint8_t * ack_process(
-    const nrf_802154_frame_t * p_frame_data,
-    bool                     * p_processing_done)
+    const nrf_802154_frame_t    * p_frame_data,
+    const nrf_802154_peer_rec_t * p_peer_rec,
+    bool                        * p_processing_done)
 {
     nrf_802154_frame_parser_level_t frame_parse_level = nrf_802154_frame_parse_level_get(
         p_frame_data);
@@ -545,13 +560,13 @@ static uint8_t * ack_process(
     if ((frame_parse_level >= PARSE_LEVEL_FCF_OFFSETS) &&
         (ack_parse_level < PARSE_LEVEL_FCF_OFFSETS))
     {
-        fcf_process(p_frame_data);
+        fcf_process(p_frame_data, p_peer_rec);
     }
 
     if ((frame_parse_level >= PARSE_LEVEL_ADDRESSING_END) &&
         (ack_parse_level < PARSE_LEVEL_ADDRESSING_END))
     {
-        addr_end_process(p_frame_data);
+        addr_end_process(p_frame_data, p_peer_rec);
     }
 
     if ((frame_parse_level >= PARSE_LEVEL_AUX_SEC_HDR_END) &&
@@ -559,7 +574,7 @@ static uint8_t * ack_process(
     {
         if (!aux_sec_hdr_process(p_frame_data))
         {
-            // Failure to set auxiliary security header, the ACK cannot be created. Exit immediately
+            /* Failure to set auxiliary security header, the ACK cannot be created. Exit immediately. */
             *p_processing_done = true;
             return NULL;
         }
@@ -569,19 +584,20 @@ static uint8_t * ack_process(
 
     if (frame_parse_level == PARSE_LEVEL_FULL)
     {
-        // With the entire frame validated update the Frame Pending bit in Frame Control field
-        fcf_frame_pending_set(p_frame_data);
+        /* With the entire frame validated update the Frame Pending bit in Frame Control field. */
+        fcf_frame_pending_set(p_frame_data, p_peer_rec);
 
         if (encryption_process())
         {
-            // Success. Processing completed
+            /* Success. Processing completed. */
             *p_processing_done = true;
             return m_ack;
         }
         else
         {
-            // Failure to prepare encryption even though it's required, the ACK cannot be created.
-            // Exit immediately
+            /* Failure to prepare encryption even though it's required, the ACK cannot be created.
+             * Exit immediately.
+             */
             *p_processing_done = true;
             return NULL;
         }
@@ -596,11 +612,30 @@ static uint8_t * ack_process(
 
 void nrf_802154_enh_ack_generator_init(void)
 {
-    // Intentionally empty.
+    /* Intentionally empty. */
 }
 
 void nrf_802154_enh_ack_generator_reset(void)
 {
+#if NRF_802154_IE_WRITER_ENABLED
+
+    /* The IE writer module can be in the IE_WRITER_PREPARE state if
+     * the previous transmission failed at an early stage.
+     * Reset it, to avoid data corruption in case this ACK
+     * does not contain information elements. Otherwise, the
+     * IE writer would commit data in nrf_802154_ie_writer_tx_ack_started_hook
+     * regardless if writing of IE elements is needed or not.
+     */
+    nrf_802154_ie_writer_reset();
+
+#endif /* NRF_802154_IE_WRITER_ENABLED */
+
+#if NRF_802154_ENCRYPTION_ENABLED
+
+    nrf_802154_encrypt_ack_reset();
+
+#endif /* NRF_802154_ENCRYPTION_ENABLED */
+
     memset(m_ack, 0U, sizeof(m_ack));
     (void)nrf_802154_frame_parser_data_init(m_ack, 0U, PARSE_LEVEL_NONE, &m_ack_data);
     mp_ie_data    = 0U;
@@ -609,28 +644,19 @@ void nrf_802154_enh_ack_generator_reset(void)
 }
 
 uint8_t * nrf_802154_enh_ack_generator_create(
-    const nrf_802154_frame_t * p_frame_data)
+    const nrf_802154_frame_t    * p_frame_data,
+    const nrf_802154_peer_rec_t * p_peer_rec)
 {
     switch (ack_state_get())
     {
         case ACK_STATE_RESET:
-        #if NRF_802154_IE_WRITER_ENABLED
-            // The IE writer module can be in the IE_WRITER_PREPARE state if
-            // the previous transmission failed at an early stage.
-            // Reset it, to avoid data corruption in case this ACK
-            // does not contain information elements. Otherwise, the
-            // IE writer would commit data in nrf_802154_ie_writer_tx_ack_started_hook
-            // regardless if writing of IE elements is needed or not.
-            nrf_802154_ie_writer_reset();
-        #endif
-
             ack_state_set(ACK_STATE_PROCESSING);
             SWITCH_CASE_FALLTHROUGH;
 
         case ACK_STATE_PROCESSING:
         {
             bool      processing_done;
-            uint8_t * p_ack = ack_process(p_frame_data, &processing_done);
+            uint8_t * p_ack = ack_process(p_frame_data, p_peer_rec, &processing_done);
 
             if (processing_done)
             {

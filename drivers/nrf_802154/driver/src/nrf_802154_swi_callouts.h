@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Nordic Semiconductor ASA
+ * Copyright (c) 2025, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -32,46 +32,24 @@
  *
  */
 
-/**
- * @file
- *   This file supplies bitmasks specifying which of the peripherals are used
- *   by the 802.15.4 driver.
- *
- * Bitmasks currently provided applies to:
- *   - PPI or DPPI channels (g_nrf_802154_used_nrf_ppi_channels)
- *   - PPI or DPPI channel groups (g_nrf_802154_used_nrf_ppi_groups)
- */
+#ifndef NRF_802154_SWI_CALLOUTS_H__
+#define NRF_802154_SWI_CALLOUTS_H__
 
-#include "nrf_802154_peripherals.h"
-
-#include <stdint.h>
-
-#if NRF_802154_VERIFY_PERIPHS_ALLOC_AGAINST_MPSL
-/* Obtaining the MPSL_RESERVED_.. macros */
-#include "mpsl.h"
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#if defined(PPI_PRESENT)
-#define NRF_802154_PPI_CH_USED_MSK NRF_802154_PPI_CHANNELS_USED_MASK
-#define NRF_802154_PPI_GR_USED_MSK NRF_802154_PPI_GROUPS_USED_MASK
-#elif defined(DPPI_PRESENT)
-#define NRF_802154_PPI_CH_USED_MSK NRF_802154_DPPI_CHANNELS_USED_MASK
-#define NRF_802154_PPI_GR_USED_MSK NRF_802154_DPPI_GROUPS_USED_MASK
-#else
-#error Unsupported chip family
+/** @brief Callout from SWI for nrf_802154_trx module. */
+void nrf_802154_trx_swi_irq_handler(void);
+
+/** @brief Callout from SWI for nrf_802154_notification_swi module. */
+void nrf_802154_notification_swi_irq_handler(void);
+
+/** @brief Callout from SWI for nrf_802154_request_swi module. */
+void nrf_802154_request_swi_irq_handler(void);
+
+#ifdef __cplusplus
+}
 #endif
 
-const uint32_t g_nrf_802154_used_nrf_ppi_channels = NRF_802154_PPI_CH_USED_MSK;
-const uint32_t g_nrf_802154_used_nrf_ppi_groups = NRF_802154_PPI_GR_USED_MSK;
-
-#if NRF_802154_VERIFY_PERIPHS_ALLOC_AGAINST_MPSL
-
-#if ((NRF_802154_PPI_CH_USED_MSK & MPSL_RESERVED_PPI_CHANNELS) != 0UL)
-#error PPI channels for 802.15.4 driver overlap with MPSL channels
-#endif
-
-#if ((NRF_802154_PPI_GR_USED_MSK & MPSL_RESERVED_PPI_GROUPS) != 0UL)
-#error PPI groups for 802.15.4 driver overlap with MPSL groups
-#endif
-
-#endif // NRF_802154_VERIFY_PERIPHS_ALLOC_AGAINST_MPSL
+#endif /* NRF_802154_SWI_CALLOUTS_H__ */

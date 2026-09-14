@@ -56,11 +56,18 @@
 #include "nrf_802154_request.h"
 #include "nrf_802154_tx_power.h"
 #include "nrf_802154_stats.h"
-#include "platform/nrf_802154_random.h"
+#include "nrf_802154_csma_ca_backoff.h"
 #include "rsch/nrf_802154_rsch.h"
 #include "nrf_802154_sl_timer.h"
 #include "nrf_802154_sl_atomics.h"
 #include "nrf_802154_frame_parser.h"
+
+#if NRF_802154_CSMA_CA_CANCEL_ENABLED
+
+#define IS_CSMA_CA_STATE_IDLE(_state) \
+    (((csma_ca_state_t)nrf_802154_sl_atomic_load_u8((uint8_t *)_state)) == CSMA_CA_STATE_IDLE)
+
+#endif /* NRF_802154_CSMA_CA_CANCEL_ENABLED */
 
 /**
  * @brief States of the CSMA-CA procedure.
@@ -194,7 +201,20 @@ static void frame_transmit(rsch_dly_ts_id_t dly_ts_id)
     {
         bool cancel_status = nrf_802154_rsch_delayed_timeslot_cancel(dly_ts_id, true);
 
+#if NRF_802154_CSMA_CA_CANCEL_ENABLED
+
+        /* BACKOFF->ATTEMPTING_CCATX CAS failed: nrf_802154_csma_ca_cancel function may already have
+         * set IDLE and released the delayed timeslot. So nrf_802154_rsch_delayed_timeslot_cancel()
+         * can return false. That is valid only when the CSMA-CA state is IDLE. Any other combination
+         * of cancel_status == false and a non-IDLE state should be considered as an error.
+         */
+        NRF_802154_ASSERT(cancel_status || IS_CSMA_CA_STATE_IDLE(&m_state));
+
+#else /* NRF_802154_CSMA_CA_CANCEL_ENABLED */
+
         NRF_802154_ASSERT(cancel_status);
+
+#endif /* NRF_802154_CSMA_CA_CANCEL_ENABLED */
         (void)cancel_status;
     }
 
@@ -210,58 +230,13 @@ static void frame_transmit(rsch_dly_ts_id_t dly_ts_id)
 }
 
 /**
- * @brief Calculates number of backoff periods as random value according to IEEE Std. 802.15.4.
- */
-static uint8_t backoff_periods_calc_random(void)
-{
-    return nrf_802154_random_get() % (1U << m_be);
-}
-
-/**
- * @brief Calculates number of backoff periods to wait before the next CCA attempt of CSMA/CA
- *
- * @return Number of backoff periods
- */
-static uint8_t backoff_periods_calc(void)
-{
-    uint8_t result;
-
-#if NRF_802154_TEST_MODES_ENABLED
-
-    switch (nrf_802154_pib_test_mode_csmaca_backoff_get())
-    {
-        case NRF_802154_TEST_MODE_CSMACA_BACKOFF_RANDOM:
-            result = backoff_periods_calc_random();
-            break;
-
-        case NRF_802154_TEST_MODE_CSMACA_BACKOFF_ALWAYS_MAX:
-            result = (1U << m_be) - 1U;
-            break;
-
-        case NRF_802154_TEST_MODE_CSMACA_BACKOFF_ALWAYS_MIN:
-            result = 0U;
-            break;
-
-        default:
-            result = backoff_periods_calc_random();
-            NRF_802154_ASSERT(false);
-            break;
-    }
-#else
-    result = backoff_periods_calc_random();
-#endif
-
-    return result;
-}
-
-/**
  * @brief Delay CCA procedure for random (2^BE - 1) unit backoff periods.
  */
 static void random_backoff_start(void)
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_HIGH);
 
-    uint64_t backoff_us = backoff_periods_calc() * UNIT_BACKOFF_PERIOD;
+    uint64_t backoff_us = nrf_802154_csma_ca_backoff_periods_get(m_be) * UNIT_BACKOFF_PERIOD;
 
     rsch_dly_ts_param_t backoff_ts_param =
     {
@@ -334,7 +309,21 @@ static bool channel_busy(void)
         {
             bool ret = csma_ca_state_set(CSMA_CA_STATE_BACKOFF, CSMA_CA_STATE_IDLE);
 
+#if NRF_802154_CSMA_CA_CANCEL_ENABLED
+
+            /* The result of the state set operation should be true if the procedure is completed
+             * when CSMA_CA_STATE_BACKOFF state is set. However the operation can
+             * fail if nrf_802154_csma_ca_cancel() is called before the procedure is completed.
+             * In this case the expected state is CSMA_CA_STATE_IDLE.
+             */
+            NRF_802154_ASSERT(ret || IS_CSMA_CA_STATE_IDLE(&m_state));
+
+#else /* NRF_802154_CSMA_CA_CANCEL_ENABLED */
+
             NRF_802154_ASSERT(ret);
+
+#endif /* NRF_802154_CSMA_CA_CANCEL_ENABLED */
+
             (void)ret;
         }
         else
@@ -354,11 +343,11 @@ nrf_802154_tx_error_t nrf_802154_csma_ca_start(
 {
     nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
 
-#if (NRF_802154_FRAME_TIMESTAMP_ENABLED)
+#if NRF_802154_FRAME_TIMESTAMP_ENABLED
     uint64_t ts = nrf_802154_sl_timer_current_time_get();
 
     nrf_802154_stat_timestamp_write_last_csmaca_start_timestamp(ts);
-#endif
+#endif /* NRF_802154_FRAME_TIMESTAMP_ENABLED */
 
     nrf_802154_tx_error_t error = NRF_802154_TX_ERROR_TIMESLOT_DENIED;
 
@@ -375,9 +364,9 @@ nrf_802154_tx_error_t nrf_802154_csma_ca_start(
         m_nb         = 0;
         m_be         = nrf_802154_pib_csmaca_min_be_get();
         m_tx_channel = channel;
-    #if NRF_802154_TX_TIMESTAMP_PROVIDER_ENABLED
+#if NRF_802154_TX_TIMESTAMP_PROVIDER_ENABLED
         m_tx_timestamp_encode = p_metadata->tx_timestamp_encode;
-    #endif
+#endif /* NRF_802154_TX_TIMESTAMP_PROVIDER_ENABLED */
         (void)nrf_802154_tx_power_convert_metadata_to_tx_power_split(channel,
                                                                      p_metadata->tx_power,
                                                                      &m_tx_power);
@@ -391,6 +380,27 @@ nrf_802154_tx_error_t nrf_802154_csma_ca_start(
 
     return error;
 }
+
+#if NRF_802154_CSMA_CA_CANCEL_ENABLED
+
+void nrf_802154_csma_ca_cancel(void)
+{
+    nrf_802154_log_function_enter(NRF_802154_LOG_VERBOSITY_LOW);
+
+    /* Cancel the CSMACA backoff timeslot always. The function returns false when
+     * the timeslot is not scheduled, however, this is acceptable here.
+     */
+    (void)nrf_802154_rsch_delayed_timeslot_cancel(NRF_802154_RESERVED_CSMACA_ID, false);
+
+    /* Reset the CSMA-CA state to IDLE state in order to revert the state machine
+     * to the initial state.
+     */
+    nrf_802154_sl_atomic_store_u8((uint8_t *)&m_state, CSMA_CA_STATE_IDLE);
+
+    nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
+}
+
+#endif /* NRF_802154_CSMA_CA_CANCEL_ENABLED */
 
 static bool csma_ca_can_abort(nrf_802154_term_t              term_lvl,
                               req_originator_t               req_orig,
@@ -425,6 +435,15 @@ static bool csma_ca_can_abort(nrf_802154_term_t              term_lvl,
     return result;
 }
 
+static void csma_ca_finish_failed(uint8_t                                   * p_frame,
+                                  nrf_802154_tx_error_t                       error,
+                                  const nrf_802154_transmit_done_metadata_t * p_metadata)
+{
+    nrf_802154_sl_atomic_store_u8((uint8_t *)&m_state, CSMA_CA_STATE_IDLE);
+    nrf_802154_frame_parser_data_clear(&m_frame);
+    nrf_802154_notify_transmit_failed(p_frame, error, p_metadata);
+}
+
 static void csma_ca_failed(uint8_t                                   * p_frame,
                            nrf_802154_tx_error_t                       error,
                            const nrf_802154_transmit_done_metadata_t * p_metadata,
@@ -441,18 +460,12 @@ static void csma_ca_failed(uint8_t                                   * p_frame,
         case NRF_802154_TX_ERROR_TIMESLOT_ENDED:
             if (channel_busy())
             {
-                nrf_802154_sl_atomic_store_u8((uint8_t *)&m_state, CSMA_CA_STATE_IDLE);
-                nrf_802154_frame_parser_data_clear(&m_frame);
-                nrf_802154_notify_transmit_failed(p_frame,
-                                                  NRF_802154_TX_ERROR_BUSY_CHANNEL,
-                                                  p_metadata);
+                csma_ca_finish_failed(p_frame, error, p_metadata);
             }
             break;
 
         default:
-            nrf_802154_sl_atomic_store_u8((uint8_t *)&m_state, CSMA_CA_STATE_IDLE);
-            nrf_802154_frame_parser_data_clear(&m_frame);
-            nrf_802154_notify_transmit_failed(p_frame, error, p_metadata);
+            csma_ca_finish_failed(p_frame, error, p_metadata);
             break;
     }
 
@@ -467,7 +480,20 @@ static void csma_ca_tx_started(const nrf_802154_tx_client_t * p_client)
 
     bool result = csma_ca_state_set(CSMA_CA_STATE_ATTEMPTING_CCATX, CSMA_CA_STATE_TRANSMITTING);
 
+#if NRF_802154_CSMA_CA_CANCEL_ENABLED
+
+    /* The result of the state set operation should be true if the frame transmission started
+     * when CSMA_CA_STATE_ATTEMPTING_CCATX state is set. However the operation can
+     * fail if nrf_802154_csma_ca_cancel() is called before the frame transmission started.
+     * In this case the expected state is CSMA_CA_STATE_IDLE.
+     */
+    NRF_802154_ASSERT(result || IS_CSMA_CA_STATE_IDLE(&m_state));
+
+#else /* NRF_802154_CSMA_CA_CANCEL_ENABLED */
+
     NRF_802154_ASSERT(result);
+
+#endif /* NRF_802154_CSMA_CA_CANCEL_ENABLED */
 
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
 }
@@ -482,7 +508,20 @@ static void csma_ca_tx_done(uint8_t                                   * p_frame,
 
     bool result = csma_ca_state_set(CSMA_CA_STATE_TRANSMITTING, CSMA_CA_STATE_IDLE);
 
+#if NRF_802154_CSMA_CA_CANCEL_ENABLED
+
+    /* The result of the state set operation should be true if the frame transmission
+     * completed when CSMA_CA_STATE_TRANSMITTING state is set. However the operation can
+     * fail if nrf_802154_csma_ca_cancel() is called before the frame transmission completed.
+     * In this case the expected state is CSMA_CA_STATE_IDLE.
+     */
+    NRF_802154_ASSERT(result || IS_CSMA_CA_STATE_IDLE(&m_state));
+
+#else /* NRF_802154_CSMA_CA_CANCEL_ENABLED */
+
     NRF_802154_ASSERT(result);
+
+#endif /* NRF_802154_CSMA_CA_CANCEL_ENABLED */
 
     nrf_802154_frame_parser_data_clear(&m_frame);
     nrf_802154_notify_transmitted(p_frame, p_metadata);
@@ -490,4 +529,21 @@ static void csma_ca_tx_done(uint8_t                                   * p_frame,
     nrf_802154_log_function_exit(NRF_802154_LOG_VERBOSITY_LOW);
 }
 
-#endif // NRF_802154_CSMA_CA_ENABLED
+#ifdef TEST
+
+void nrf_802154_csma_ca_module_reset(void)
+{
+    m_state      = CSMA_CA_STATE_IDLE;
+    m_nb         = 0;
+    m_be         = 0;
+    m_frame      = (nrf_802154_frame_t){0};
+    m_data_props = (nrf_802154_transmitted_frame_props_t){0};
+    m_tx_channel = 0;
+#if NRF_802154_TX_TIMESTAMP_PROVIDER_ENABLED
+    m_tx_timestamp_encode = false;
+#endif /* NRF_802154_TX_TIMESTAMP_PROVIDER_ENABLED */
+}
+
+#endif /* TEST */
+
+#endif /* NRF_802154_CSMA_CA_ENABLED */
