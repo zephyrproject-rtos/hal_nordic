@@ -1,0 +1,23 @@
+# SPDX-FileCopyrightText: Copyright The Zephyr Project Contributors
+# SPDX-License-Identifier: Apache-2.0
+#
+# REUSE.toml — REUSE Specification 3.3 bulk annotations for binary blobs
+# https://reuse.software/spec-3.3/
+#
+# This file provides SPDX license and copyright metadata for west-fetched
+# binary blobs (zephyr/blobs/), which cannot carry in-file SPDX tags.
+# License text is taken from zephyr/LICENSE.txt (LicenseRef-Nordic-5-Clause),
+# which is the license file present in this module for the SUIT blob.
+# In-file tags always take precedence over entries below (REUSE spec §3.3).
+#
+# Licenses referenced here must have their full text under LICENSES/.
+
+version = 1
+
+# ---------------------------------------------------------------------------
+# Binary blobs — Nordic 5-Clause (zephyr/LICENSE.txt)
+# ---------------------------------------------------------------------------
+[[annotations]]
+path = "zephyr/blobs/**"
+SPDX-FileCopyrightText = "Copyright (c) Nordic Semiconductor ASA"
+SPDX-License-Identifier = "LicenseRef-Nordic-5-Clause"
