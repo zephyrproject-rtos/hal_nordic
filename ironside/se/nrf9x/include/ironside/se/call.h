@@ -1,0 +1,76 @@
+/*
+ * Copyright (c) 2025 Nordic Semiconductor ASA
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#ifndef IRONSIDE_SE_CALL_H_
+#define IRONSIDE_SE_CALL_H_
+
+#include <stdint.h>
+#include <ironside/se/memory_map.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @defgroup ironside_se_call IronSide SE call (IPC protocol)
+ * @ingroup ironside_se_ipc
+ * @{
+ */
+
+#if defined(IRONSIDE_SE_IPC_BUFFER_ADDRESS)
+/** IPC buffer for the current processor. */
+#define IRONSIDE_SE_IPC_BUFFER ((struct ironside_se_call_buf *)IRONSIDE_SE_IPC_BUFFER_ADDRESS)
+/** Number of slots in the IPC buffer. */
+#define IRONSIDE_SE_IPC_BUFFER_NUM_SLOTS                                                           \
+	(IRONSIDE_SE_IPC_BUFFER_SIZE / sizeof(struct ironside_se_call_buf))
+#endif
+
+/** @brief Maximum number of arguments to an IronSide SE call.
+ *
+ * This is chosen so that the containing message buffer size is minimal but
+ * cache line aligned.
+ */
+#define IRONSIDE_SE_CALL_NUM_ARGS (7)
+
+/** @brief Message buffer. */
+struct ironside_se_call_buf {
+	/** Status code set by the API (@ref ironside_se_call_status_codes). */
+	uint16_t status;
+	/** Operation identifier. This is set by the user. */
+	uint16_t id;
+	/** Operation arguments. These are set by the user. */
+	uint32_t args[IRONSIDE_SE_CALL_NUM_ARGS];
+};
+
+/**
+ * @defgroup ironside_se_call_status_codes Message buffer status codes
+ * @{
+ */
+
+/** Buffer is idle and available for allocation. */
+#define IRONSIDE_SE_CALL_STATUS_IDLE                   (0)
+/** Request was processed successfully by the server. */
+#define IRONSIDE_SE_CALL_STATUS_RSP_SUCCESS            (1)
+/** Request status code is unknown. */
+#define IRONSIDE_SE_CALL_STATUS_RSP_ERR_UNKNOWN_STATUS (2)
+/** Request status code is no longer supported. */
+#define IRONSIDE_SE_CALL_STATUS_RSP_ERR_EXPIRED_STATUS (3)
+/** Operation identifier is unknown. */
+#define IRONSIDE_SE_CALL_STATUS_RSP_ERR_UNKNOWN_ID     (4)
+/** Operation identifier is no longer supported. */
+#define IRONSIDE_SE_CALL_STATUS_RSP_ERR_EXPIRED_ID     (5)
+/** Buffer contains a request from the client. */
+#define IRONSIDE_SE_CALL_STATUS_REQ                    (6)
+
+/**
+ * @}
+ */
+
+/** @} */
+
+#ifdef __cplusplus
+}
+#endif
+#endif /* NRF_IRONSIDE_SE_CALL_H_ */
