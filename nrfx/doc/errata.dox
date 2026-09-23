@@ -174,7 +174,7 @@ Possible ways to handle erratum:
 | NRF53  | 168     | other        |                    |  |  |
 | NRF54L | 1       | other        |                    |  |  |
 | NRF54L | 6       | other        |                    |  |  |
-| NRF54L | 7       | **driver**   | @ref nrfx_uarte    |  | Same as nRF52 Series erratum 274, nRF53 Series erratum 170, nRF54H Series erratum 205, always enabled |
+| NRF54L | 7       | **driver**   | @ref nrfx_uarte    |  | Same as nRF52 Series erratum 274, nRF53 Series erratum 170, nRF54H Series erratum 205, nRF92 Series erratum 205, always enabled |
 | NRF54L | 8       | **driver**   | @ref nrfx_spim     |  | Same as nRF54H Series erratum 115 |
 | NRF54L | 13      | **code**     | @ref nrfx_kmu      |  |  |
 | NRF54L | 16      | other        |                    |  |  |
@@ -224,13 +224,13 @@ Possible ways to handle erratum:
 | NRF54H | 103     | other        |                    |  | Same as nRF54H Series erratum 76 |
 | NRF54H | 109     | @tagRedCross | GPIO               |  |  |
 | NRF54H | 115     | **driver**   | @ref nrfx_spim     |  | Same as nRF54L Series erratum 8 |
-| NRF54H | 205     | **driver**   | @ref nrfx_uarte    |  | Same as nRF52 Series erratum 274, nRF53 Series erratum 170, nRF54L Series erratum 7, always enabled |
+| NRF54H | 205     | **driver**   | @ref nrfx_uarte    |  | Same as nRF52 Series erratum 274, nRF53 Series erratum 170, nRF54L Series erratum 7, nRF92 Series erratum 205, always enabled |
 | NRF54H | 210     | @tagRedCross | UARTE              |  |  |
 | NRF54H | 216     | other        |                    |  |  |
 | NRF54H | 229     | other        |                    |  |  |
 | NRF54H | 230     | other        |                    |  |  |
 | NRF54H | 231     | other        |                    |  |  |
-| NRF54H | 233     | **driver**   | @ref nrfx_saadc    |  |  |
+| NRF54H | 233     | **driver**   | @ref nrfx_saadc    |  | Same as nRF92 Series erratum 233 |
 | NRF54H | 234     | other        |                    |  |  |
 | NRF54H | 236     | **driver**   | @ref nrfx_saadc    |  |  |
 | NRF54H | 238     | other        |                    |  |  |
@@ -238,7 +238,6 @@ Possible ways to handle erratum:
 | NRF54H | 242     | other        |                    |  |  |
 | NRF54H | 244     | other        |                    |  | Same as nRF54L Series erratum 105 |
 | NRF54H | 245     | other        |                    |  |  |
-| NRF54H | 280     | @tagRedCross | SPIM               |  | Same as nRF54L Series erratum 55 |
 | NRF91  | 1       | **driver**   | @ref nrfx_i2s      | @ref nrfx_i2s_stop | Same as nRF52 Series erratum 194 |
 | NRF91  | 4       | **code**     | @ref nrfx_gpiote   | @ref nrfx_gpiote_input_configure | Same as nRF52 Series erratum 210. The driver uses correct initialization order. |
 | NRF91  | 6       | MDK          |                    |  |  |
@@ -263,4 +262,7 @@ Possible ways to handle erratum:
 | NRF91  | 32      | other        |                    |  |  |
 | NRF91  | 33      | other        |                    |  | Same as nRF53 Series erratum 76 |
 | NRF91  | 36      | MDK          |                    |  |  |
+| NRF92  | 205     | **driver**   | @ref nrfx_uarte    |  | Same as nRF52 Series erratum 274, nRF53 Series erratum 170, nRF54L Series erratum 7, nRF54H Series erratum 205, always enabled |
+| NRF92  | 233     | **driver**   | @ref nrfx_saadc    |  | Same as nRF54H Series erratum 233 |
+| NRF92  | 280     | **driver**   | @ref nrfx_spim     |  | Same as nRF54L Series erratum 55 |
 */
