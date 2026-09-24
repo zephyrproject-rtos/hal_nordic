@@ -1197,6 +1197,31 @@
         #define VPRCLIC_IRQN_MIN   16
         #define VPRCLIC_IRQN_MAX   22
     #endif
+
+    typedef struct {
+        __IOM uint32_t OUT;
+        __IOM uint32_t OUTSET;
+        __IOM uint32_t OUTCLR;
+        __IM  uint32_t IN;
+        __IOM uint32_t DIR;
+        __IOM uint32_t DIRSET;
+        __IOM uint32_t DIRCLR;
+        __IM  uint32_t RESERVED;
+        __IOM uint32_t LATCH;
+        __IOM uint32_t DETECTMODE;
+        __IM  uint32_t RESERVED1[3];
+        __IOM uint32_t PWRCTRL;
+        __IM  uint32_t RESERVED2[18];
+        __IOM uint32_t PIN_CNF[32];
+    } NRF_GPIO_Type_fixed;
+
+    #define NRF_GPIO_Type NRF_GPIO_Type_fixed
+
+    #define P4_PWRCTRL_OFF (0x0UL)
+    /* Static floating ground tied to 0 V, giving a 1.8 V pad swing when VDDIO_P4 is 1.8 V */
+    #define P4_PWRCTRL_1V8 (0x1UL)
+    /* Buffered floating ground, VDDIO - 1.8 V, i.e. 3.3 V mode */
+    #define P4_PWRCTRL_3V3 (0x3UL)
 #endif
 
 /**************************************************************************************************/
