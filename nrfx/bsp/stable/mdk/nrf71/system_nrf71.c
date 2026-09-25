@@ -225,8 +225,6 @@ void SystemInit(void)
         #if defined (NRF_ENABLE_NRF7120_APPROTECT_BOOT_WORKAROUND)
             #if !defined(NRF_TRUSTZONE_NONSECURE)
                 #if defined (NRF7120_ENGA_XXAA) || defined (NRF7120E_ENGA_XXAA) || defined (NRF7120_XXAA) || defined (NRF7120E_XXAA)
-                    uint32_t resetbehavior = NRF_TAMPC->PROTECT.RESETBEHAVIOR.CTRL;
-
                     // Set RESETBEHAVIOR such that a soft-reset clears the locked APPROTECT registers.
                     NRF_TAMPC->PROTECT.RESETBEHAVIOR.CTRL =
                             ((TAMPC_PROTECT_RESETBEHAVIOR_CTRL_WRITEPROTECTION_Clear << TAMPC_PROTECT_RESETBEHAVIOR_CTRL_WRITEPROTECTION_Pos) |
@@ -239,10 +237,26 @@ void SystemInit(void)
                     __DSB();
                     __ISB();
 
-                    if (((NRF_TAMPC->PROTECT.DOMAIN[0].DBGEN.CTRL &
-                          TAMPC_PROTECT_DOMAIN_DBGEN_CTRL_LOCK_Msk) != 0) &&
-                        ((resetbehavior & TAMPC_PROTECT_RESETBEHAVIOR_CTRL_VALUE_Msk) == 0))
-                    {
+                    #ifdef NRF_BOOTLOOP_DETECTION_ENABLED
+                        /* When boot loop detection is enabled ROM increments BOOTCOUNT on each boot attempt hence the first attempt contains the value 1 */
+                        if (((NRF_REGULATORS->MRAMRECOVERY & REGULATORS_MRAMRECOVERY_BOOTCOUNT_Msk) >> REGULATORS_MRAMRECOVERY_BOOTCOUNT_Pos) == 1)
+                        {
+                            NRF_CTRLAP->RESET = CTRLAPPERI_RESET_RESET_SoftReset << CTRLAPPERI_RESET_RESET_Pos;
+
+                            while(1)
+                                ;   // Reset will terminate execution here.
+                        }
+                    #else
+                        /* When boot loop detection is NOT enabled BOOTCOUNT is zero on the first boot, is incremented here and survives reset */
+                        if (((NRF_REGULATORS->MRAMRECOVERY & REGULATORS_MRAMRECOVERY_BOOTCOUNT_Msk) >> REGULATORS_MRAMRECOVERY_BOOTCOUNT_Pos) == 0)
+                        {
+                            NRF_REGULATORS->MRAMRECOVERY = (
+                                    (REGULATORS_MRAMRECOVERY_KEY_Key << REGULATORS_MRAMRECOVERY_KEY_Pos) |
+                                    (0x1 << REGULATORS_MRAMRECOVERY_BOOTCOUNT_Pos) |
+                                    (NRF_REGULATORS->MRAMRECOVERY & (REGULATORS_MRAMRECOVERY_TAKESNAPSHOT_Msk | REGULATORS_MRAMRECOVERY_RECOVERMRAM_Msk))
+                                );
+
+                            // Barriers to ensure register write lands before reset takes effect.
                             __DSB();
                             __ISB();
                             NRF_CTRLAP->RESET = CTRLAPPERI_RESET_RESET_SoftReset << CTRLAPPERI_RESET_RESET_Pos;
@@ -250,8 +264,17 @@ void SystemInit(void)
                             while(1)
                                 ;   // Reset will terminate execution here.
                         }
+                    #endif
                 #endif
             #endif
+            /* Only the second pass reaches here, since the reset above does not return.
+            * BOOTCOUNT is in the always-on domain and survives a pin or hard reset, so it
+            * must be cleared now or the next cold boot skips the workaround entirely and
+            * comes up with APPROTECT locked. */
+            NRF_REGULATORS->MRAMRECOVERY = (
+                    (REGULATORS_MRAMRECOVERY_KEY_Key << REGULATORS_MRAMRECOVERY_KEY_Pos) |
+                    (NRF_REGULATORS->MRAMRECOVERY & (REGULATORS_MRAMRECOVERY_TAKESNAPSHOT_Msk | REGULATORS_MRAMRECOVERY_RECOVERMRAM_Msk))
+                );
         #else
             #if !defined(NRF_TRUSTZONE_NONSECURE)
                 #if defined (NRF7120_ENGA_XXAA) || defined (NRF7120E_ENGA_XXAA) || defined (NRF7120_XXAA) || defined (NRF7120E_XXAA)
