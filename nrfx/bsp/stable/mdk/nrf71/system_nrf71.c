@@ -27,6 +27,7 @@ NOTICE: This file has been modified by Nordic Semiconductor ASA.
 #include <stdbool.h>
 #include "../nrf.h"
 #include "system_nrf71.h"
+#include "nrf71_erratas.h"
 #include "system_nrf71_approtect.h"
 #include "../common/system_config_sau.h"
 /*lint ++flb "Enter library region" */
@@ -121,6 +122,25 @@ void SystemInit(void)
                 #if defined ( __ICCARM__ )
                     #pragma diag_default=Pa082
                 #endif
+                }
+            #endif
+
+            #if NRF71_ERRATA_157_ENABLE_WORKAROUND
+                /* Workaround for Errata 157 */
+                if (nrf71_errata_157())
+                {
+                    *((volatile uint32_t *)0x50126448ul) = 0x3;
+                }
+            #endif
+
+            #if NRF71_ERRATA_158_ENABLE_WORKAROUND
+                /* Workaround for Errata 158 */
+                if (nrf71_errata_158())
+                {
+                    if (NRF_RESET->RESETREAS & RESET_RESETREAS_RESETPIN_Msk)
+                    {
+                        NRF_RESET->RESETREAS =  ~RESET_RESETREAS_RESETPIN_Msk;
+                    }
                 }
             #endif
         #endif
