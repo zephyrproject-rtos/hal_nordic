@@ -9,7 +9,7 @@ blobs:
       sha256: 7671d284ae8a7b3d7222f6869d5efd8b1efb1633ad752104ee9317476bf3566a
       type: img
       version: '5.0.0'
-      license-path: ./LICENSE.txt
+      license-path: LICENSES/LicenseRef-Nordic-5-Clause.txt
       url: https://github.com/nrfconnect/sdk-nrfxlib/raw/938b057dcefe9ebeb1554f4c448cee5ecdf965ae/suit/bin/suit_manifest_starter.hex
       description: nRF54H20 series SUIT manifest starter
       doc-url: https://github.com/nrfconnect/sdk-nrfxlib/raw/938b057dcefe9ebeb1554f4c448cee5ecdf965ae/suit/doc
