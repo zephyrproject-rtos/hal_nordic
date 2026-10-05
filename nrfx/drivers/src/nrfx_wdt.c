@@ -51,6 +51,7 @@ static void wdt_configure(nrfx_wdt_t *              p_instance,
     nrfy_wdt_periph_configure(p_instance->p_reg, &nrfy_conf);
 
     nrfx_wdt_control_block_t * p_cb = &p_instance->cb;
+    (void)p_cb;
 
 #if NRFX_WDT_HAS_STOP
     p_cb->stoppable = (bool)(p_config->behaviour & NRF_WDT_BEHAVIOUR_STOP_ENABLE_MASK);
