@@ -41,10 +41,12 @@ NOTICE: This file has been modified by Nordic Semiconductor ASA.
 #define TRACE_TRACEDATA2_PIN        (9ul)
 #define TRACE_TRACEDATA3_PIN        (10ul)
 
-#define TRACE_PIN_CLEAR             (~(GPIO_PIN_CNF_CTRLSEL_Msk | GPIO_PIN_CNF_DRIVE0_Msk | GPIO_PIN_CNF_DRIVE1_Msk))
+#define TRACE_PIN_CLEAR             (~(GPIO_PIN_CNF_CTRLSEL_Msk | GPIO_PIN_CNF_DRIVE0_Msk | \
+                                       GPIO_PIN_CNF_DRIVE1_Msk | GPIO_PIN_CNF_DIR_Msk))
 
 #define TRACE_PIN_CONFIG            ((GPIO_PIN_CNF_DRIVE0_E0 << GPIO_PIN_CNF_DRIVE0_Pos) \
-                                    | (GPIO_PIN_CNF_DRIVE1_E1 << GPIO_PIN_CNF_DRIVE1_Pos))
+                                    | (GPIO_PIN_CNF_DRIVE1_E1 << GPIO_PIN_CNF_DRIVE1_Pos) \
+                                    | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos))
 
 /* Boot count limit to avoid MRAM recovery */
 #define BOOTCOUNTCLAMP              (2)
@@ -53,7 +55,7 @@ NOTICE: This file has been modified by Nordic Semiconductor ASA.
     uint32_t SystemCoreClock __attribute__((used)) = __SYSTEM_CLOCK_DEFAULT;
 #elif defined ( __ICCARM__ )
     __root uint32_t SystemCoreClock = __SYSTEM_CLOCK_DEFAULT;
-#endif
+#endif    
 
 void SystemCoreClockUpdate(void)
 {
@@ -105,9 +107,9 @@ void SystemInit(void)
                 SCB->NSACR |= (3UL << 10ul);
             #endif
 
-            #ifndef NRF_SKIP_SAU_CONFIGURATION
+            #ifndef NRF_SKIP_SAU_CONFIGURATION   
                 configure_default_sau();
-            #endif
+            #endif          
 
             #if !defined (NRF_DISABLE_FICR_TRIMCNF)
                 /* Trimming of the device. Copy all the trimming values from FICR into the target addresses. Trim
@@ -124,31 +126,31 @@ void SystemInit(void)
                 #endif
                 }
             #endif
+        #endif
 
-            #if NRF71_ERRATA_157_ENABLE_WORKAROUND
-                /* Workaround for Errata 157 */
-                if (nrf71_errata_157())
-                {
-                    *((volatile uint32_t *)0x50126448ul) = 0x3;
-                }
-            #endif
+        #if NRF71_ERRATA_157_ENABLE_WORKAROUND
+            /* Workaround for Errata 157 */
+            if (nrf71_errata_157())
+            {
+                *((volatile uint32_t *)0x50126448ul) = 0x3;
+            }
+        #endif
 
-            #if NRF71_ERRATA_158_ENABLE_WORKAROUND
-                /* Workaround for Errata 158 */
-                if (nrf71_errata_158())
+        #if NRF71_ERRATA_158_ENABLE_WORKAROUND
+            /* Workaround for Errata 158 */
+            if (nrf71_errata_158())
+            {
+                if (NRF_RESET->RESETREAS & RESET_RESETREAS_RESETPIN_Msk)
                 {
-                    if (NRF_RESET->RESETREAS & RESET_RESETREAS_RESETPIN_Msk)
-                    {
-                        NRF_RESET->RESETREAS =  ~RESET_RESETREAS_RESETPIN_Msk;
-                    }
+                    NRF_RESET->RESETREAS =  ~RESET_RESETREAS_RESETPIN_Msk;
                 }
-            #endif
+            }
         #endif
 
         /* Enable the FPU if the compiler used floating point unit instructions. __FPU_USED is a MACRO defined by the
         * compiler. Since the FPU consumes energy, remember to disable FPU use in the compiler if floating point unit
         * operations are not used in your code. */
-
+        
         /* Allow Non-Secure code to run FPU instructions.
          * If only the secure code should control FPU power state these registers should be configured accordingly in the secure application code. */
         SCB->NSACR |= (3UL << 10ul);
@@ -162,7 +164,7 @@ void SystemInit(void)
         #if !defined(NRF_TRUSTZONE_NONSECURE) && defined(__ARM_FEATURE_CMSE)
             #if defined(NRF_CONFIG_NFCT_PINS_AS_GPIOS)
                 NRF_NFCT_S->PADCONFIG = (NFCT_PADCONFIG_ENABLE_Disabled << NFCT_PADCONFIG_ENABLE_Pos);
-            #endif
+            #endif 
 
             /* Enable SWO trace functionality. If ENABLE_SWO is not defined, SWO pin will be used as GPIO (see Product
             Specification to see which one). */
@@ -260,7 +262,7 @@ void SystemInit(void)
                     __ISB();
 
                     if (((NRF_TAMPC->PROTECT.DOMAIN[0].DBGEN.CTRL &
-                          TAMPC_PROTECT_DOMAIN_DBGEN_CTRL_LOCK_Msk) != 0) &&
+                        TAMPC_PROTECT_DOMAIN_DBGEN_CTRL_LOCK_Msk) != 0) &&
                         ((resetbehavior & TAMPC_PROTECT_RESETBEHAVIOR_CTRL_VALUE_Msk) == 0))
                     {
                             __DSB();
