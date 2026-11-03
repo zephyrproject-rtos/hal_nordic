@@ -126,25 +126,25 @@ void SystemInit(void)
                 #endif
                 }
             #endif
-        #endif
 
-        #if NRF71_ERRATA_157_ENABLE_WORKAROUND
-            /* Workaround for Errata 157 */
-            if (nrf71_errata_157())
-            {
-                *((volatile uint32_t *)0x50126448ul) = 0x3;
-            }
-        #endif
-
-        #if NRF71_ERRATA_158_ENABLE_WORKAROUND
-            /* Workaround for Errata 158 */
-            if (nrf71_errata_158())
-            {
-                if (NRF_RESET->RESETREAS & RESET_RESETREAS_RESETPIN_Msk)
+            #if NRF71_ERRATA_157_ENABLE_WORKAROUND
+                /* Workaround for Errata 157 */
+                if (nrf71_errata_157())
                 {
-                    NRF_RESET->RESETREAS =  ~RESET_RESETREAS_RESETPIN_Msk;
+                    *((volatile uint32_t *)0x50126448ul) = 0x3;
                 }
-            }
+            #endif
+
+            #if NRF71_ERRATA_158_ENABLE_WORKAROUND
+                /* Workaround for Errata 158 */
+                if (nrf71_errata_158())
+                {
+                    if (NRF_RESET->RESETREAS & RESET_RESETREAS_RESETPIN_Msk)
+                    {
+                        NRF_RESET->RESETREAS =  ~RESET_RESETREAS_RESETPIN_Msk;
+                    }
+                }
+            #endif
         #endif
 
         /* Enable the FPU if the compiler used floating point unit instructions. __FPU_USED is a MACRO defined by the
