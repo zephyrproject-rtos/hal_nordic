@@ -165,6 +165,14 @@ typedef struct __NRFS_PACKED {
 	nrfs_ctx_t ctx; /**< Context of the message. */
 } nrfs_pmic_pofwarn_status_req_t;
 
+/** @brief PMIC POFWARN suspend request structure. */
+typedef struct __NRFS_PACKED {
+	nrfs_hdr_t hdr; /**< Header of the message. */
+	nrfs_ctx_t ctx; /**< Context of the message. */
+	/** 1 = suspend POFWARN for this subscriber, 0 = resume with stored threshold. */
+	uint8_t    suspend;
+} nrfs_pmic_pofwarn_suspend_req_t;
+
 /** @brief PMIC service notification structure. */
 typedef struct __NRFS_PACKED {
 	nrfs_hdr_t hdr;		   /**< Header of the message. */
