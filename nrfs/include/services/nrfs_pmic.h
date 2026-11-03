@@ -22,6 +22,7 @@ typedef enum __NRFS_PACKED {
 	NRFS_PMIC_EVT_POFWARN		= 4, /** Power-fail warning */
 	NRFS_PMIC_EVT_POFWARN_TH_SET	= 5, /** POFWARN TH set */
 	NRFS_PMIC_EVT_POFWARN_STATUS	= 6, /** POFWARN status */
+	NRFS_PMIC_EVT_POFWARN_SUSPEND	= 7, /** POFWARN suspend/resume applied */
 } nrfs_pmic_evt_type_t;
 
 /** @brief PMIC Service response data structure. */
@@ -298,6 +299,34 @@ nrfs_err_t nrfs_pmic_pofwarn_th_set(int volts, void *p_context);
  * @retval NRFS_ERR_IPC           Backend returned error during request sending.
  */
 nrfs_err_t nrfs_pmic_pofwarn_status_get(void *p_context);
+
+/**
+ * @brief Function for suspending or resuming POFWARN for this subscriber
+ *
+ * Suspending keeps the subscriber's threshold stored in SysCtrl but stops
+ * using it, so VDETPOF5V0 can be powered down if no other subscriber needs it.
+ * Resuming re-applies the stored threshold.
+ *
+ * @param[in] suspend    true to suspend, false to resume.
+ * @param[in] p_context  Opaque user data that will be passed
+ *                        to registered callback.
+ *
+ * @retval NRFS_SUCCESS           Request sent successfully.
+ * @retval NRFS_ERR_INVALID_STATE Service is uninitialized.
+ * @retval NRFS_ERR_IPC           Backend returned error during request sending.
+ */
+nrfs_err_t nrfs_pmic_pofwarn_suspend(bool suspend, void *p_context);
+
+/**
+ * @brief Function for suspending or resuming POFWARN with no response
+ *
+ * @param[in] suspend    true to suspend, false to resume.
+ *
+ * @retval NRFS_SUCCESS           Request sent successfully.
+ * @retval NRFS_ERR_INVALID_STATE Service is uninitialized.
+ * @retval NRFS_ERR_IPC           Backend returned error during request sending.
+ */
+nrfs_err_t nrfs_pmic_pofwarn_suspend_no_rsp(bool suspend);
 
 #ifdef __cplusplus
 }
