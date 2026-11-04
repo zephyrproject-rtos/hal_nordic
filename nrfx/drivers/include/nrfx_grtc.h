@@ -387,6 +387,8 @@ int nrfx_grtc_syscounter_cc_absolute_set(nrfx_grtc_channel_t * p_chan_data,
 /**
  * @brief Function for setting the interval compare value for the SYSCOUNTER.
  *
+ * @note Function must be called with interrupts locked.
+ *
  * @note This function configures a periodic compare event for the given channel.
  *       If interrupts are to be used, @ref nrfx_grtc_channel_callback_set must
  *       also be called. The first event will occur after @p start_val.
@@ -439,6 +441,9 @@ void nrfx_grtc_syscounter_cc_abs_set(uint8_t channel, uint64_t val, bool safe_se
  *
  * @note This function marks the specified @p channel as used.
  *
+ * @note If the SYSCOUNTER is inactive and @ref NRFX_GRTC_CC_RELATIVE_SYSCOUNTER is
+ *       chosen as a @p reference the function waits until the SYSCOUNTER wakes up.
+ *
  * @param[in] p_chan_data Pointer to the channel data instance structure.
  * @param[in] val         Relative value to be set in the compare register.
  * @param[in] enable_irq  True if interrupt is to be enabled, false otherwise.
@@ -457,10 +462,15 @@ int nrfx_grtc_syscounter_cc_relative_set(nrfx_grtc_channel_t *             p_cha
 /**
  * @brief Function for setting the relative compare value in an optimized way.
  *
- * Function just sets CCADD value and does not attempt to enable or disable the interrupt.
+ * Function sets CCADD value and does not attempt to enable or disable the interrupt.
  * It assumes that expected channel configuration is done prior to that call.
  * Function assumes that previously used CC value has already expired so new value
  * can be safely set without a risk of spurious CC expiration.
+ *
+ * @note If the SYSCOUNTER is inactive and @ref NRFX_GRTC_CC_RELATIVE_SYSCOUNTER is
+ *       chosen as a @p reference the function waits until the SYSCOUNTER wakes up.
+ *
+ * @note Function must be called with interrupts locked.
  *
  * @param[in] channel   Channel.
  * @param[in] val       Relative value to be set in the CCADD register.
