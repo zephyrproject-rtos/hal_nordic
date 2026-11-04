@@ -1,5 +1,0 @@
-/* UARTE used in the sample needs to be disabled due to a conflict in connecting irq handlers. */
-&uart1 {
-    status = "disabled";
-    compatible = "nordic,nrf-uarte";
-};

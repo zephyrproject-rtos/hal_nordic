@@ -1,3 +1,0 @@
-&pwm20 {
-    status = "okay";
-};
