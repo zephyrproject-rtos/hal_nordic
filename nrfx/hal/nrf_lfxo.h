@@ -68,6 +68,34 @@ extern "C" {
 #define NRF_LFXO_HAS_MIRROR 0
 #endif
 
+#if defined(LFXO_PWRUPCTRL_ResetValue) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the PWRUPCTRL register is present. */
+#define NRF_LFXO_HAS_PWRUPCTRL 1
+#else
+#define NRF_LFXO_HAS_PWRUPCTRL 0
+#endif
+
+#if defined(LFXO_STATUS_HPMODE_Pos) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the HPMODE mode is present. */
+#define NRF_LFXO_HAS_HPMODE 1
+#else
+#define NRF_LFXO_HAS_HPMODE 0
+#endif
+
+#if defined(LFXO_STATUS_MODE_ExternalSine) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the ExternalSine mode is present. */
+#define NRF_LFXO_HAS_MODE_EXTERNALSINE 1
+#else
+#define NRF_LFXO_HAS_MODE_EXTERNALSINE 0
+#endif
+
+#if defined(LFXO_STATUS_MODE_ExternalSquare) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the ExternalSquare mode is present. */
+#define NRF_LFXO_HAS_MODE_EXTERNALSQUARE 1
+#else
+#define NRF_LFXO_HAS_MODE_EXTERNALSQUARE 0
+#endif
+
 /** @brief LFXO events. */
 typedef enum
 {
@@ -95,15 +123,21 @@ typedef enum
 {
     NRF_LFXO_OSCILLATOR_MODE_PIERCE  = LFXO_STATUS_MODE_Pierce,        /**< Pierce mode. */
     NRF_LFXO_OSCILLATOR_MODE_PIXO    = LFXO_STATUS_MODE_Pixo,          /**< PIXO mode. */
+#if NRF_LFXO_HAS_MODE_EXTERNALSINE
     NRF_LFXO_OSCILLATOR_MODE_EXTSINE = LFXO_STATUS_MODE_ExternalSine,  /**< External sine wave clock. */
+#endif
+#if NRF_LFXO_HAS_MODE_EXTERNALSQUARE
     NRF_LFXO_OSCILLATOR_MODE_EXTSQ   = LFXO_STATUS_MODE_ExternalSquare /**< External square wave clock. */
+#endif
 } nrf_lfxo_oscillator_mode_t;
 
 /** @brief LFXO status. */
 typedef struct
 {
     nrf_lfxo_oscillator_mode_t oscmode; /**< Oscillator mode. */
+#if NRF_LFXO_HAS_HPMODE
     bool                       hpmode;  /**< High performance mode. */
+#endif
     bool                       running; /**< LFXO running status. */
 } nrf_lfxo_status_t;
 
@@ -116,6 +150,7 @@ typedef struct
     bool    pdctrl_en; /**< Enable peak detector. */
 } nrf_lfxo_amplitude_ctrl_t;
 
+#if NRF_LFXO_HAS_PWRUPCTRL
 /** @brief Power up control. */
 typedef enum
 {
@@ -123,6 +158,17 @@ typedef enum
     NRF_LFXO_POWER_CONTROL_POWER_UP   = LFXO_PWRUPCTRL_CTRL_PowerUp,  /**< Power up. */
     NRF_LFXO_POWER_CONTROL_POWER_DOWN = LFXO_PWRUPCTRL_CTRL_PowerDown /**< Power down. */
 } nrf_lfxo_power_control_t;
+#endif
+
+#if NRF_LFXO_HAS_STATUSANA
+/** @brief Oscillator amplitude reported by the peak detector. */
+typedef enum
+{
+    NRF_LFXO_AMPLITUDE_OK       = 0,                             /**< Amplitude within the peak detector thresholds. */
+    NRF_LFXO_AMPLITUDE_TOO_LOW  = LFXO_STATUSANA_PDOUTLOWER_Msk, /**< Amplitude below the lower threshold. */
+    NRF_LFXO_AMPLITUDE_TOO_HIGH = LFXO_STATUSANA_PDOUTUPPER_Msk, /**< Amplitude above the upper threshold. */
+} nrf_lfxo_amplitude_t;
+#endif
 
 /**
  * @brief Function for retrieving the address of the specified event.
@@ -225,6 +271,18 @@ NRF_STATIC_INLINE bool nrf_lfxo_statusana_ready_check(NRF_LFXO_Type const * p_re
  * @retval false The signal is logic 0.
  */
 NRF_STATIC_INLINE bool nrf_lfxo_statusana_settled_check(NRF_LFXO_Type const * p_reg);
+
+/**
+ * @brief Function for getting the oscillator amplitude reported by the peak detector.
+ *
+ * @note The result is valid only when the peak detector is enabled and its outputs have settled.
+ *       Otherwise, @ref NRF_LFXO_AMPLITUDE_OK is returned.
+ *
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ *
+ * @return Oscillator amplitude.
+ */
+NRF_STATIC_INLINE nrf_lfxo_amplitude_t nrf_lfxo_statusana_amplitude_get(NRF_LFXO_Type const * p_reg);
 #endif
 
 #if NRF_LFXO_HAS_MIRROR
@@ -284,6 +342,7 @@ NRF_STATIC_INLINE void nrf_lfxo_amplitude_control_get(NRF_LFXO_Type const *     
 NRF_STATIC_INLINE void nrf_lfxo_amplitude_control_set(NRF_LFXO_Type *             p_reg,
                                                       nrf_lfxo_amplitude_ctrl_t * p_ctrl);
 
+#if NRF_LFXO_HAS_PWRUPCTRL
 /**
  * @brief Function for power control set.
  *
@@ -292,6 +351,7 @@ NRF_STATIC_INLINE void nrf_lfxo_amplitude_control_set(NRF_LFXO_Type *           
  */
 NRF_STATIC_INLINE void nrf_lfxo_power_control_set(NRF_LFXO_Type *          p_reg,
                                                   nrf_lfxo_power_control_t pwrctrl);
+#endif
 
 /**
  * @brief Function setting LFXO mode.
@@ -349,7 +409,9 @@ NRF_STATIC_INLINE void nrf_lfxo_status_get(NRF_LFXO_Type const * p_reg,
     NRFX_ASSERT(p_status);
     p_status->oscmode = (nrf_lfxo_oscillator_mode_t)((p_reg->STATUS & LFXO_STATUS_MODE_Msk)
                                                     >> LFXO_STATUS_MODE_Pos);
+#if NRF_LFXO_HAS_HPMODE
     p_status->hpmode  = (p_reg->STATUS & LFXO_STATUS_HPMODE_Msk)  >> LFXO_STATUS_HPMODE_Pos;
+#endif
     p_status->running = (p_reg->STATUS & LFXO_STATUS_RUNNING_Msk) >> LFXO_STATUS_RUNNING_Pos;
 }
 
@@ -362,6 +424,12 @@ NRF_STATIC_INLINE bool nrf_lfxo_statusana_ready_check(NRF_LFXO_Type const * p_re
 NRF_STATIC_INLINE bool nrf_lfxo_statusana_settled_check(NRF_LFXO_Type const * p_reg)
 {
     return p_reg->STATUSANA & LFXO_STATUSANA_SETTLED_Msk;
+}
+
+NRF_STATIC_INLINE nrf_lfxo_amplitude_t nrf_lfxo_statusana_amplitude_get(NRF_LFXO_Type const * p_reg)
+{
+    return (nrf_lfxo_amplitude_t)(p_reg->STATUSANA &
+                                  (LFXO_STATUSANA_PDOUTUPPER_Msk | LFXO_STATUSANA_PDOUTLOWER_Msk));
 }
 #endif
 
@@ -428,11 +496,13 @@ NRF_STATIC_INLINE void nrf_lfxo_amplitude_control_set(NRF_LFXO_Type *           
            | ((p_ctrl->pdctrl_en << LFXO_AMPLITUDECTRL_PDCTRL_Pos)   & LFXO_AMPLITUDECTRL_PDCTRL_Msk);
 }
 
+#if NRF_LFXO_HAS_PWRUPCTRL
 NRF_STATIC_INLINE void nrf_lfxo_power_control_set(NRF_LFXO_Type *          p_reg,
                                                   nrf_lfxo_power_control_t pwrctrl)
 {
     p_reg->PWRUPCTRL = ((uint32_t)pwrctrl << LFXO_PWRUPCTRL_CTRL_Pos) & LFXO_PWRUPCTRL_CTRL_Msk;
 }
+#endif
 
 NRF_STATIC_INLINE void nrf_lfxo_mode_set(NRF_LFXO_Type *            p_reg,
                                          nrf_lfxo_oscillator_mode_t oscmode,

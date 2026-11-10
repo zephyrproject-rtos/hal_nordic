@@ -114,6 +114,13 @@ NRF_MRAMC_BUS_SIZE / (NRFY_MRAMC_BITS_IN_BYTE * NRFY_MRAMC_BYTES_IN_WORD)
 #define NRFY_MRAMC_HAS_CONFIGNVR_PAGE_LOWER_PROTECT 0
 #endif
 
+#if NRF_MRAMC_HAS_ERASEALL || defined(__NRFX_DOXYGEN__)
+/** @refhal{NRF_MRAMC_HAS_ERASEALL} */
+#define NRFY_MRAMC_HAS_ERASEALL 1
+#else
+#define NRFY_MRAMC_HAS_ERASEALL 0
+#endif
+
 /** @brief MRAMC configuration structure. */
 typedef struct
 {
@@ -849,6 +856,7 @@ NRFY_STATIC_INLINE void nrfy_mramc_erase_area_get(NRF_MRAMC_Type * p_reg,
     nrf_barrier_r();
 }
 
+#if NRFY_MRAMC_HAS_ERASEALL
 /** @refhal{nrf_mramc_erase_all} */
 NRFY_STATIC_INLINE void nrfy_mramc_erase_all(NRF_MRAMC_Type * p_reg)
 {
@@ -872,6 +880,7 @@ NRFY_STATIC_INLINE bool nrfy_mramc_erase_all_get(NRF_MRAMC_Type const * p_reg)
     nrf_barrier_r();
     return check;
 }
+#endif // NRFY_MRAMC_HAS_ERASEALL
 
 /** @refhal{nrf_mramc_erase_word_lock_set} */
 NRFY_STATIC_INLINE void nrfy_mramc_erase_word_lock_set(NRF_MRAMC_Type * p_reg, bool lock)
@@ -905,6 +914,7 @@ NRFY_STATIC_INLINE bool nrfy_mramc_erase_area_lock_get(NRF_MRAMC_Type const * p_
     return lock;
 }
 
+#if NRFY_MRAMC_HAS_ERASEALL
 /** @refhal{nrf_mramc_erase_all_lock_set} */
 NRFY_STATIC_INLINE void nrfy_mramc_erase_all_lock_set(NRF_MRAMC_Type * p_reg, bool lock)
 {
@@ -920,6 +930,7 @@ NRFY_STATIC_INLINE bool nrfy_mramc_erase_all_lock_get(NRF_MRAMC_Type const * p_r
     nrf_barrier_r();
     return lock;
 }
+#endif // NRFY_MRAMC_HAS_ERASEALL
 
 /** @refhal{nrf_mramc_config_nvr_set} */
 NRFY_STATIC_INLINE void nrfy_mramc_config_nvr_set(NRF_MRAMC_Type *               p_reg,

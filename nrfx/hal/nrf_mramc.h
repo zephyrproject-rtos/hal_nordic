@@ -107,6 +107,13 @@ extern "C" {
 #define NRF_MRAMC_HAS_ERASE 0
 #endif
 
+#if defined(MRAMC_ERASE_ERASEALL_ERASEALL_Pos) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether there are ERASEALL register. */
+#define NRF_MRAMC_HAS_ERASEALL 1
+#else
+#define NRF_MRAMC_HAS_ERASEALL 0
+#endif
+
 #if defined(MRAMC_EVENTS_ACCESSERR_EVENTS_ACCESSERR_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether the EVENTS_ACCESSERR is present. */
 #define NRF_MRAMC_HAS_ACCESSERR 1
@@ -861,6 +868,7 @@ NRF_STATIC_INLINE void nrf_mramc_erase_area_get(NRF_MRAMC_Type const * p_reg,
                                                 uint32_t *             p_address,
                                                 uint32_t *             p_size);
 
+#if NRF_MRAMC_HAS_ERASEALL
 /**
  * @brief Function for erasing erasing whole MRAM main block and the first NVR page.
  *
@@ -877,6 +885,7 @@ NRF_STATIC_INLINE void nrf_mramc_erase_all(NRF_MRAMC_Type * p_reg);
  * @retval false No operation.
  */
 NRF_STATIC_INLINE bool nrf_mramc_erase_all_get(NRF_MRAMC_Type const * p_reg);
+#endif // NRF_MRAMC_HAS_ERASEALL
 
 /**
  * @brief Function for setting the eraseword lock status.
@@ -923,6 +932,7 @@ NRF_STATIC_INLINE void nrf_mramc_erase_area_lock_set(NRF_MRAMC_Type * p_reg, boo
  */
 NRF_STATIC_INLINE bool nrf_mramc_erase_area_lock_get(NRF_MRAMC_Type const * p_reg);
 
+#if NRF_MRAMC_HAS_ERASEALL
 /**
  * @brief Function for setting the eraseall lock status.
  *
@@ -945,6 +955,7 @@ NRF_STATIC_INLINE void nrf_mramc_erase_all_lock_set(NRF_MRAMC_Type * p_reg, bool
  * @retval false Lock disabled.
  */
 NRF_STATIC_INLINE bool nrf_mramc_erase_all_lock_get(NRF_MRAMC_Type const * p_reg);
+#endif // NRF_MRAMC_HAS_ERASEALL
 #endif // NRF_MRAMC_HAS_ERASE
 
 /**
@@ -1401,6 +1412,7 @@ NRF_STATIC_INLINE void nrf_mramc_erase_area_get(NRF_MRAMC_Type const * p_reg,
     *p_size    = p_reg->ERASE.SIZE;
 }
 
+#if NRF_MRAMC_HAS_ERASEALL
 NRF_STATIC_INLINE void nrf_mramc_erase_all(NRF_MRAMC_Type * p_reg)
 {
     p_reg->ERASE.ERASEALL = MRAMC_ERASE_ERASEALL_ERASEALL_Erase;
@@ -1410,6 +1422,7 @@ NRF_STATIC_INLINE bool nrf_mramc_erase_all_get(NRF_MRAMC_Type const * p_reg)
 {
     return (bool)p_reg->ERASE.ERASEALL;
 }
+#endif // NRF_MRAMC_HAS_ERASEALL
 
 NRF_STATIC_INLINE void nrf_mramc_erase_word_lock_set(NRF_MRAMC_Type * p_reg, bool lock)
 {
@@ -1453,6 +1466,7 @@ NRF_STATIC_INLINE bool nrf_mramc_erase_area_lock_get(NRF_MRAMC_Type const * p_re
     return (bool)(p_reg->ERASE.LOCK & MRAMC_ERASE_LOCK_ERASEAREA_Msk);
 }
 
+#if NRF_MRAMC_HAS_ERASEALL
 NRF_STATIC_INLINE void nrf_mramc_erase_all_lock_set(NRF_MRAMC_Type * p_reg, bool lock)
 {
     uint32_t mask = p_reg->ERASE.LOCK;
@@ -1473,6 +1487,7 @@ NRF_STATIC_INLINE bool nrf_mramc_erase_all_lock_get(NRF_MRAMC_Type const * p_reg
 {
     return (bool)(p_reg->ERASE.LOCK & MRAMC_ERASE_LOCK_ERASEALL_Msk);
 }
+#endif // NRF_MRAMC_HAS_ERASEALL
 #endif // NRF_MRAMC_HAS_ERASE
 
 NRF_STATIC_INLINE void nrf_mramc_config_nvr_set(NRF_MRAMC_Type *               p_reg,

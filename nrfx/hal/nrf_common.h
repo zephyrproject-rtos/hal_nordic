@@ -133,13 +133,17 @@ extern "C" {
         #elif defined(STATIC_CPU_FREQ_CONFIG_128_MHZ_PRESENT) && \
               defined(NRF_CONFIG_CPU_FREQ_MHZ) && (NRF_CONFIG_CPU_FREQ_MHZ == 128)
             #define NRF_CPU_FREQ_IS_128MHZ 1
-        #elif !defined(NRF_CONFIG_CPU_FREQ_MHZ)
-            /* If clock configuration is not skipped and frequency not specified,
-            * SystemInit() applies 128 MHz setting. */
-            #define NRF_CPU_FREQ_IS_128MHZ 1
         #elif defined(STATIC_CPU_FREQ_CONFIG_256_MHZ_PRESENT) && \
               defined(NRF_CONFIG_CPU_FREQ_MHZ) && (NRF_CONFIG_CPU_FREQ_MHZ == 256)
             #define NRF_CPU_FREQ_IS_256MHZ 1
+        #elif !defined(NRF_CONFIG_CPU_FREQ_MHZ)
+            /* If clock configuration is not skipped and frequency not specified,
+            * SystemInit() applies applies the highest frequency possible setting. */
+            #if defined(STATIC_CPU_FREQ_CONFIG_256_MHZ_PRESENT) 
+                #define NRF_CPU_FREQ_IS_256MHZ 1
+            #else
+                #define NRF_CPU_FREQ_IS_128MHZ 1
+            #endif
         #else
             #error "Invalid MCU frequency"
         #endif

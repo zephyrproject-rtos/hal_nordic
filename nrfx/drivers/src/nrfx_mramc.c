@@ -100,6 +100,7 @@ bool nrfx_mramc_fits_memory_check(uint32_t addr, bool uicr_allowed, uint32_t byt
     return false;
 }
 
+#if NRF_MRAMC_HAS_ERASEALL || defined(__NRFX_DOXYGEN__)
 void nrfx_mramc_all_erase(void)
 {
     NRFX_ASSERT(m_cb.state == NRFX_DRV_STATE_INITIALIZED);
@@ -108,6 +109,7 @@ void nrfx_mramc_all_erase(void)
     while (!nrfy_mramc_erase_all_get(NRF_MRAMC))
     {}
 }
+#endif // NRF_MRAMC_HAS_ERASEALL || defined(__NRFX_DOXYGEN__)
 
 static bool otp_overlap_check(uint32_t address, uint32_t bytes)
 {

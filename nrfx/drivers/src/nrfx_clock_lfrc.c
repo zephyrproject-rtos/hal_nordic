@@ -70,6 +70,25 @@ typedef struct
 
 static nrfx_clock_lfrc_cb_t m_clock_cb;
 
+#if (NRF_LFRC_HAS_CALIBRATION && NRFX_CHECK(NRFX_CLOCK_CONFIG_LF_CAL_ENABLED))
+static void lfrc_trim_update(void)
+{
+    bool trim_done = nrf_lfrc_event_check(NRF_LFRC, NRF_LFRC_EVENT_TRIMDONE);
+    bool trim_err  = nrf_lfrc_event_check(NRF_LFRC, NRF_LFRC_EVENT_TRIMERROR);
+
+    nrf_lfrc_event_clear(NRF_LFRC, NRF_LFRC_EVENT_TRIMDONE);
+    nrf_lfrc_event_clear(NRF_LFRC, NRF_LFRC_EVENT_TRIMERROR);
+
+#if NRF_LFRC_HAS_STATUSTRIM && NRF_LFRC_HAS_CAL_LFRCOSCTRIM && NRF_LFRC_HAS_MIRROR
+    if (trim_done && !trim_err)
+    {
+        nrf_lfrc_mirror_lock_set(NRF_LFRC, false);
+        nrf_lfrc_cal_osc_trim_set(NRF_LFRC, nrf_lfrc_trim_status_get(NRF_LFRC));
+    }
+#endif
+}
+#endif
+
 int nrfx_clock_lfrc_init(nrfx_clock_lfrc_event_handler_t event_handler)
 {
     if (m_clock_cb.module_initialized)
@@ -85,6 +104,20 @@ int nrfx_clock_lfrc_init(nrfx_clock_lfrc_event_handler_t event_handler)
 #if NRF_LFRC_HAS_CALIBRATION
         nrf_lfrc_int_disable(NRF_LFRC, NRF_LFRC_INT_CALDONE_MASK);
         nrf_lfrc_event_clear(NRF_LFRC, NRF_LFRC_EVENT_CALDONE);
+#if NRF_LFRC_HAS_MIRROR
+        nrf_lfrc_mirror_lock_set(NRF_LFRC, false);
+#endif
+#if NRF_LFRC_HAS_CAL_LENGTH
+        nrf_lfrc_cal_cycle_length_set(NRF_LFRC, NRF_LFRC_CAL_CYCLE_LENGTH_256);
+#endif
+#if NRF_LFRC_HAS_CAL_TRIMLIMITLO && defined(LFRC_CAL_CYCLES_LIMIT_LO)
+        nrf_lfrc_cal_trim_limit_low_set(NRF_LFRC,
+                                        LFRC_CAL_CYCLES_LIMIT_LO(NRF_LFRC_CAL_CYCLE_LENGTH_256));
+#endif
+#if NRF_LFRC_HAS_CAL_TRIMLIMITHI && defined(LFRC_CAL_CYCLES_LIMIT_HI)
+        nrf_lfrc_cal_trim_limit_high_set(NRF_LFRC,
+                                         LFRC_CAL_CYCLES_LIMIT_HI(NRF_LFRC_CAL_CYCLE_LENGTH_256));
+#endif
 #endif
 #endif
         m_clock_cb.event_handler = event_handler;
@@ -158,6 +191,8 @@ int nrfx_clock_lfrc_calibration_start(void)
     if (m_clock_cb.cal_state == CAL_STATE_IDLE)
     {
         nrf_lfrc_event_clear(NRF_LFRC, NRF_LFRC_EVENT_CALDONE);
+        nrf_lfrc_event_clear(NRF_LFRC, NRF_LFRC_EVENT_TRIMDONE);
+        nrf_lfrc_event_clear(NRF_LFRC, NRF_LFRC_EVENT_TRIMERROR);
 
         m_clock_cb.cal_state = CAL_STATE_CAL;
 
@@ -171,6 +206,7 @@ int nrfx_clock_lfrc_calibration_start(void)
             while (!nrf_lfrc_event_check(NRF_LFRC, NRF_LFRC_EVENT_CALDONE))
             {}
             nrf_lfrc_event_clear(NRF_LFRC, NRF_LFRC_EVENT_CALDONE);
+            lfrc_trim_update();
         }
     }
     else
@@ -198,11 +234,12 @@ int nrfx_clock_lfrc_calibrating_check(void)
 
 void nrfx_clock_lfrc_irq_handler(void)
 {
-#if NRFX_CHECK(NRFX_CLOCK_CONFIG_LF_CAL_ENABLED)
+#if (NRF_LFRC_HAS_CALIBRATION && NRFX_CHECK(NRFX_CLOCK_CONFIG_LF_CAL_ENABLED))
     if (nrf_lfrc_event_check(NRF_LFRC, NRF_LFRC_EVENT_CALDONE))
     {
         nrf_lfrc_event_clear(NRF_LFRC, NRF_LFRC_EVENT_CALDONE);
         nrf_lfrc_int_disable(NRF_LFRC, NRF_LFRC_INT_CALDONE_MASK);
+        lfrc_trim_update();
         if (m_clock_cb.cal_state == CAL_STATE_CAL)
         {
             m_clock_cb.cal_state = CAL_STATE_IDLE;

@@ -159,6 +159,13 @@ extern "C" {
 #define NRF_LFRC_HAS_CAL_NHI 0
 #endif
 
+#if defined(LFRC_CAL_LFRCOSCTRIM_ResetValue) || defined(__NRFX_DOXYGEN__)
+/** @brief Symbol indicating whether the CAL.LFRCOSCTRIM register is present. */
+#define NRF_LFRC_HAS_CAL_LFRCOSCTRIM 1
+#else
+#define NRF_LFRC_HAS_CAL_LFRCOSCTRIM 0
+#endif
+
 #if defined(LFRC_EVENTS_CKSYNSTARTED_EVENTS_CKSYNSTARTED_Msk) || defined(__NRFX_DOXYGEN__)
 /** @brief Symbol indicating whether the CKSYNSTARTED event is present. */
 #define NRF_LFRC_HAS_CKSYNSTARTED_EVENT 1
@@ -441,6 +448,29 @@ NRF_STATIC_INLINE uint32_t nrf_lfrc_cal_result_get(NRF_LFRC_Type const * p_reg, 
 NRF_STATIC_INLINE uint16_t nrf_lfrc_cal_num_of_cycles_get(NRF_LFRC_Type const * p_reg);
 #endif
 
+#if NRF_LFRC_HAS_CAL_LFRCOSCTRIM
+/**
+ * @brief Function for setting initial coarse frequency trimming value for the oscillator.
+ *
+ * @note Value is in 2's complement format, 1.4% steps.
+ *
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] trim  Initial coarse trimming value.
+ */
+NRF_STATIC_INLINE void nrf_lfrc_cal_osc_trim_set(NRF_LFRC_Type * p_reg, int32_t trim);
+
+/**
+ * @brief Function for getting initial coarse frequency trimming value for the oscillator.
+ *
+ * @note Returned value is in 2's complement format, 1.4% steps.
+ *
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ *
+ * @return Initial coarse trimming value.
+ */
+NRF_STATIC_INLINE int32_t nrf_lfrc_cal_osc_trim_get(NRF_LFRC_Type const * p_reg);
+#endif
+
 #if NRF_LFRC_HAS_MIRROR
 /**
  * @brief Function for setting the lock for mirrored registers.
@@ -612,6 +642,28 @@ NRF_STATIC_INLINE uint32_t nrf_lfrc_cal_result_get(NRF_LFRC_Type const * p_reg, 
 NRF_STATIC_INLINE uint16_t nrf_lfrc_cal_num_of_cycles_get(NRF_LFRC_Type const * p_reg)
 {
     return (uint16_t)p_reg->CAL.NHI;
+}
+#endif
+
+#if NRF_LFRC_HAS_CAL_LFRCOSCTRIM
+NRF_STATIC_INLINE void nrf_lfrc_cal_osc_trim_set(NRF_LFRC_Type * p_reg, int32_t trim)
+{
+    p_reg->CAL.LFRCOSCTRIM = ((uint32_t)trim << LFRC_CAL_LFRCOSCTRIM_VAL_Pos) &
+                             LFRC_CAL_LFRCOSCTRIM_VAL_Msk;
+}
+
+NRF_STATIC_INLINE int32_t nrf_lfrc_cal_osc_trim_get(NRF_LFRC_Type const * p_reg)
+{
+    uint32_t raw_trim = (p_reg->CAL.LFRCOSCTRIM & LFRC_CAL_LFRCOSCTRIM_VAL_Msk) >>
+                        LFRC_CAL_LFRCOSCTRIM_VAL_Pos;
+
+    /* Register is only 6 bits length so perform sign bit extension */
+    if (raw_trim > (LFRC_CAL_LFRCOSCTRIM_VAL_Msk >> 1))
+    {
+        raw_trim |= ~LFRC_CAL_LFRCOSCTRIM_VAL_Msk;
+    }
+
+    return (int32_t)raw_trim;
 }
 #endif
 

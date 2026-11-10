@@ -251,7 +251,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #define FICR_PRESENT 1
 #define FICR_COUNT 1
 
-#define FICR_HWREVISION_PUBLIC 1                     /*!< SOCINFO.HWREVISION is public.                                        */
+#define FICR_HWREVISION_PUBLIC 1                     /*!< (unspecified)                                                        */
+#define FICR_LFRCOSCTRIM_PUBLIC 1                    /*!< (unspecified)                                                        */
 
 /*User Information Configuration Registers*/
 #define UICR_PRESENT 1
@@ -696,41 +697,49 @@ POSSIBILITY OF SUCH DAMAGE.
 #define SPIS00_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define SPIS00_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define SPIS00_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
+#define SPIS00_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 
 #define SPIS01_EASYDMA_MAXCNT_MIN 0                  /*!< (unspecified)                                                        */
 #define SPIS01_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define SPIS01_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define SPIS01_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
+#define SPIS01_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 
 #define SPIS20_EASYDMA_MAXCNT_MIN 0                  /*!< (unspecified)                                                        */
 #define SPIS20_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define SPIS20_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define SPIS20_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
+#define SPIS20_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 
 #define SPIS21_EASYDMA_MAXCNT_MIN 0                  /*!< (unspecified)                                                        */
 #define SPIS21_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define SPIS21_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define SPIS21_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
+#define SPIS21_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 
 #define SPIS22_EASYDMA_MAXCNT_MIN 0                  /*!< (unspecified)                                                        */
 #define SPIS22_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define SPIS22_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define SPIS22_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
+#define SPIS22_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 
 #define SPIS23_EASYDMA_MAXCNT_MIN 0                  /*!< (unspecified)                                                        */
 #define SPIS23_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define SPIS23_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define SPIS23_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
+#define SPIS23_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 
 #define SPIS24_EASYDMA_MAXCNT_MIN 0                  /*!< (unspecified)                                                        */
 #define SPIS24_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define SPIS24_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define SPIS24_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
+#define SPIS24_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 
 #define SPIS30_EASYDMA_MAXCNT_MIN 0                  /*!< (unspecified)                                                        */
 #define SPIS30_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define SPIS30_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define SPIS30_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
+#define SPIS30_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 
 /*UART with EasyDMA*/
 #define UARTE_PRESENT 1
@@ -739,6 +748,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define UARTE00_EASYDMA_MAXCNT_MIN 0                 /*!< (unspecified)                                                        */
 #define UARTE00_EASYDMA_MAXCNT_MAX 15                /*!< (unspecified)                                                        */
 #define UARTE00_EASYDMA_MAXCNT_SIZE 16               /*!< (unspecified)                                                        */
+#define UARTE00_HAS_INTPEND 1                        /*!< (unspecified)                                                        */
 #define UARTE00_TIMEOUT_INTERRUPT 1                  /*!< Timeout interrupt is included.                                       */
 #define UARTE00_CONFIGURABLE_DATA_FRAME_SIZE 1       /*!< Supports data frame sizes 4, 5, 6, 7, 8, and 9 bits.                 */
 #define UARTE00_CORE_FREQUENCY 256                   /*!< Peripheral clock frequency is 256 MHz.                               */
@@ -750,6 +760,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define UARTE20_EASYDMA_MAXCNT_MIN 0                 /*!< (unspecified)                                                        */
 #define UARTE20_EASYDMA_MAXCNT_MAX 15                /*!< (unspecified)                                                        */
 #define UARTE20_EASYDMA_MAXCNT_SIZE 16               /*!< (unspecified)                                                        */
+#define UARTE20_HAS_INTPEND 1                        /*!< (unspecified)                                                        */
 #define UARTE20_TIMEOUT_INTERRUPT 1                  /*!< Timeout interrupt is included.                                       */
 #define UARTE20_CONFIGURABLE_DATA_FRAME_SIZE 1       /*!< Supports data frame sizes 4, 5, 6, 7, 8, and 9 bits.                 */
 #define UARTE20_CORE_FREQUENCY 16                    /*!< Peripheral clock frequency is 16 MHz.                                */
@@ -761,6 +772,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define UARTE21_EASYDMA_MAXCNT_MIN 0                 /*!< (unspecified)                                                        */
 #define UARTE21_EASYDMA_MAXCNT_MAX 15                /*!< (unspecified)                                                        */
 #define UARTE21_EASYDMA_MAXCNT_SIZE 16               /*!< (unspecified)                                                        */
+#define UARTE21_HAS_INTPEND 1                        /*!< (unspecified)                                                        */
 #define UARTE21_TIMEOUT_INTERRUPT 1                  /*!< Timeout interrupt is included.                                       */
 #define UARTE21_CONFIGURABLE_DATA_FRAME_SIZE 1       /*!< Supports data frame sizes 4, 5, 6, 7, 8, and 9 bits.                 */
 #define UARTE21_CORE_FREQUENCY 16                    /*!< Peripheral clock frequency is 16 MHz.                                */
@@ -772,6 +784,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define UARTE22_EASYDMA_MAXCNT_MIN 0                 /*!< (unspecified)                                                        */
 #define UARTE22_EASYDMA_MAXCNT_MAX 15                /*!< (unspecified)                                                        */
 #define UARTE22_EASYDMA_MAXCNT_SIZE 16               /*!< (unspecified)                                                        */
+#define UARTE22_HAS_INTPEND 1                        /*!< (unspecified)                                                        */
 #define UARTE22_TIMEOUT_INTERRUPT 1                  /*!< Timeout interrupt is included.                                       */
 #define UARTE22_CONFIGURABLE_DATA_FRAME_SIZE 1       /*!< Supports data frame sizes 4, 5, 6, 7, 8, and 9 bits.                 */
 #define UARTE22_CORE_FREQUENCY 16                    /*!< Peripheral clock frequency is 16 MHz.                                */
@@ -783,6 +796,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define UARTE23_EASYDMA_MAXCNT_MIN 0                 /*!< (unspecified)                                                        */
 #define UARTE23_EASYDMA_MAXCNT_MAX 15                /*!< (unspecified)                                                        */
 #define UARTE23_EASYDMA_MAXCNT_SIZE 16               /*!< (unspecified)                                                        */
+#define UARTE23_HAS_INTPEND 1                        /*!< (unspecified)                                                        */
 #define UARTE23_TIMEOUT_INTERRUPT 1                  /*!< Timeout interrupt is included.                                       */
 #define UARTE23_CONFIGURABLE_DATA_FRAME_SIZE 1       /*!< Supports data frame sizes 4, 5, 6, 7, 8, and 9 bits.                 */
 #define UARTE23_CORE_FREQUENCY 16                    /*!< Peripheral clock frequency is 16 MHz.                                */
@@ -794,6 +808,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define UARTE24_EASYDMA_MAXCNT_MIN 0                 /*!< (unspecified)                                                        */
 #define UARTE24_EASYDMA_MAXCNT_MAX 15                /*!< (unspecified)                                                        */
 #define UARTE24_EASYDMA_MAXCNT_SIZE 16               /*!< (unspecified)                                                        */
+#define UARTE24_HAS_INTPEND 1                        /*!< (unspecified)                                                        */
 #define UARTE24_TIMEOUT_INTERRUPT 1                  /*!< Timeout interrupt is included.                                       */
 #define UARTE24_CONFIGURABLE_DATA_FRAME_SIZE 1       /*!< Supports data frame sizes 4, 5, 6, 7, 8, and 9 bits.                 */
 #define UARTE24_CORE_FREQUENCY 16                    /*!< Peripheral clock frequency is 16 MHz.                                */
@@ -805,6 +820,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define UARTE30_EASYDMA_MAXCNT_MIN 0                 /*!< (unspecified)                                                        */
 #define UARTE30_EASYDMA_MAXCNT_MAX 15                /*!< (unspecified)                                                        */
 #define UARTE30_EASYDMA_MAXCNT_SIZE 16               /*!< (unspecified)                                                        */
+#define UARTE30_HAS_INTPEND 1                        /*!< (unspecified)                                                        */
 #define UARTE30_TIMEOUT_INTERRUPT 1                  /*!< Timeout interrupt is included.                                       */
 #define UARTE30_CONFIGURABLE_DATA_FRAME_SIZE 1       /*!< Supports data frame sizes 4, 5, 6, 7, 8, and 9 bits.                 */
 #define UARTE30_CORE_FREQUENCY 16                    /*!< Peripheral clock frequency is 16 MHz.                                */
@@ -849,6 +865,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #define MRAMC_NVRPAGELWSIZEVALUE_MAX 15              /*!< (unspecified)                                                        */
 #define MRAMC_NVRPAGELWSIZEVALUE_SIZE 16             /*!< (unspecified)                                                        */
 #define MRAMC_DEPRECATEERASEALL 1                    /*!< MRAMC ERASEALL register is deprecated; use CTRLAP ERASEALL instead   */
+#define MRAMC_INCLUDEERASEALL 0                      /*!< (unspecified)                                                        */
 
 /*GPIO high-speed pad control*/
 #define GPIOHSPADCTRL_PRESENT 1
@@ -1141,8 +1158,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #define USBHS_HAS_CORE_EVENT 0                       /*!< (unspecified)                                                        */
 #define USBHS_HAS_SOF_EVENT 1                        /*!< Has Start of Frame (SOF) event.                                      */
-#define USBHS_RTUNE_AVAILABLE 1                      /*!< RTUNE method for calibrating DP and DM 45Ohm source impedance without
-                                                          external TXRTUNE resistor available.*/
+#define USBHS_RTUNE_AVAILABLE 0                      /*!< (unspecified)                                                        */
 #define USBHS_HAS_STATUS_REGISTER 0                  /*!< (unspecified)                                                        */
 
 /*Multi serial peripheral interface*/
@@ -1238,31 +1254,37 @@ POSSIBILITY OF SUCH DAMAGE.
 #define TWIS_PRESENT 1
 #define TWIS_COUNT 6
 
+#define TWIS20_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 #define TWIS20_EASYDMA_MAXCNT_MIN 0                  /*!< (unspecified)                                                        */
 #define TWIS20_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define TWIS20_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define TWIS20_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
 
+#define TWIS21_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 #define TWIS21_EASYDMA_MAXCNT_MIN 0                  /*!< (unspecified)                                                        */
 #define TWIS21_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define TWIS21_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define TWIS21_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
 
+#define TWIS22_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 #define TWIS22_EASYDMA_MAXCNT_MIN 0                  /*!< (unspecified)                                                        */
 #define TWIS22_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define TWIS22_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define TWIS22_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
 
+#define TWIS23_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 #define TWIS23_EASYDMA_MAXCNT_MIN 0                  /*!< (unspecified)                                                        */
 #define TWIS23_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define TWIS23_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define TWIS23_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
 
+#define TWIS24_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 #define TWIS24_EASYDMA_MAXCNT_MIN 0                  /*!< (unspecified)                                                        */
 #define TWIS24_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define TWIS24_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
 #define TWIS24_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 0 /*!< (unspecified)                                                   */
 
+#define TWIS30_HAS_INTPEND 1                         /*!< (unspecified)                                                        */
 #define TWIS30_EASYDMA_MAXCNT_MIN 0                  /*!< (unspecified)                                                        */
 #define TWIS30_EASYDMA_MAXCNT_MAX 15                 /*!< (unspecified)                                                        */
 #define TWIS30_EASYDMA_MAXCNT_SIZE 16                /*!< (unspecified)                                                        */
@@ -1296,6 +1318,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #define PDM20_PDMV2 1                                /*!< (unspecified)                                                        */
 #define PDM20_PCLK24M 0                              /*!< (unspecified)                                                        */
 #define PDM20_AUDIOPLL 1                             /*!< (unspecified)                                                        */
+#define PDM20_PCLK32M 1                              /*!< (unspecified)                                                        */
+#define PDM20_PCLK16M 0                              /*!< (unspecified)                                                        */
 #define PDM20_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 1 /*!< CURRENTAMOUNT register included.                                 */
 
 #define PDM21_SAMPLE16 0                             /*!< (unspecified)                                                        */
@@ -1304,6 +1328,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #define PDM21_PDMV2 1                                /*!< (unspecified)                                                        */
 #define PDM21_PCLK24M 0                              /*!< (unspecified)                                                        */
 #define PDM21_AUDIOPLL 1                             /*!< (unspecified)                                                        */
+#define PDM21_PCLK32M 1                              /*!< (unspecified)                                                        */
+#define PDM21_PCLK16M 0                              /*!< (unspecified)                                                        */
 #define PDM21_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 1 /*!< CURRENTAMOUNT register included.                                 */
 
 /*Pulse width modulation unit*/
@@ -1336,13 +1362,15 @@ POSSIBILITY OF SUCH DAMAGE.
 #define SAADC_BURSTREG 1                             /*!< (unspecified)                                                        */
 #define SAADC_PSEL_V2 1                              /*!< (unspecified)                                                        */
 #define SAADC_TASKS_CALIBRATEGAIN 1                  /*!< (unspecified)                                                        */
+#define SAADC_PSELP_MEASURE_0V8_1V8 0                /*!< (unspecified)                                                        */
+#define SAADC_ANALOG_REF_INTERNAL_VAL 1024           /*!< Nominal internal analog reference voltage in millivolts              */
 #define SAADC_SAMPLERATE_CC_VALUERANGE_MIN 8         /*!< (unspecified)                                                        */
 #define SAADC_SAMPLERATE_CC_VALUERANGE_MAX 2047      /*!< (unspecified)                                                        */
 #define SAADC_SAMPLERATE_CC_VALUERANGE_SIZE 2048     /*!< (unspecified)                                                        */
 #define SAADC_TACQ_VALUE_RANGE_MIN 1                 /*!< (unspecified)                                                        */
 #define SAADC_TACQ_VALUE_RANGE_MAX 319               /*!< (unspecified)                                                        */
 #define SAADC_TACQ_VALUE_RANGE_SIZE 320              /*!< (unspecified)                                                        */
-#define SAADC_TCONV_VALUE_RANGE_MIN 1                /*!< (unspecified)                                                        */
+#define SAADC_TCONV_VALUE_RANGE_MIN 0                /*!< (unspecified)                                                        */
 #define SAADC_TCONV_VALUE_RANGE_MAX 7                /*!< (unspecified)                                                        */
 #define SAADC_TCONV_VALUE_RANGE_SIZE 8               /*!< (unspecified)                                                        */
 #define SAADC_HAS_EVENTSCANDONE 0                    /*!< (unspecified)                                                        */
@@ -1435,6 +1463,9 @@ POSSIBILITY OF SUCH DAMAGE.
 #define TDM_NUM_CHANNELS_MIN 0                       /*!< (unspecified)                                                        */
 #define TDM_NUM_CHANNELS_MAX 7                       /*!< (unspecified)                                                        */
 #define TDM_NUM_CHANNELS_SIZE 8                      /*!< (unspecified)                                                        */
+#define TDM_TDM_EXTENDED_FSYNC_DURATION 0            /*!< (unspecified)                                                        */
+#define TDM_PCLK24M 0                                /*!< (unspecified)                                                        */
+#define TDM_AUDIOPLL 1                               /*!< (unspecified)                                                        */
 #define TDM_EASYDMA_CURRENT_AMOUNT_REGISTER_INCLUDED 1 /*!< CURRENTAMOUNT register included.                                   */
 
 /*Tamper controller*/
@@ -1527,6 +1558,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #define VREGUSB_PROLONGED_WAKEUP 0                   /*!< (unspecified)                                                        */
 #define VREGUSB_VAR1 0                               /*!< (unspecified)                                                        */
+#define VREGUSB_PWRUP3V3PUBLIC 1                     /*!< (unspecified)                                                        */
+#define VREGUSB_USBSTATUSPUBLIC 1                    /*!< (unspecified)                                                        */
+#define VREGUSB_USBSETTLEPUBLIC 1                    /*!< (unspecified)                                                        */
 
 /*LFXO peripheral*/
 #define LFXO_PRESENT 1
@@ -1534,12 +1568,19 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #define LFXO_LFXOCOMPRESSEDTRIM 0                    /*!< (unspecified)                                                        */
 #define LFXO_LFXOSTARTEDEVT 0                        /*!< (unspecified)                                                        */
+#define LFXO_LFXOSTATUSANAPUBLIC 1                   /*!< (unspecified)                                                        */
+#define LFXO_LFXOMIRRORPUBLIC 1                      /*!< (unspecified)                                                        */
+#define LFXO_EXT_SINE_PUBLIC 0                       /*!< (unspecified)                                                        */
+#define LFXO_EXT_SQUARE_PUBLIC 0                     /*!< (unspecified)                                                        */
 
 /*LFRC peripheral*/
 #define LFRC_PRESENT 1
 #define LFRC_COUNT 1
 
 #define LFRC_LFRCSTARTEDEVTS 1                       /*!< (unspecified)                                                        */
+#define LFRC_LFRCSTATUSTRIMPUBLIC 1                  /*!< (unspecified)                                                        */
+#define LFRC_LFRCCALTRIMPUBLIC 1                     /*!< (unspecified)                                                        */
+#define LFRC_LFRCMIRRORPUBLIC 1                      /*!< (unspecified)                                                        */
 
 /*HFXO64M peripheral*/
 #define HFXO64M_PRESENT 1

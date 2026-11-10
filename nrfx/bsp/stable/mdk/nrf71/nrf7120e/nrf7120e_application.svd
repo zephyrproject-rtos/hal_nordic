@@ -520,6 +520,34 @@ POSSIBILITY OF SUCH DAMAGE.
               </field>
             </fields>
           </register>
+          <register>
+            <name>NORDICID</name>
+            <description>Nordic Identity supported indicator</description>
+            <addressOffset>0x03C</addressOffset>
+            <access>read-writeonce</access>
+            <resetValue>0x00000000</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>SUPPORT</name>
+                <description>Nordic Identity supported indicator</description>
+                <lsb>0</lsb>
+                <msb>31</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>Supported</name>
+                    <description>This device does support Nordic Identity</description>
+                    <value>0x00000001</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>NotSupported</name>
+                    <description>This device does not support Nordic Identity</description>
+                    <value>0xFFFFFFFF</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
         </cluster>
         <cluster>
           <name>SOCINFO</name>
@@ -811,6 +839,68 @@ POSSIBILITY OF SUCH DAMAGE.
                 <name>UD15</name>
                 <description>Unique identifier byte 15</description>
                 <lsb>24</lsb>
+                <msb>31</msb>
+              </field>
+            </fields>
+          </register>
+        </cluster>
+        <cluster>
+          <name>LFRC32KTRIM</name>
+          <description>Unspecified</description>
+          <headerStructName>FICR_LFRC32KTRIM</headerStructName>
+          <access>read-writeonce</access>
+          <addressOffset>0x980</addressOffset>
+          <register>
+            <name>LFRCOSCTRIM</name>
+            <description>Initial coarse frequency trimming value for the oscillator.</description>
+            <addressOffset>0x0</addressOffset>
+            <access>read-writeonce</access>
+            <resetValue>0x0000002C</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>VAL</name>
+                <description>TRIM value</description>
+                <lsb>0</lsb>
+                <msb>5</msb>
+              </field>
+            </fields>
+          </register>
+        </cluster>
+        <cluster>
+          <name>AUXPLL</name>
+          <description>Unspecified</description>
+          <headerStructName>FICR_AUXPLL</headerStructName>
+          <access>read-writeonce</access>
+          <addressOffset>0x990</addressOffset>
+          <register>
+            <name>AUDIOCTUNE</name>
+            <description>AUXPLL audio CTUNE value written by production test.</description>
+            <addressOffset>0x000</addressOffset>
+            <access>read-writeonce</access>
+            <resetValue>0xFFFFFFFF</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>DATA</name>
+                <description>Trim data</description>
+                <lsb>0</lsb>
+                <msb>31</msb>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>USBCTUNE</name>
+            <description>AUXPLL USB CTUNE value written by production test.</description>
+            <addressOffset>0x004</addressOffset>
+            <access>read-writeonce</access>
+            <resetValue>0xFFFFFFFF</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>DATA</name>
+                <description>Trim data</description>
+                <lsb>0</lsb>
                 <msb>31</msb>
               </field>
             </fields>
@@ -39180,502 +39270,6 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
             </field>
           </fields>
         </register>
-        <register>
-          <name>GSTARFXDIS</name>
-          <description>Global STAR Fix Disable Register</description>
-          <addressOffset>0xF00</addressOffset>
-          <access>read-write</access>
-          <resetValue>0x00002200</resetValue>
-          <size>0x20</size>
-          <fields>
-            <field>
-              <name>HOSTIGNORESRMTWKUPDIS</name>
-              <description>Disable the STAR fix added for Device controller to go back to low power mode when Host ignores Remote wakeup</description>
-              <lsb>0</lsb>
-              <msb>0</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Device controller goes back into SUSPENDED state when host ignores Remote Wakeup</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Device controller waits indefinitely without entering SUSPENDED state when host ignores the Remote Wakeup</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>RESUMEFRMCHKBUSDIS</name>
-              <description>Disable the STAR fix added for Device controller to detect lineK and move to RESUMING state after the 50us pull-up delay ends</description>
-              <lsb>1</lsb>
-              <msb>1</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Device controller detects line K and resumes</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Device controller does not detect line K and resume</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>IGNORECTLOUTDATA0DIS</name>
-              <description>Disable the STAR fix added for Device controller to reject DATA0 for the first Control OUT Data Phase and Control Status OUT Phase</description>
-              <lsb>2</lsb>
-              <msb>2</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Transaction Error reported when host sends DATA0 PID</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Transaction Error not reported when host sends DATA0 PID</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>SSPLITSTALLNYETERRDIS</name>
-              <description>Disable the STAR fix added for Host controller to flag error for SSPLIT STALL/NYET</description>
-              <lsb>3</lsb>
-              <msb>3</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Transaction Error reported when device sends STALL/NYET for SSPLIT</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Transaction Error not reported when device sends STALL/NYET for SSPLIT</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>ACCEPTISOCSPLITDATA1DIS</name>
-              <description>Disable the STAR fix added for Host controller to accept DATA1 PID from device for ISOC Split transfers</description>
-              <lsb>4</lsb>
-              <msb>4</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Transaction Error not reported when device sends DATA1 PID for ISOC Split</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Transaction Error reported when device sends DATA1 PID for ISOC Split</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>HANDLEFAULTYCABLEDIS</name>
-              <description>Disable the STAR fix added for Host controller to handle Faulty cable scenarios</description>
-              <lsb>5</lsb>
-              <msb>5</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Fix for handling faulty cable enabled</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Fix for handling faulty cable disabled</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>LSIPGINCRDIS</name>
-              <description>Disable the STAR fix added for Host controller LS mode IPG increment from 2 LS bit times to 3 LS bit times</description>
-              <lsb>6</lsb>
-              <msb>6</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Host LS mode IPG is 3 LS bit times</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Host LS mode IPG is 2 LS bit times</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>FSDISCIDLEDIS</name>
-              <description>Disable the STAR fix added for Device controller to transition to IDLE state during FS device disconnect</description>
-              <lsb>7</lsb>
-              <msb>7</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Device controller transitions to IDLE state during FS device disconnect</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Device controller does not transition to IDLE state during FS device disconnect</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>CONCURRENTRMTWKUPUSBRESUMEDIS</name>
-              <description>Disable the STAR fix added for Device controller to not start Remote Wakeup signalling when USB resume has already started</description>
-              <lsb>8</lsb>
-              <msb>8</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Device controller does not start remote wakeup signalling when host resume has already started</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Device controller is allowed to start remote wakeup signalling when host resume has already started</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>LSIPGCHKAFTERNAKSTALLFORINDIS</name>
-              <description>Disable the STAR fix added for Host controller to wait for IPG duration to send next token after receiving NAK/STALL for previous IN token with FS/LS device</description>
-              <lsb>10</lsb>
-              <msb>10</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Host controller checks IPG after NAK/STALL for IN token</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Host controller does not check IPG after NAK/STALL for IN token</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>PHYIOPXCVRSELTXVLDCORRDIS</name>
-              <description>Disable the STAR fix added for Host controller to increase the gap between utmi_xcvrselect switching and utmi_txvalid assertion in LS/FS mode</description>
-              <lsb>11</lsb>
-              <msb>11</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Host controller asserts utmi_txvalid at least 2 utmi_clk cycles after utmi_xcvrselect switching</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Host controller can assert utmi_txvalid after 1 utmi_clk cycle of utmi_xcvrselect switching</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>ULPIXCVRSELSWITCHCORRDIS</name>
-              <description>Disable the STAR fix added for Host controller to increase the preamble transceiver select switch delay to accommodate time taken for ULPI function control write</description>
-              <lsb>12</lsb>
-              <msb>12</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Host controller waits for previous functional register update to complete before switching the transceiver select again or asserting txvalid</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Host controller does not wait for the previous functional register update to complete before switching the transceiver select again or asserting txvalid</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>XACTERRDATA0CTRLSTSINDIS</name>
-              <description>Disable the STAR fix added for Host controller to report transaction error when DATA0 PID is received for CTRL STATUS IN transfer in DMA mode</description>
-              <lsb>13</lsb>
-              <msb>13</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Host controller reports transaction error when DATA0 PID is received for CTRL STATUS IN transfer in DMA mode</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Host controller retries the transfer when DATA0 PID is received for CTRL STATUS IN transfer in DMA mode</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>HOSTUTMITXVLDCORRDIS</name>
-              <description>Disable the correction to OpMode/XcvrSel/TermSel on UTMI Interface in Host mode.</description>
-              <lsb>16</lsb>
-              <msb>16</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Opmode, XcvrSel, TermSel are changed by the Host Controller after TxValid goes LOW (1'b0)</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Opmode, XcvrSel, TermSel are changed by the Host Controller without waiting for TxValid to go LOW (1'b0) during SOF transmission</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>OPMODEXCVRSELCHIRPENCORRDIS</name>
-              <description>Disable the STAR fix added for correcting Opmode and XcvrSel on UTMI Interface when reset is detected in suspend state.</description>
-              <lsb>17</lsb>
-              <msb>17</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Valid Combination of Opmode and XcvrSel is driven when reset is detected in suspend state</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Invalid Combination of Opmode and XcvrSel is driven when reset is detected in suspend state</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>TXVALIDDEASSERTIONCORRDIS</name>
-              <description>Disable the STAR fix added for correcting Txvalid deassertion on UTMI Interface when soft disconnect is done.</description>
-              <lsb>18</lsb>
-              <msb>18</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Txvalid is deasserted during soft disconnect after receiving Txready from the PHY</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Txvalid is deasserted during soft disconnect without waiting for Txready from the PHY</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>HOSTNOXFERAFTERPRTDISFIXDIS</name>
-              <description>Disable the STAR fix added for correcting Host behavior when port is disabled.</description>
-              <lsb>19</lsb>
-              <msb>19</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Txvalid is not asserted when port is disabled</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Txvalid can be asserted when port is disabled</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>LINESTATESE0FILTERFOREOPDIS</name>
-              <description>Disable the STAR fix added for filtering SE0 from the linestate during EOP detection..</description>
-              <lsb>21</lsb>
-              <msb>21</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Filter for linestate is enabled</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Filter for linestate is not enabled</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>DMPULLDOWNUPDATEINOTGFORHIBANDPP</name>
-              <description>Disable the STAR fix added for utmiotg_dmpulldown update in Hibernation and Partial power down modes.</description>
-              <lsb>22</lsb>
-              <msb>22</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>utmiotg_dmpulldown logic for hiberabtion and partial power down is enabled</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>utmiotg_dmpulldown logic for hiberabtion and partial power down is not enabled</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>CHIRPDETECTIONUPDTHSTDIS</name>
-              <description>Disable the Chirp detection logic change in host mode.</description>
-              <lsb>23</lsb>
-              <msb>23</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Chirp detection logic in MAC PRT module depends on the delayed WAIT_CHIRP state and only valid chirp K from device is detected</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Chirp detection logic depends on the WAIT_CHIRP state and controller might detect false chirp K from device</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>PROGRAMMABLESE0DURATIONTODETECTEOP</name>
-              <description>Disable the STAR fix added for programmable se0 duration to detect EOP in Host mode .</description>
-              <lsb>24</lsb>
-              <msb>24</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Programmable se0 duration to detect EOP in Host mode is enabled</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Programmable se0 duration to detect EOP in Host mode is disabled</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>ENABLELEVELSYNCHRONISERFORH2PDTXF0LENPKT</name>
-              <description>Disable the STAR fix added for h2pd_txf_0len_pkt signal which is passing through a level synchronizer.</description>
-              <lsb>25</lsb>
-              <msb>25</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>level synchroniser for h2pd_txf_0len_pkt is enabled and disabled dummy synchronizer</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>level synchroniser for h2pd_txf_0len_pkt is disabled and connected through dummy synchronizer</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>EUSB2TERMINATERESUMEONDISCDIS</name>
-              <description>Disable fix for Terminating Resume if UTMI HostDisconnect is detected.</description>
-              <lsb>26</lsb>
-              <msb>26</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Host controller terminates Resume if HostDisconnect is asserted</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Host controller does not terminate Resume if HostDisconnect is asserted</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>EUSB2FSLSDISCDETECTIONDIS</name>
-              <description>Disable fix for FS/LS disconnect detection using UTMI HostDisconnect in MAC PRT.</description>
-              <lsb>27</lsb>
-              <msb>27</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Host controller detects FS/LS disconnect using utmi_hostdisconnect signal</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Host controller detects disconnect by monitoring 2.5us of SE0 on DP/DM</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>HOSTFLUSHEXCESSTKNFIXDIS</name>
-              <description>Disable fix for recovering the Host controller when sufficient time is not available in the current uF for an overscheduled ISOC OUT or INTR IN transfer.</description>
-              <lsb>29</lsb>
-              <msb>29</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>Host controller functionality is as expected if there is an overscheduled ISOC OUT or INTR IN transfer</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>Host controller functionality cannot be determined if there is an overscheduled ISOC OUT or INTR IN transfer</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>TITRANSDONETGLDURINGISOCEOPFDISABLE</name>
-              <description>Disable the fix added to not toggle ti_trans_done in SEND_EOP state when the ISOC in tokens responds with zero length packets after end of periodic frame till next start of frame. The fix is added when operating in descriptor dma device mode.</description>
-              <lsb>30</lsb>
-              <msb>30</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>ti_transdone is not toggled after eopf during ISOC IN transfer till next SOF</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>ti_transdone is toggled after eopf during ISOC IN transfer till next SOF</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>CLEARSOFREFCLKTIMERDURINGDISC</name>
-              <description>Disable the STAR fix added to clear the SOF refclk timer during disconnect detection. The STAR fix is added when using both UTMI and eUSB2 PHY.</description>
-              <lsb>31</lsb>
-              <msb>31</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>ENABLE_FIX</name>
-                  <description>SOF refclk timer is cleared immediately after device disconnect is detected.</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>DISABLE_FIX</name>
-                  <description>SOF refclk timer is not cleared immediately after device disconnect is detected.</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-          </fields>
-        </register>
         <cluster>
           <dim>16</dim>
           <dimIncrement>0x1000</dimIncrement>
@@ -52611,7 +52205,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
         </register>
         <register>
           <name>EVENTS_END</name>
-          <description>End of RXD buffer and TXD buffer reached</description>
+          <description>End of DMA.RX buffer and DMA.TX buffer reached</description>
           <addressOffset>0x108</addressOffset>
           <access>read-write</access>
           <resetValue>0x00000000</resetValue>
@@ -52619,7 +52213,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
           <fields>
             <field>
               <name>EVENTS_END</name>
-              <description>End of RXD buffer and TXD buffer reached</description>
+              <description>End of DMA.RX buffer and DMA.TX buffer reached</description>
               <lsb>0</lsb>
               <msb>0</msb>
               <enumeratedValues>
@@ -54322,7 +53916,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
         </register>
         <register>
           <name>ORC</name>
-          <description>Byte transmitted after TXD.MAXCNT bytes have been transmitted in the case when RXD.MAXCNT is greater than TXD.MAXCNT</description>
+          <description>Byte transmitted after the transmit EasyDMA byte count completes when the receive EasyDMA maximum byte count is greater than the transmit EasyDMA maximum byte count</description>
           <addressOffset>0x5C0</addressOffset>
           <access>read-write</access>
           <resetValue>0x00000000</resetValue>
@@ -54330,7 +53924,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
           <fields>
             <field>
               <name>ORC</name>
-              <description>Byte transmitted after TXD.MAXCNT bytes have been transmitted in the case when RXD.MAXCNT is greater than TXD.MAXCNT.</description>
+              <description>Byte transmitted after the transmit EasyDMA byte count completes when the receive EasyDMA maximum byte count is greater than the transmit EasyDMA maximum byte count.</description>
               <lsb>0</lsb>
               <msb>7</msb>
             </field>
@@ -55331,7 +54925,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
             <addressOffset>0x000</addressOffset>
             <register>
               <name>END</name>
-              <description>Generated after all MAXCNT bytes have been transferred</description>
+              <description>Generated after EasyDMA has completed its operation.</description>
               <addressOffset>0x000</addressOffset>
               <access>read-write</access>
               <resetValue>0x00000000</resetValue>
@@ -55339,7 +54933,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
               <fields>
                 <field>
                   <name>END</name>
-                  <description>Generated after all MAXCNT bytes have been transferred</description>
+                  <description>Generated after EasyDMA has completed its operation.</description>
                   <lsb>0</lsb>
                   <msb>0</msb>
                   <enumeratedValues>
@@ -55452,7 +55046,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
             <addressOffset>0x01C</addressOffset>
             <register>
               <name>END</name>
-              <description>Generated after all MAXCNT bytes have been transferred</description>
+              <description>Generated after EasyDMA has completed its operation.</description>
               <addressOffset>0x000</addressOffset>
               <access>read-write</access>
               <resetValue>0x00000000</resetValue>
@@ -55460,7 +55054,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
               <fields>
                 <field>
                   <name>END</name>
-                  <description>Generated after all MAXCNT bytes have been transferred</description>
+                  <description>Generated after EasyDMA has completed its operation.</description>
                   <lsb>0</lsb>
                   <msb>0</msb>
                   <enumeratedValues>
@@ -56721,6 +56315,244 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
           </fields>
         </register>
         <register>
+          <name>INTPEND</name>
+          <description>Pending interrupts</description>
+          <addressOffset>0x30C</addressOffset>
+          <access>read-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>END</name>
+              <description>Read pending status of interrupt for event END</description>
+              <lsb>1</lsb>
+              <msb>1</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>ACQUIRED</name>
+              <description>Read pending status of interrupt for event ACQUIRED</description>
+              <lsb>6</lsb>
+              <msb>6</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXEND</name>
+              <description>Read pending status of interrupt for event DMARXEND</description>
+              <lsb>19</lsb>
+              <msb>19</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXREADY</name>
+              <description>Read pending status of interrupt for event DMARXREADY</description>
+              <lsb>20</lsb>
+              <msb>20</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXBUSERROR</name>
+              <description>Read pending status of interrupt for event DMARXBUSERROR</description>
+              <lsb>21</lsb>
+              <msb>21</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXMATCH0</name>
+              <description>Read pending status of interrupt for event DMARXMATCH[0]</description>
+              <lsb>22</lsb>
+              <msb>22</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXMATCH1</name>
+              <description>Read pending status of interrupt for event DMARXMATCH[1]</description>
+              <lsb>23</lsb>
+              <msb>23</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXMATCH2</name>
+              <description>Read pending status of interrupt for event DMARXMATCH[2]</description>
+              <lsb>24</lsb>
+              <msb>24</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXMATCH3</name>
+              <description>Read pending status of interrupt for event DMARXMATCH[3]</description>
+              <lsb>25</lsb>
+              <msb>25</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMATXEND</name>
+              <description>Read pending status of interrupt for event DMATXEND</description>
+              <lsb>26</lsb>
+              <msb>26</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMATXREADY</name>
+              <description>Read pending status of interrupt for event DMATXREADY</description>
+              <lsb>27</lsb>
+              <msb>27</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMATXBUSERROR</name>
+              <description>Read pending status of interrupt for event DMATXBUSERROR</description>
+              <lsb>28</lsb>
+              <msb>28</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
           <name>SEMSTAT</name>
           <description>Semaphore status register</description>
           <addressOffset>0x400</addressOffset>
@@ -57159,7 +56991,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
             </register>
             <register>
               <name>AMOUNT</name>
-              <description>Number of bytes transferred in the last transaction, updated after the END event. Also updated after each MATCH event.</description>
+              <description>Number of bytes transferred in the last transaction, updated after the END event. For channels that supports the compare match filter, this register is also updated after each MATCH event.</description>
               <addressOffset>0x00C</addressOffset>
               <access>read-only</access>
               <resetValue>0x00000000</resetValue>
@@ -57331,7 +57163,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
                   </field>
                   <field>
                     <name>ONESHOT_0</name>
-                    <description>Configure match filter 0 as one-shot or sticky</description>
+                    <description>Configure match filter 0 as one-shot or continous</description>
                     <lsb>16</lsb>
                     <msb>16</msb>
                     <enumeratedValues>
@@ -57349,7 +57181,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
                   </field>
                   <field>
                     <name>ONESHOT_1</name>
-                    <description>Configure match filter 1 as one-shot or sticky</description>
+                    <description>Configure match filter 1 as one-shot or continous</description>
                     <lsb>17</lsb>
                     <msb>17</msb>
                     <enumeratedValues>
@@ -57367,7 +57199,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
                   </field>
                   <field>
                     <name>ONESHOT_2</name>
-                    <description>Configure match filter 2 as one-shot or sticky</description>
+                    <description>Configure match filter 2 as one-shot or continous</description>
                     <lsb>18</lsb>
                     <msb>18</msb>
                     <enumeratedValues>
@@ -57385,7 +57217,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
                   </field>
                   <field>
                     <name>ONESHOT_3</name>
-                    <description>Configure match filter 3 as one-shot or sticky</description>
+                    <description>Configure match filter 3 as one-shot or continous</description>
                     <lsb>19</lsb>
                     <msb>19</msb>
                     <enumeratedValues>
@@ -57417,7 +57249,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
                     <name>DATA</name>
                     <description>Data to look for</description>
                     <lsb>0</lsb>
-                    <msb>31</msb>
+                    <msb>7</msb>
                   </field>
                 </fields>
               </register>
@@ -57463,7 +57295,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
             </register>
             <register>
               <name>AMOUNT</name>
-              <description>Number of bytes transferred in the last transaction, updated after the END event. Also updated after each MATCH event.</description>
+              <description>Number of bytes transferred in the last transaction, updated after the END event. For channels that supports the compare match filter, this register is also updated after each MATCH event.</description>
               <addressOffset>0x00C</addressOffset>
               <access>read-only</access>
               <resetValue>0x00000000</resetValue>
@@ -60637,6 +60469,358 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
           </fields>
         </register>
         <register>
+          <name>INTPEND</name>
+          <description>Pending interrupts</description>
+          <addressOffset>0x30C</addressOffset>
+          <access>read-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>CTS</name>
+              <description>Read pending status of interrupt for event CTS</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>NCTS</name>
+              <description>Read pending status of interrupt for event NCTS</description>
+              <lsb>1</lsb>
+              <msb>1</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>TXDRDY</name>
+              <description>Read pending status of interrupt for event TXDRDY</description>
+              <lsb>3</lsb>
+              <msb>3</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>RXDRDY</name>
+              <description>Read pending status of interrupt for event RXDRDY</description>
+              <lsb>4</lsb>
+              <msb>4</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>ERROR</name>
+              <description>Read pending status of interrupt for event ERROR</description>
+              <lsb>5</lsb>
+              <msb>5</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>RXTO</name>
+              <description>Read pending status of interrupt for event RXTO</description>
+              <lsb>9</lsb>
+              <msb>9</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>TXSTOPPED</name>
+              <description>Read pending status of interrupt for event TXSTOPPED</description>
+              <lsb>12</lsb>
+              <msb>12</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXEND</name>
+              <description>Read pending status of interrupt for event DMARXEND</description>
+              <lsb>19</lsb>
+              <msb>19</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXREADY</name>
+              <description>Read pending status of interrupt for event DMARXREADY</description>
+              <lsb>20</lsb>
+              <msb>20</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXBUSERROR</name>
+              <description>Read pending status of interrupt for event DMARXBUSERROR</description>
+              <lsb>21</lsb>
+              <msb>21</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXMATCH0</name>
+              <description>Read pending status of interrupt for event DMARXMATCH[0]</description>
+              <lsb>22</lsb>
+              <msb>22</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXMATCH1</name>
+              <description>Read pending status of interrupt for event DMARXMATCH[1]</description>
+              <lsb>23</lsb>
+              <msb>23</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXMATCH2</name>
+              <description>Read pending status of interrupt for event DMARXMATCH[2]</description>
+              <lsb>24</lsb>
+              <msb>24</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXMATCH3</name>
+              <description>Read pending status of interrupt for event DMARXMATCH[3]</description>
+              <lsb>25</lsb>
+              <msb>25</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMATXEND</name>
+              <description>Read pending status of interrupt for event DMATXEND</description>
+              <lsb>26</lsb>
+              <msb>26</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMATXREADY</name>
+              <description>Read pending status of interrupt for event DMATXREADY</description>
+              <lsb>27</lsb>
+              <msb>27</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMATXBUSERROR</name>
+              <description>Read pending status of interrupt for event DMATXBUSERROR</description>
+              <lsb>28</lsb>
+              <msb>28</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>FRAMETIMEOUT</name>
+              <description>Read pending status of interrupt for event FRAMETIMEOUT</description>
+              <lsb>29</lsb>
+              <msb>29</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
           <name>ERRORSRC</name>
           <description>Error source</description>
           <addressOffset>0x480</addressOffset>
@@ -63460,34 +63644,6 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
             </fields>
           </register>
           <register>
-            <name>ERASEALL</name>
-            <description>Register for erasing whole MRAM main block and the first NVR page This register is deprecated and must not be used. Use ERASEALL from CTRLAP instead.</description>
-            <addressOffset>0x00C</addressOffset>
-            <access>write-only</access>
-            <resetValue>0x00000000</resetValue>
-            <size>0x20</size>
-            <fields>
-              <field>
-                <name>ERASEALL</name>
-                <description>Erase whole MRAM and the first NVR page. The other NVR pages are not erased.</description>
-                <lsb>0</lsb>
-                <msb>0</msb>
-                <enumeratedValues>
-                  <enumeratedValue>
-                    <name>NoOperation</name>
-                    <description>No operation</description>
-                    <value>0x0</value>
-                  </enumeratedValue>
-                  <enumeratedValue>
-                    <name>Erase</name>
-                    <description>Start erase of chip</description>
-                    <value>0x1</value>
-                  </enumeratedValue>
-                </enumeratedValues>
-              </field>
-            </fields>
-          </register>
-          <register>
             <name>LOCK</name>
             <description>Locking the erase registers.</description>
             <addressOffset>0x010</addressOffset>
@@ -63518,24 +63674,6 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
                 <description>Lock for ERASE.ERASEAREA.</description>
                 <lsb>1</lsb>
                 <msb>1</msb>
-                <enumeratedValues>
-                  <enumeratedValue>
-                    <name>Disabled</name>
-                    <description>Lock disabled.</description>
-                    <value>0x0</value>
-                  </enumeratedValue>
-                  <enumeratedValue>
-                    <name>Enabled</name>
-                    <description>Lock enabled.</description>
-                    <value>0x1</value>
-                  </enumeratedValue>
-                </enumeratedValues>
-              </field>
-              <field>
-                <name>ERASEALL</name>
-                <description>Lock for ERASE.ERASEALL.</description>
-                <lsb>2</lsb>
-                <msb>2</msb>
                 <enumeratedValues>
                   <enumeratedValue>
                     <name>Disabled</name>
@@ -74681,7 +74819,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
           <addressOffset>0x440</addressOffset>
           <register>
             <name>CONFIG</name>
-            <description>USB PHY parameter overrides</description>
+            <description>USB PHY trim parameters</description>
             <addressOffset>0x000</addressOffset>
             <access>read-write</access>
             <resetValue>0x5533D6F0</resetValue>
@@ -74692,72 +74830,396 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
                 <description>PLL Integral Path Tune</description>
                 <lsb>0</lsb>
                 <msb>1</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>1</name>
+                    <description>1.0, Design default</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                </enumeratedValues>
               </field>
               <field>
                 <name>PLLPTUNE</name>
                 <description>PLL Proportional Path Tune</description>
                 <lsb>2</lsb>
                 <msb>5</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>100</name>
+                    <description>10.0, Design default</description>
+                    <value>0xC</value>
+                  </enumeratedValue>
+                </enumeratedValues>
               </field>
               <field>
                 <name>COMPDISTUNE0</name>
                 <description>Disconnect Threshold Adjustment</description>
                 <lsb>6</lsb>
                 <msb>8</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>111</name>
+                    <description>+13.93 percent</description>
+                    <value>0x7</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>110</name>
+                    <description>+9.78 percent</description>
+                    <value>0x6</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>101</name>
+                    <description>+6.25 percent</description>
+                    <value>0x5</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>100</name>
+                    <description>+2.67 percent</description>
+                    <value>0x4</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>011</name>
+                    <description>0, Design default</description>
+                    <value>0x3</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>010</name>
+                    <description>-2.86 percent</description>
+                    <value>0x2</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>001</name>
+                    <description>-5.33 percent</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>000</name>
+                    <description>-7.86 percent</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                </enumeratedValues>
               </field>
               <field>
                 <name>SQRXTUNE0</name>
                 <description>Squelch Threshold Adjustment</description>
                 <lsb>9</lsb>
                 <msb>11</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>111</name>
+                    <description>-22.24 percent</description>
+                    <value>0x7</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>110</name>
+                    <description>-16.49 percent</description>
+                    <value>0x6</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>101</name>
+                    <description>-11.01 percent</description>
+                    <value>0x5</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>100</name>
+                    <description>-5.25 percent</description>
+                    <value>0x4</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>011</name>
+                    <description>0, Design default</description>
+                    <value>0x3</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>010</name>
+                    <description>+5.84 percent</description>
+                    <value>0x2</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>001</name>
+                    <description>+11.15 percent</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>000</name>
+                    <description>+17.09 percent</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                </enumeratedValues>
               </field>
               <field>
                 <name>VDATREFTUNE0</name>
                 <description>Data Detect Voltage Adjustment</description>
                 <lsb>12</lsb>
                 <msb>13</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>3</name>
+                    <description>-20.65 percent</description>
+                    <value>0x3</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>2</name>
+                    <description>-10.38 percent</description>
+                    <value>0x2</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>1</name>
+                    <description>0, Design default</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>0</name>
+                    <description>+10.26 percent</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                </enumeratedValues>
               </field>
               <field>
                 <name>TXHSXVTUNE0</name>
                 <description>Transmitter High-Speed Crossover Adjustment</description>
                 <lsb>14</lsb>
                 <msb>15</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>11</name>
+                    <description>0, Design default</description>
+                    <value>0x3</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>10</name>
+                    <description>+9.21 mV</description>
+                    <value>0x2</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>01</name>
+                    <description>-8.96 mV</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
               </field>
               <field>
                 <name>TXFSLSTUNE0</name>
                 <description>FS/LS Source Impedance Adjustment</description>
                 <lsb>16</lsb>
                 <msb>19</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>1111</name>
+                    <description>-10.65 percent</description>
+                    <value>0xF</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>0111</name>
+                    <description>-5.64 percent</description>
+                    <value>0x7</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>0011</name>
+                    <description>0, Design default</description>
+                    <value>0x3</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>0001</name>
+                    <description>+3.09 percent</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>0000</name>
+                    <description>+6.41 percent</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                </enumeratedValues>
               </field>
               <field>
                 <name>TXVREFTUNE0</name>
                 <description>HS DC Voltage Level Adjustment</description>
                 <lsb>20</lsb>
                 <msb>23</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>1111</name>
+                    <description>+23.46 percent</description>
+                    <value>0xF</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>1110</name>
+                    <description>+21.42 percent</description>
+                    <value>0xE</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>1101</name>
+                    <description>+19.45 percent</description>
+                    <value>0xD</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>1100</name>
+                    <description>+17.41 percent</description>
+                    <value>0xC</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>1011</name>
+                    <description>+15.64 percent</description>
+                    <value>0xB</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>1010</name>
+                    <description>+13.60 percent</description>
+                    <value>0xA</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>1001</name>
+                    <description>+11.63 percent</description>
+                    <value>0x9</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>1000</name>
+                    <description>+9.59 percent</description>
+                    <value>0x8</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>0111</name>
+                    <description>+7.85 percent</description>
+                    <value>0x7</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>0110</name>
+                    <description>+5.80 percent</description>
+                    <value>0x6</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>0101</name>
+                    <description>+3.83 percent</description>
+                    <value>0x5</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>0100</name>
+                    <description>+1.79 percent</description>
+                    <value>0x4</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>0011</name>
+                    <description>0, Design default</description>
+                    <value>0x3</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>0010</name>
+                    <description>-2.04 percent</description>
+                    <value>0x2</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>0001</name>
+                    <description>-4.02 percent</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>0000</name>
+                    <description>-6.07 percent</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                </enumeratedValues>
               </field>
               <field>
                 <name>TXRISETUNE0</name>
                 <description>HS Transmitter Rise/Fall Time Adjustment</description>
                 <lsb>24</lsb>
                 <msb>25</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>11</name>
+                    <description>-3.85 percent</description>
+                    <value>0x3</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>10</name>
+                    <description>-2.81 percent</description>
+                    <value>0x2</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>01</name>
+                    <description>0, Design default</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>00</name>
+                    <description>+2.56 percent</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                </enumeratedValues>
               </field>
               <field>
                 <name>TXRESTUNE0</name>
                 <description>USB Source Impedance Adjustment</description>
                 <lsb>26</lsb>
                 <msb>27</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>D4R82</name>
+                    <description>Source impedance is decreased by approximately 4.82 ohm</description>
+                    <value>0x3</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>D2R55</name>
+                    <description>Source impedance is decreased by approximately 2.55 ohm</description>
+                    <value>0x2</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>DesignDefault</name>
+                    <description>0, Design default</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>I2R93</name>
+                    <description>Source impedance is increased by approximately 2.93 ohm</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                </enumeratedValues>
               </field>
               <field>
                 <name>TXPREEMPAMPTUNE0</name>
                 <description>HS Transmitter Pre-Emphasis Current Control</description>
                 <lsb>28</lsb>
                 <msb>29</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>3x</name>
+                    <description>HS Transmitter pre-emphasis circuit sources 3x pre-emphasis current.</description>
+                    <value>0x3</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>2x</name>
+                    <description>HS Transmitter pre-emphasis circuit sources 2x pre-emphasis current.</description>
+                    <value>0x2</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>1x</name>
+                    <description>Design default. HS Transmitter pre-emphasis circuit sources 1x pre-emphasis current.</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Disabled</name>
+                    <description>HS Transmitter pre-emphasis is disabled.</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                </enumeratedValues>
               </field>
               <field>
                 <name>TXPREEMPPULSETUNE0</name>
                 <description>HS Transmitter Pre-Emphasis Duration Control</description>
                 <lsb>30</lsb>
                 <msb>30</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>Short</name>
+                    <description>Design default. HS Transmitter pre-emphasis duration is 1x, short pre-emphasis current duration.</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Long</name>
+                    <description>HS Transmitter pre-emphasis duration is 2x, long pre-emphasis current duration.</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                </enumeratedValues>
               </field>
             </fields>
           </register>
@@ -74823,7 +75285,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
                 <enumeratedValues>
                   <enumeratedValue>
                     <name>POWERED</name>
-                    <description>The REFCLOCK_LOGIC,bias and PLL blocks are powered in sleep or suspend mode.</description>
+                    <description>The REFCLOCK_LOGIC, bias and PLL blocks are powered in sleep or suspend mode.</description>
                     <value>0x0</value>
                   </enumeratedValue>
                   <enumeratedValue>
@@ -75065,42 +75527,6 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
                     <value>0x0</value>
                   </enumeratedValue>
                 </enumeratedValues>
-              </field>
-            </fields>
-          </register>
-          <register>
-            <name>RTUNE</name>
-            <description>The RTUNE mode is an alternative method for calibrating the DP and DM 45-Ohm source impedance.</description>
-            <addressOffset>0x024</addressOffset>
-            <access>read-write</access>
-            <resetValue>0x0000000F</resetValue>
-            <size>0x20</size>
-            <fields>
-              <field>
-                <name>RTUNESEL</name>
-                <description>This signal selects the tuning method for the high-speed DP and DM source impedance of the USBHS.</description>
-                <lsb>0</lsb>
-                <msb>0</msb>
-                <enumeratedValues>
-                  <enumeratedValue>
-                    <name>TXRTUNE</name>
-                    <description>The TXRTUNE pin, external resistor REXT, and resulting internal
-              digital calibration code are used for tuning the high-speed source
-              impedance.</description>
-                    <value>0x1</value>
-                  </enumeratedValue>
-                  <enumeratedValue>
-                    <name>RTUNE</name>
-                    <description>The RCALCODE value is used for tuning the high-speed source impedance.</description>
-                    <value>0x0</value>
-                  </enumeratedValue>
-                </enumeratedValues>
-              </field>
-              <field>
-                <name>RCALCODE</name>
-                <description>This signal is used to tune the internal 200 ohm resistor or the USBHS DP and DM high-speed source impedance.</description>
-                <lsb>1</lsb>
-                <msb>4</msb>
               </field>
             </fields>
           </register>
@@ -105297,6 +105723,282 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
           </fields>
         </register>
         <register>
+          <name>INTPEND</name>
+          <description>Pending interrupts</description>
+          <addressOffset>0x30C</addressOffset>
+          <access>read-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>STOPPED</name>
+              <description>Read pending status of interrupt for event STOPPED</description>
+              <lsb>1</lsb>
+              <msb>1</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>ERROR</name>
+              <description>Read pending status of interrupt for event ERROR</description>
+              <lsb>5</lsb>
+              <msb>5</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>WRITE</name>
+              <description>Read pending status of interrupt for event WRITE</description>
+              <lsb>15</lsb>
+              <msb>15</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>READ</name>
+              <description>Read pending status of interrupt for event READ</description>
+              <lsb>16</lsb>
+              <msb>16</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXEND</name>
+              <description>Read pending status of interrupt for event DMARXEND</description>
+              <lsb>19</lsb>
+              <msb>19</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXREADY</name>
+              <description>Read pending status of interrupt for event DMARXREADY</description>
+              <lsb>20</lsb>
+              <msb>20</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXBUSERROR</name>
+              <description>Read pending status of interrupt for event DMARXBUSERROR</description>
+              <lsb>21</lsb>
+              <msb>21</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXMATCH0</name>
+              <description>Read pending status of interrupt for event DMARXMATCH[0]</description>
+              <lsb>22</lsb>
+              <msb>22</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXMATCH1</name>
+              <description>Read pending status of interrupt for event DMARXMATCH[1]</description>
+              <lsb>23</lsb>
+              <msb>23</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXMATCH2</name>
+              <description>Read pending status of interrupt for event DMARXMATCH[2]</description>
+              <lsb>24</lsb>
+              <msb>24</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMARXMATCH3</name>
+              <description>Read pending status of interrupt for event DMARXMATCH[3]</description>
+              <lsb>25</lsb>
+              <msb>25</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMATXEND</name>
+              <description>Read pending status of interrupt for event DMATXEND</description>
+              <lsb>26</lsb>
+              <msb>26</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMATXREADY</name>
+              <description>Read pending status of interrupt for event DMATXREADY</description>
+              <lsb>27</lsb>
+              <msb>27</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>DMATXBUSERROR</name>
+              <description>Read pending status of interrupt for event DMATXBUSERROR</description>
+              <lsb>28</lsb>
+              <msb>28</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
           <name>ERRORSRC</name>
           <description>Error source</description>
           <addressOffset>0x4D0</addressOffset>
@@ -105306,8 +106008,8 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
           <size>0x20</size>
           <fields>
             <field>
-              <name>OVERFLOW</name>
-              <description>RX buffer overflow detected, and prevented</description>
+              <name>OVERREAD</name>
+              <description>TX buffer over-read detected, and prevented</description>
               <lsb>0</lsb>
               <msb>0</msb>
               <enumeratedValues>
@@ -105342,8 +106044,8 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
               </enumeratedValues>
             </field>
             <field>
-              <name>OVERREAD</name>
-              <description>TX buffer over-read detected, and prevented</description>
+              <name>OVERFLOW</name>
+              <description>RX buffer overflow detected, and prevented</description>
               <lsb>3</lsb>
               <msb>3</msb>
               <enumeratedValues>
@@ -137176,6 +137878,62 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
           </fields>
         </register>
         <register>
+          <name>EVENTS_BUSERROR_RX</name>
+          <description>This event is generated if an error occurs during the bus transfer.</description>
+          <addressOffset>0x124</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>EVENTS_BUSERROR_RX</name>
+              <description>This event is generated if an error occurs during the bus transfer.</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>NotGenerated</name>
+                  <description>Event not generated</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Generated</name>
+                  <description>Event generated</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>EVENTS_BUSERROR_TX</name>
+          <description>This event is generated if an error occurs during the bus transfer.</description>
+          <addressOffset>0x128</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>EVENTS_BUSERROR_TX</name>
+              <description>This event is generated if an error occurs during the bus transfer.</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>NotGenerated</name>
+                  <description>Event not generated</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Generated</name>
+                  <description>Event generated</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
           <name>PUBLISH_RXPTRUPD</name>
           <description>Publish configuration for event RXPTRUPD</description>
           <addressOffset>0x184</addressOffset>
@@ -137341,6 +138099,72 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
           </fields>
         </register>
         <register>
+          <name>PUBLISH_BUSERROR_RX</name>
+          <description>Publish configuration for event BUSERROR_RX</description>
+          <addressOffset>0x1A4</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>CHIDX</name>
+              <description>DPPI channel that event BUSERROR_RX will publish to</description>
+              <lsb>0</lsb>
+              <msb>7</msb>
+            </field>
+            <field>
+              <name>EN</name>
+              <lsb>31</lsb>
+              <msb>31</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Disable publishing</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Enable publishing</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>PUBLISH_BUSERROR_TX</name>
+          <description>Publish configuration for event BUSERROR_TX</description>
+          <addressOffset>0x1A8</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>CHIDX</name>
+              <description>DPPI channel that event BUSERROR_TX will publish to</description>
+              <lsb>0</lsb>
+              <msb>7</msb>
+            </field>
+            <field>
+              <name>EN</name>
+              <lsb>31</lsb>
+              <msb>31</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Disable publishing</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Enable publishing</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
           <name>INTEN</name>
           <description>Enable or disable interrupt</description>
           <addressOffset>0x300</addressOffset>
@@ -137425,6 +138249,42 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
               <description>Enable or disable interrupt for event MAXCNT</description>
               <lsb>8</lsb>
               <msb>8</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Disable</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Enable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>BUSERROR_RX</name>
+              <description>Enable or disable interrupt for event BUSERROR_RX</description>
+              <lsb>9</lsb>
+              <msb>9</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Disable</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Enable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>BUSERROR_TX</name>
+              <description>Enable or disable interrupt for event BUSERROR_TX</description>
+              <lsb>10</lsb>
+              <msb>10</msb>
               <enumeratedValues>
                 <enumeratedValue>
                   <name>Disabled</name>
@@ -137565,6 +138425,62 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
               <description>Write '1' to enable interrupt for event MAXCNT</description>
               <lsb>8</lsb>
               <msb>8</msb>
+              <modifiedWriteValues>oneToSet</modifiedWriteValues>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Read: Disabled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Read: Enabled</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+              <enumeratedValues>
+                <usage>write</usage>
+                <enumeratedValue>
+                  <name>Set</name>
+                  <description>Enable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>BUSERROR_RX</name>
+              <description>Write '1' to enable interrupt for event BUSERROR_RX</description>
+              <lsb>9</lsb>
+              <msb>9</msb>
+              <modifiedWriteValues>oneToSet</modifiedWriteValues>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Read: Disabled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Read: Enabled</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+              <enumeratedValues>
+                <usage>write</usage>
+                <enumeratedValue>
+                  <name>Set</name>
+                  <description>Enable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>BUSERROR_TX</name>
+              <description>Write '1' to enable interrupt for event BUSERROR_TX</description>
+              <lsb>10</lsb>
+              <msb>10</msb>
               <modifiedWriteValues>oneToSet</modifiedWriteValues>
               <enumeratedValues>
                 <usage>read</usage>
@@ -137738,6 +138654,62 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
                 </enumeratedValue>
               </enumeratedValues>
             </field>
+            <field>
+              <name>BUSERROR_RX</name>
+              <description>Write '1' to disable interrupt for event BUSERROR_RX</description>
+              <lsb>9</lsb>
+              <msb>9</msb>
+              <modifiedWriteValues>oneToClear</modifiedWriteValues>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Read: Disabled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Read: Enabled</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+              <enumeratedValues>
+                <usage>write</usage>
+                <enumeratedValue>
+                  <name>Clear</name>
+                  <description>Disable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>BUSERROR_TX</name>
+              <description>Write '1' to disable interrupt for event BUSERROR_TX</description>
+              <lsb>10</lsb>
+              <msb>10</msb>
+              <modifiedWriteValues>oneToClear</modifiedWriteValues>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Read: Disabled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Read: Enabled</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+              <enumeratedValues>
+                <usage>write</usage>
+                <enumeratedValue>
+                  <name>Clear</name>
+                  <description>Disable</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
           </fields>
         </register>
         <register>
@@ -137829,6 +138801,44 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
               <description>Read pending status of interrupt for event MAXCNT</description>
               <lsb>8</lsb>
               <msb>8</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>BUSERROR_RX</name>
+              <description>Read pending status of interrupt for event BUSERROR_RX</description>
+              <lsb>9</lsb>
+              <msb>9</msb>
+              <enumeratedValues>
+                <usage>read</usage>
+                <enumeratedValue>
+                  <name>NotPending</name>
+                  <description>Read: Not pending</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Pending</name>
+                  <description>Read: Pending</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>BUSERROR_TX</name>
+              <description>Read pending status of interrupt for event BUSERROR_TX</description>
+              <lsb>10</lsb>
+              <msb>10</msb>
               <enumeratedValues>
                 <usage>read</usage>
                 <enumeratedValue>
@@ -141651,7 +142661,7 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
           </cluster>
           <cluster>
             <name>INTRESETEN</name>
-            <description>Trigger a reset when tamper is detected by the glitch detectors, signal protector or CRACEN tamper detector.</description>
+            <description>Trigger a reset when tamper is detected by the internal detectors.</description>
             <headerStructName>TAMPC_PROTECT_INTRESETEN</headerStructName>
             <access>read-write</access>
             <addressOffset>0x478</addressOffset>
@@ -149908,6 +150918,233 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
             </field>
           </fields>
         </register>
+        <register>
+          <name>STATUS</name>
+          <description>Status of USB PM</description>
+          <addressOffset>0x400</addressOffset>
+          <access>read-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>READY</name>
+              <description>USB PM ready</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>PowerDown</name>
+                  <description>USB PM powered down</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Powered</name>
+                  <description>USB PM powered up</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>VBUSDETRAW</name>
+              <description>VBUS detected, raw signal</description>
+              <lsb>1</lsb>
+              <msb>1</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>NotVbusDetRaw</name>
+                  <description>VBUS not detected</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>VbusDetRaw</name>
+                  <description>VBUS detected</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>VBUSDET</name>
+              <description>VBUS detected, filtered</description>
+              <lsb>2</lsb>
+              <msb>2</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>NotVbusDet</name>
+                  <description>VBUS not detected</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>VbusDet</name>
+                  <description>VBUS detected</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>READY3V3</name>
+              <description>Power 3V3 ready</description>
+              <lsb>5</lsb>
+              <msb>5</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>NotReady3v3</name>
+                  <description>Power 3V3 not ready</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Ready3v3</name>
+                  <description>Power 3V3 ready</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>SETTLED3V3</name>
+              <description>Power 3V3 settled</description>
+              <lsb>6</lsb>
+              <msb>6</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>NotSettled3v3</name>
+                  <description>Power 3V3 not settled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Settled3v3</name>
+                  <description>Power 3V3 settled</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <cluster>
+          <name>CONFIG</name>
+          <description>Unspecified</description>
+          <headerStructName>VREGUSB_CONFIG</headerStructName>
+          <access>read-write</access>
+          <addressOffset>0x410</addressOffset>
+          <register>
+            <name>SETL3V3TIM</name>
+            <description>Time from LDO ready to SETTLED3V3 (0us-1000us)</description>
+            <addressOffset>0x010</addressOffset>
+            <access>read-write</access>
+            <resetValue>0x00001F40</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>VAL</name>
+                <description>Timer value</description>
+                <lsb>0</lsb>
+                <msb>13</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>Min</name>
+                    <description>0 us</description>
+                    <value>0x0000</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Default</name>
+                    <description>500 us</description>
+                    <value>0x1F40</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Max</name>
+                    <description>1000 us</description>
+                    <value>0x3E80</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+        </cluster>
+        <register>
+          <name>PWRUP3V3</name>
+          <description>Power up 3V3</description>
+          <addressOffset>0x48C</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000001</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>MANUAL</name>
+              <description>Manual power mode configuration for 3V3 regulator</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Off</name>
+                  <description>USB 3V3 regulator powered down in manual mode</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>On</name>
+                  <description>USB 3V3 regulator powered up in manual mode</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+            <field>
+              <name>AUTOMODE</name>
+              <description>Automatic power mode configuration</description>
+              <lsb>1</lsb>
+              <msb>1</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Auto</name>
+                  <description>USB 3V3 regulator automatically powered</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Manual</name>
+                  <description>USB 3V3 regulator manually powered</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <cluster>
+          <name>OVERRIDE</name>
+          <description>Unspecified</description>
+          <headerStructName>VREGUSB_OVERRIDE</headerStructName>
+          <access>read-write</access>
+          <addressOffset>0x500</addressOffset>
+          <register>
+            <name>SETTLED3V3</name>
+            <description>Override the SETTLED3V3 from the digital part</description>
+            <addressOffset>0x00C</addressOffset>
+            <access>read-write</access>
+            <resetValue>0x00000000</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>VAL</name>
+                <description>Override value for the signal</description>
+                <lsb>0</lsb>
+                <msb>0</msb>
+              </field>
+              <field>
+                <name>EN</name>
+                <description>Enable the override</description>
+                <lsb>31</lsb>
+                <msb>31</msb>
+                <enumeratedValues>
+                  <enumeratedValue>
+                    <name>Disabled</name>
+                    <description>Override is disabled</description>
+                    <value>0x0</value>
+                  </enumeratedValue>
+                  <enumeratedValue>
+                    <name>Enabled</name>
+                    <description>Override is enabled</description>
+                    <value>0x1</value>
+                  </enumeratedValue>
+                </enumeratedValues>
+              </field>
+            </fields>
+          </register>
+        </cluster>
       </registers>
     </peripheral>
     <peripheral derivedFrom="GLOBAL_VREGUSB_NS">
@@ -150367,34 +151604,6 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
                   <description>PIXO mode</description>
                   <value>0x1</value>
                 </enumeratedValue>
-                <enumeratedValue>
-                  <name>ExternalSine</name>
-                  <description>External sine wave clock</description>
-                  <value>0x2</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>ExternalSquare</name>
-                  <description>External square wave clock</description>
-                  <value>0x3</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-            <field>
-              <name>HPMODE</name>
-              <description>High performance mode</description>
-              <lsb>4</lsb>
-              <msb>4</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>Disabled</name>
-                  <description>NA</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>Enabled</name>
-                  <description>NA</description>
-                  <value>0x1</value>
-                </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
@@ -150411,6 +151620,80 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
                 <enumeratedValue>
                   <name>Running</name>
                   <description>LFXO running</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>STATUSANA</name>
+          <description>Status of analog module output signals</description>
+          <addressOffset>0x404</addressOffset>
+          <access>read-only</access>
+          <resetValue>0x00000000</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>READY</name>
+              <description>Current value of the READY signal from the analog module</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+            </field>
+            <field>
+              <name>SETTLED</name>
+              <description>Current value of the SETTLED signal from the analog module</description>
+              <lsb>1</lsb>
+              <msb>1</msb>
+            </field>
+            <field>
+              <name>PIXOACK</name>
+              <description>Current value of the PIXO_ACK signal from the analog module</description>
+              <lsb>2</lsb>
+              <msb>3</msb>
+            </field>
+            <field>
+              <name>PDSETTLED</name>
+              <description>Current value of the PD_SETTLED signal from the analog module</description>
+              <lsb>4</lsb>
+              <msb>4</msb>
+            </field>
+            <field>
+              <name>PDOUTLOWER</name>
+              <description>Current value of the PD_OUT_LOWER signal from the analog module</description>
+              <lsb>5</lsb>
+              <msb>5</msb>
+            </field>
+            <field>
+              <name>PDOUTUPPER</name>
+              <description>Current value of the PD_OUT_UPPER signal from the analog module</description>
+              <lsb>6</lsb>
+              <msb>6</msb>
+            </field>
+          </fields>
+        </register>
+        <register>
+          <name>MIRROR</name>
+          <description>Enable LOCK for mirrored registers</description>
+          <addressOffset>0x480</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000001</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>LOCK</name>
+              <description>Lock for mirrored registers</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Lock disabled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Lock enabled</description>
                   <value>0x1</value>
                 </enumeratedValue>
               </enumeratedValues>
@@ -150486,39 +151769,6 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
           </fields>
         </register>
         <register>
-          <name>PWRUPCTRL</name>
-          <description>Power up control</description>
-          <addressOffset>0x48C</addressOffset>
-          <access>read-write</access>
-          <resetValue>0x00000000</resetValue>
-          <size>0x20</size>
-          <fields>
-            <field>
-              <name>CTRL</name>
-              <description>Power up control</description>
-              <lsb>0</lsb>
-              <msb>1</msb>
-              <enumeratedValues>
-                <enumeratedValue>
-                  <name>Auto</name>
-                  <description>Automatically handled by the peripheral</description>
-                  <value>0x0</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>PowerUp</name>
-                  <description>Power up</description>
-                  <value>0x1</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>PowerDown</name>
-                  <description>Power down</description>
-                  <value>0x2</value>
-                </enumeratedValue>
-              </enumeratedValues>
-            </field>
-          </fields>
-        </register>
-        <register>
           <name>MODE</name>
           <description>LFXO mode</description>
           <addressOffset>0x490</addressOffset>
@@ -150541,16 +151791,6 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
                   <name>Pixo</name>
                   <description>PIXO mode</description>
                   <value>0x1</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>ExternalSine</name>
-                  <description>External sine wave clock</description>
-                  <value>0x2</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>ExternalSquare</name>
-                  <description>External square wave clock</description>
-                  <value>0x3</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
@@ -151297,6 +152537,22 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
             </field>
           </fields>
         </register>
+        <register>
+          <name>STATUSTRIM</name>
+          <description>Current LFRCOSC trimming value.</description>
+          <addressOffset>0x400</addressOffset>
+          <access>read-only</access>
+          <resetValue>0x0000000A</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>VAL</name>
+              <description>TRIM value</description>
+              <lsb>0</lsb>
+              <msb>5</msb>
+            </field>
+          </fields>
+        </register>
         <cluster>
           <name>CAL</name>
           <description>Unspecified</description>
@@ -151341,7 +152597,83 @@ unexpectedly or might not fire. Reads of the TRCRSCTLRn might return UNKNOWN.</d
               </field>
             </fields>
           </register>
+          <register>
+            <name>TRIMLIMITLO</name>
+            <description>Lower trim limit</description>
+            <addressOffset>0x004</addressOffset>
+            <access>read-write</access>
+            <resetValue>0x00000000</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>VALUE</name>
+                <description>TRIM limit value.</description>
+                <lsb>0</lsb>
+                <msb>17</msb>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>TRIMLIMITHI</name>
+            <description>Higher trim limit</description>
+            <addressOffset>0x008</addressOffset>
+            <access>read-write</access>
+            <resetValue>0x0003FFFF</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>VALUE</name>
+                <description>TRIM limit value</description>
+                <lsb>0</lsb>
+                <msb>17</msb>
+              </field>
+            </fields>
+          </register>
+          <register>
+            <name>LFRCOSCTRIM</name>
+            <description>Initial coarse frequency trimming value for the oscillator.</description>
+            <addressOffset>0x018</addressOffset>
+            <access>read-write</access>
+            <resetValue>0x0000002C</resetValue>
+            <size>0x20</size>
+            <fields>
+              <field>
+                <name>VAL</name>
+                <description>TRIM value</description>
+                <lsb>0</lsb>
+                <msb>5</msb>
+              </field>
+            </fields>
+          </register>
         </cluster>
+        <register>
+          <name>MIRROR</name>
+          <description>Enable LOCK for mirrored registers</description>
+          <addressOffset>0x480</addressOffset>
+          <access>read-write</access>
+          <resetValue>0x00000001</resetValue>
+          <size>0x20</size>
+          <fields>
+            <field>
+              <name>LOCK</name>
+              <description>Lock for mirrored registers</description>
+              <lsb>0</lsb>
+              <msb>0</msb>
+              <enumeratedValues>
+                <enumeratedValue>
+                  <name>Disabled</name>
+                  <description>Lock disabled</description>
+                  <value>0x0</value>
+                </enumeratedValue>
+                <enumeratedValue>
+                  <name>Enabled</name>
+                  <description>Lock enabled</description>
+                  <value>0x1</value>
+                </enumeratedValue>
+              </enumeratedValues>
+            </field>
+          </fields>
+        </register>
       </registers>
     </peripheral>
     <peripheral derivedFrom="GLOBAL_LFRC_NS">

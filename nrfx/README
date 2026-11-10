@@ -2,7 +2,7 @@ nrfx
 ####
 
 Origin:
-   https://github.com/nordicsemi/nrfx/tree/v4.7.0
+   https://github.com/nordicsemi/nrfx/tree/v4.7.1
 
 Status:
    v4.7.0
@@ -32,7 +32,7 @@ URL:
    https://github.com/nordicsemi/nrfx
 
 commit:
-   e04a873799c0e7206166d62e2e4f185868acf8f9
+   5822caf07442042310103c391dd91cbcaaaa1beb
 
 Maintained-by:
    External
@@ -41,4 +41,4 @@ License:
    BSD-3-Clause
 
 License Link:
-   https://github.com/nordicsemi/nrfx/blob/v4.7.0/LICENSE
+   https://github.com/nordicsemi/nrfx/blob/v4.7.1/LICENSE
