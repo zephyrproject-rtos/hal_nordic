@@ -32,7 +32,15 @@ NOTICE: This file has been modified by Nordic Semiconductor ASA.
 #include "../common/system_config_sau.h"
 /*lint ++flb "Enter library region" */
 
-#define __SYSTEM_CLOCK_DEFAULT      (64000000ul)
+#define __SYSTEM_CLOCK_MHZ          (1000000ul)
+/* Must match the PLL frequency set up by SystemInit() or by the secure image. */
+#if defined(NRF_CONFIG_CPU_FREQ_MHZ)
+    #define __SYSTEM_CLOCK_DEFAULT  (NRF_CONFIG_CPU_FREQ_MHZ * __SYSTEM_CLOCK_MHZ)
+#elif !defined(__CORTEX_M) || defined(NRF_SKIP_CLOCK_CONFIGURATION)
+    #define __SYSTEM_CLOCK_DEFAULT  (256ul * __SYSTEM_CLOCK_MHZ)
+#else
+    #define __SYSTEM_CLOCK_DEFAULT  (256ul * __SYSTEM_CLOCK_MHZ)
+#endif
 
 /* Trace configuration */
 #define TRACE_TRACECLK_PIN          (6ul)
@@ -82,14 +90,12 @@ void SystemInit(void)
                 NRF_OSCILLATORS->PLL.FREQ = OSCILLATORS_PLL_FREQ_FREQ_CK64M;
             #elif defined(NRF_CONFIG_CPU_FREQ_MHZ) && (NRF_CONFIG_CPU_FREQ_MHZ==128)
                 NRF_OSCILLATORS->PLL.FREQ = OSCILLATORS_PLL_FREQ_FREQ_CK128M;
-            #elif defined(NRF_CONFIG_CPU_FREQ_MHZ) && (NRF_CONFIG_CPU_FREQ_MHZ==192)
-                NRF_OSCILLATORS->PLL.FREQ = OSCILLATORS_PLL_FREQ_FREQ_CK192M;
             #elif defined(NRF_CONFIG_CPU_FREQ_MHZ) && (NRF_CONFIG_CPU_FREQ_MHZ==256)
                 NRF_OSCILLATORS->PLL.FREQ = OSCILLATORS_PLL_FREQ_FREQ_CK256M;
             #elif defined(NRF_CONFIG_CPU_FREQ_MHZ)
                 #error "Illegal CPU frequency set"
             #else
-                NRF_OSCILLATORS->PLL.FREQ = OSCILLATORS_PLL_FREQ_FREQ_CK128M;
+                NRF_OSCILLATORS->PLL.FREQ = OSCILLATORS_PLL_FREQ_FREQ_CK256M;
             #endif
         #endif
 
@@ -125,6 +131,13 @@ void SystemInit(void)
                     #pragma diag_default=Pa082
                 #endif
                 }
+
+                if (NRF_FICR_NS->LFRC32KTRIM.LFRCOSCTRIM != UINT32_MAX)
+                {
+                    NRF_LFRC->CAL.LFRCOSCTRIM =
+                        NRF_FICR_NS->LFRC32KTRIM.LFRCOSCTRIM &
+                        LFRC_CAL_LFRCOSCTRIM_VAL_Msk;
+                }
             #endif
 
             #if NRF71_ERRATA_157_ENABLE_WORKAROUND
@@ -135,9 +148,9 @@ void SystemInit(void)
                 }
             #endif
 
-            #if NRF71_ERRATA_158_ENABLE_WORKAROUND
-                /* Workaround for Errata 158 */
-                if (nrf71_errata_158())
+            #if NRF71_ERRATA_48_ENABLE_WORKAROUND
+                /* Workaround for Errata 48 */
+                if (nrf71_errata_48())
                 {
                     if (NRF_RESET->RESETREAS & RESET_RESETREAS_RESETPIN_Msk)
                     {

@@ -11653,7 +11653,9 @@ typedef struct {
   __IOM uint32_t  RAM;                               /*!< (@ 0x00000028) RAM size (KB)                                         */
   __IM  uint32_t  RESERVED;
   __IOM uint32_t  MRAM;                              /*!< (@ 0x00000030) MRAM size (KB)                                        */
-} NRF_FICR_INFO_Type;                                /*!< Size = 52 (0x034)                                                    */
+  __IM  uint32_t  RESERVED1[2];
+  __IOM uint32_t  NORDICID;                          /*!< (@ 0x0000003C) Nordic Identity supported indicator                   */
+} NRF_FICR_INFO_Type;                                /*!< Size = 64 (0x040)                                                    */
 
 /* FICR_INFO_CONFIGID: Configuration identifier */
   #define FICR_INFO_CONFIGID_ResetValue (0xFFFFFFFFUL) /*!< Reset value of CONFIGID register.                                  */
@@ -11744,6 +11746,18 @@ typedef struct {
   #define FICR_INFO_MRAM_MRAM_Max (0xFFFFFFFFUL)     /*!< Max enumerator value of MRAM field.                                  */
   #define FICR_INFO_MRAM_MRAM_K4076 (0x00000FECUL)   /*!< 4076 KByte MRAM                                                      */
   #define FICR_INFO_MRAM_MRAM_Unspecified (0xFFFFFFFFUL) /*!< Unspecified                                                      */
+
+
+/* FICR_INFO_NORDICID: Nordic Identity supported indicator */
+  #define FICR_INFO_NORDICID_ResetValue (0x00000000UL) /*!< Reset value of NORDICID register.                                  */
+
+/* SUPPORT @Bits 0..31 : Nordic Identity supported indicator */
+  #define FICR_INFO_NORDICID_SUPPORT_Pos (0UL)       /*!< Position of SUPPORT field.                                           */
+  #define FICR_INFO_NORDICID_SUPPORT_Msk (0xFFFFFFFFUL << FICR_INFO_NORDICID_SUPPORT_Pos) /*!< Bit mask of SUPPORT field.      */
+  #define FICR_INFO_NORDICID_SUPPORT_Min (0x00000001UL) /*!< Min enumerator value of SUPPORT field.                            */
+  #define FICR_INFO_NORDICID_SUPPORT_Max (0xFFFFFFFFUL) /*!< Max enumerator value of SUPPORT field.                            */
+  #define FICR_INFO_NORDICID_SUPPORT_Supported (0x00000001UL) /*!< This device does support Nordic Identity                    */
+  #define FICR_INFO_NORDICID_SUPPORT_NotSupported (0xFFFFFFFFUL) /*!< This device does not support Nordic Identity             */
 
 
 
@@ -11907,6 +11921,50 @@ typedef struct {
 
 
 
+/* ================================================= Struct FICR_LFRC32KTRIM ================================================= */
+/**
+  * @brief LFRC32KTRIM [FICR_LFRC32KTRIM] (unspecified)
+  */
+typedef struct {
+  __IOM uint32_t  LFRCOSCTRIM;                       /*!< (@ 0x00000000) Initial coarse frequency trimming value for the
+                                                                         oscillator.*/
+} NRF_FICR_LFRC32KTRIM_Type;                         /*!< Size = 4 (0x004)                                                     */
+
+/* FICR_LFRC32KTRIM_LFRCOSCTRIM: Initial coarse frequency trimming value for the oscillator. */
+  #define FICR_LFRC32KTRIM_LFRCOSCTRIM_ResetValue (0x0000002CUL) /*!< Reset value of LFRCOSCTRIM register.                     */
+
+/* VAL @Bits 0..5 : TRIM value */
+  #define FICR_LFRC32KTRIM_LFRCOSCTRIM_VAL_Pos (0UL) /*!< Position of VAL field.                                               */
+  #define FICR_LFRC32KTRIM_LFRCOSCTRIM_VAL_Msk (0x3FUL << FICR_LFRC32KTRIM_LFRCOSCTRIM_VAL_Pos) /*!< Bit mask of VAL field.    */
+
+
+
+/* =================================================== Struct FICR_AUXPLL ==================================================== */
+/**
+  * @brief AUXPLL [FICR_AUXPLL] (unspecified)
+  */
+typedef struct {
+  __IOM uint32_t  AUDIOCTUNE;                        /*!< (@ 0x00000000) AUXPLL audio CTUNE value written by production test.  */
+  __IOM uint32_t  USBCTUNE;                          /*!< (@ 0x00000004) AUXPLL USB CTUNE value written by production test.    */
+} NRF_FICR_AUXPLL_Type;                              /*!< Size = 8 (0x008)                                                     */
+
+/* FICR_AUXPLL_AUDIOCTUNE: AUXPLL audio CTUNE value written by production test. */
+  #define FICR_AUXPLL_AUDIOCTUNE_ResetValue (0xFFFFFFFFUL) /*!< Reset value of AUDIOCTUNE register.                            */
+
+/* DATA @Bits 0..31 : Trim data */
+  #define FICR_AUXPLL_AUDIOCTUNE_DATA_Pos (0UL)      /*!< Position of DATA field.                                              */
+  #define FICR_AUXPLL_AUDIOCTUNE_DATA_Msk (0xFFFFFFFFUL << FICR_AUXPLL_AUDIOCTUNE_DATA_Pos) /*!< Bit mask of DATA field.       */
+
+
+/* FICR_AUXPLL_USBCTUNE: AUXPLL USB CTUNE value written by production test. */
+  #define FICR_AUXPLL_USBCTUNE_ResetValue (0xFFFFFFFFUL) /*!< Reset value of USBCTUNE register.                                */
+
+/* DATA @Bits 0..31 : Trim data */
+  #define FICR_AUXPLL_USBCTUNE_DATA_Pos (0UL)        /*!< Position of DATA field.                                              */
+  #define FICR_AUXPLL_USBCTUNE_DATA_Msk (0xFFFFFFFFUL << FICR_AUXPLL_USBCTUNE_DATA_Pos) /*!< Bit mask of DATA field.           */
+
+
+
 /* =================================================== Struct FICR_MACADDR =================================================== */
 /**
   * @brief MACADDR [FICR_MACADDR] 48-bit MAC address n
@@ -11982,20 +12040,23 @@ typedef struct {
   typedef struct {                                   /*!< FICR Structure                                                       */
     __IM uint32_t RESERVED[192];
     __IOM NRF_FICR_INFO_Type INFO;                   /*!< (@ 0x00000300) Device info                                           */
-    __IM uint32_t RESERVED1[3];
     __IOM NRF_FICR_SOCINFO_Type SOCINFO;             /*!< (@ 0x00000340) (unspecified)                                         */
-    __IM uint32_t RESERVED2[14];
+    __IM uint32_t RESERVED1[14];
     __IOM uint32_t ER[4];                            /*!< (@ 0x00000380) Common encryption root key, word n                    */
     __IOM uint32_t IR[4];                            /*!< (@ 0x00000390) Common identity root key, word n                      */
     __IOM uint32_t DEVICEADDRTYPE;                   /*!< (@ 0x000003A0) Device address type                                   */
     __IOM uint32_t DEVICEADDR[2];                    /*!< (@ 0x000003A4) Device address n                                      */
-    __IM uint32_t RESERVED3[21];
+    __IM uint32_t RESERVED2[21];
     __IOM NRF_FICR_TRIMCNF_Type TRIMCNF[128];        /*!< (@ 0x00000400) (unspecified)                                         */
-    __IM uint32_t RESERVED4[64];
+    __IM uint32_t RESERVED3[64];
     __IOM NRF_FICR_NFC_Type NFC;                     /*!< (@ 0x00000900) (unspecified)                                         */
-    __IM uint32_t RESERVED5[188];
+    __IM uint32_t RESERVED4[28];
+    __IOM NRF_FICR_LFRC32KTRIM_Type LFRC32KTRIM;     /*!< (@ 0x00000980) (unspecified)                                         */
+    __IM uint32_t RESERVED5[3];
+    __IOM NRF_FICR_AUXPLL_Type AUXPLL;               /*!< (@ 0x00000990) (unspecified)                                         */
+    __IM uint32_t RESERVED6[154];
     __IOM NRF_FICR_MACADDR_Type MACADDR[2];          /*!< (@ 0x00000C00) 48-bit MAC address n                                  */
-    __IM uint32_t RESERVED6[4];
+    __IM uint32_t RESERVED7[4];
     __IOM NRF_FICR_XTALCOMP_Type XTALCOMP;           /*!< (@ 0x00000C20) Crystal oscillator (XTAL) temperature compensation
                                                                          data*/
   } NRF_FICR_Type;                                   /*!< Size = 3136 (0xC40)                                                  */
@@ -22384,7 +22445,12 @@ typedef struct {
   */
 typedef struct {
   __IOM uint32_t  LENGTH;                            /*!< (@ 0x00000000) Measurement cycle count length used while calibration */
-} NRF_LFRC_CAL_Type;                                 /*!< Size = 4 (0x004)                                                     */
+  __IOM uint32_t  TRIMLIMITLO;                       /*!< (@ 0x00000004) Lower trim limit                                      */
+  __IOM uint32_t  TRIMLIMITHI;                       /*!< (@ 0x00000008) Higher trim limit                                     */
+  __IM  uint32_t  RESERVED[3];
+  __IOM uint32_t  LFRCOSCTRIM;                       /*!< (@ 0x00000018) Initial coarse frequency trimming value for the
+                                                                         oscillator.*/
+} NRF_LFRC_CAL_Type;                                 /*!< Size = 28 (0x01C)                                                    */
 
 /* LFRC_CAL_LENGTH: Measurement cycle count length used while calibration */
   #define LFRC_CAL_LENGTH_ResetValue (0x00000002UL)  /*!< Reset value of LENGTH register.                                      */
@@ -22398,6 +22464,30 @@ typedef struct {
   #define LFRC_CAL_LENGTH_LENGTH_N128 (0x1UL)        /*!< 128 cycles                                                           */
   #define LFRC_CAL_LENGTH_LENGTH_N256 (0x2UL)        /*!< 256 cycles                                                           */
   #define LFRC_CAL_LENGTH_LENGTH_N512 (0x3UL)        /*!< 512 cycles                                                           */
+
+
+/* LFRC_CAL_TRIMLIMITLO: Lower trim limit */
+  #define LFRC_CAL_TRIMLIMITLO_ResetValue (0x00000000UL) /*!< Reset value of TRIMLIMITLO register.                             */
+
+/* VALUE @Bits 0..17 : TRIM limit value. */
+  #define LFRC_CAL_TRIMLIMITLO_VALUE_Pos (0UL)       /*!< Position of VALUE field.                                             */
+  #define LFRC_CAL_TRIMLIMITLO_VALUE_Msk (0x3FFFFUL << LFRC_CAL_TRIMLIMITLO_VALUE_Pos) /*!< Bit mask of VALUE field.           */
+
+
+/* LFRC_CAL_TRIMLIMITHI: Higher trim limit */
+  #define LFRC_CAL_TRIMLIMITHI_ResetValue (0x0003FFFFUL) /*!< Reset value of TRIMLIMITHI register.                             */
+
+/* VALUE @Bits 0..17 : TRIM limit value */
+  #define LFRC_CAL_TRIMLIMITHI_VALUE_Pos (0UL)       /*!< Position of VALUE field.                                             */
+  #define LFRC_CAL_TRIMLIMITHI_VALUE_Msk (0x3FFFFUL << LFRC_CAL_TRIMLIMITHI_VALUE_Pos) /*!< Bit mask of VALUE field.           */
+
+
+/* LFRC_CAL_LFRCOSCTRIM: Initial coarse frequency trimming value for the oscillator. */
+  #define LFRC_CAL_LFRCOSCTRIM_ResetValue (0x0000002CUL) /*!< Reset value of LFRCOSCTRIM register.                             */
+
+/* VAL @Bits 0..5 : TRIM value */
+  #define LFRC_CAL_LFRCOSCTRIM_VAL_Pos (0UL)         /*!< Position of VAL field.                                               */
+  #define LFRC_CAL_LFRCOSCTRIM_VAL_Msk (0x3FUL << LFRC_CAL_LFRCOSCTRIM_VAL_Pos) /*!< Bit mask of VAL field.                    */
 
 
 /* ======================================================= Struct LFRC ======================================================= */
@@ -22418,9 +22508,13 @@ typedef struct {
     __IOM uint32_t INTENSET;                         /*!< (@ 0x00000304) Enable interrupt                                      */
     __IOM uint32_t INTENCLR;                         /*!< (@ 0x00000308) Disable interrupt                                     */
     __IM uint32_t INTPEND;                           /*!< (@ 0x0000030C) Pending interrupts                                    */
-    __IM uint32_t RESERVED2[68];
+    __IM uint32_t RESERVED2[60];
+    __IM uint32_t STATUSTRIM;                        /*!< (@ 0x00000400) Current LFRCOSC trimming value.                       */
+    __IM uint32_t RESERVED3[7];
     __IOM NRF_LFRC_CAL_Type CAL;                     /*!< (@ 0x00000420) (unspecified)                                         */
-  } NRF_LFRC_Type;                                   /*!< Size = 1060 (0x424)                                                  */
+    __IM uint32_t RESERVED4[17];
+    __IOM uint32_t MIRROR;                           /*!< (@ 0x00000480) Enable LOCK for mirrored registers                    */
+  } NRF_LFRC_Type;                                   /*!< Size = 1156 (0x484)                                                  */
 
 /* LFRC_TASKS_CAL: Start the calibration of RC oscillator */
   #define LFRC_TASKS_CAL_ResetValue (0x00000000UL)   /*!< Reset value of TASKS_CAL register.                                   */
@@ -22696,6 +22790,26 @@ typedef struct {
   #define LFRC_INTPEND_CKLFRCSTARTED_Pending (0x1UL) /*!< Read: Pending                                                        */
 
 
+/* LFRC_STATUSTRIM: Current LFRCOSC trimming value. */
+  #define LFRC_STATUSTRIM_ResetValue (0x0000000AUL)  /*!< Reset value of STATUSTRIM register.                                  */
+
+/* VAL @Bits 0..5 : TRIM value */
+  #define LFRC_STATUSTRIM_VAL_Pos (0UL)              /*!< Position of VAL field.                                               */
+  #define LFRC_STATUSTRIM_VAL_Msk (0x3FUL << LFRC_STATUSTRIM_VAL_Pos) /*!< Bit mask of VAL field.                              */
+
+
+/* LFRC_MIRROR: Enable LOCK for mirrored registers */
+  #define LFRC_MIRROR_ResetValue (0x00000001UL)      /*!< Reset value of MIRROR register.                                      */
+
+/* LOCK @Bit 0 : Lock for mirrored registers */
+  #define LFRC_MIRROR_LOCK_Pos (0UL)                 /*!< Position of LOCK field.                                              */
+  #define LFRC_MIRROR_LOCK_Msk (0x1UL << LFRC_MIRROR_LOCK_Pos) /*!< Bit mask of LOCK field.                                    */
+  #define LFRC_MIRROR_LOCK_Min (0x0UL)               /*!< Min enumerator value of LOCK field.                                  */
+  #define LFRC_MIRROR_LOCK_Max (0x1UL)               /*!< Max enumerator value of LOCK field.                                  */
+  #define LFRC_MIRROR_LOCK_Disabled (0x0UL)          /*!< Lock disabled                                                        */
+  #define LFRC_MIRROR_LOCK_Enabled (0x1UL)           /*!< Lock enabled                                                         */
+
+
 #endif                                               /*!< !defined(__ASSEMBLER__) && !defined(__ASSEMBLY__)                    */
 
 /* =========================================================================================================================== */
@@ -22719,10 +22833,12 @@ typedef struct {
     __IM uint32_t INTPEND;                           /*!< (@ 0x0000030C) Pending interrupts                                    */
     __IM uint32_t RESERVED2[60];
     __IM uint32_t STATUS;                            /*!< (@ 0x00000400) LFXO status                                           */
-    __IM uint32_t RESERVED3[32];
+    __IM uint32_t STATUSANA;                         /*!< (@ 0x00000404) Status of analog module output signals                */
+    __IM uint32_t RESERVED3[30];
+    __IOM uint32_t MIRROR;                           /*!< (@ 0x00000480) Enable LOCK for mirrored registers                    */
     __IOM uint32_t CLOAD;                            /*!< (@ 0x00000484) Internal capacitive load                              */
     __IOM uint32_t AMPLITUDECTRL;                    /*!< (@ 0x00000488) Amplitude control                                     */
-    __IOM uint32_t PWRUPCTRL;                        /*!< (@ 0x0000048C) Power up control                                      */
+    __IM uint32_t RESERVED4;
     __IOM uint32_t MODE;                             /*!< (@ 0x00000490) LFXO mode                                             */
   } NRF_LFXO_Type;                                   /*!< Size = 1172 (0x494)                                                  */
 
@@ -22890,19 +23006,9 @@ typedef struct {
   #define LFXO_STATUS_MODE_Pos (0UL)                 /*!< Position of MODE field.                                              */
   #define LFXO_STATUS_MODE_Msk (0x3UL << LFXO_STATUS_MODE_Pos) /*!< Bit mask of MODE field.                                    */
   #define LFXO_STATUS_MODE_Min (0x0UL)               /*!< Min enumerator value of MODE field.                                  */
-  #define LFXO_STATUS_MODE_Max (0x3UL)               /*!< Max enumerator value of MODE field.                                  */
+  #define LFXO_STATUS_MODE_Max (0x1UL)               /*!< Max enumerator value of MODE field.                                  */
   #define LFXO_STATUS_MODE_Pierce (0x0UL)            /*!< Pierce mode                                                          */
   #define LFXO_STATUS_MODE_Pixo (0x1UL)              /*!< PIXO mode                                                            */
-  #define LFXO_STATUS_MODE_ExternalSine (0x2UL)      /*!< External sine wave clock                                             */
-  #define LFXO_STATUS_MODE_ExternalSquare (0x3UL)    /*!< External square wave clock                                           */
-
-/* HPMODE @Bit 4 : High performance mode */
-  #define LFXO_STATUS_HPMODE_Pos (4UL)               /*!< Position of HPMODE field.                                            */
-  #define LFXO_STATUS_HPMODE_Msk (0x1UL << LFXO_STATUS_HPMODE_Pos) /*!< Bit mask of HPMODE field.                              */
-  #define LFXO_STATUS_HPMODE_Min (0x0UL)             /*!< Min enumerator value of HPMODE field.                                */
-  #define LFXO_STATUS_HPMODE_Max (0x1UL)             /*!< Max enumerator value of HPMODE field.                                */
-  #define LFXO_STATUS_HPMODE_Disabled (0x0UL)        /*!< NA                                                                   */
-  #define LFXO_STATUS_HPMODE_Enabled (0x1UL)         /*!< NA                                                                   */
 
 /* RUNNING @Bit 5 : LFXO running status */
   #define LFXO_STATUS_RUNNING_Pos (5UL)              /*!< Position of RUNNING field.                                           */
@@ -22911,6 +23017,46 @@ typedef struct {
   #define LFXO_STATUS_RUNNING_Max (0x1UL)            /*!< Max enumerator value of RUNNING field.                               */
   #define LFXO_STATUS_RUNNING_NotRunning (0x0UL)     /*!< LFXO not running                                                     */
   #define LFXO_STATUS_RUNNING_Running (0x1UL)        /*!< LFXO running                                                         */
+
+
+/* LFXO_STATUSANA: Status of analog module output signals */
+  #define LFXO_STATUSANA_ResetValue (0x00000000UL)   /*!< Reset value of STATUSANA register.                                   */
+
+/* READY @Bit 0 : Current value of the READY signal from the analog module */
+  #define LFXO_STATUSANA_READY_Pos (0UL)             /*!< Position of READY field.                                             */
+  #define LFXO_STATUSANA_READY_Msk (0x1UL << LFXO_STATUSANA_READY_Pos) /*!< Bit mask of READY field.                           */
+
+/* SETTLED @Bit 1 : Current value of the SETTLED signal from the analog module */
+  #define LFXO_STATUSANA_SETTLED_Pos (1UL)           /*!< Position of SETTLED field.                                           */
+  #define LFXO_STATUSANA_SETTLED_Msk (0x1UL << LFXO_STATUSANA_SETTLED_Pos) /*!< Bit mask of SETTLED field.                     */
+
+/* PIXOACK @Bits 2..3 : Current value of the PIXO_ACK signal from the analog module */
+  #define LFXO_STATUSANA_PIXOACK_Pos (2UL)           /*!< Position of PIXOACK field.                                           */
+  #define LFXO_STATUSANA_PIXOACK_Msk (0x3UL << LFXO_STATUSANA_PIXOACK_Pos) /*!< Bit mask of PIXOACK field.                     */
+
+/* PDSETTLED @Bit 4 : Current value of the PD_SETTLED signal from the analog module */
+  #define LFXO_STATUSANA_PDSETTLED_Pos (4UL)         /*!< Position of PDSETTLED field.                                         */
+  #define LFXO_STATUSANA_PDSETTLED_Msk (0x1UL << LFXO_STATUSANA_PDSETTLED_Pos) /*!< Bit mask of PDSETTLED field.               */
+
+/* PDOUTLOWER @Bit 5 : Current value of the PD_OUT_LOWER signal from the analog module */
+  #define LFXO_STATUSANA_PDOUTLOWER_Pos (5UL)        /*!< Position of PDOUTLOWER field.                                        */
+  #define LFXO_STATUSANA_PDOUTLOWER_Msk (0x1UL << LFXO_STATUSANA_PDOUTLOWER_Pos) /*!< Bit mask of PDOUTLOWER field.            */
+
+/* PDOUTUPPER @Bit 6 : Current value of the PD_OUT_UPPER signal from the analog module */
+  #define LFXO_STATUSANA_PDOUTUPPER_Pos (6UL)        /*!< Position of PDOUTUPPER field.                                        */
+  #define LFXO_STATUSANA_PDOUTUPPER_Msk (0x1UL << LFXO_STATUSANA_PDOUTUPPER_Pos) /*!< Bit mask of PDOUTUPPER field.            */
+
+
+/* LFXO_MIRROR: Enable LOCK for mirrored registers */
+  #define LFXO_MIRROR_ResetValue (0x00000001UL)      /*!< Reset value of MIRROR register.                                      */
+
+/* LOCK @Bit 0 : Lock for mirrored registers */
+  #define LFXO_MIRROR_LOCK_Pos (0UL)                 /*!< Position of LOCK field.                                              */
+  #define LFXO_MIRROR_LOCK_Msk (0x1UL << LFXO_MIRROR_LOCK_Pos) /*!< Bit mask of LOCK field.                                    */
+  #define LFXO_MIRROR_LOCK_Min (0x0UL)               /*!< Min enumerator value of LOCK field.                                  */
+  #define LFXO_MIRROR_LOCK_Max (0x1UL)               /*!< Max enumerator value of LOCK field.                                  */
+  #define LFXO_MIRROR_LOCK_Disabled (0x0UL)          /*!< Lock disabled                                                        */
+  #define LFXO_MIRROR_LOCK_Enabled (0x1UL)           /*!< Lock enabled                                                         */
 
 
 /* LFXO_CLOAD: Internal capacitive load */
@@ -22957,19 +23103,6 @@ typedef struct {
   #define LFXO_AMPLITUDECTRL_PDCTRL_Enabled (0x1UL)  /*!< Peak detector enabled                                                */
 
 
-/* LFXO_PWRUPCTRL: Power up control */
-  #define LFXO_PWRUPCTRL_ResetValue (0x00000000UL)   /*!< Reset value of PWRUPCTRL register.                                   */
-
-/* CTRL @Bits 0..1 : Power up control */
-  #define LFXO_PWRUPCTRL_CTRL_Pos (0UL)              /*!< Position of CTRL field.                                              */
-  #define LFXO_PWRUPCTRL_CTRL_Msk (0x3UL << LFXO_PWRUPCTRL_CTRL_Pos) /*!< Bit mask of CTRL field.                              */
-  #define LFXO_PWRUPCTRL_CTRL_Min (0x0UL)            /*!< Min enumerator value of CTRL field.                                  */
-  #define LFXO_PWRUPCTRL_CTRL_Max (0x2UL)            /*!< Max enumerator value of CTRL field.                                  */
-  #define LFXO_PWRUPCTRL_CTRL_Auto (0x0UL)           /*!< Automatically handled by the peripheral                              */
-  #define LFXO_PWRUPCTRL_CTRL_PowerUp (0x1UL)        /*!< Power up                                                             */
-  #define LFXO_PWRUPCTRL_CTRL_PowerDown (0x2UL)      /*!< Power down                                                           */
-
-
 /* LFXO_MODE: LFXO mode */
   #define LFXO_MODE_ResetValue (0x00000000UL)        /*!< Reset value of MODE register.                                        */
 
@@ -22977,11 +23110,9 @@ typedef struct {
   #define LFXO_MODE_MODE_Pos (0UL)                   /*!< Position of MODE field.                                              */
   #define LFXO_MODE_MODE_Msk (0x3UL << LFXO_MODE_MODE_Pos) /*!< Bit mask of MODE field.                                        */
   #define LFXO_MODE_MODE_Min (0x0UL)                 /*!< Min enumerator value of MODE field.                                  */
-  #define LFXO_MODE_MODE_Max (0x3UL)                 /*!< Max enumerator value of MODE field.                                  */
+  #define LFXO_MODE_MODE_Max (0x1UL)                 /*!< Max enumerator value of MODE field.                                  */
   #define LFXO_MODE_MODE_Pierce (0x0UL)              /*!< Pierce mode                                                          */
   #define LFXO_MODE_MODE_Pixo (0x1UL)                /*!< PIXO mode                                                            */
-  #define LFXO_MODE_MODE_ExternalSine (0x2UL)        /*!< External sine wave clock                                             */
-  #define LFXO_MODE_MODE_ExternalSquare (0x3UL)      /*!< External square wave clock                                           */
 
 /* HPMODE @Bit 4 : High performance mode */
   #define LFXO_MODE_HPMODE_Pos (4UL)                 /*!< Position of HPMODE field.                                            */
@@ -25485,9 +25616,7 @@ typedef struct {
   __IOM uint32_t  ERASEWORD;                         /*!< (@ 0x00000000) Register for erasing a word in the MRAM main block.   */
   __IOM uint32_t  SIZE;                              /*!< (@ 0x00000004) Size for erasing an area in the MRAM main block       */
   __IOM uint32_t  ERASEAREA;                         /*!< (@ 0x00000008) Register for erasing an area in the MRAM main block   */
-  __OM  uint32_t  ERASEALL;                          /*!< (@ 0x0000000C) Register for erasing whole MRAM main block and the
-                                                                         first NVR page This register is deprecated and must not
-                                                                         be used. Use ERASEALL from CTRLAP instead.*/
+  __IM  uint32_t  RESERVED;
   __IOM uint32_t  LOCK;                              /*!< (@ 0x00000010) Locking the erase registers.                          */
 } NRF_MRAMC_ERASE_Type;                              /*!< Size = 20 (0x014)                                                    */
 
@@ -25519,20 +25648,6 @@ typedef struct {
                                                                             field.*/
 
 
-/* MRAMC_ERASE_ERASEALL: Register for erasing whole MRAM main block and the first NVR page This register is deprecated and must
-                          not be used. Use ERASEALL from CTRLAP instead. */
-
-  #define MRAMC_ERASE_ERASEALL_ResetValue (0x00000000UL) /*!< Reset value of ERASEALL register.                                */
-
-/* ERASEALL @Bit 0 : Erase whole MRAM and the first NVR page. The other NVR pages are not erased. */
-  #define MRAMC_ERASE_ERASEALL_ERASEALL_Pos (0UL)    /*!< Position of ERASEALL field.                                          */
-  #define MRAMC_ERASE_ERASEALL_ERASEALL_Msk (0x1UL << MRAMC_ERASE_ERASEALL_ERASEALL_Pos) /*!< Bit mask of ERASEALL field.      */
-  #define MRAMC_ERASE_ERASEALL_ERASEALL_Min (0x0UL)  /*!< Min enumerator value of ERASEALL field.                              */
-  #define MRAMC_ERASE_ERASEALL_ERASEALL_Max (0x1UL)  /*!< Max enumerator value of ERASEALL field.                              */
-  #define MRAMC_ERASE_ERASEALL_ERASEALL_NoOperation (0x0UL) /*!< No operation                                                  */
-  #define MRAMC_ERASE_ERASEALL_ERASEALL_Erase (0x1UL) /*!< Start erase of chip                                                 */
-
-
 /* MRAMC_ERASE_LOCK: Locking the erase registers. */
   #define MRAMC_ERASE_LOCK_ResetValue (0x00000000UL) /*!< Reset value of LOCK register.                                        */
 
@@ -25551,14 +25666,6 @@ typedef struct {
   #define MRAMC_ERASE_LOCK_ERASEAREA_Max (0x1UL)     /*!< Max enumerator value of ERASEAREA field.                             */
   #define MRAMC_ERASE_LOCK_ERASEAREA_Disabled (0x0UL) /*!< Lock disabled.                                                      */
   #define MRAMC_ERASE_LOCK_ERASEAREA_Enabled (0x1UL) /*!< Lock enabled.                                                        */
-
-/* ERASEALL @Bit 2 : Lock for ERASE.ERASEALL. */
-  #define MRAMC_ERASE_LOCK_ERASEALL_Pos (2UL)        /*!< Position of ERASEALL field.                                          */
-  #define MRAMC_ERASE_LOCK_ERASEALL_Msk (0x1UL << MRAMC_ERASE_LOCK_ERASEALL_Pos) /*!< Bit mask of ERASEALL field.              */
-  #define MRAMC_ERASE_LOCK_ERASEALL_Min (0x0UL)      /*!< Min enumerator value of ERASEALL field.                              */
-  #define MRAMC_ERASE_LOCK_ERASEALL_Max (0x1UL)      /*!< Max enumerator value of ERASEALL field.                              */
-  #define MRAMC_ERASE_LOCK_ERASEALL_Disabled (0x0UL) /*!< Lock disabled.                                                       */
-  #define MRAMC_ERASE_LOCK_ERASEALL_Enabled (0x1UL)  /*!< Lock enabled.                                                        */
 
 
 
@@ -43020,7 +43127,7 @@ typedef struct {
 /* TCONV @Bits 28..30 : Conversion time. Resulting conversion time is ((TCONV+1) x 250 ns) */
   #define SAADC_CH_CONFIG_TCONV_Pos (28UL)           /*!< Position of TCONV field.                                             */
   #define SAADC_CH_CONFIG_TCONV_Msk (0x7UL << SAADC_CH_CONFIG_TCONV_Pos) /*!< Bit mask of TCONV field.                         */
-  #define SAADC_CH_CONFIG_TCONV_Min (0x1UL)          /*!< Min value of TCONV field.                                            */
+  #define SAADC_CH_CONFIG_TCONV_Min (0x0UL)          /*!< Min value of TCONV field.                                            */
   #define SAADC_CH_CONFIG_TCONV_Max (0x7UL)          /*!< Max size of TCONV field.                                             */
 
 
@@ -45098,7 +45205,7 @@ typedef struct {
     __IM uint32_t RESERVED5[12];
     __IOM uint32_t EVENTS_STARTED;                   /*!< (@ 0x00000100) SPI transaction has started                           */
     __IOM uint32_t EVENTS_STOPPED;                   /*!< (@ 0x00000104) SPI transaction has stopped                           */
-    __IOM uint32_t EVENTS_END;                       /*!< (@ 0x00000108) End of RXD buffer and TXD buffer reached              */
+    __IOM uint32_t EVENTS_END;                       /*!< (@ 0x00000108) End of DMA.RX buffer and DMA.TX buffer reached        */
     __IM uint32_t RESERVED6[16];
     __IOM NRF_SPIM_EVENTS_DMA_Type EVENTS_DMA;       /*!< (@ 0x0000014C) Peripheral events.                                    */
     __IM uint32_t RESERVED7[3];
@@ -45123,9 +45230,10 @@ typedef struct {
     __IOM uint32_t DCXCNT;                           /*!< (@ 0x000005B4) DCX configuration                                     */
     __IOM uint32_t CSNPOL;                           /*!< (@ 0x000005B8) Polarity of CSN output                                */
     __IM uint32_t RESERVED15;
-    __IOM uint32_t ORC;                              /*!< (@ 0x000005C0) Byte transmitted after TXD.MAXCNT bytes have been
-                                                                         transmitted in the case when RXD.MAXCNT is greater than
-                                                                         TXD.MAXCNT*/
+    __IOM uint32_t ORC;                              /*!< (@ 0x000005C0) Byte transmitted after the transmit EasyDMA byte count
+                                                                         completes when the receive EasyDMA maximum byte count
+                                                                         is greater than the transmit EasyDMA maximum byte
+                                                                         count*/
     __IM uint32_t RESERVED16[15];
     __IOM NRF_SPIM_PSEL_Type PSEL;                   /*!< (@ 0x00000600) (unspecified)                                         */
     __IM uint32_t RESERVED17[59];
@@ -45275,10 +45383,10 @@ typedef struct {
   #define SPIM_EVENTS_STOPPED_EVENTS_STOPPED_Generated (0x1UL) /*!< Event generated                                            */
 
 
-/* SPIM_EVENTS_END: End of RXD buffer and TXD buffer reached */
+/* SPIM_EVENTS_END: End of DMA.RX buffer and DMA.TX buffer reached */
   #define SPIM_EVENTS_END_ResetValue (0x00000000UL)  /*!< Reset value of EVENTS_END register.                                  */
 
-/* EVENTS_END @Bit 0 : End of RXD buffer and TXD buffer reached */
+/* EVENTS_END @Bit 0 : End of DMA.RX buffer and DMA.TX buffer reached */
   #define SPIM_EVENTS_END_EVENTS_END_Pos (0UL)       /*!< Position of EVENTS_END field.                                        */
   #define SPIM_EVENTS_END_EVENTS_END_Msk (0x1UL << SPIM_EVENTS_END_EVENTS_END_Pos) /*!< Bit mask of EVENTS_END field.          */
   #define SPIM_EVENTS_END_EVENTS_END_Min (0x0UL)     /*!< Min enumerator value of EVENTS_END field.                            */
@@ -45774,13 +45882,13 @@ typedef struct {
   #define SPIM_CSNPOL_CSNPOL0_HIGH (0x1UL)           /*!< Active high (idle state low)                                         */
 
 
-/* SPIM_ORC: Byte transmitted after TXD.MAXCNT bytes have been transmitted in the case when RXD.MAXCNT is greater than
-              TXD.MAXCNT */
+/* SPIM_ORC: Byte transmitted after the transmit EasyDMA byte count completes when the receive EasyDMA maximum byte count is
+              greater than the transmit EasyDMA maximum byte count */
 
   #define SPIM_ORC_ResetValue (0x00000000UL)         /*!< Reset value of ORC register.                                         */
 
-/* ORC @Bits 0..7 : Byte transmitted after TXD.MAXCNT bytes have been transmitted in the case when RXD.MAXCNT is greater than
-                    TXD.MAXCNT. */
+/* ORC @Bits 0..7 : Byte transmitted after the transmit EasyDMA byte count completes when the receive EasyDMA maximum byte count
+                    is greater than the transmit EasyDMA maximum byte count. */
 
   #define SPIM_ORC_ORC_Pos (0UL)                     /*!< Position of ORC field.                                               */
   #define SPIM_ORC_ORC_Msk (0xFFUL << SPIM_ORC_ORC_Pos) /*!< Bit mask of ORC field.                                            */
@@ -45917,7 +46025,7 @@ typedef struct {
   * @brief RX [SPIS_EVENTS_DMA_RX] Peripheral events.
   */
 typedef struct {
-  __IOM uint32_t  END;                               /*!< (@ 0x00000000) Generated after all MAXCNT bytes have been transferred*/
+  __IOM uint32_t  END;                               /*!< (@ 0x00000000) Generated after EasyDMA has completed its operation.  */
   __IOM uint32_t  READY;                             /*!< (@ 0x00000004) Generated when EasyDMA has buffered the .PTR and
                                                                          .MAXCNT registers for the channel, allowing them to be
                                                                          written to prepare for the next sequence.*/
@@ -45925,10 +46033,10 @@ typedef struct {
   __IOM uint32_t  MATCH[4];                          /*!< (@ 0x0000000C) Pattern match is detected on the DMA data bus.        */
 } NRF_SPIS_EVENTS_DMA_RX_Type;                       /*!< Size = 28 (0x01C)                                                    */
 
-/* SPIS_EVENTS_DMA_RX_END: Generated after all MAXCNT bytes have been transferred */
+/* SPIS_EVENTS_DMA_RX_END: Generated after EasyDMA has completed its operation. */
   #define SPIS_EVENTS_DMA_RX_END_ResetValue (0x00000000UL) /*!< Reset value of END register.                                   */
 
-/* END @Bit 0 : Generated after all MAXCNT bytes have been transferred */
+/* END @Bit 0 : Generated after EasyDMA has completed its operation. */
   #define SPIS_EVENTS_DMA_RX_END_END_Pos (0UL)       /*!< Position of END field.                                               */
   #define SPIS_EVENTS_DMA_RX_END_END_Msk (0x1UL << SPIS_EVENTS_DMA_RX_END_END_Pos) /*!< Bit mask of END field.                 */
   #define SPIS_EVENTS_DMA_RX_END_END_Min (0x0UL)     /*!< Min enumerator value of END field.                                   */
@@ -45987,17 +46095,17 @@ typedef struct {
   * @brief TX [SPIS_EVENTS_DMA_TX] Peripheral events.
   */
 typedef struct {
-  __IOM uint32_t  END;                               /*!< (@ 0x00000000) Generated after all MAXCNT bytes have been transferred*/
+  __IOM uint32_t  END;                               /*!< (@ 0x00000000) Generated after EasyDMA has completed its operation.  */
   __IOM uint32_t  READY;                             /*!< (@ 0x00000004) Generated when EasyDMA has buffered the .PTR and
                                                                          .MAXCNT registers for the channel, allowing them to be
                                                                          written to prepare for the next sequence.*/
   __IOM uint32_t  BUSERROR;                          /*!< (@ 0x00000008) An error occured during the bus transfer.             */
 } NRF_SPIS_EVENTS_DMA_TX_Type;                       /*!< Size = 12 (0x00C)                                                    */
 
-/* SPIS_EVENTS_DMA_TX_END: Generated after all MAXCNT bytes have been transferred */
+/* SPIS_EVENTS_DMA_TX_END: Generated after EasyDMA has completed its operation. */
   #define SPIS_EVENTS_DMA_TX_END_ResetValue (0x00000000UL) /*!< Reset value of END register.                                   */
 
-/* END @Bit 0 : Generated after all MAXCNT bytes have been transferred */
+/* END @Bit 0 : Generated after EasyDMA has completed its operation. */
   #define SPIS_EVENTS_DMA_TX_END_END_Pos (0UL)       /*!< Position of END field.                                               */
   #define SPIS_EVENTS_DMA_TX_END_END_Msk (0x1UL << SPIS_EVENTS_DMA_TX_END_END_Pos) /*!< Bit mask of END field.                 */
   #define SPIS_EVENTS_DMA_TX_END_END_Min (0x0UL)     /*!< Min enumerator value of END field.                                   */
@@ -46364,7 +46472,7 @@ typedef struct {
   #define SPIS_DMA_RX_MATCH_CONFIG_ENABLE3_Disabled (0x0UL) /*!< Match filter disabled                                         */
   #define SPIS_DMA_RX_MATCH_CONFIG_ENABLE3_Enabled (0x1UL) /*!< Match filter enabled                                           */
 
-/* ONESHOT0 @Bit 16 : Configure match filter 0 as one-shot or sticky */
+/* ONESHOT0 @Bit 16 : Configure match filter 0 as one-shot or continous */
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT0_Pos (16UL) /*!< Position of ONESHOT0 field.                                        */
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT0_Msk (0x1UL << SPIS_DMA_RX_MATCH_CONFIG_ONESHOT0_Pos) /*!< Bit mask of ONESHOT0
                                                                             field.*/
@@ -46373,7 +46481,7 @@ typedef struct {
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT0_Continuous (0x0UL) /*!< Match filter stays enabled until disabled by task          */
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT0_Oneshot (0x1UL) /*!< Match filter stays enabled until next data word is received   */
 
-/* ONESHOT1 @Bit 17 : Configure match filter 1 as one-shot or sticky */
+/* ONESHOT1 @Bit 17 : Configure match filter 1 as one-shot or continous */
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT1_Pos (17UL) /*!< Position of ONESHOT1 field.                                        */
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT1_Msk (0x1UL << SPIS_DMA_RX_MATCH_CONFIG_ONESHOT1_Pos) /*!< Bit mask of ONESHOT1
                                                                             field.*/
@@ -46382,7 +46490,7 @@ typedef struct {
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT1_Continuous (0x0UL) /*!< Match filter stays enabled until disabled by task          */
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT1_Oneshot (0x1UL) /*!< Match filter stays enabled until next data word is received   */
 
-/* ONESHOT2 @Bit 18 : Configure match filter 2 as one-shot or sticky */
+/* ONESHOT2 @Bit 18 : Configure match filter 2 as one-shot or continous */
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT2_Pos (18UL) /*!< Position of ONESHOT2 field.                                        */
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT2_Msk (0x1UL << SPIS_DMA_RX_MATCH_CONFIG_ONESHOT2_Pos) /*!< Bit mask of ONESHOT2
                                                                             field.*/
@@ -46391,7 +46499,7 @@ typedef struct {
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT2_Continuous (0x0UL) /*!< Match filter stays enabled until disabled by task          */
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT2_Oneshot (0x1UL) /*!< Match filter stays enabled until next data word is received   */
 
-/* ONESHOT3 @Bit 19 : Configure match filter 3 as one-shot or sticky */
+/* ONESHOT3 @Bit 19 : Configure match filter 3 as one-shot or continous */
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT3_Pos (19UL) /*!< Position of ONESHOT3 field.                                        */
   #define SPIS_DMA_RX_MATCH_CONFIG_ONESHOT3_Msk (0x1UL << SPIS_DMA_RX_MATCH_CONFIG_ONESHOT3_Pos) /*!< Bit mask of ONESHOT3
                                                                             field.*/
@@ -46407,10 +46515,9 @@ typedef struct {
   #define SPIS_DMA_RX_MATCH_CANDIDATE_MinIndex (0UL) /*!< Min index of CANDIDATE[4] array.                                     */
   #define SPIS_DMA_RX_MATCH_CANDIDATE_ResetValue (0x00000000UL) /*!< Reset value of CANDIDATE[4] register.                     */
 
-/* DATA @Bits 0..31 : Data to look for */
+/* DATA @Bits 0..7 : Data to look for */
   #define SPIS_DMA_RX_MATCH_CANDIDATE_DATA_Pos (0UL) /*!< Position of DATA field.                                              */
-  #define SPIS_DMA_RX_MATCH_CANDIDATE_DATA_Msk (0xFFFFFFFFUL << SPIS_DMA_RX_MATCH_CANDIDATE_DATA_Pos) /*!< Bit mask of DATA
-                                                                            field.*/
+  #define SPIS_DMA_RX_MATCH_CANDIDATE_DATA_Msk (0xFFUL << SPIS_DMA_RX_MATCH_CANDIDATE_DATA_Pos) /*!< Bit mask of DATA field.   */
 
 
 
@@ -46423,8 +46530,9 @@ typedef struct {
   __IOM uint32_t  PTR;                               /*!< (@ 0x00000004) RAM buffer start address                              */
   __IOM uint32_t  MAXCNT;                            /*!< (@ 0x00000008) Maximum number of bytes in channel buffer             */
   __IM  uint32_t  AMOUNT;                            /*!< (@ 0x0000000C) Number of bytes transferred in the last transaction,
-                                                                         updated after the END event. Also updated after each
-                                                                         MATCH event.*/
+                                                                         updated after the END event. For channels that supports
+                                                                         the compare match filter, this register is also updated
+                                                                         after each MATCH event.*/
   __IM  uint32_t  RESERVED1;
   __IOM uint32_t  LIST;                              /*!< (@ 0x00000014) EasyDMA list type                                     */
   __IM  uint32_t  RESERVED2;
@@ -46454,8 +46562,8 @@ typedef struct {
   #define SPIS_DMA_RX_MAXCNT_MAXCNT_Max (0xFFFFUL)   /*!< Max size of MAXCNT field.                                            */
 
 
-/* SPIS_DMA_RX_AMOUNT: Number of bytes transferred in the last transaction, updated after the END event. Also updated after each
-                        MATCH event. */
+/* SPIS_DMA_RX_AMOUNT: Number of bytes transferred in the last transaction, updated after the END event. For channels that
+                        supports the compare match filter, this register is also updated after each MATCH event. */
 
   #define SPIS_DMA_RX_AMOUNT_ResetValue (0x00000000UL) /*!< Reset value of AMOUNT register.                                    */
 
@@ -46510,8 +46618,9 @@ typedef struct {
   __IOM uint32_t  PTR;                               /*!< (@ 0x00000004) RAM buffer start address                              */
   __IOM uint32_t  MAXCNT;                            /*!< (@ 0x00000008) Maximum number of bytes in channel buffer             */
   __IM  uint32_t  AMOUNT;                            /*!< (@ 0x0000000C) Number of bytes transferred in the last transaction,
-                                                                         updated after the END event. Also updated after each
-                                                                         MATCH event.*/
+                                                                         updated after the END event. For channels that supports
+                                                                         the compare match filter, this register is also updated
+                                                                         after each MATCH event.*/
   __IM  uint32_t  RESERVED1;
   __IOM uint32_t  LIST;                              /*!< (@ 0x00000014) EasyDMA list type                                     */
   __IM  uint32_t  RESERVED2;
@@ -46539,8 +46648,8 @@ typedef struct {
   #define SPIS_DMA_TX_MAXCNT_MAXCNT_Max (0xFFFFUL)   /*!< Max size of MAXCNT field.                                            */
 
 
-/* SPIS_DMA_TX_AMOUNT: Number of bytes transferred in the last transaction, updated after the END event. Also updated after each
-                        MATCH event. */
+/* SPIS_DMA_TX_AMOUNT: Number of bytes transferred in the last transaction, updated after the END event. For channels that
+                        supports the compare match filter, this register is also updated after each MATCH event. */
 
   #define SPIS_DMA_TX_AMOUNT_ResetValue (0x00000000UL) /*!< Reset value of AMOUNT register.                                    */
 
@@ -46628,7 +46737,8 @@ typedef struct {
     __IM uint32_t RESERVED11[64];
     __IOM uint32_t INTENSET;                         /*!< (@ 0x00000304) Enable interrupt                                      */
     __IOM uint32_t INTENCLR;                         /*!< (@ 0x00000308) Disable interrupt                                     */
-    __IM uint32_t RESERVED12[61];
+    __IM uint32_t INTPEND;                           /*!< (@ 0x0000030C) Pending interrupts                                    */
+    __IM uint32_t RESERVED12[60];
     __IM uint32_t SEMSTAT;                           /*!< (@ 0x00000400) Semaphore status register                             */
     __IM uint32_t RESERVED13[15];
     __IOM uint32_t STATUS;                           /*!< (@ 0x00000440) Status from last transaction                          */
@@ -47106,6 +47216,106 @@ typedef struct {
   #define SPIS_INTENCLR_DMATXBUSERROR_Clear (0x1UL)  /*!< Disable                                                              */
   #define SPIS_INTENCLR_DMATXBUSERROR_Disabled (0x0UL) /*!< Read: Disabled                                                     */
   #define SPIS_INTENCLR_DMATXBUSERROR_Enabled (0x1UL) /*!< Read: Enabled                                                       */
+
+
+/* SPIS_INTPEND: Pending interrupts */
+  #define SPIS_INTPEND_ResetValue (0x00000000UL)     /*!< Reset value of INTPEND register.                                     */
+
+/* END @Bit 1 : Read pending status of interrupt for event END */
+  #define SPIS_INTPEND_END_Pos (1UL)                 /*!< Position of END field.                                               */
+  #define SPIS_INTPEND_END_Msk (0x1UL << SPIS_INTPEND_END_Pos) /*!< Bit mask of END field.                                     */
+  #define SPIS_INTPEND_END_Min (0x0UL)               /*!< Min enumerator value of END field.                                   */
+  #define SPIS_INTPEND_END_Max (0x1UL)               /*!< Max enumerator value of END field.                                   */
+  #define SPIS_INTPEND_END_NotPending (0x0UL)        /*!< Read: Not pending                                                    */
+  #define SPIS_INTPEND_END_Pending (0x1UL)           /*!< Read: Pending                                                        */
+
+/* ACQUIRED @Bit 6 : Read pending status of interrupt for event ACQUIRED */
+  #define SPIS_INTPEND_ACQUIRED_Pos (6UL)            /*!< Position of ACQUIRED field.                                          */
+  #define SPIS_INTPEND_ACQUIRED_Msk (0x1UL << SPIS_INTPEND_ACQUIRED_Pos) /*!< Bit mask of ACQUIRED field.                      */
+  #define SPIS_INTPEND_ACQUIRED_Min (0x0UL)          /*!< Min enumerator value of ACQUIRED field.                              */
+  #define SPIS_INTPEND_ACQUIRED_Max (0x1UL)          /*!< Max enumerator value of ACQUIRED field.                              */
+  #define SPIS_INTPEND_ACQUIRED_NotPending (0x0UL)   /*!< Read: Not pending                                                    */
+  #define SPIS_INTPEND_ACQUIRED_Pending (0x1UL)      /*!< Read: Pending                                                        */
+
+/* DMARXEND @Bit 19 : Read pending status of interrupt for event DMARXEND */
+  #define SPIS_INTPEND_DMARXEND_Pos (19UL)           /*!< Position of DMARXEND field.                                          */
+  #define SPIS_INTPEND_DMARXEND_Msk (0x1UL << SPIS_INTPEND_DMARXEND_Pos) /*!< Bit mask of DMARXEND field.                      */
+  #define SPIS_INTPEND_DMARXEND_Min (0x0UL)          /*!< Min enumerator value of DMARXEND field.                              */
+  #define SPIS_INTPEND_DMARXEND_Max (0x1UL)          /*!< Max enumerator value of DMARXEND field.                              */
+  #define SPIS_INTPEND_DMARXEND_NotPending (0x0UL)   /*!< Read: Not pending                                                    */
+  #define SPIS_INTPEND_DMARXEND_Pending (0x1UL)      /*!< Read: Pending                                                        */
+
+/* DMARXREADY @Bit 20 : Read pending status of interrupt for event DMARXREADY */
+  #define SPIS_INTPEND_DMARXREADY_Pos (20UL)         /*!< Position of DMARXREADY field.                                        */
+  #define SPIS_INTPEND_DMARXREADY_Msk (0x1UL << SPIS_INTPEND_DMARXREADY_Pos) /*!< Bit mask of DMARXREADY field.                */
+  #define SPIS_INTPEND_DMARXREADY_Min (0x0UL)        /*!< Min enumerator value of DMARXREADY field.                            */
+  #define SPIS_INTPEND_DMARXREADY_Max (0x1UL)        /*!< Max enumerator value of DMARXREADY field.                            */
+  #define SPIS_INTPEND_DMARXREADY_NotPending (0x0UL) /*!< Read: Not pending                                                    */
+  #define SPIS_INTPEND_DMARXREADY_Pending (0x1UL)    /*!< Read: Pending                                                        */
+
+/* DMARXBUSERROR @Bit 21 : Read pending status of interrupt for event DMARXBUSERROR */
+  #define SPIS_INTPEND_DMARXBUSERROR_Pos (21UL)      /*!< Position of DMARXBUSERROR field.                                     */
+  #define SPIS_INTPEND_DMARXBUSERROR_Msk (0x1UL << SPIS_INTPEND_DMARXBUSERROR_Pos) /*!< Bit mask of DMARXBUSERROR field.       */
+  #define SPIS_INTPEND_DMARXBUSERROR_Min (0x0UL)     /*!< Min enumerator value of DMARXBUSERROR field.                         */
+  #define SPIS_INTPEND_DMARXBUSERROR_Max (0x1UL)     /*!< Max enumerator value of DMARXBUSERROR field.                         */
+  #define SPIS_INTPEND_DMARXBUSERROR_NotPending (0x0UL) /*!< Read: Not pending                                                 */
+  #define SPIS_INTPEND_DMARXBUSERROR_Pending (0x1UL) /*!< Read: Pending                                                        */
+
+/* DMARXMATCH0 @Bit 22 : Read pending status of interrupt for event DMARXMATCH[0] */
+  #define SPIS_INTPEND_DMARXMATCH0_Pos (22UL)        /*!< Position of DMARXMATCH0 field.                                       */
+  #define SPIS_INTPEND_DMARXMATCH0_Msk (0x1UL << SPIS_INTPEND_DMARXMATCH0_Pos) /*!< Bit mask of DMARXMATCH0 field.             */
+  #define SPIS_INTPEND_DMARXMATCH0_Min (0x0UL)       /*!< Min enumerator value of DMARXMATCH0 field.                           */
+  #define SPIS_INTPEND_DMARXMATCH0_Max (0x1UL)       /*!< Max enumerator value of DMARXMATCH0 field.                           */
+  #define SPIS_INTPEND_DMARXMATCH0_NotPending (0x0UL) /*!< Read: Not pending                                                   */
+  #define SPIS_INTPEND_DMARXMATCH0_Pending (0x1UL)   /*!< Read: Pending                                                        */
+
+/* DMARXMATCH1 @Bit 23 : Read pending status of interrupt for event DMARXMATCH[1] */
+  #define SPIS_INTPEND_DMARXMATCH1_Pos (23UL)        /*!< Position of DMARXMATCH1 field.                                       */
+  #define SPIS_INTPEND_DMARXMATCH1_Msk (0x1UL << SPIS_INTPEND_DMARXMATCH1_Pos) /*!< Bit mask of DMARXMATCH1 field.             */
+  #define SPIS_INTPEND_DMARXMATCH1_Min (0x0UL)       /*!< Min enumerator value of DMARXMATCH1 field.                           */
+  #define SPIS_INTPEND_DMARXMATCH1_Max (0x1UL)       /*!< Max enumerator value of DMARXMATCH1 field.                           */
+  #define SPIS_INTPEND_DMARXMATCH1_NotPending (0x0UL) /*!< Read: Not pending                                                   */
+  #define SPIS_INTPEND_DMARXMATCH1_Pending (0x1UL)   /*!< Read: Pending                                                        */
+
+/* DMARXMATCH2 @Bit 24 : Read pending status of interrupt for event DMARXMATCH[2] */
+  #define SPIS_INTPEND_DMARXMATCH2_Pos (24UL)        /*!< Position of DMARXMATCH2 field.                                       */
+  #define SPIS_INTPEND_DMARXMATCH2_Msk (0x1UL << SPIS_INTPEND_DMARXMATCH2_Pos) /*!< Bit mask of DMARXMATCH2 field.             */
+  #define SPIS_INTPEND_DMARXMATCH2_Min (0x0UL)       /*!< Min enumerator value of DMARXMATCH2 field.                           */
+  #define SPIS_INTPEND_DMARXMATCH2_Max (0x1UL)       /*!< Max enumerator value of DMARXMATCH2 field.                           */
+  #define SPIS_INTPEND_DMARXMATCH2_NotPending (0x0UL) /*!< Read: Not pending                                                   */
+  #define SPIS_INTPEND_DMARXMATCH2_Pending (0x1UL)   /*!< Read: Pending                                                        */
+
+/* DMARXMATCH3 @Bit 25 : Read pending status of interrupt for event DMARXMATCH[3] */
+  #define SPIS_INTPEND_DMARXMATCH3_Pos (25UL)        /*!< Position of DMARXMATCH3 field.                                       */
+  #define SPIS_INTPEND_DMARXMATCH3_Msk (0x1UL << SPIS_INTPEND_DMARXMATCH3_Pos) /*!< Bit mask of DMARXMATCH3 field.             */
+  #define SPIS_INTPEND_DMARXMATCH3_Min (0x0UL)       /*!< Min enumerator value of DMARXMATCH3 field.                           */
+  #define SPIS_INTPEND_DMARXMATCH3_Max (0x1UL)       /*!< Max enumerator value of DMARXMATCH3 field.                           */
+  #define SPIS_INTPEND_DMARXMATCH3_NotPending (0x0UL) /*!< Read: Not pending                                                   */
+  #define SPIS_INTPEND_DMARXMATCH3_Pending (0x1UL)   /*!< Read: Pending                                                        */
+
+/* DMATXEND @Bit 26 : Read pending status of interrupt for event DMATXEND */
+  #define SPIS_INTPEND_DMATXEND_Pos (26UL)           /*!< Position of DMATXEND field.                                          */
+  #define SPIS_INTPEND_DMATXEND_Msk (0x1UL << SPIS_INTPEND_DMATXEND_Pos) /*!< Bit mask of DMATXEND field.                      */
+  #define SPIS_INTPEND_DMATXEND_Min (0x0UL)          /*!< Min enumerator value of DMATXEND field.                              */
+  #define SPIS_INTPEND_DMATXEND_Max (0x1UL)          /*!< Max enumerator value of DMATXEND field.                              */
+  #define SPIS_INTPEND_DMATXEND_NotPending (0x0UL)   /*!< Read: Not pending                                                    */
+  #define SPIS_INTPEND_DMATXEND_Pending (0x1UL)      /*!< Read: Pending                                                        */
+
+/* DMATXREADY @Bit 27 : Read pending status of interrupt for event DMATXREADY */
+  #define SPIS_INTPEND_DMATXREADY_Pos (27UL)         /*!< Position of DMATXREADY field.                                        */
+  #define SPIS_INTPEND_DMATXREADY_Msk (0x1UL << SPIS_INTPEND_DMATXREADY_Pos) /*!< Bit mask of DMATXREADY field.                */
+  #define SPIS_INTPEND_DMATXREADY_Min (0x0UL)        /*!< Min enumerator value of DMATXREADY field.                            */
+  #define SPIS_INTPEND_DMATXREADY_Max (0x1UL)        /*!< Max enumerator value of DMATXREADY field.                            */
+  #define SPIS_INTPEND_DMATXREADY_NotPending (0x0UL) /*!< Read: Not pending                                                    */
+  #define SPIS_INTPEND_DMATXREADY_Pending (0x1UL)    /*!< Read: Pending                                                        */
+
+/* DMATXBUSERROR @Bit 28 : Read pending status of interrupt for event DMATXBUSERROR */
+  #define SPIS_INTPEND_DMATXBUSERROR_Pos (28UL)      /*!< Position of DMATXBUSERROR field.                                     */
+  #define SPIS_INTPEND_DMATXBUSERROR_Msk (0x1UL << SPIS_INTPEND_DMATXBUSERROR_Pos) /*!< Bit mask of DMATXBUSERROR field.       */
+  #define SPIS_INTPEND_DMATXBUSERROR_Min (0x0UL)     /*!< Min enumerator value of DMATXBUSERROR field.                         */
+  #define SPIS_INTPEND_DMATXBUSERROR_Max (0x1UL)     /*!< Max enumerator value of DMATXBUSERROR field.                         */
+  #define SPIS_INTPEND_DMATXBUSERROR_NotPending (0x0UL) /*!< Read: Not pending                                                 */
+  #define SPIS_INTPEND_DMATXBUSERROR_Pending (0x1UL) /*!< Read: Pending                                                        */
 
 
 /* SPIS_SEMSTAT: Semaphore status register */
@@ -48873,9 +49083,7 @@ typedef struct {
 
 /* ============================================= Struct TAMPC_PROTECT_INTRESETEN ============================================= */
 /**
-  * @brief INTRESETEN [TAMPC_PROTECT_INTRESETEN] Trigger a reset when tamper is detected by the glitch detectors, signal
-            protector or CRACEN tamper detector.
-
+  * @brief INTRESETEN [TAMPC_PROTECT_INTRESETEN] Trigger a reset when tamper is detected by the internal detectors.
   */
 typedef struct {
   __IOM uint32_t  CTRL;                              /*!< (@ 0x00000000) Control register for internal tamper reset enable
@@ -49019,9 +49227,8 @@ typedef struct {
   __IM  uint32_t  RESERVED4[8];
   __IOM NRF_TAMPC_PROTECT_EXTRESETEN_Type EXTRESETEN; /*!< (@ 0x00000470) Trigger a reset when tamper is detected by the
                                                                           external tamper detectors.*/
-  __IOM NRF_TAMPC_PROTECT_INTRESETEN_Type INTRESETEN; /*!< (@ 0x00000478) Trigger a reset when tamper is detected by the glitch
-                                                                          detectors, signal protector or CRACEN tamper
-                                                                          detector.*/
+  __IOM NRF_TAMPC_PROTECT_INTRESETEN_Type INTRESETEN; /*!< (@ 0x00000478) Trigger a reset when tamper is detected by the
+                                                                          internal detectors.*/
   __IOM NRF_TAMPC_PROTECT_ERASEPROTECT_Type ERASEPROTECT; /*!< (@ 0x00000480) Device erase protection.                         */
 } NRF_TAMPC_PROTECT_Type;                            /*!< Size = 1160 (0x488)                                                  */
 
@@ -50056,7 +50263,11 @@ typedef struct {
                                                                          and TX DMA transfers have completed. An initial MAXCNT
                                                                          event is also triggered on the first active edge of
                                                                          FSYNC after the START task is issued.*/
-    __IM uint32_t RESERVED4[24];
+    __IOM uint32_t EVENTS_BUSERROR_RX;               /*!< (@ 0x00000124) This event is generated if an error occurs during the
+                                                                         bus transfer.*/
+    __IOM uint32_t EVENTS_BUSERROR_TX;               /*!< (@ 0x00000128) This event is generated if an error occurs during the
+                                                                         bus transfer.*/
+    __IM uint32_t RESERVED4[22];
     __IOM uint32_t PUBLISH_RXPTRUPD;                 /*!< (@ 0x00000184) Publish configuration for event RXPTRUPD              */
     __IOM uint32_t PUBLISH_STOPPED;                  /*!< (@ 0x00000188) Publish configuration for event STOPPED               */
     __IOM uint32_t PUBLISH_ABORTED;                  /*!< (@ 0x0000018C) Publish configuration for event ABORTED               */
@@ -50064,7 +50275,9 @@ typedef struct {
     __IOM uint32_t PUBLISH_TXPTRUPD;                 /*!< (@ 0x00000198) Publish configuration for event TXPTRUPD              */
     __IM uint32_t RESERVED6;
     __IOM uint32_t PUBLISH_MAXCNT;                   /*!< (@ 0x000001A0) Publish configuration for event MAXCNT                */
-    __IM uint32_t RESERVED7[87];
+    __IOM uint32_t PUBLISH_BUSERROR_RX;              /*!< (@ 0x000001A4) Publish configuration for event BUSERROR_RX           */
+    __IOM uint32_t PUBLISH_BUSERROR_TX;              /*!< (@ 0x000001A8) Publish configuration for event BUSERROR_TX           */
+    __IM uint32_t RESERVED7[85];
     __IOM uint32_t INTEN;                            /*!< (@ 0x00000300) Enable or disable interrupt                           */
     __IOM uint32_t INTENSET;                         /*!< (@ 0x00000304) Enable interrupt                                      */
     __IOM uint32_t INTENCLR;                         /*!< (@ 0x00000308) Disable interrupt                                     */
@@ -50252,6 +50465,32 @@ typedef struct {
   #define TDM_EVENTS_MAXCNT_EVENTS_MAXCNT_Generated (0x1UL) /*!< Event generated                                               */
 
 
+/* TDM_EVENTS_BUSERROR_RX: This event is generated if an error occurs during the bus transfer. */
+  #define TDM_EVENTS_BUSERROR_RX_ResetValue (0x00000000UL) /*!< Reset value of EVENTS_BUSERROR_RX register.                    */
+
+/* EVENTS_BUSERROR_RX @Bit 0 : This event is generated if an error occurs during the bus transfer. */
+  #define TDM_EVENTS_BUSERROR_RX_EVENTS_BUSERROR_RX_Pos (0UL) /*!< Position of EVENTS_BUSERROR_RX field.                       */
+  #define TDM_EVENTS_BUSERROR_RX_EVENTS_BUSERROR_RX_Msk (0x1UL << TDM_EVENTS_BUSERROR_RX_EVENTS_BUSERROR_RX_Pos) /*!< Bit mask
+                                                                            of EVENTS_BUSERROR_RX field.*/
+  #define TDM_EVENTS_BUSERROR_RX_EVENTS_BUSERROR_RX_Min (0x0UL) /*!< Min enumerator value of EVENTS_BUSERROR_RX field.         */
+  #define TDM_EVENTS_BUSERROR_RX_EVENTS_BUSERROR_RX_Max (0x1UL) /*!< Max enumerator value of EVENTS_BUSERROR_RX field.         */
+  #define TDM_EVENTS_BUSERROR_RX_EVENTS_BUSERROR_RX_NotGenerated (0x0UL) /*!< Event not generated                              */
+  #define TDM_EVENTS_BUSERROR_RX_EVENTS_BUSERROR_RX_Generated (0x1UL) /*!< Event generated                                     */
+
+
+/* TDM_EVENTS_BUSERROR_TX: This event is generated if an error occurs during the bus transfer. */
+  #define TDM_EVENTS_BUSERROR_TX_ResetValue (0x00000000UL) /*!< Reset value of EVENTS_BUSERROR_TX register.                    */
+
+/* EVENTS_BUSERROR_TX @Bit 0 : This event is generated if an error occurs during the bus transfer. */
+  #define TDM_EVENTS_BUSERROR_TX_EVENTS_BUSERROR_TX_Pos (0UL) /*!< Position of EVENTS_BUSERROR_TX field.                       */
+  #define TDM_EVENTS_BUSERROR_TX_EVENTS_BUSERROR_TX_Msk (0x1UL << TDM_EVENTS_BUSERROR_TX_EVENTS_BUSERROR_TX_Pos) /*!< Bit mask
+                                                                            of EVENTS_BUSERROR_TX field.*/
+  #define TDM_EVENTS_BUSERROR_TX_EVENTS_BUSERROR_TX_Min (0x0UL) /*!< Min enumerator value of EVENTS_BUSERROR_TX field.         */
+  #define TDM_EVENTS_BUSERROR_TX_EVENTS_BUSERROR_TX_Max (0x1UL) /*!< Max enumerator value of EVENTS_BUSERROR_TX field.         */
+  #define TDM_EVENTS_BUSERROR_TX_EVENTS_BUSERROR_TX_NotGenerated (0x0UL) /*!< Event not generated                              */
+  #define TDM_EVENTS_BUSERROR_TX_EVENTS_BUSERROR_TX_Generated (0x1UL) /*!< Event generated                                     */
+
+
 /* TDM_PUBLISH_RXPTRUPD: Publish configuration for event RXPTRUPD */
   #define TDM_PUBLISH_RXPTRUPD_ResetValue (0x00000000UL) /*!< Reset value of PUBLISH_RXPTRUPD register.                        */
 
@@ -50342,6 +50581,42 @@ typedef struct {
   #define TDM_PUBLISH_MAXCNT_EN_Enabled (0x1UL)      /*!< Enable publishing                                                    */
 
 
+/* TDM_PUBLISH_BUSERROR_RX: Publish configuration for event BUSERROR_RX */
+  #define TDM_PUBLISH_BUSERROR_RX_ResetValue (0x00000000UL) /*!< Reset value of PUBLISH_BUSERROR_RX register.                  */
+
+/* CHIDX @Bits 0..7 : DPPI channel that event BUSERROR_RX will publish to */
+  #define TDM_PUBLISH_BUSERROR_RX_CHIDX_Pos (0UL)    /*!< Position of CHIDX field.                                             */
+  #define TDM_PUBLISH_BUSERROR_RX_CHIDX_Msk (0xFFUL << TDM_PUBLISH_BUSERROR_RX_CHIDX_Pos) /*!< Bit mask of CHIDX field.        */
+  #define TDM_PUBLISH_BUSERROR_RX_CHIDX_Min (0x00UL) /*!< Min value of CHIDX field.                                            */
+  #define TDM_PUBLISH_BUSERROR_RX_CHIDX_Max (0xFFUL) /*!< Max size of CHIDX field.                                             */
+
+/* EN @Bit 31 : (unspecified) */
+  #define TDM_PUBLISH_BUSERROR_RX_EN_Pos (31UL)      /*!< Position of EN field.                                                */
+  #define TDM_PUBLISH_BUSERROR_RX_EN_Msk (0x1UL << TDM_PUBLISH_BUSERROR_RX_EN_Pos) /*!< Bit mask of EN field.                  */
+  #define TDM_PUBLISH_BUSERROR_RX_EN_Min (0x0UL)     /*!< Min enumerator value of EN field.                                    */
+  #define TDM_PUBLISH_BUSERROR_RX_EN_Max (0x1UL)     /*!< Max enumerator value of EN field.                                    */
+  #define TDM_PUBLISH_BUSERROR_RX_EN_Disabled (0x0UL) /*!< Disable publishing                                                  */
+  #define TDM_PUBLISH_BUSERROR_RX_EN_Enabled (0x1UL) /*!< Enable publishing                                                    */
+
+
+/* TDM_PUBLISH_BUSERROR_TX: Publish configuration for event BUSERROR_TX */
+  #define TDM_PUBLISH_BUSERROR_TX_ResetValue (0x00000000UL) /*!< Reset value of PUBLISH_BUSERROR_TX register.                  */
+
+/* CHIDX @Bits 0..7 : DPPI channel that event BUSERROR_TX will publish to */
+  #define TDM_PUBLISH_BUSERROR_TX_CHIDX_Pos (0UL)    /*!< Position of CHIDX field.                                             */
+  #define TDM_PUBLISH_BUSERROR_TX_CHIDX_Msk (0xFFUL << TDM_PUBLISH_BUSERROR_TX_CHIDX_Pos) /*!< Bit mask of CHIDX field.        */
+  #define TDM_PUBLISH_BUSERROR_TX_CHIDX_Min (0x00UL) /*!< Min value of CHIDX field.                                            */
+  #define TDM_PUBLISH_BUSERROR_TX_CHIDX_Max (0xFFUL) /*!< Max size of CHIDX field.                                             */
+
+/* EN @Bit 31 : (unspecified) */
+  #define TDM_PUBLISH_BUSERROR_TX_EN_Pos (31UL)      /*!< Position of EN field.                                                */
+  #define TDM_PUBLISH_BUSERROR_TX_EN_Msk (0x1UL << TDM_PUBLISH_BUSERROR_TX_EN_Pos) /*!< Bit mask of EN field.                  */
+  #define TDM_PUBLISH_BUSERROR_TX_EN_Min (0x0UL)     /*!< Min enumerator value of EN field.                                    */
+  #define TDM_PUBLISH_BUSERROR_TX_EN_Max (0x1UL)     /*!< Max enumerator value of EN field.                                    */
+  #define TDM_PUBLISH_BUSERROR_TX_EN_Disabled (0x0UL) /*!< Disable publishing                                                  */
+  #define TDM_PUBLISH_BUSERROR_TX_EN_Enabled (0x1UL) /*!< Enable publishing                                                    */
+
+
 /* TDM_INTEN: Enable or disable interrupt */
   #define TDM_INTEN_ResetValue (0x00000000UL)        /*!< Reset value of INTEN register.                                       */
 
@@ -50384,6 +50659,22 @@ typedef struct {
   #define TDM_INTEN_MAXCNT_Max (0x1UL)               /*!< Max enumerator value of MAXCNT field.                                */
   #define TDM_INTEN_MAXCNT_Disabled (0x0UL)          /*!< Disable                                                              */
   #define TDM_INTEN_MAXCNT_Enabled (0x1UL)           /*!< Enable                                                               */
+
+/* BUSERROR_RX @Bit 9 : Enable or disable interrupt for event BUSERROR_RX */
+  #define TDM_INTEN_BUSERROR_RX_Pos (9UL)            /*!< Position of BUSERROR_RX field.                                       */
+  #define TDM_INTEN_BUSERROR_RX_Msk (0x1UL << TDM_INTEN_BUSERROR_RX_Pos) /*!< Bit mask of BUSERROR_RX field.                   */
+  #define TDM_INTEN_BUSERROR_RX_Min (0x0UL)          /*!< Min enumerator value of BUSERROR_RX field.                           */
+  #define TDM_INTEN_BUSERROR_RX_Max (0x1UL)          /*!< Max enumerator value of BUSERROR_RX field.                           */
+  #define TDM_INTEN_BUSERROR_RX_Disabled (0x0UL)     /*!< Disable                                                              */
+  #define TDM_INTEN_BUSERROR_RX_Enabled (0x1UL)      /*!< Enable                                                               */
+
+/* BUSERROR_TX @Bit 10 : Enable or disable interrupt for event BUSERROR_TX */
+  #define TDM_INTEN_BUSERROR_TX_Pos (10UL)           /*!< Position of BUSERROR_TX field.                                       */
+  #define TDM_INTEN_BUSERROR_TX_Msk (0x1UL << TDM_INTEN_BUSERROR_TX_Pos) /*!< Bit mask of BUSERROR_TX field.                   */
+  #define TDM_INTEN_BUSERROR_TX_Min (0x0UL)          /*!< Min enumerator value of BUSERROR_TX field.                           */
+  #define TDM_INTEN_BUSERROR_TX_Max (0x1UL)          /*!< Max enumerator value of BUSERROR_TX field.                           */
+  #define TDM_INTEN_BUSERROR_TX_Disabled (0x0UL)     /*!< Disable                                                              */
+  #define TDM_INTEN_BUSERROR_TX_Enabled (0x1UL)      /*!< Enable                                                               */
 
 
 /* TDM_INTENSET: Enable interrupt */
@@ -50434,6 +50725,24 @@ typedef struct {
   #define TDM_INTENSET_MAXCNT_Disabled (0x0UL)       /*!< Read: Disabled                                                       */
   #define TDM_INTENSET_MAXCNT_Enabled (0x1UL)        /*!< Read: Enabled                                                        */
 
+/* BUSERROR_RX @Bit 9 : Write '1' to enable interrupt for event BUSERROR_RX */
+  #define TDM_INTENSET_BUSERROR_RX_Pos (9UL)         /*!< Position of BUSERROR_RX field.                                       */
+  #define TDM_INTENSET_BUSERROR_RX_Msk (0x1UL << TDM_INTENSET_BUSERROR_RX_Pos) /*!< Bit mask of BUSERROR_RX field.             */
+  #define TDM_INTENSET_BUSERROR_RX_Min (0x0UL)       /*!< Min enumerator value of BUSERROR_RX field.                           */
+  #define TDM_INTENSET_BUSERROR_RX_Max (0x1UL)       /*!< Max enumerator value of BUSERROR_RX field.                           */
+  #define TDM_INTENSET_BUSERROR_RX_Set (0x1UL)       /*!< Enable                                                               */
+  #define TDM_INTENSET_BUSERROR_RX_Disabled (0x0UL)  /*!< Read: Disabled                                                       */
+  #define TDM_INTENSET_BUSERROR_RX_Enabled (0x1UL)   /*!< Read: Enabled                                                        */
+
+/* BUSERROR_TX @Bit 10 : Write '1' to enable interrupt for event BUSERROR_TX */
+  #define TDM_INTENSET_BUSERROR_TX_Pos (10UL)        /*!< Position of BUSERROR_TX field.                                       */
+  #define TDM_INTENSET_BUSERROR_TX_Msk (0x1UL << TDM_INTENSET_BUSERROR_TX_Pos) /*!< Bit mask of BUSERROR_TX field.             */
+  #define TDM_INTENSET_BUSERROR_TX_Min (0x0UL)       /*!< Min enumerator value of BUSERROR_TX field.                           */
+  #define TDM_INTENSET_BUSERROR_TX_Max (0x1UL)       /*!< Max enumerator value of BUSERROR_TX field.                           */
+  #define TDM_INTENSET_BUSERROR_TX_Set (0x1UL)       /*!< Enable                                                               */
+  #define TDM_INTENSET_BUSERROR_TX_Disabled (0x0UL)  /*!< Read: Disabled                                                       */
+  #define TDM_INTENSET_BUSERROR_TX_Enabled (0x1UL)   /*!< Read: Enabled                                                        */
+
 
 /* TDM_INTENCLR: Disable interrupt */
   #define TDM_INTENCLR_ResetValue (0x00000000UL)     /*!< Reset value of INTENCLR register.                                    */
@@ -50483,6 +50792,24 @@ typedef struct {
   #define TDM_INTENCLR_MAXCNT_Disabled (0x0UL)       /*!< Read: Disabled                                                       */
   #define TDM_INTENCLR_MAXCNT_Enabled (0x1UL)        /*!< Read: Enabled                                                        */
 
+/* BUSERROR_RX @Bit 9 : Write '1' to disable interrupt for event BUSERROR_RX */
+  #define TDM_INTENCLR_BUSERROR_RX_Pos (9UL)         /*!< Position of BUSERROR_RX field.                                       */
+  #define TDM_INTENCLR_BUSERROR_RX_Msk (0x1UL << TDM_INTENCLR_BUSERROR_RX_Pos) /*!< Bit mask of BUSERROR_RX field.             */
+  #define TDM_INTENCLR_BUSERROR_RX_Min (0x0UL)       /*!< Min enumerator value of BUSERROR_RX field.                           */
+  #define TDM_INTENCLR_BUSERROR_RX_Max (0x1UL)       /*!< Max enumerator value of BUSERROR_RX field.                           */
+  #define TDM_INTENCLR_BUSERROR_RX_Clear (0x1UL)     /*!< Disable                                                              */
+  #define TDM_INTENCLR_BUSERROR_RX_Disabled (0x0UL)  /*!< Read: Disabled                                                       */
+  #define TDM_INTENCLR_BUSERROR_RX_Enabled (0x1UL)   /*!< Read: Enabled                                                        */
+
+/* BUSERROR_TX @Bit 10 : Write '1' to disable interrupt for event BUSERROR_TX */
+  #define TDM_INTENCLR_BUSERROR_TX_Pos (10UL)        /*!< Position of BUSERROR_TX field.                                       */
+  #define TDM_INTENCLR_BUSERROR_TX_Msk (0x1UL << TDM_INTENCLR_BUSERROR_TX_Pos) /*!< Bit mask of BUSERROR_TX field.             */
+  #define TDM_INTENCLR_BUSERROR_TX_Min (0x0UL)       /*!< Min enumerator value of BUSERROR_TX field.                           */
+  #define TDM_INTENCLR_BUSERROR_TX_Max (0x1UL)       /*!< Max enumerator value of BUSERROR_TX field.                           */
+  #define TDM_INTENCLR_BUSERROR_TX_Clear (0x1UL)     /*!< Disable                                                              */
+  #define TDM_INTENCLR_BUSERROR_TX_Disabled (0x0UL)  /*!< Read: Disabled                                                       */
+  #define TDM_INTENCLR_BUSERROR_TX_Enabled (0x1UL)   /*!< Read: Enabled                                                        */
+
 
 /* TDM_INTPEND: Pending interrupts */
   #define TDM_INTPEND_ResetValue (0x00000000UL)      /*!< Reset value of INTPEND register.                                     */
@@ -50526,6 +50853,22 @@ typedef struct {
   #define TDM_INTPEND_MAXCNT_Max (0x1UL)             /*!< Max enumerator value of MAXCNT field.                                */
   #define TDM_INTPEND_MAXCNT_NotPending (0x0UL)      /*!< Read: Not pending                                                    */
   #define TDM_INTPEND_MAXCNT_Pending (0x1UL)         /*!< Read: Pending                                                        */
+
+/* BUSERROR_RX @Bit 9 : Read pending status of interrupt for event BUSERROR_RX */
+  #define TDM_INTPEND_BUSERROR_RX_Pos (9UL)          /*!< Position of BUSERROR_RX field.                                       */
+  #define TDM_INTPEND_BUSERROR_RX_Msk (0x1UL << TDM_INTPEND_BUSERROR_RX_Pos) /*!< Bit mask of BUSERROR_RX field.               */
+  #define TDM_INTPEND_BUSERROR_RX_Min (0x0UL)        /*!< Min enumerator value of BUSERROR_RX field.                           */
+  #define TDM_INTPEND_BUSERROR_RX_Max (0x1UL)        /*!< Max enumerator value of BUSERROR_RX field.                           */
+  #define TDM_INTPEND_BUSERROR_RX_NotPending (0x0UL) /*!< Read: Not pending                                                    */
+  #define TDM_INTPEND_BUSERROR_RX_Pending (0x1UL)    /*!< Read: Pending                                                        */
+
+/* BUSERROR_TX @Bit 10 : Read pending status of interrupt for event BUSERROR_TX */
+  #define TDM_INTPEND_BUSERROR_TX_Pos (10UL)         /*!< Position of BUSERROR_TX field.                                       */
+  #define TDM_INTPEND_BUSERROR_TX_Msk (0x1UL << TDM_INTPEND_BUSERROR_TX_Pos) /*!< Bit mask of BUSERROR_TX field.               */
+  #define TDM_INTPEND_BUSERROR_TX_Min (0x0UL)        /*!< Min enumerator value of BUSERROR_TX field.                           */
+  #define TDM_INTPEND_BUSERROR_TX_Max (0x1UL)        /*!< Max enumerator value of BUSERROR_TX field.                           */
+  #define TDM_INTPEND_BUSERROR_TX_NotPending (0x0UL) /*!< Read: Not pending                                                    */
+  #define TDM_INTPEND_BUSERROR_TX_Pending (0x1UL)    /*!< Read: Pending                                                        */
 
 
 /* TDM_ENABLE: Enable TDM */
@@ -54245,7 +54588,8 @@ typedef struct {
     __IOM uint32_t INTEN;                            /*!< (@ 0x00000300) Enable or disable interrupt                           */
     __IOM uint32_t INTENSET;                         /*!< (@ 0x00000304) Enable interrupt                                      */
     __IOM uint32_t INTENCLR;                         /*!< (@ 0x00000308) Disable interrupt                                     */
-    __IM uint32_t RESERVED18[113];
+    __IM uint32_t INTPEND;                           /*!< (@ 0x0000030C) Pending interrupts                                    */
+    __IM uint32_t RESERVED18[112];
     __IOM uint32_t ERRORSRC;                         /*!< (@ 0x000004D0) Error source                                          */
     __IM uint32_t MATCH;                             /*!< (@ 0x000004D4) Status register indicating which address had a match  */
     __IM uint32_t RESERVED19[10];
@@ -55032,16 +55376,132 @@ typedef struct {
   #define TWIS_INTENCLR_DMATXBUSERROR_Enabled (0x1UL) /*!< Read: Enabled                                                       */
 
 
+/* TWIS_INTPEND: Pending interrupts */
+  #define TWIS_INTPEND_ResetValue (0x00000000UL)     /*!< Reset value of INTPEND register.                                     */
+
+/* STOPPED @Bit 1 : Read pending status of interrupt for event STOPPED */
+  #define TWIS_INTPEND_STOPPED_Pos (1UL)             /*!< Position of STOPPED field.                                           */
+  #define TWIS_INTPEND_STOPPED_Msk (0x1UL << TWIS_INTPEND_STOPPED_Pos) /*!< Bit mask of STOPPED field.                         */
+  #define TWIS_INTPEND_STOPPED_Min (0x0UL)           /*!< Min enumerator value of STOPPED field.                               */
+  #define TWIS_INTPEND_STOPPED_Max (0x1UL)           /*!< Max enumerator value of STOPPED field.                               */
+  #define TWIS_INTPEND_STOPPED_NotPending (0x0UL)    /*!< Read: Not pending                                                    */
+  #define TWIS_INTPEND_STOPPED_Pending (0x1UL)       /*!< Read: Pending                                                        */
+
+/* ERROR @Bit 5 : Read pending status of interrupt for event ERROR */
+  #define TWIS_INTPEND_ERROR_Pos (5UL)               /*!< Position of ERROR field.                                             */
+  #define TWIS_INTPEND_ERROR_Msk (0x1UL << TWIS_INTPEND_ERROR_Pos) /*!< Bit mask of ERROR field.                               */
+  #define TWIS_INTPEND_ERROR_Min (0x0UL)             /*!< Min enumerator value of ERROR field.                                 */
+  #define TWIS_INTPEND_ERROR_Max (0x1UL)             /*!< Max enumerator value of ERROR field.                                 */
+  #define TWIS_INTPEND_ERROR_NotPending (0x0UL)      /*!< Read: Not pending                                                    */
+  #define TWIS_INTPEND_ERROR_Pending (0x1UL)         /*!< Read: Pending                                                        */
+
+/* WRITE @Bit 15 : Read pending status of interrupt for event WRITE */
+  #define TWIS_INTPEND_WRITE_Pos (15UL)              /*!< Position of WRITE field.                                             */
+  #define TWIS_INTPEND_WRITE_Msk (0x1UL << TWIS_INTPEND_WRITE_Pos) /*!< Bit mask of WRITE field.                               */
+  #define TWIS_INTPEND_WRITE_Min (0x0UL)             /*!< Min enumerator value of WRITE field.                                 */
+  #define TWIS_INTPEND_WRITE_Max (0x1UL)             /*!< Max enumerator value of WRITE field.                                 */
+  #define TWIS_INTPEND_WRITE_NotPending (0x0UL)      /*!< Read: Not pending                                                    */
+  #define TWIS_INTPEND_WRITE_Pending (0x1UL)         /*!< Read: Pending                                                        */
+
+/* READ @Bit 16 : Read pending status of interrupt for event READ */
+  #define TWIS_INTPEND_READ_Pos (16UL)               /*!< Position of READ field.                                              */
+  #define TWIS_INTPEND_READ_Msk (0x1UL << TWIS_INTPEND_READ_Pos) /*!< Bit mask of READ field.                                  */
+  #define TWIS_INTPEND_READ_Min (0x0UL)              /*!< Min enumerator value of READ field.                                  */
+  #define TWIS_INTPEND_READ_Max (0x1UL)              /*!< Max enumerator value of READ field.                                  */
+  #define TWIS_INTPEND_READ_NotPending (0x0UL)       /*!< Read: Not pending                                                    */
+  #define TWIS_INTPEND_READ_Pending (0x1UL)          /*!< Read: Pending                                                        */
+
+/* DMARXEND @Bit 19 : Read pending status of interrupt for event DMARXEND */
+  #define TWIS_INTPEND_DMARXEND_Pos (19UL)           /*!< Position of DMARXEND field.                                          */
+  #define TWIS_INTPEND_DMARXEND_Msk (0x1UL << TWIS_INTPEND_DMARXEND_Pos) /*!< Bit mask of DMARXEND field.                      */
+  #define TWIS_INTPEND_DMARXEND_Min (0x0UL)          /*!< Min enumerator value of DMARXEND field.                              */
+  #define TWIS_INTPEND_DMARXEND_Max (0x1UL)          /*!< Max enumerator value of DMARXEND field.                              */
+  #define TWIS_INTPEND_DMARXEND_NotPending (0x0UL)   /*!< Read: Not pending                                                    */
+  #define TWIS_INTPEND_DMARXEND_Pending (0x1UL)      /*!< Read: Pending                                                        */
+
+/* DMARXREADY @Bit 20 : Read pending status of interrupt for event DMARXREADY */
+  #define TWIS_INTPEND_DMARXREADY_Pos (20UL)         /*!< Position of DMARXREADY field.                                        */
+  #define TWIS_INTPEND_DMARXREADY_Msk (0x1UL << TWIS_INTPEND_DMARXREADY_Pos) /*!< Bit mask of DMARXREADY field.                */
+  #define TWIS_INTPEND_DMARXREADY_Min (0x0UL)        /*!< Min enumerator value of DMARXREADY field.                            */
+  #define TWIS_INTPEND_DMARXREADY_Max (0x1UL)        /*!< Max enumerator value of DMARXREADY field.                            */
+  #define TWIS_INTPEND_DMARXREADY_NotPending (0x0UL) /*!< Read: Not pending                                                    */
+  #define TWIS_INTPEND_DMARXREADY_Pending (0x1UL)    /*!< Read: Pending                                                        */
+
+/* DMARXBUSERROR @Bit 21 : Read pending status of interrupt for event DMARXBUSERROR */
+  #define TWIS_INTPEND_DMARXBUSERROR_Pos (21UL)      /*!< Position of DMARXBUSERROR field.                                     */
+  #define TWIS_INTPEND_DMARXBUSERROR_Msk (0x1UL << TWIS_INTPEND_DMARXBUSERROR_Pos) /*!< Bit mask of DMARXBUSERROR field.       */
+  #define TWIS_INTPEND_DMARXBUSERROR_Min (0x0UL)     /*!< Min enumerator value of DMARXBUSERROR field.                         */
+  #define TWIS_INTPEND_DMARXBUSERROR_Max (0x1UL)     /*!< Max enumerator value of DMARXBUSERROR field.                         */
+  #define TWIS_INTPEND_DMARXBUSERROR_NotPending (0x0UL) /*!< Read: Not pending                                                 */
+  #define TWIS_INTPEND_DMARXBUSERROR_Pending (0x1UL) /*!< Read: Pending                                                        */
+
+/* DMARXMATCH0 @Bit 22 : Read pending status of interrupt for event DMARXMATCH[0] */
+  #define TWIS_INTPEND_DMARXMATCH0_Pos (22UL)        /*!< Position of DMARXMATCH0 field.                                       */
+  #define TWIS_INTPEND_DMARXMATCH0_Msk (0x1UL << TWIS_INTPEND_DMARXMATCH0_Pos) /*!< Bit mask of DMARXMATCH0 field.             */
+  #define TWIS_INTPEND_DMARXMATCH0_Min (0x0UL)       /*!< Min enumerator value of DMARXMATCH0 field.                           */
+  #define TWIS_INTPEND_DMARXMATCH0_Max (0x1UL)       /*!< Max enumerator value of DMARXMATCH0 field.                           */
+  #define TWIS_INTPEND_DMARXMATCH0_NotPending (0x0UL) /*!< Read: Not pending                                                   */
+  #define TWIS_INTPEND_DMARXMATCH0_Pending (0x1UL)   /*!< Read: Pending                                                        */
+
+/* DMARXMATCH1 @Bit 23 : Read pending status of interrupt for event DMARXMATCH[1] */
+  #define TWIS_INTPEND_DMARXMATCH1_Pos (23UL)        /*!< Position of DMARXMATCH1 field.                                       */
+  #define TWIS_INTPEND_DMARXMATCH1_Msk (0x1UL << TWIS_INTPEND_DMARXMATCH1_Pos) /*!< Bit mask of DMARXMATCH1 field.             */
+  #define TWIS_INTPEND_DMARXMATCH1_Min (0x0UL)       /*!< Min enumerator value of DMARXMATCH1 field.                           */
+  #define TWIS_INTPEND_DMARXMATCH1_Max (0x1UL)       /*!< Max enumerator value of DMARXMATCH1 field.                           */
+  #define TWIS_INTPEND_DMARXMATCH1_NotPending (0x0UL) /*!< Read: Not pending                                                   */
+  #define TWIS_INTPEND_DMARXMATCH1_Pending (0x1UL)   /*!< Read: Pending                                                        */
+
+/* DMARXMATCH2 @Bit 24 : Read pending status of interrupt for event DMARXMATCH[2] */
+  #define TWIS_INTPEND_DMARXMATCH2_Pos (24UL)        /*!< Position of DMARXMATCH2 field.                                       */
+  #define TWIS_INTPEND_DMARXMATCH2_Msk (0x1UL << TWIS_INTPEND_DMARXMATCH2_Pos) /*!< Bit mask of DMARXMATCH2 field.             */
+  #define TWIS_INTPEND_DMARXMATCH2_Min (0x0UL)       /*!< Min enumerator value of DMARXMATCH2 field.                           */
+  #define TWIS_INTPEND_DMARXMATCH2_Max (0x1UL)       /*!< Max enumerator value of DMARXMATCH2 field.                           */
+  #define TWIS_INTPEND_DMARXMATCH2_NotPending (0x0UL) /*!< Read: Not pending                                                   */
+  #define TWIS_INTPEND_DMARXMATCH2_Pending (0x1UL)   /*!< Read: Pending                                                        */
+
+/* DMARXMATCH3 @Bit 25 : Read pending status of interrupt for event DMARXMATCH[3] */
+  #define TWIS_INTPEND_DMARXMATCH3_Pos (25UL)        /*!< Position of DMARXMATCH3 field.                                       */
+  #define TWIS_INTPEND_DMARXMATCH3_Msk (0x1UL << TWIS_INTPEND_DMARXMATCH3_Pos) /*!< Bit mask of DMARXMATCH3 field.             */
+  #define TWIS_INTPEND_DMARXMATCH3_Min (0x0UL)       /*!< Min enumerator value of DMARXMATCH3 field.                           */
+  #define TWIS_INTPEND_DMARXMATCH3_Max (0x1UL)       /*!< Max enumerator value of DMARXMATCH3 field.                           */
+  #define TWIS_INTPEND_DMARXMATCH3_NotPending (0x0UL) /*!< Read: Not pending                                                   */
+  #define TWIS_INTPEND_DMARXMATCH3_Pending (0x1UL)   /*!< Read: Pending                                                        */
+
+/* DMATXEND @Bit 26 : Read pending status of interrupt for event DMATXEND */
+  #define TWIS_INTPEND_DMATXEND_Pos (26UL)           /*!< Position of DMATXEND field.                                          */
+  #define TWIS_INTPEND_DMATXEND_Msk (0x1UL << TWIS_INTPEND_DMATXEND_Pos) /*!< Bit mask of DMATXEND field.                      */
+  #define TWIS_INTPEND_DMATXEND_Min (0x0UL)          /*!< Min enumerator value of DMATXEND field.                              */
+  #define TWIS_INTPEND_DMATXEND_Max (0x1UL)          /*!< Max enumerator value of DMATXEND field.                              */
+  #define TWIS_INTPEND_DMATXEND_NotPending (0x0UL)   /*!< Read: Not pending                                                    */
+  #define TWIS_INTPEND_DMATXEND_Pending (0x1UL)      /*!< Read: Pending                                                        */
+
+/* DMATXREADY @Bit 27 : Read pending status of interrupt for event DMATXREADY */
+  #define TWIS_INTPEND_DMATXREADY_Pos (27UL)         /*!< Position of DMATXREADY field.                                        */
+  #define TWIS_INTPEND_DMATXREADY_Msk (0x1UL << TWIS_INTPEND_DMATXREADY_Pos) /*!< Bit mask of DMATXREADY field.                */
+  #define TWIS_INTPEND_DMATXREADY_Min (0x0UL)        /*!< Min enumerator value of DMATXREADY field.                            */
+  #define TWIS_INTPEND_DMATXREADY_Max (0x1UL)        /*!< Max enumerator value of DMATXREADY field.                            */
+  #define TWIS_INTPEND_DMATXREADY_NotPending (0x0UL) /*!< Read: Not pending                                                    */
+  #define TWIS_INTPEND_DMATXREADY_Pending (0x1UL)    /*!< Read: Pending                                                        */
+
+/* DMATXBUSERROR @Bit 28 : Read pending status of interrupt for event DMATXBUSERROR */
+  #define TWIS_INTPEND_DMATXBUSERROR_Pos (28UL)      /*!< Position of DMATXBUSERROR field.                                     */
+  #define TWIS_INTPEND_DMATXBUSERROR_Msk (0x1UL << TWIS_INTPEND_DMATXBUSERROR_Pos) /*!< Bit mask of DMATXBUSERROR field.       */
+  #define TWIS_INTPEND_DMATXBUSERROR_Min (0x0UL)     /*!< Min enumerator value of DMATXBUSERROR field.                         */
+  #define TWIS_INTPEND_DMATXBUSERROR_Max (0x1UL)     /*!< Max enumerator value of DMATXBUSERROR field.                         */
+  #define TWIS_INTPEND_DMATXBUSERROR_NotPending (0x0UL) /*!< Read: Not pending                                                 */
+  #define TWIS_INTPEND_DMATXBUSERROR_Pending (0x1UL) /*!< Read: Pending                                                        */
+
+
 /* TWIS_ERRORSRC: Error source */
   #define TWIS_ERRORSRC_ResetValue (0x00000000UL)    /*!< Reset value of ERRORSRC register.                                    */
 
-/* OVERFLOW @Bit 0 : RX buffer overflow detected, and prevented */
-  #define TWIS_ERRORSRC_OVERFLOW_Pos (0UL)           /*!< Position of OVERFLOW field.                                          */
-  #define TWIS_ERRORSRC_OVERFLOW_Msk (0x1UL << TWIS_ERRORSRC_OVERFLOW_Pos) /*!< Bit mask of OVERFLOW field.                    */
-  #define TWIS_ERRORSRC_OVERFLOW_Min (0x0UL)         /*!< Min enumerator value of OVERFLOW field.                              */
-  #define TWIS_ERRORSRC_OVERFLOW_Max (0x1UL)         /*!< Max enumerator value of OVERFLOW field.                              */
-  #define TWIS_ERRORSRC_OVERFLOW_NotDetected (0x0UL) /*!< Error did not occur                                                  */
-  #define TWIS_ERRORSRC_OVERFLOW_Detected (0x1UL)    /*!< Error occurred                                                       */
+/* OVERREAD @Bit 0 : TX buffer over-read detected, and prevented */
+  #define TWIS_ERRORSRC_OVERREAD_Pos (0UL)           /*!< Position of OVERREAD field.                                          */
+  #define TWIS_ERRORSRC_OVERREAD_Msk (0x1UL << TWIS_ERRORSRC_OVERREAD_Pos) /*!< Bit mask of OVERREAD field.                    */
+  #define TWIS_ERRORSRC_OVERREAD_Min (0x0UL)         /*!< Min enumerator value of OVERREAD field.                              */
+  #define TWIS_ERRORSRC_OVERREAD_Max (0x1UL)         /*!< Max enumerator value of OVERREAD field.                              */
+  #define TWIS_ERRORSRC_OVERREAD_NotDetected (0x0UL) /*!< Error did not occur                                                  */
+  #define TWIS_ERRORSRC_OVERREAD_Detected (0x1UL)    /*!< Error occurred                                                       */
 
 /* DNACK @Bit 2 : NACK sent after receiving a data byte */
   #define TWIS_ERRORSRC_DNACK_Pos (2UL)              /*!< Position of DNACK field.                                             */
@@ -55051,13 +55511,13 @@ typedef struct {
   #define TWIS_ERRORSRC_DNACK_NotReceived (0x0UL)    /*!< Error did not occur                                                  */
   #define TWIS_ERRORSRC_DNACK_Received (0x1UL)       /*!< Error occurred                                                       */
 
-/* OVERREAD @Bit 3 : TX buffer over-read detected, and prevented */
-  #define TWIS_ERRORSRC_OVERREAD_Pos (3UL)           /*!< Position of OVERREAD field.                                          */
-  #define TWIS_ERRORSRC_OVERREAD_Msk (0x1UL << TWIS_ERRORSRC_OVERREAD_Pos) /*!< Bit mask of OVERREAD field.                    */
-  #define TWIS_ERRORSRC_OVERREAD_Min (0x0UL)         /*!< Min enumerator value of OVERREAD field.                              */
-  #define TWIS_ERRORSRC_OVERREAD_Max (0x1UL)         /*!< Max enumerator value of OVERREAD field.                              */
-  #define TWIS_ERRORSRC_OVERREAD_NotDetected (0x0UL) /*!< Error did not occur                                                  */
-  #define TWIS_ERRORSRC_OVERREAD_Detected (0x1UL)    /*!< Error occurred                                                       */
+/* OVERFLOW @Bit 3 : RX buffer overflow detected, and prevented */
+  #define TWIS_ERRORSRC_OVERFLOW_Pos (3UL)           /*!< Position of OVERFLOW field.                                          */
+  #define TWIS_ERRORSRC_OVERFLOW_Msk (0x1UL << TWIS_ERRORSRC_OVERFLOW_Pos) /*!< Bit mask of OVERFLOW field.                    */
+  #define TWIS_ERRORSRC_OVERFLOW_Min (0x0UL)         /*!< Min enumerator value of OVERFLOW field.                              */
+  #define TWIS_ERRORSRC_OVERFLOW_Max (0x1UL)         /*!< Max enumerator value of OVERFLOW field.                              */
+  #define TWIS_ERRORSRC_OVERFLOW_NotDetected (0x0UL) /*!< Error did not occur                                                  */
+  #define TWIS_ERRORSRC_OVERFLOW_Detected (0x1UL)    /*!< Error occurred                                                       */
 
 
 /* TWIS_MATCH: Status register indicating which address had a match */
@@ -56135,7 +56595,8 @@ typedef struct {
     __IOM uint32_t INTEN;                            /*!< (@ 0x00000300) Enable or disable interrupt                           */
     __IOM uint32_t INTENSET;                         /*!< (@ 0x00000304) Enable interrupt                                      */
     __IOM uint32_t INTENCLR;                         /*!< (@ 0x00000308) Disable interrupt                                     */
-    __IM uint32_t RESERVED16[93];
+    __IM uint32_t INTPEND;                           /*!< (@ 0x0000030C) Pending interrupts                                    */
+    __IM uint32_t RESERVED16[92];
     __IOM uint32_t ERRORSRC;                         /*!< (@ 0x00000480) Error source                                          */
     __IM uint32_t RESERVED17[31];
     __IOM uint32_t ENABLE;                           /*!< (@ 0x00000500) Enable UART                                           */
@@ -57094,6 +57555,154 @@ typedef struct {
   #define UARTE_INTENCLR_FRAMETIMEOUT_Enabled (0x1UL) /*!< Read: Enabled                                                       */
 
 
+/* UARTE_INTPEND: Pending interrupts */
+  #define UARTE_INTPEND_ResetValue (0x00000000UL)    /*!< Reset value of INTPEND register.                                     */
+
+/* CTS @Bit 0 : Read pending status of interrupt for event CTS */
+  #define UARTE_INTPEND_CTS_Pos (0UL)                /*!< Position of CTS field.                                               */
+  #define UARTE_INTPEND_CTS_Msk (0x1UL << UARTE_INTPEND_CTS_Pos) /*!< Bit mask of CTS field.                                   */
+  #define UARTE_INTPEND_CTS_Min (0x0UL)              /*!< Min enumerator value of CTS field.                                   */
+  #define UARTE_INTPEND_CTS_Max (0x1UL)              /*!< Max enumerator value of CTS field.                                   */
+  #define UARTE_INTPEND_CTS_NotPending (0x0UL)       /*!< Read: Not pending                                                    */
+  #define UARTE_INTPEND_CTS_Pending (0x1UL)          /*!< Read: Pending                                                        */
+
+/* NCTS @Bit 1 : Read pending status of interrupt for event NCTS */
+  #define UARTE_INTPEND_NCTS_Pos (1UL)               /*!< Position of NCTS field.                                              */
+  #define UARTE_INTPEND_NCTS_Msk (0x1UL << UARTE_INTPEND_NCTS_Pos) /*!< Bit mask of NCTS field.                                */
+  #define UARTE_INTPEND_NCTS_Min (0x0UL)             /*!< Min enumerator value of NCTS field.                                  */
+  #define UARTE_INTPEND_NCTS_Max (0x1UL)             /*!< Max enumerator value of NCTS field.                                  */
+  #define UARTE_INTPEND_NCTS_NotPending (0x0UL)      /*!< Read: Not pending                                                    */
+  #define UARTE_INTPEND_NCTS_Pending (0x1UL)         /*!< Read: Pending                                                        */
+
+/* TXDRDY @Bit 3 : Read pending status of interrupt for event TXDRDY */
+  #define UARTE_INTPEND_TXDRDY_Pos (3UL)             /*!< Position of TXDRDY field.                                            */
+  #define UARTE_INTPEND_TXDRDY_Msk (0x1UL << UARTE_INTPEND_TXDRDY_Pos) /*!< Bit mask of TXDRDY field.                          */
+  #define UARTE_INTPEND_TXDRDY_Min (0x0UL)           /*!< Min enumerator value of TXDRDY field.                                */
+  #define UARTE_INTPEND_TXDRDY_Max (0x1UL)           /*!< Max enumerator value of TXDRDY field.                                */
+  #define UARTE_INTPEND_TXDRDY_NotPending (0x0UL)    /*!< Read: Not pending                                                    */
+  #define UARTE_INTPEND_TXDRDY_Pending (0x1UL)       /*!< Read: Pending                                                        */
+
+/* RXDRDY @Bit 4 : Read pending status of interrupt for event RXDRDY */
+  #define UARTE_INTPEND_RXDRDY_Pos (4UL)             /*!< Position of RXDRDY field.                                            */
+  #define UARTE_INTPEND_RXDRDY_Msk (0x1UL << UARTE_INTPEND_RXDRDY_Pos) /*!< Bit mask of RXDRDY field.                          */
+  #define UARTE_INTPEND_RXDRDY_Min (0x0UL)           /*!< Min enumerator value of RXDRDY field.                                */
+  #define UARTE_INTPEND_RXDRDY_Max (0x1UL)           /*!< Max enumerator value of RXDRDY field.                                */
+  #define UARTE_INTPEND_RXDRDY_NotPending (0x0UL)    /*!< Read: Not pending                                                    */
+  #define UARTE_INTPEND_RXDRDY_Pending (0x1UL)       /*!< Read: Pending                                                        */
+
+/* ERROR @Bit 5 : Read pending status of interrupt for event ERROR */
+  #define UARTE_INTPEND_ERROR_Pos (5UL)              /*!< Position of ERROR field.                                             */
+  #define UARTE_INTPEND_ERROR_Msk (0x1UL << UARTE_INTPEND_ERROR_Pos) /*!< Bit mask of ERROR field.                             */
+  #define UARTE_INTPEND_ERROR_Min (0x0UL)            /*!< Min enumerator value of ERROR field.                                 */
+  #define UARTE_INTPEND_ERROR_Max (0x1UL)            /*!< Max enumerator value of ERROR field.                                 */
+  #define UARTE_INTPEND_ERROR_NotPending (0x0UL)     /*!< Read: Not pending                                                    */
+  #define UARTE_INTPEND_ERROR_Pending (0x1UL)        /*!< Read: Pending                                                        */
+
+/* RXTO @Bit 9 : Read pending status of interrupt for event RXTO */
+  #define UARTE_INTPEND_RXTO_Pos (9UL)               /*!< Position of RXTO field.                                              */
+  #define UARTE_INTPEND_RXTO_Msk (0x1UL << UARTE_INTPEND_RXTO_Pos) /*!< Bit mask of RXTO field.                                */
+  #define UARTE_INTPEND_RXTO_Min (0x0UL)             /*!< Min enumerator value of RXTO field.                                  */
+  #define UARTE_INTPEND_RXTO_Max (0x1UL)             /*!< Max enumerator value of RXTO field.                                  */
+  #define UARTE_INTPEND_RXTO_NotPending (0x0UL)      /*!< Read: Not pending                                                    */
+  #define UARTE_INTPEND_RXTO_Pending (0x1UL)         /*!< Read: Pending                                                        */
+
+/* TXSTOPPED @Bit 12 : Read pending status of interrupt for event TXSTOPPED */
+  #define UARTE_INTPEND_TXSTOPPED_Pos (12UL)         /*!< Position of TXSTOPPED field.                                         */
+  #define UARTE_INTPEND_TXSTOPPED_Msk (0x1UL << UARTE_INTPEND_TXSTOPPED_Pos) /*!< Bit mask of TXSTOPPED field.                 */
+  #define UARTE_INTPEND_TXSTOPPED_Min (0x0UL)        /*!< Min enumerator value of TXSTOPPED field.                             */
+  #define UARTE_INTPEND_TXSTOPPED_Max (0x1UL)        /*!< Max enumerator value of TXSTOPPED field.                             */
+  #define UARTE_INTPEND_TXSTOPPED_NotPending (0x0UL) /*!< Read: Not pending                                                    */
+  #define UARTE_INTPEND_TXSTOPPED_Pending (0x1UL)    /*!< Read: Pending                                                        */
+
+/* DMARXEND @Bit 19 : Read pending status of interrupt for event DMARXEND */
+  #define UARTE_INTPEND_DMARXEND_Pos (19UL)          /*!< Position of DMARXEND field.                                          */
+  #define UARTE_INTPEND_DMARXEND_Msk (0x1UL << UARTE_INTPEND_DMARXEND_Pos) /*!< Bit mask of DMARXEND field.                    */
+  #define UARTE_INTPEND_DMARXEND_Min (0x0UL)         /*!< Min enumerator value of DMARXEND field.                              */
+  #define UARTE_INTPEND_DMARXEND_Max (0x1UL)         /*!< Max enumerator value of DMARXEND field.                              */
+  #define UARTE_INTPEND_DMARXEND_NotPending (0x0UL)  /*!< Read: Not pending                                                    */
+  #define UARTE_INTPEND_DMARXEND_Pending (0x1UL)     /*!< Read: Pending                                                        */
+
+/* DMARXREADY @Bit 20 : Read pending status of interrupt for event DMARXREADY */
+  #define UARTE_INTPEND_DMARXREADY_Pos (20UL)        /*!< Position of DMARXREADY field.                                        */
+  #define UARTE_INTPEND_DMARXREADY_Msk (0x1UL << UARTE_INTPEND_DMARXREADY_Pos) /*!< Bit mask of DMARXREADY field.              */
+  #define UARTE_INTPEND_DMARXREADY_Min (0x0UL)       /*!< Min enumerator value of DMARXREADY field.                            */
+  #define UARTE_INTPEND_DMARXREADY_Max (0x1UL)       /*!< Max enumerator value of DMARXREADY field.                            */
+  #define UARTE_INTPEND_DMARXREADY_NotPending (0x0UL) /*!< Read: Not pending                                                   */
+  #define UARTE_INTPEND_DMARXREADY_Pending (0x1UL)   /*!< Read: Pending                                                        */
+
+/* DMARXBUSERROR @Bit 21 : Read pending status of interrupt for event DMARXBUSERROR */
+  #define UARTE_INTPEND_DMARXBUSERROR_Pos (21UL)     /*!< Position of DMARXBUSERROR field.                                     */
+  #define UARTE_INTPEND_DMARXBUSERROR_Msk (0x1UL << UARTE_INTPEND_DMARXBUSERROR_Pos) /*!< Bit mask of DMARXBUSERROR field.     */
+  #define UARTE_INTPEND_DMARXBUSERROR_Min (0x0UL)    /*!< Min enumerator value of DMARXBUSERROR field.                         */
+  #define UARTE_INTPEND_DMARXBUSERROR_Max (0x1UL)    /*!< Max enumerator value of DMARXBUSERROR field.                         */
+  #define UARTE_INTPEND_DMARXBUSERROR_NotPending (0x0UL) /*!< Read: Not pending                                                */
+  #define UARTE_INTPEND_DMARXBUSERROR_Pending (0x1UL) /*!< Read: Pending                                                       */
+
+/* DMARXMATCH0 @Bit 22 : Read pending status of interrupt for event DMARXMATCH[0] */
+  #define UARTE_INTPEND_DMARXMATCH0_Pos (22UL)       /*!< Position of DMARXMATCH0 field.                                       */
+  #define UARTE_INTPEND_DMARXMATCH0_Msk (0x1UL << UARTE_INTPEND_DMARXMATCH0_Pos) /*!< Bit mask of DMARXMATCH0 field.           */
+  #define UARTE_INTPEND_DMARXMATCH0_Min (0x0UL)      /*!< Min enumerator value of DMARXMATCH0 field.                           */
+  #define UARTE_INTPEND_DMARXMATCH0_Max (0x1UL)      /*!< Max enumerator value of DMARXMATCH0 field.                           */
+  #define UARTE_INTPEND_DMARXMATCH0_NotPending (0x0UL) /*!< Read: Not pending                                                  */
+  #define UARTE_INTPEND_DMARXMATCH0_Pending (0x1UL)  /*!< Read: Pending                                                        */
+
+/* DMARXMATCH1 @Bit 23 : Read pending status of interrupt for event DMARXMATCH[1] */
+  #define UARTE_INTPEND_DMARXMATCH1_Pos (23UL)       /*!< Position of DMARXMATCH1 field.                                       */
+  #define UARTE_INTPEND_DMARXMATCH1_Msk (0x1UL << UARTE_INTPEND_DMARXMATCH1_Pos) /*!< Bit mask of DMARXMATCH1 field.           */
+  #define UARTE_INTPEND_DMARXMATCH1_Min (0x0UL)      /*!< Min enumerator value of DMARXMATCH1 field.                           */
+  #define UARTE_INTPEND_DMARXMATCH1_Max (0x1UL)      /*!< Max enumerator value of DMARXMATCH1 field.                           */
+  #define UARTE_INTPEND_DMARXMATCH1_NotPending (0x0UL) /*!< Read: Not pending                                                  */
+  #define UARTE_INTPEND_DMARXMATCH1_Pending (0x1UL)  /*!< Read: Pending                                                        */
+
+/* DMARXMATCH2 @Bit 24 : Read pending status of interrupt for event DMARXMATCH[2] */
+  #define UARTE_INTPEND_DMARXMATCH2_Pos (24UL)       /*!< Position of DMARXMATCH2 field.                                       */
+  #define UARTE_INTPEND_DMARXMATCH2_Msk (0x1UL << UARTE_INTPEND_DMARXMATCH2_Pos) /*!< Bit mask of DMARXMATCH2 field.           */
+  #define UARTE_INTPEND_DMARXMATCH2_Min (0x0UL)      /*!< Min enumerator value of DMARXMATCH2 field.                           */
+  #define UARTE_INTPEND_DMARXMATCH2_Max (0x1UL)      /*!< Max enumerator value of DMARXMATCH2 field.                           */
+  #define UARTE_INTPEND_DMARXMATCH2_NotPending (0x0UL) /*!< Read: Not pending                                                  */
+  #define UARTE_INTPEND_DMARXMATCH2_Pending (0x1UL)  /*!< Read: Pending                                                        */
+
+/* DMARXMATCH3 @Bit 25 : Read pending status of interrupt for event DMARXMATCH[3] */
+  #define UARTE_INTPEND_DMARXMATCH3_Pos (25UL)       /*!< Position of DMARXMATCH3 field.                                       */
+  #define UARTE_INTPEND_DMARXMATCH3_Msk (0x1UL << UARTE_INTPEND_DMARXMATCH3_Pos) /*!< Bit mask of DMARXMATCH3 field.           */
+  #define UARTE_INTPEND_DMARXMATCH3_Min (0x0UL)      /*!< Min enumerator value of DMARXMATCH3 field.                           */
+  #define UARTE_INTPEND_DMARXMATCH3_Max (0x1UL)      /*!< Max enumerator value of DMARXMATCH3 field.                           */
+  #define UARTE_INTPEND_DMARXMATCH3_NotPending (0x0UL) /*!< Read: Not pending                                                  */
+  #define UARTE_INTPEND_DMARXMATCH3_Pending (0x1UL)  /*!< Read: Pending                                                        */
+
+/* DMATXEND @Bit 26 : Read pending status of interrupt for event DMATXEND */
+  #define UARTE_INTPEND_DMATXEND_Pos (26UL)          /*!< Position of DMATXEND field.                                          */
+  #define UARTE_INTPEND_DMATXEND_Msk (0x1UL << UARTE_INTPEND_DMATXEND_Pos) /*!< Bit mask of DMATXEND field.                    */
+  #define UARTE_INTPEND_DMATXEND_Min (0x0UL)         /*!< Min enumerator value of DMATXEND field.                              */
+  #define UARTE_INTPEND_DMATXEND_Max (0x1UL)         /*!< Max enumerator value of DMATXEND field.                              */
+  #define UARTE_INTPEND_DMATXEND_NotPending (0x0UL)  /*!< Read: Not pending                                                    */
+  #define UARTE_INTPEND_DMATXEND_Pending (0x1UL)     /*!< Read: Pending                                                        */
+
+/* DMATXREADY @Bit 27 : Read pending status of interrupt for event DMATXREADY */
+  #define UARTE_INTPEND_DMATXREADY_Pos (27UL)        /*!< Position of DMATXREADY field.                                        */
+  #define UARTE_INTPEND_DMATXREADY_Msk (0x1UL << UARTE_INTPEND_DMATXREADY_Pos) /*!< Bit mask of DMATXREADY field.              */
+  #define UARTE_INTPEND_DMATXREADY_Min (0x0UL)       /*!< Min enumerator value of DMATXREADY field.                            */
+  #define UARTE_INTPEND_DMATXREADY_Max (0x1UL)       /*!< Max enumerator value of DMATXREADY field.                            */
+  #define UARTE_INTPEND_DMATXREADY_NotPending (0x0UL) /*!< Read: Not pending                                                   */
+  #define UARTE_INTPEND_DMATXREADY_Pending (0x1UL)   /*!< Read: Pending                                                        */
+
+/* DMATXBUSERROR @Bit 28 : Read pending status of interrupt for event DMATXBUSERROR */
+  #define UARTE_INTPEND_DMATXBUSERROR_Pos (28UL)     /*!< Position of DMATXBUSERROR field.                                     */
+  #define UARTE_INTPEND_DMATXBUSERROR_Msk (0x1UL << UARTE_INTPEND_DMATXBUSERROR_Pos) /*!< Bit mask of DMATXBUSERROR field.     */
+  #define UARTE_INTPEND_DMATXBUSERROR_Min (0x0UL)    /*!< Min enumerator value of DMATXBUSERROR field.                         */
+  #define UARTE_INTPEND_DMATXBUSERROR_Max (0x1UL)    /*!< Max enumerator value of DMATXBUSERROR field.                         */
+  #define UARTE_INTPEND_DMATXBUSERROR_NotPending (0x0UL) /*!< Read: Not pending                                                */
+  #define UARTE_INTPEND_DMATXBUSERROR_Pending (0x1UL) /*!< Read: Pending                                                       */
+
+/* FRAMETIMEOUT @Bit 29 : Read pending status of interrupt for event FRAMETIMEOUT */
+  #define UARTE_INTPEND_FRAMETIMEOUT_Pos (29UL)      /*!< Position of FRAMETIMEOUT field.                                      */
+  #define UARTE_INTPEND_FRAMETIMEOUT_Msk (0x1UL << UARTE_INTPEND_FRAMETIMEOUT_Pos) /*!< Bit mask of FRAMETIMEOUT field.        */
+  #define UARTE_INTPEND_FRAMETIMEOUT_Min (0x0UL)     /*!< Min enumerator value of FRAMETIMEOUT field.                          */
+  #define UARTE_INTPEND_FRAMETIMEOUT_Max (0x1UL)     /*!< Max enumerator value of FRAMETIMEOUT field.                          */
+  #define UARTE_INTPEND_FRAMETIMEOUT_NotPending (0x0UL) /*!< Read: Not pending                                                 */
+  #define UARTE_INTPEND_FRAMETIMEOUT_Pending (0x1UL) /*!< Read: Pending                                                        */
+
+
 /* UARTE_ERRORSRC: Error source */
   #define UARTE_ERRORSRC_ResetValue (0x00000000UL)   /*!< Reset value of ERRORSRC register.                                    */
 
@@ -57729,7 +58338,7 @@ typedef struct {
   * @brief PHY [USBHS_PHY] (unspecified)
   */
 typedef struct {
-  __IOM uint32_t  CONFIG;                            /*!< (@ 0x00000000) USB PHY parameter overrides                           */
+  __IOM uint32_t  CONFIG;                            /*!< (@ 0x00000000) USB PHY trim parameters                               */
   __IOM uint32_t  CLOCK;                             /*!< (@ 0x00000004) USB PHY clock configurations                          */
   __IOM uint32_t  BATTCHRG;                          /*!< (@ 0x00000008) Battery Charging Configuration                        */
   __IM  uint32_t  BATTCHRGSTATUS;                    /*!< (@ 0x0000000C) Battery charger input signals                         */
@@ -57738,12 +58347,9 @@ typedef struct {
                                                                          the override values are set in PHY.OVERRIDEVALUES*/
   __IOM uint32_t  OVERRIDEVALUES;                    /*!< (@ 0x0000001C) Values that are used to override the input signals to
                                                                          the PHY.*/
-  __IM  uint32_t  RESERVED1;
-  __IOM uint32_t  RTUNE;                             /*!< (@ 0x00000024) The RTUNE mode is an alternative method for calibrating
-                                                                         the DP and DM 45-Ohm source impedance.*/
-} NRF_USBHS_PHY_Type;                                /*!< Size = 40 (0x028)                                                    */
+} NRF_USBHS_PHY_Type;                                /*!< Size = 32 (0x020)                                                    */
 
-/* USBHS_PHY_CONFIG: USB PHY parameter overrides */
+/* USBHS_PHY_CONFIG: USB PHY trim parameters */
   #define USBHS_PHY_CONFIG_ResetValue (0x5533D6F0UL) /*!< Reset value of CONFIG register.                                      */
 
 /* PLLITUNE @Bits 0..1 : PLL Integral Path Tune */
@@ -57751,60 +58357,114 @@ typedef struct {
   #define USBHS_PHY_CONFIG_PLLITUNE_Msk (0x3UL << USBHS_PHY_CONFIG_PLLITUNE_Pos) /*!< Bit mask of PLLITUNE field.              */
   #define USBHS_PHY_CONFIG_PLLITUNE_Min (0x0UL)      /*!< Min value of PLLITUNE field.                                         */
   #define USBHS_PHY_CONFIG_PLLITUNE_Max (0x3UL)      /*!< Max size of PLLITUNE field.                                          */
+  #define USBHS_PHY_CONFIG_PLLITUNE_1 (0x0UL)        /*!< 1.0, Design default                                                  */
 
 /* PLLPTUNE @Bits 2..5 : PLL Proportional Path Tune */
   #define USBHS_PHY_CONFIG_PLLPTUNE_Pos (2UL)        /*!< Position of PLLPTUNE field.                                          */
   #define USBHS_PHY_CONFIG_PLLPTUNE_Msk (0xFUL << USBHS_PHY_CONFIG_PLLPTUNE_Pos) /*!< Bit mask of PLLPTUNE field.              */
   #define USBHS_PHY_CONFIG_PLLPTUNE_Min (0x0UL)      /*!< Min value of PLLPTUNE field.                                         */
   #define USBHS_PHY_CONFIG_PLLPTUNE_Max (0xFUL)      /*!< Max size of PLLPTUNE field.                                          */
+  #define USBHS_PHY_CONFIG_PLLPTUNE_100 (0xCUL)      /*!< 10.0, Design default                                                 */
 
 /* COMPDISTUNE0 @Bits 6..8 : Disconnect Threshold Adjustment */
   #define USBHS_PHY_CONFIG_COMPDISTUNE0_Pos (6UL)    /*!< Position of COMPDISTUNE0 field.                                      */
   #define USBHS_PHY_CONFIG_COMPDISTUNE0_Msk (0x7UL << USBHS_PHY_CONFIG_COMPDISTUNE0_Pos) /*!< Bit mask of COMPDISTUNE0 field.  */
   #define USBHS_PHY_CONFIG_COMPDISTUNE0_Min (0x0UL)  /*!< Min value of COMPDISTUNE0 field.                                     */
   #define USBHS_PHY_CONFIG_COMPDISTUNE0_Max (0x7UL)  /*!< Max size of COMPDISTUNE0 field.                                      */
+  #define USBHS_PHY_CONFIG_COMPDISTUNE0_111 (0x7UL)  /*!< +13.93 percent                                                       */
+  #define USBHS_PHY_CONFIG_COMPDISTUNE0_110 (0x6UL)  /*!< +9.78 percent                                                        */
+  #define USBHS_PHY_CONFIG_COMPDISTUNE0_101 (0x5UL)  /*!< +6.25 percent                                                        */
+  #define USBHS_PHY_CONFIG_COMPDISTUNE0_100 (0x4UL)  /*!< +2.67 percent                                                        */
+  #define USBHS_PHY_CONFIG_COMPDISTUNE0_011 (0x3UL)  /*!< 0, Design default                                                    */
+  #define USBHS_PHY_CONFIG_COMPDISTUNE0_010 (0x2UL)  /*!< -2.86 percent                                                        */
+  #define USBHS_PHY_CONFIG_COMPDISTUNE0_001 (0x1UL)  /*!< -5.33 percent                                                        */
+  #define USBHS_PHY_CONFIG_COMPDISTUNE0_000 (0x0UL)  /*!< -7.86 percent                                                        */
 
 /* SQRXTUNE0 @Bits 9..11 : Squelch Threshold Adjustment */
   #define USBHS_PHY_CONFIG_SQRXTUNE0_Pos (9UL)       /*!< Position of SQRXTUNE0 field.                                         */
   #define USBHS_PHY_CONFIG_SQRXTUNE0_Msk (0x7UL << USBHS_PHY_CONFIG_SQRXTUNE0_Pos) /*!< Bit mask of SQRXTUNE0 field.           */
   #define USBHS_PHY_CONFIG_SQRXTUNE0_Min (0x0UL)     /*!< Min value of SQRXTUNE0 field.                                        */
   #define USBHS_PHY_CONFIG_SQRXTUNE0_Max (0x3UL)     /*!< Max size of SQRXTUNE0 field.                                         */
+  #define USBHS_PHY_CONFIG_SQRXTUNE0_111 (0x7UL)     /*!< -22.24 percent                                                       */
+  #define USBHS_PHY_CONFIG_SQRXTUNE0_110 (0x6UL)     /*!< -16.49 percent                                                       */
+  #define USBHS_PHY_CONFIG_SQRXTUNE0_101 (0x5UL)     /*!< -11.01 percent                                                       */
+  #define USBHS_PHY_CONFIG_SQRXTUNE0_100 (0x4UL)     /*!< -5.25 percent                                                        */
+  #define USBHS_PHY_CONFIG_SQRXTUNE0_011 (0x3UL)     /*!< 0, Design default                                                    */
+  #define USBHS_PHY_CONFIG_SQRXTUNE0_010 (0x2UL)     /*!< +5.84 percent                                                        */
+  #define USBHS_PHY_CONFIG_SQRXTUNE0_001 (0x1UL)     /*!< +11.15 percent                                                       */
+  #define USBHS_PHY_CONFIG_SQRXTUNE0_000 (0x0UL)     /*!< +17.09 percent                                                       */
 
 /* VDATREFTUNE0 @Bits 12..13 : Data Detect Voltage Adjustment */
   #define USBHS_PHY_CONFIG_VDATREFTUNE0_Pos (12UL)   /*!< Position of VDATREFTUNE0 field.                                      */
   #define USBHS_PHY_CONFIG_VDATREFTUNE0_Msk (0x3UL << USBHS_PHY_CONFIG_VDATREFTUNE0_Pos) /*!< Bit mask of VDATREFTUNE0 field.  */
   #define USBHS_PHY_CONFIG_VDATREFTUNE0_Min (0x0UL)  /*!< Min value of VDATREFTUNE0 field.                                     */
   #define USBHS_PHY_CONFIG_VDATREFTUNE0_Max (0x3UL)  /*!< Max size of VDATREFTUNE0 field.                                      */
+  #define USBHS_PHY_CONFIG_VDATREFTUNE0_3 (0x3UL)    /*!< -20.65 percent                                                       */
+  #define USBHS_PHY_CONFIG_VDATREFTUNE0_2 (0x2UL)    /*!< -10.38 percent                                                       */
+  #define USBHS_PHY_CONFIG_VDATREFTUNE0_1 (0x1UL)    /*!< 0, Design default                                                    */
+  #define USBHS_PHY_CONFIG_VDATREFTUNE0_0 (0x0UL)    /*!< +10.26 percent                                                       */
 
 /* TXHSXVTUNE0 @Bits 14..15 : Transmitter High-Speed Crossover Adjustment */
   #define USBHS_PHY_CONFIG_TXHSXVTUNE0_Pos (14UL)    /*!< Position of TXHSXVTUNE0 field.                                       */
   #define USBHS_PHY_CONFIG_TXHSXVTUNE0_Msk (0x3UL << USBHS_PHY_CONFIG_TXHSXVTUNE0_Pos) /*!< Bit mask of TXHSXVTUNE0 field.     */
   #define USBHS_PHY_CONFIG_TXHSXVTUNE0_Min (0x0UL)   /*!< Min value of TXHSXVTUNE0 field.                                      */
   #define USBHS_PHY_CONFIG_TXHSXVTUNE0_Max (0x2UL)   /*!< Max size of TXHSXVTUNE0 field.                                       */
+  #define USBHS_PHY_CONFIG_TXHSXVTUNE0_11 (0x3UL)    /*!< 0, Design default                                                    */
+  #define USBHS_PHY_CONFIG_TXHSXVTUNE0_10 (0x2UL)    /*!< +9.21 mV                                                             */
+  #define USBHS_PHY_CONFIG_TXHSXVTUNE0_01 (0x1UL)    /*!< -8.96 mV                                                             */
 
 /* TXFSLSTUNE0 @Bits 16..19 : FS/LS Source Impedance Adjustment */
   #define USBHS_PHY_CONFIG_TXFSLSTUNE0_Pos (16UL)    /*!< Position of TXFSLSTUNE0 field.                                       */
   #define USBHS_PHY_CONFIG_TXFSLSTUNE0_Msk (0xFUL << USBHS_PHY_CONFIG_TXFSLSTUNE0_Pos) /*!< Bit mask of TXFSLSTUNE0 field.     */
   #define USBHS_PHY_CONFIG_TXFSLSTUNE0_Min (0x0UL)   /*!< Min value of TXFSLSTUNE0 field.                                      */
   #define USBHS_PHY_CONFIG_TXFSLSTUNE0_Max (0x7UL)   /*!< Max size of TXFSLSTUNE0 field.                                       */
+  #define USBHS_PHY_CONFIG_TXFSLSTUNE0_1111 (0xFUL)  /*!< -10.65 percent                                                       */
+  #define USBHS_PHY_CONFIG_TXFSLSTUNE0_0111 (0x7UL)  /*!< -5.64 percent                                                        */
+  #define USBHS_PHY_CONFIG_TXFSLSTUNE0_0011 (0x3UL)  /*!< 0, Design default                                                    */
+  #define USBHS_PHY_CONFIG_TXFSLSTUNE0_0001 (0x1UL)  /*!< +3.09 percent                                                        */
+  #define USBHS_PHY_CONFIG_TXFSLSTUNE0_0000 (0x0UL)  /*!< +6.41 percent                                                        */
 
 /* TXVREFTUNE0 @Bits 20..23 : HS DC Voltage Level Adjustment */
   #define USBHS_PHY_CONFIG_TXVREFTUNE0_Pos (20UL)    /*!< Position of TXVREFTUNE0 field.                                       */
   #define USBHS_PHY_CONFIG_TXVREFTUNE0_Msk (0xFUL << USBHS_PHY_CONFIG_TXVREFTUNE0_Pos) /*!< Bit mask of TXVREFTUNE0 field.     */
   #define USBHS_PHY_CONFIG_TXVREFTUNE0_Min (0x0UL)   /*!< Min value of TXVREFTUNE0 field.                                      */
   #define USBHS_PHY_CONFIG_TXVREFTUNE0_Max (0x7UL)   /*!< Max size of TXVREFTUNE0 field.                                       */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_1111 (0xFUL)  /*!< +23.46 percent                                                       */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_1110 (0xEUL)  /*!< +21.42 percent                                                       */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_1101 (0xDUL)  /*!< +19.45 percent                                                       */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_1100 (0xCUL)  /*!< +17.41 percent                                                       */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_1011 (0xBUL)  /*!< +15.64 percent                                                       */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_1010 (0xAUL)  /*!< +13.60 percent                                                       */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_1001 (0x9UL)  /*!< +11.63 percent                                                       */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_1000 (0x8UL)  /*!< +9.59 percent                                                        */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_0111 (0x7UL)  /*!< +7.85 percent                                                        */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_0110 (0x6UL)  /*!< +5.80 percent                                                        */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_0101 (0x5UL)  /*!< +3.83 percent                                                        */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_0100 (0x4UL)  /*!< +1.79 percent                                                        */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_0011 (0x3UL)  /*!< 0, Design default                                                    */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_0010 (0x2UL)  /*!< -2.04 percent                                                        */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_0001 (0x1UL)  /*!< -4.02 percent                                                        */
+  #define USBHS_PHY_CONFIG_TXVREFTUNE0_0000 (0x0UL)  /*!< -6.07 percent                                                        */
 
 /* TXRISETUNE0 @Bits 24..25 : HS Transmitter Rise/Fall Time Adjustment */
   #define USBHS_PHY_CONFIG_TXRISETUNE0_Pos (24UL)    /*!< Position of TXRISETUNE0 field.                                       */
   #define USBHS_PHY_CONFIG_TXRISETUNE0_Msk (0x3UL << USBHS_PHY_CONFIG_TXRISETUNE0_Pos) /*!< Bit mask of TXRISETUNE0 field.     */
   #define USBHS_PHY_CONFIG_TXRISETUNE0_Min (0x0UL)   /*!< Min value of TXRISETUNE0 field.                                      */
   #define USBHS_PHY_CONFIG_TXRISETUNE0_Max (0x2UL)   /*!< Max size of TXRISETUNE0 field.                                       */
+  #define USBHS_PHY_CONFIG_TXRISETUNE0_11 (0x3UL)    /*!< -3.85 percent                                                        */
+  #define USBHS_PHY_CONFIG_TXRISETUNE0_10 (0x2UL)    /*!< -2.81 percent                                                        */
+  #define USBHS_PHY_CONFIG_TXRISETUNE0_01 (0x1UL)    /*!< 0, Design default                                                    */
+  #define USBHS_PHY_CONFIG_TXRISETUNE0_00 (0x0UL)    /*!< +2.56 percent                                                        */
 
 /* TXRESTUNE0 @Bits 26..27 : USB Source Impedance Adjustment */
   #define USBHS_PHY_CONFIG_TXRESTUNE0_Pos (26UL)     /*!< Position of TXRESTUNE0 field.                                        */
   #define USBHS_PHY_CONFIG_TXRESTUNE0_Msk (0x3UL << USBHS_PHY_CONFIG_TXRESTUNE0_Pos) /*!< Bit mask of TXRESTUNE0 field.        */
   #define USBHS_PHY_CONFIG_TXRESTUNE0_Min (0x0UL)    /*!< Min value of TXRESTUNE0 field.                                       */
   #define USBHS_PHY_CONFIG_TXRESTUNE0_Max (0x2UL)    /*!< Max size of TXRESTUNE0 field.                                        */
+  #define USBHS_PHY_CONFIG_TXRESTUNE0_D4R82 (0x3UL)  /*!< Source impedance is decreased by approximately 4.82 ohm              */
+  #define USBHS_PHY_CONFIG_TXRESTUNE0_D2R55 (0x2UL)  /*!< Source impedance is decreased by approximately 2.55 ohm              */
+  #define USBHS_PHY_CONFIG_TXRESTUNE0_DesignDefault (0x1UL) /*!< 0, Design default                                             */
+  #define USBHS_PHY_CONFIG_TXRESTUNE0_I2R93 (0x0UL)  /*!< Source impedance is increased by approximately 2.93 ohm              */
 
 /* TXPREEMPAMPTUNE0 @Bits 28..29 : HS Transmitter Pre-Emphasis Current Control */
   #define USBHS_PHY_CONFIG_TXPREEMPAMPTUNE0_Pos (28UL) /*!< Position of TXPREEMPAMPTUNE0 field.                                */
@@ -57812,6 +58472,13 @@ typedef struct {
                                                                             TXPREEMPAMPTUNE0 field.*/
   #define USBHS_PHY_CONFIG_TXPREEMPAMPTUNE0_Min (0x0UL) /*!< Min value of TXPREEMPAMPTUNE0 field.                              */
   #define USBHS_PHY_CONFIG_TXPREEMPAMPTUNE0_Max (0x2UL) /*!< Max size of TXPREEMPAMPTUNE0 field.                               */
+  #define USBHS_PHY_CONFIG_TXPREEMPAMPTUNE0_3x (0x3UL) /*!< HS Transmitter pre-emphasis circuit sources 3x pre-emphasis
+                                                            current.*/
+  #define USBHS_PHY_CONFIG_TXPREEMPAMPTUNE0_2x (0x2UL) /*!< HS Transmitter pre-emphasis circuit sources 2x pre-emphasis
+                                                            current.*/
+  #define USBHS_PHY_CONFIG_TXPREEMPAMPTUNE0_1x (0x1UL) /*!< Design default. HS Transmitter pre-emphasis circuit sources 1x
+                                                            pre-emphasis current.*/
+  #define USBHS_PHY_CONFIG_TXPREEMPAMPTUNE0_Disabled (0x0UL) /*!< HS Transmitter pre-emphasis is disabled.                     */
 
 /* TXPREEMPPULSETUNE0 @Bit 30 : HS Transmitter Pre-Emphasis Duration Control */
   #define USBHS_PHY_CONFIG_TXPREEMPPULSETUNE0_Pos (30UL) /*!< Position of TXPREEMPPULSETUNE0 field.                            */
@@ -57819,6 +58486,10 @@ typedef struct {
                                                                             TXPREEMPPULSETUNE0 field.*/
   #define USBHS_PHY_CONFIG_TXPREEMPPULSETUNE0_Min (0x0UL) /*!< Min value of TXPREEMPPULSETUNE0 field.                          */
   #define USBHS_PHY_CONFIG_TXPREEMPPULSETUNE0_Max (0x1UL) /*!< Max size of TXPREEMPPULSETUNE0 field.                           */
+  #define USBHS_PHY_CONFIG_TXPREEMPPULSETUNE0_Short (0x1UL) /*!< Design default. HS Transmitter pre-emphasis duration is 1x,
+                                                                 short pre-emphasis current duration.*/
+  #define USBHS_PHY_CONFIG_TXPREEMPPULSETUNE0_Long (0x0UL) /*!< HS Transmitter pre-emphasis duration is 2x, long pre-emphasis
+                                                                current duration.*/
 
 
 /* USBHS_PHY_CLOCK: USB PHY clock configurations */
@@ -57847,8 +58518,8 @@ typedef struct {
   #define USBHS_PHY_CLOCK_COMMONONN_Msk (0x1UL << USBHS_PHY_CLOCK_COMMONONN_Pos) /*!< Bit mask of COMMONONN field.             */
   #define USBHS_PHY_CLOCK_COMMONONN_Min (0x0UL)      /*!< Min enumerator value of COMMONONN field.                             */
   #define USBHS_PHY_CLOCK_COMMONONN_Max (0x1UL)      /*!< Max enumerator value of COMMONONN field.                             */
-  #define USBHS_PHY_CLOCK_COMMONONN_POWERED (0x0UL)  /*!< The REFCLOCK_LOGIC,bias and PLL blocks are powered in sleep or suspend
-                                                          mode.*/
+  #define USBHS_PHY_CLOCK_COMMONONN_POWERED (0x0UL)  /*!< The REFCLOCK_LOGIC, bias and PLL blocks are powered in sleep or
+                                                          suspend mode.*/
   #define USBHS_PHY_CLOCK_COMMONONN_SUSPEND (0x1UL)  /*!< The REFCLOCK_LOGIC, bias and PLL blocks are powered down in suspend
                                                           mode and bias and PLL blocks are powered down in sleep mode.*/
 
@@ -57992,27 +58663,6 @@ typedef struct {
   #define USBHS_PHY_OVERRIDEVALUES_ID_Host (0x0UL)   /*!< Role is Host.                                                        */
 
 
-/* USBHS_PHY_RTUNE: The RTUNE mode is an alternative method for calibrating the DP and DM 45-Ohm source impedance. */
-  #define USBHS_PHY_RTUNE_ResetValue (0x0000000FUL)  /*!< Reset value of RTUNE register.                                       */
-
-/* RTUNESEL @Bit 0 : This signal selects the tuning method for the high-speed DP and DM source impedance of the USBHS. */
-  #define USBHS_PHY_RTUNE_RTUNESEL_Pos (0UL)         /*!< Position of RTUNESEL field.                                          */
-  #define USBHS_PHY_RTUNE_RTUNESEL_Msk (0x1UL << USBHS_PHY_RTUNE_RTUNESEL_Pos) /*!< Bit mask of RTUNESEL field.                */
-  #define USBHS_PHY_RTUNE_RTUNESEL_Min (0x0UL)       /*!< Min enumerator value of RTUNESEL field.                              */
-  #define USBHS_PHY_RTUNE_RTUNESEL_Max (0x1UL)       /*!< Max enumerator value of RTUNESEL field.                              */
-  #define USBHS_PHY_RTUNE_RTUNESEL_TXRTUNE (0x1UL)   /*!< The TXRTUNE pin, external resistor REXT, and resulting internal
-                                                          digital calibration code are used for tuning the high-speed source
-                                                          impedance.*/
-  #define USBHS_PHY_RTUNE_RTUNESEL_RTUNE (0x0UL)     /*!< The RCALCODE value is used for tuning the high-speed source
-                                                          impedance.*/
-
-/* RCALCODE @Bits 1..4 : This signal is used to tune the internal 200 ohm resistor or the USBHS DP and DM high-speed source
-                         impedance. */
-
-  #define USBHS_PHY_RTUNE_RCALCODE_Pos (1UL)         /*!< Position of RCALCODE field.                                          */
-  #define USBHS_PHY_RTUNE_RCALCODE_Msk (0xFUL << USBHS_PHY_RTUNE_RCALCODE_Pos) /*!< Bit mask of RCALCODE field.                */
-
-
 /* ====================================================== Struct USBHS ======================================================= */
 /**
   * @brief USBHS
@@ -58026,7 +58676,7 @@ typedef struct {
     __IOM uint32_t ENABLE;                           /*!< (@ 0x00000400) Enable USB peripheral.                                */
     __IM uint32_t RESERVED2[15];
     __IOM NRF_USBHS_PHY_Type PHY;                    /*!< (@ 0x00000440) (unspecified)                                         */
-  } NRF_USBHS_Type;                                  /*!< Size = 1128 (0x468)                                                  */
+  } NRF_USBHS_Type;                                  /*!< Size = 1120 (0x460)                                                  */
 
 /* USBHS_TASKS_START: Start the USB peripheral. */
   #define USBHS_TASKS_START_ResetValue (0x00000000UL) /*!< Reset value of TASKS_START register.                                */
@@ -58870,9 +59520,7 @@ typedef struct {
     __IOM uint32_t DOEPDMAB15;                       /*!< (@ 0x00000CFC) Device OUT Endpoint Buffer Address Register 15        */
     __IM uint32_t RESERVED91[64];
     __IOM uint32_t PCGCCTL;                          /*!< (@ 0x00000E00) Power and Clock Gating Control Register               */
-    __IM uint32_t RESERVED92[63];
-    __IOM uint32_t GSTARFXDIS;                       /*!< (@ 0x00000F00) Global STAR Fix Disable Register                      */
-    __IM uint32_t RESERVED93[63];
+    __IM uint32_t RESERVED92[127];
     __IOM NRF_USBHSCORE_DWCOTGDFIFO_Type DWCOTGDFIFO[16]; /*!< (@ 0x00001000) (unspecified)                                    */
     __IOM NRF_USBHSCORE_DWCOTGDFIFODIRECTACCESS_Type DWCOTGDFIFODIRECTACCESS; /*!< (@ 0x00011000) (unspecified)                */
   } NRF_USBHSCORE_Type;                              /*!< Size = 200704 (0x31000)                                              */
@@ -71148,404 +71796,6 @@ typedef struct {
                                                                             field.*/
 
 
-/* USBHSCORE_GSTARFXDIS: Global STAR Fix Disable Register */
-  #define USBHSCORE_GSTARFXDIS_ResetValue (0x00002200UL) /*!< Reset value of GSTARFXDIS register.                              */
-
-/* HOSTIGNORESRMTWKUPDIS @Bit 0 : Disable the STAR fix added for Device controller to go back to low power mode when Host
-                                  ignores Remote wakeup */
-
-  #define USBHSCORE_GSTARFXDIS_HOSTIGNORESRMTWKUPDIS_Pos (0UL) /*!< Position of HOSTIGNORESRMTWKUPDIS field.                   */
-  #define USBHSCORE_GSTARFXDIS_HOSTIGNORESRMTWKUPDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_HOSTIGNORESRMTWKUPDIS_Pos) /*!< Bit mask
-                                                                            of HOSTIGNORESRMTWKUPDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_HOSTIGNORESRMTWKUPDIS_Min (0x0UL) /*!< Min enumerator value of HOSTIGNORESRMTWKUPDIS field.     */
-  #define USBHSCORE_GSTARFXDIS_HOSTIGNORESRMTWKUPDIS_Max (0x1UL) /*!< Max enumerator value of HOSTIGNORESRMTWKUPDIS field.     */
-  #define USBHSCORE_GSTARFXDIS_HOSTIGNORESRMTWKUPDIS_ENABLE_FIX (0x0UL) /*!< Device controller goes back into SUSPENDED state
-                                                                            when host ignores Remote Wakeup*/
-  #define USBHSCORE_GSTARFXDIS_HOSTIGNORESRMTWKUPDIS_DISABLE_FIX (0x1UL) /*!< Device controller waits indefinitely without
-                                                                            entering SUSPENDED state when host ignores the
-                                                                            Remote Wakeup*/
-
-/* RESUMEFRMCHKBUSDIS @Bit 1 : Disable the STAR fix added for Device controller to detect lineK and move to RESUMING state after
-                               the 50us pull-up delay ends */
-
-  #define USBHSCORE_GSTARFXDIS_RESUMEFRMCHKBUSDIS_Pos (1UL) /*!< Position of RESUMEFRMCHKBUSDIS field.                         */
-  #define USBHSCORE_GSTARFXDIS_RESUMEFRMCHKBUSDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_RESUMEFRMCHKBUSDIS_Pos) /*!< Bit mask of
-                                                                            RESUMEFRMCHKBUSDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_RESUMEFRMCHKBUSDIS_Min (0x0UL) /*!< Min enumerator value of RESUMEFRMCHKBUSDIS field.           */
-  #define USBHSCORE_GSTARFXDIS_RESUMEFRMCHKBUSDIS_Max (0x1UL) /*!< Max enumerator value of RESUMEFRMCHKBUSDIS field.           */
-  #define USBHSCORE_GSTARFXDIS_RESUMEFRMCHKBUSDIS_ENABLE_FIX (0x0UL) /*!< Device controller detects line K and resumes         */
-  #define USBHSCORE_GSTARFXDIS_RESUMEFRMCHKBUSDIS_DISABLE_FIX (0x1UL) /*!< Device controller does not detect line K and resume */
-
-/* IGNORECTLOUTDATA0DIS @Bit 2 : Disable the STAR fix added for Device controller to reject DATA0 for the first Control OUT Data
-                                 Phase and Control Status OUT Phase */
-
-  #define USBHSCORE_GSTARFXDIS_IGNORECTLOUTDATA0DIS_Pos (2UL) /*!< Position of IGNORECTLOUTDATA0DIS field.                     */
-  #define USBHSCORE_GSTARFXDIS_IGNORECTLOUTDATA0DIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_IGNORECTLOUTDATA0DIS_Pos) /*!< Bit mask
-                                                                            of IGNORECTLOUTDATA0DIS field.*/
-  #define USBHSCORE_GSTARFXDIS_IGNORECTLOUTDATA0DIS_Min (0x0UL) /*!< Min enumerator value of IGNORECTLOUTDATA0DIS field.       */
-  #define USBHSCORE_GSTARFXDIS_IGNORECTLOUTDATA0DIS_Max (0x1UL) /*!< Max enumerator value of IGNORECTLOUTDATA0DIS field.       */
-  #define USBHSCORE_GSTARFXDIS_IGNORECTLOUTDATA0DIS_ENABLE_FIX (0x0UL) /*!< Transaction Error reported when host sends DATA0
-                                                                            PID*/
-  #define USBHSCORE_GSTARFXDIS_IGNORECTLOUTDATA0DIS_DISABLE_FIX (0x1UL) /*!< Transaction Error not reported when host sends
-                                                                            DATA0 PID*/
-
-/* SSPLITSTALLNYETERRDIS @Bit 3 : Disable the STAR fix added for Host controller to flag error for SSPLIT STALL/NYET */
-  #define USBHSCORE_GSTARFXDIS_SSPLITSTALLNYETERRDIS_Pos (3UL) /*!< Position of SSPLITSTALLNYETERRDIS field.                   */
-  #define USBHSCORE_GSTARFXDIS_SSPLITSTALLNYETERRDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_SSPLITSTALLNYETERRDIS_Pos) /*!< Bit mask
-                                                                            of SSPLITSTALLNYETERRDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_SSPLITSTALLNYETERRDIS_Min (0x0UL) /*!< Min enumerator value of SSPLITSTALLNYETERRDIS field.     */
-  #define USBHSCORE_GSTARFXDIS_SSPLITSTALLNYETERRDIS_Max (0x1UL) /*!< Max enumerator value of SSPLITSTALLNYETERRDIS field.     */
-  #define USBHSCORE_GSTARFXDIS_SSPLITSTALLNYETERRDIS_ENABLE_FIX (0x0UL) /*!< Transaction Error reported when device sends
-                                                                            STALL/NYET for SSPLIT*/
-  #define USBHSCORE_GSTARFXDIS_SSPLITSTALLNYETERRDIS_DISABLE_FIX (0x1UL) /*!< Transaction Error not reported when device sends
-                                                                            STALL/NYET for SSPLIT*/
-
-/* ACCEPTISOCSPLITDATA1DIS @Bit 4 : Disable the STAR fix added for Host controller to accept DATA1 PID from device for ISOC
-                                    Split transfers */
-
-  #define USBHSCORE_GSTARFXDIS_ACCEPTISOCSPLITDATA1DIS_Pos (4UL) /*!< Position of ACCEPTISOCSPLITDATA1DIS field.               */
-  #define USBHSCORE_GSTARFXDIS_ACCEPTISOCSPLITDATA1DIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_ACCEPTISOCSPLITDATA1DIS_Pos) /*!< Bit
-                                                                            mask of ACCEPTISOCSPLITDATA1DIS field.*/
-  #define USBHSCORE_GSTARFXDIS_ACCEPTISOCSPLITDATA1DIS_Min (0x0UL) /*!< Min enumerator value of ACCEPTISOCSPLITDATA1DIS field. */
-  #define USBHSCORE_GSTARFXDIS_ACCEPTISOCSPLITDATA1DIS_Max (0x1UL) /*!< Max enumerator value of ACCEPTISOCSPLITDATA1DIS field. */
-  #define USBHSCORE_GSTARFXDIS_ACCEPTISOCSPLITDATA1DIS_ENABLE_FIX (0x0UL) /*!< Transaction Error not reported when device sends
-                                                                            DATA1 PID for ISOC Split*/
-  #define USBHSCORE_GSTARFXDIS_ACCEPTISOCSPLITDATA1DIS_DISABLE_FIX (0x1UL) /*!< Transaction Error reported when device sends
-                                                                            DATA1 PID for ISOC Split*/
-
-/* HANDLEFAULTYCABLEDIS @Bit 5 : Disable the STAR fix added for Host controller to handle Faulty cable scenarios */
-  #define USBHSCORE_GSTARFXDIS_HANDLEFAULTYCABLEDIS_Pos (5UL) /*!< Position of HANDLEFAULTYCABLEDIS field.                     */
-  #define USBHSCORE_GSTARFXDIS_HANDLEFAULTYCABLEDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_HANDLEFAULTYCABLEDIS_Pos) /*!< Bit mask
-                                                                            of HANDLEFAULTYCABLEDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_HANDLEFAULTYCABLEDIS_Min (0x0UL) /*!< Min enumerator value of HANDLEFAULTYCABLEDIS field.       */
-  #define USBHSCORE_GSTARFXDIS_HANDLEFAULTYCABLEDIS_Max (0x1UL) /*!< Max enumerator value of HANDLEFAULTYCABLEDIS field.       */
-  #define USBHSCORE_GSTARFXDIS_HANDLEFAULTYCABLEDIS_ENABLE_FIX (0x0UL) /*!< Fix for handling faulty cable enabled              */
-  #define USBHSCORE_GSTARFXDIS_HANDLEFAULTYCABLEDIS_DISABLE_FIX (0x1UL) /*!< Fix for handling faulty cable disabled            */
-
-/* LSIPGINCRDIS @Bit 6 : Disable the STAR fix added for Host controller LS mode IPG increment from 2 LS bit times to 3 LS bit
-                         times */
-
-  #define USBHSCORE_GSTARFXDIS_LSIPGINCRDIS_Pos (6UL) /*!< Position of LSIPGINCRDIS field.                                     */
-  #define USBHSCORE_GSTARFXDIS_LSIPGINCRDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_LSIPGINCRDIS_Pos) /*!< Bit mask of LSIPGINCRDIS
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_LSIPGINCRDIS_Min (0x0UL) /*!< Min enumerator value of LSIPGINCRDIS field.                       */
-  #define USBHSCORE_GSTARFXDIS_LSIPGINCRDIS_Max (0x1UL) /*!< Max enumerator value of LSIPGINCRDIS field.                       */
-  #define USBHSCORE_GSTARFXDIS_LSIPGINCRDIS_ENABLE_FIX (0x0UL) /*!< Host LS mode IPG is 3 LS bit times                         */
-  #define USBHSCORE_GSTARFXDIS_LSIPGINCRDIS_DISABLE_FIX (0x1UL) /*!< Host LS mode IPG is 2 LS bit times                        */
-
-/* FSDISCIDLEDIS @Bit 7 : Disable the STAR fix added for Device controller to transition to IDLE state during FS device
-                          disconnect */
-
-  #define USBHSCORE_GSTARFXDIS_FSDISCIDLEDIS_Pos (7UL) /*!< Position of FSDISCIDLEDIS field.                                   */
-  #define USBHSCORE_GSTARFXDIS_FSDISCIDLEDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_FSDISCIDLEDIS_Pos) /*!< Bit mask of
-                                                                            FSDISCIDLEDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_FSDISCIDLEDIS_Min (0x0UL) /*!< Min enumerator value of FSDISCIDLEDIS field.                     */
-  #define USBHSCORE_GSTARFXDIS_FSDISCIDLEDIS_Max (0x1UL) /*!< Max enumerator value of FSDISCIDLEDIS field.                     */
-  #define USBHSCORE_GSTARFXDIS_FSDISCIDLEDIS_ENABLE_FIX (0x0UL) /*!< Device controller transitions to IDLE state during FS
-                                                                     device disconnect*/
-  #define USBHSCORE_GSTARFXDIS_FSDISCIDLEDIS_DISABLE_FIX (0x1UL) /*!< Device controller does not transition to IDLE state during
-                                                                      FS device disconnect*/
-
-/* CONCURRENTRMTWKUPUSBRESUMEDIS @Bit 8 : Disable the STAR fix added for Device controller to not start Remote Wakeup signalling
-                                          when USB resume has already started */
-
-  #define USBHSCORE_GSTARFXDIS_CONCURRENTRMTWKUPUSBRESUMEDIS_Pos (8UL) /*!< Position of CONCURRENTRMTWKUPUSBRESUMEDIS field.   */
-  #define USBHSCORE_GSTARFXDIS_CONCURRENTRMTWKUPUSBRESUMEDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_CONCURRENTRMTWKUPUSBRESUMEDIS_Pos)
-                                                                            /*!< Bit mask of CONCURRENTRMTWKUPUSBRESUMEDIS
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_CONCURRENTRMTWKUPUSBRESUMEDIS_Min (0x0UL) /*!< Min enumerator value of
-                                                                            CONCURRENTRMTWKUPUSBRESUMEDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_CONCURRENTRMTWKUPUSBRESUMEDIS_Max (0x1UL) /*!< Max enumerator value of
-                                                                            CONCURRENTRMTWKUPUSBRESUMEDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_CONCURRENTRMTWKUPUSBRESUMEDIS_ENABLE_FIX (0x0UL) /*!< Device controller does not start remote
-                                                                            wakeup signalling when host resume has already
-                                                                            started*/
-  #define USBHSCORE_GSTARFXDIS_CONCURRENTRMTWKUPUSBRESUMEDIS_DISABLE_FIX (0x1UL) /*!< Device controller is allowed to start
-                                                                            remote wakeup signalling when host resume has
-                                                                            already started*/
-
-/* LSIPGCHKAFTERNAKSTALLFORINDIS @Bit 10 : Disable the STAR fix added for Host controller to wait for IPG duration to send next
-                                           token after receiving NAK/STALL for previous IN token with FS/LS device */
-
-  #define USBHSCORE_GSTARFXDIS_LSIPGCHKAFTERNAKSTALLFORINDIS_Pos (10UL) /*!< Position of LSIPGCHKAFTERNAKSTALLFORINDIS field.  */
-  #define USBHSCORE_GSTARFXDIS_LSIPGCHKAFTERNAKSTALLFORINDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_LSIPGCHKAFTERNAKSTALLFORINDIS_Pos)
-                                                                            /*!< Bit mask of LSIPGCHKAFTERNAKSTALLFORINDIS
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_LSIPGCHKAFTERNAKSTALLFORINDIS_Min (0x0UL) /*!< Min enumerator value of
-                                                                            LSIPGCHKAFTERNAKSTALLFORINDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_LSIPGCHKAFTERNAKSTALLFORINDIS_Max (0x1UL) /*!< Max enumerator value of
-                                                                            LSIPGCHKAFTERNAKSTALLFORINDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_LSIPGCHKAFTERNAKSTALLFORINDIS_ENABLE_FIX (0x0UL) /*!< Host controller checks IPG after NAK/STALL
-                                                                            for IN token*/
-  #define USBHSCORE_GSTARFXDIS_LSIPGCHKAFTERNAKSTALLFORINDIS_DISABLE_FIX (0x1UL) /*!< Host controller does not check IPG after
-                                                                            NAK/STALL for IN token*/
-
-/* PHYIOPXCVRSELTXVLDCORRDIS @Bit 11 : Disable the STAR fix added for Host controller to increase the gap between
-                                       utmi_xcvrselect switching and utmi_txvalid assertion in LS/FS mode */
-
-  #define USBHSCORE_GSTARFXDIS_PHYIOPXCVRSELTXVLDCORRDIS_Pos (11UL) /*!< Position of PHYIOPXCVRSELTXVLDCORRDIS field.          */
-  #define USBHSCORE_GSTARFXDIS_PHYIOPXCVRSELTXVLDCORRDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_PHYIOPXCVRSELTXVLDCORRDIS_Pos) /*!<
-                                                                            Bit mask of PHYIOPXCVRSELTXVLDCORRDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_PHYIOPXCVRSELTXVLDCORRDIS_Min (0x0UL) /*!< Min enumerator value of PHYIOPXCVRSELTXVLDCORRDIS
-                                                                          field.*/
-  #define USBHSCORE_GSTARFXDIS_PHYIOPXCVRSELTXVLDCORRDIS_Max (0x1UL) /*!< Max enumerator value of PHYIOPXCVRSELTXVLDCORRDIS
-                                                                          field.*/
-  #define USBHSCORE_GSTARFXDIS_PHYIOPXCVRSELTXVLDCORRDIS_ENABLE_FIX (0x0UL) /*!< Host controller asserts utmi_txvalid at least 2
-                                                                            utmi_clk cycles after utmi_xcvrselect switching*/
-  #define USBHSCORE_GSTARFXDIS_PHYIOPXCVRSELTXVLDCORRDIS_DISABLE_FIX (0x1UL) /*!< Host controller can assert utmi_txvalid after
-                                                                            1 utmi_clk cycle of utmi_xcvrselect switching*/
-
-/* ULPIXCVRSELSWITCHCORRDIS @Bit 12 : Disable the STAR fix added for Host controller to increase the preamble transceiver select
-                                      switch delay to accommodate time taken for ULPI function control write */
-
-  #define USBHSCORE_GSTARFXDIS_ULPIXCVRSELSWITCHCORRDIS_Pos (12UL) /*!< Position of ULPIXCVRSELSWITCHCORRDIS field.            */
-  #define USBHSCORE_GSTARFXDIS_ULPIXCVRSELSWITCHCORRDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_ULPIXCVRSELSWITCHCORRDIS_Pos) /*!<
-                                                                            Bit mask of ULPIXCVRSELSWITCHCORRDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_ULPIXCVRSELSWITCHCORRDIS_Min (0x0UL) /*!< Min enumerator value of ULPIXCVRSELSWITCHCORRDIS
-                                                                         field.*/
-  #define USBHSCORE_GSTARFXDIS_ULPIXCVRSELSWITCHCORRDIS_Max (0x1UL) /*!< Max enumerator value of ULPIXCVRSELSWITCHCORRDIS
-                                                                         field.*/
-  #define USBHSCORE_GSTARFXDIS_ULPIXCVRSELSWITCHCORRDIS_ENABLE_FIX (0x0UL) /*!< Host controller waits for previous functional
-                                                                            register update to complete before switching the
-                                                                            transceiver select again or asserting txvalid*/
-  #define USBHSCORE_GSTARFXDIS_ULPIXCVRSELSWITCHCORRDIS_DISABLE_FIX (0x1UL) /*!< Host controller does not wait for the previous
-                                                                            functional register update to complete before
-                                                                            switching the transceiver select again or asserting
-                                                                            txvalid*/
-
-/* XACTERRDATA0CTRLSTSINDIS @Bit 13 : Disable the STAR fix added for Host controller to report transaction error when DATA0 PID
-                                      is received for CTRL STATUS IN transfer in DMA mode */
-
-  #define USBHSCORE_GSTARFXDIS_XACTERRDATA0CTRLSTSINDIS_Pos (13UL) /*!< Position of XACTERRDATA0CTRLSTSINDIS field.            */
-  #define USBHSCORE_GSTARFXDIS_XACTERRDATA0CTRLSTSINDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_XACTERRDATA0CTRLSTSINDIS_Pos) /*!<
-                                                                            Bit mask of XACTERRDATA0CTRLSTSINDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_XACTERRDATA0CTRLSTSINDIS_Min (0x0UL) /*!< Min enumerator value of XACTERRDATA0CTRLSTSINDIS
-                                                                         field.*/
-  #define USBHSCORE_GSTARFXDIS_XACTERRDATA0CTRLSTSINDIS_Max (0x1UL) /*!< Max enumerator value of XACTERRDATA0CTRLSTSINDIS
-                                                                         field.*/
-  #define USBHSCORE_GSTARFXDIS_XACTERRDATA0CTRLSTSINDIS_ENABLE_FIX (0x0UL) /*!< Host controller reports transaction error when
-                                                                            DATA0 PID is received for CTRL STATUS IN transfer in
-                                                                            DMA mode*/
-  #define USBHSCORE_GSTARFXDIS_XACTERRDATA0CTRLSTSINDIS_DISABLE_FIX (0x1UL) /*!< Host controller retries the transfer when DATA0
-                                                                            PID is received for CTRL STATUS IN transfer in DMA
-                                                                            mode*/
-
-/* HOSTUTMITXVLDCORRDIS @Bit 16 : Disable the correction to OpMode/XcvrSel/TermSel on UTMI Interface in Host mode. */
-  #define USBHSCORE_GSTARFXDIS_HOSTUTMITXVLDCORRDIS_Pos (16UL) /*!< Position of HOSTUTMITXVLDCORRDIS field.                    */
-  #define USBHSCORE_GSTARFXDIS_HOSTUTMITXVLDCORRDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_HOSTUTMITXVLDCORRDIS_Pos) /*!< Bit mask
-                                                                            of HOSTUTMITXVLDCORRDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_HOSTUTMITXVLDCORRDIS_Min (0x0UL) /*!< Min enumerator value of HOSTUTMITXVLDCORRDIS field.       */
-  #define USBHSCORE_GSTARFXDIS_HOSTUTMITXVLDCORRDIS_Max (0x1UL) /*!< Max enumerator value of HOSTUTMITXVLDCORRDIS field.       */
-  #define USBHSCORE_GSTARFXDIS_HOSTUTMITXVLDCORRDIS_ENABLE_FIX (0x0UL) /*!< Opmode, XcvrSel, TermSel are changed by the Host
-                                                                            Controller after TxValid goes LOW (1'b0)*/
-  #define USBHSCORE_GSTARFXDIS_HOSTUTMITXVLDCORRDIS_DISABLE_FIX (0x1UL) /*!< Opmode, XcvrSel, TermSel are changed by the Host
-                                                                            Controller without waiting for TxValid to go LOW
-                                                                            (1'b0) during SOF transmission*/
-
-/* OPMODEXCVRSELCHIRPENCORRDIS @Bit 17 : Disable the STAR fix added for correcting Opmode and XcvrSel on UTMI Interface when
-                                         reset is detected in suspend state. */
-
-  #define USBHSCORE_GSTARFXDIS_OPMODEXCVRSELCHIRPENCORRDIS_Pos (17UL) /*!< Position of OPMODEXCVRSELCHIRPENCORRDIS field.      */
-  #define USBHSCORE_GSTARFXDIS_OPMODEXCVRSELCHIRPENCORRDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_OPMODEXCVRSELCHIRPENCORRDIS_Pos)
-                                                                            /*!< Bit mask of OPMODEXCVRSELCHIRPENCORRDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_OPMODEXCVRSELCHIRPENCORRDIS_Min (0x0UL) /*!< Min enumerator value of OPMODEXCVRSELCHIRPENCORRDIS
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_OPMODEXCVRSELCHIRPENCORRDIS_Max (0x1UL) /*!< Max enumerator value of OPMODEXCVRSELCHIRPENCORRDIS
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_OPMODEXCVRSELCHIRPENCORRDIS_ENABLE_FIX (0x0UL) /*!< Valid Combination of Opmode and XcvrSel is
-                                                                            driven when reset is detected in suspend state*/
-  #define USBHSCORE_GSTARFXDIS_OPMODEXCVRSELCHIRPENCORRDIS_DISABLE_FIX (0x1UL) /*!< Invalid Combination of Opmode and XcvrSel is
-                                                                            driven when reset is detected in suspend state*/
-
-/* TXVALIDDEASSERTIONCORRDIS @Bit 18 : Disable the STAR fix added for correcting Txvalid deassertion on UTMI Interface when soft
-                                       disconnect is done. */
-
-  #define USBHSCORE_GSTARFXDIS_TXVALIDDEASSERTIONCORRDIS_Pos (18UL) /*!< Position of TXVALIDDEASSERTIONCORRDIS field.          */
-  #define USBHSCORE_GSTARFXDIS_TXVALIDDEASSERTIONCORRDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_TXVALIDDEASSERTIONCORRDIS_Pos) /*!<
-                                                                            Bit mask of TXVALIDDEASSERTIONCORRDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_TXVALIDDEASSERTIONCORRDIS_Min (0x0UL) /*!< Min enumerator value of TXVALIDDEASSERTIONCORRDIS
-                                                                          field.*/
-  #define USBHSCORE_GSTARFXDIS_TXVALIDDEASSERTIONCORRDIS_Max (0x1UL) /*!< Max enumerator value of TXVALIDDEASSERTIONCORRDIS
-                                                                          field.*/
-  #define USBHSCORE_GSTARFXDIS_TXVALIDDEASSERTIONCORRDIS_ENABLE_FIX (0x0UL) /*!< Txvalid is deasserted during soft disconnect
-                                                                            after receiving Txready from the PHY*/
-  #define USBHSCORE_GSTARFXDIS_TXVALIDDEASSERTIONCORRDIS_DISABLE_FIX (0x1UL) /*!< Txvalid is deasserted during soft disconnect
-                                                                            without waiting for Txready from the PHY*/
-
-/* HOSTNOXFERAFTERPRTDISFIXDIS @Bit 19 : Disable the STAR fix added for correcting Host behavior when port is disabled. */
-  #define USBHSCORE_GSTARFXDIS_HOSTNOXFERAFTERPRTDISFIXDIS_Pos (19UL) /*!< Position of HOSTNOXFERAFTERPRTDISFIXDIS field.      */
-  #define USBHSCORE_GSTARFXDIS_HOSTNOXFERAFTERPRTDISFIXDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_HOSTNOXFERAFTERPRTDISFIXDIS_Pos)
-                                                                            /*!< Bit mask of HOSTNOXFERAFTERPRTDISFIXDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_HOSTNOXFERAFTERPRTDISFIXDIS_Min (0x0UL) /*!< Min enumerator value of HOSTNOXFERAFTERPRTDISFIXDIS
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_HOSTNOXFERAFTERPRTDISFIXDIS_Max (0x1UL) /*!< Max enumerator value of HOSTNOXFERAFTERPRTDISFIXDIS
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_HOSTNOXFERAFTERPRTDISFIXDIS_ENABLE_FIX (0x0UL) /*!< Txvalid is not asserted when port is
-                                                                            disabled*/
-  #define USBHSCORE_GSTARFXDIS_HOSTNOXFERAFTERPRTDISFIXDIS_DISABLE_FIX (0x1UL) /*!< Txvalid can be asserted when port is
-                                                                            disabled*/
-
-/* LINESTATESE0FILTERFOREOPDIS @Bit 21 : Disable the STAR fix added for filtering SE0 from the linestate during EOP detection..
-                                         */
-
-  #define USBHSCORE_GSTARFXDIS_LINESTATESE0FILTERFOREOPDIS_Pos (21UL) /*!< Position of LINESTATESE0FILTERFOREOPDIS field.      */
-  #define USBHSCORE_GSTARFXDIS_LINESTATESE0FILTERFOREOPDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_LINESTATESE0FILTERFOREOPDIS_Pos)
-                                                                            /*!< Bit mask of LINESTATESE0FILTERFOREOPDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_LINESTATESE0FILTERFOREOPDIS_Min (0x0UL) /*!< Min enumerator value of LINESTATESE0FILTERFOREOPDIS
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_LINESTATESE0FILTERFOREOPDIS_Max (0x1UL) /*!< Max enumerator value of LINESTATESE0FILTERFOREOPDIS
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_LINESTATESE0FILTERFOREOPDIS_ENABLE_FIX (0x0UL) /*!< Filter for linestate is enabled             */
-  #define USBHSCORE_GSTARFXDIS_LINESTATESE0FILTERFOREOPDIS_DISABLE_FIX (0x1UL) /*!< Filter for linestate is not enabled        */
-
-/* DMPULLDOWNUPDATEINOTGFORHIBANDPP @Bit 22 : Disable the STAR fix added for utmiotg_dmpulldown update in Hibernation and
-                                              Partial power down modes. */
-
-  #define USBHSCORE_GSTARFXDIS_DMPULLDOWNUPDATEINOTGFORHIBANDPP_Pos (22UL) /*!< Position of DMPULLDOWNUPDATEINOTGFORHIBANDPP
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_DMPULLDOWNUPDATEINOTGFORHIBANDPP_Msk (0x1UL << USBHSCORE_GSTARFXDIS_DMPULLDOWNUPDATEINOTGFORHIBANDPP_Pos)
-                                                                            /*!< Bit mask of DMPULLDOWNUPDATEINOTGFORHIBANDPP
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_DMPULLDOWNUPDATEINOTGFORHIBANDPP_Min (0x0UL) /*!< Min enumerator value of
-                                                                            DMPULLDOWNUPDATEINOTGFORHIBANDPP field.*/
-  #define USBHSCORE_GSTARFXDIS_DMPULLDOWNUPDATEINOTGFORHIBANDPP_Max (0x1UL) /*!< Max enumerator value of
-                                                                            DMPULLDOWNUPDATEINOTGFORHIBANDPP field.*/
-  #define USBHSCORE_GSTARFXDIS_DMPULLDOWNUPDATEINOTGFORHIBANDPP_ENABLE_FIX (0x0UL) /*!< utmiotg_dmpulldown logic for hiberabtion
-                                                                            and partial power down is enabled*/
-  #define USBHSCORE_GSTARFXDIS_DMPULLDOWNUPDATEINOTGFORHIBANDPP_DISABLE_FIX (0x1UL) /*!< utmiotg_dmpulldown logic for
-                                                                            hiberabtion and partial power down is not enabled*/
-
-/* CHIRPDETECTIONUPDTHSTDIS @Bit 23 : Disable the Chirp detection logic change in host mode. */
-  #define USBHSCORE_GSTARFXDIS_CHIRPDETECTIONUPDTHSTDIS_Pos (23UL) /*!< Position of CHIRPDETECTIONUPDTHSTDIS field.            */
-  #define USBHSCORE_GSTARFXDIS_CHIRPDETECTIONUPDTHSTDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_CHIRPDETECTIONUPDTHSTDIS_Pos) /*!<
-                                                                            Bit mask of CHIRPDETECTIONUPDTHSTDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_CHIRPDETECTIONUPDTHSTDIS_Min (0x0UL) /*!< Min enumerator value of CHIRPDETECTIONUPDTHSTDIS
-                                                                         field.*/
-  #define USBHSCORE_GSTARFXDIS_CHIRPDETECTIONUPDTHSTDIS_Max (0x1UL) /*!< Max enumerator value of CHIRPDETECTIONUPDTHSTDIS
-                                                                         field.*/
-  #define USBHSCORE_GSTARFXDIS_CHIRPDETECTIONUPDTHSTDIS_ENABLE_FIX (0x0UL) /*!< Chirp detection logic in MAC PRT module depends
-                                                                            on the delayed WAIT_CHIRP state and only valid chirp
-                                                                            K from device is detected*/
-  #define USBHSCORE_GSTARFXDIS_CHIRPDETECTIONUPDTHSTDIS_DISABLE_FIX (0x1UL) /*!< Chirp detection logic depends on the WAIT_CHIRP
-                                                                            state and controller might detect false chirp K from
-                                                                            device*/
-
-/* PROGRAMMABLESE0DURATIONTODETECTEOP @Bit 24 : Disable the STAR fix added for programmable se0 duration to detect EOP in Host
-                                                mode . */
-
-  #define USBHSCORE_GSTARFXDIS_PROGRAMMABLESE0DURATIONTODETECTEOP_Pos (24UL) /*!< Position of PROGRAMMABLESE0DURATIONTODETECTEOP
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_PROGRAMMABLESE0DURATIONTODETECTEOP_Msk (0x1UL << USBHSCORE_GSTARFXDIS_PROGRAMMABLESE0DURATIONTODETECTEOP_Pos)
-                                                                            /*!< Bit mask of PROGRAMMABLESE0DURATIONTODETECTEOP
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_PROGRAMMABLESE0DURATIONTODETECTEOP_Min (0x0UL) /*!< Min enumerator value of
-                                                                            PROGRAMMABLESE0DURATIONTODETECTEOP field.*/
-  #define USBHSCORE_GSTARFXDIS_PROGRAMMABLESE0DURATIONTODETECTEOP_Max (0x1UL) /*!< Max enumerator value of
-                                                                            PROGRAMMABLESE0DURATIONTODETECTEOP field.*/
-  #define USBHSCORE_GSTARFXDIS_PROGRAMMABLESE0DURATIONTODETECTEOP_ENABLE_FIX (0x0UL) /*!< Programmable se0 duration to detect
-                                                                            EOP in Host mode is enabled*/
-  #define USBHSCORE_GSTARFXDIS_PROGRAMMABLESE0DURATIONTODETECTEOP_DISABLE_FIX (0x1UL) /*!< Programmable se0 duration to detect
-                                                                            EOP in Host mode is disabled*/
-
-/* ENABLELEVELSYNCHRONISERFORH2PDTXF0LENPKT @Bit 25 : Disable the STAR fix added for h2pd_txf_0len_pkt signal which is passing
-                                                      through a level synchronizer. */
-
-  #define USBHSCORE_GSTARFXDIS_ENABLELEVELSYNCHRONISERFORH2PDTXF0LENPKT_Pos (25UL) /*!< Position of
-                                                                            ENABLELEVELSYNCHRONISERFORH2PDTXF0LENPKT field.*/
-  #define USBHSCORE_GSTARFXDIS_ENABLELEVELSYNCHRONISERFORH2PDTXF0LENPKT_Msk (0x1UL << USBHSCORE_GSTARFXDIS_ENABLELEVELSYNCHRONISERFORH2PDTXF0LENPKT_Pos)
-                                                                            /*!< Bit mask of
-                                                                            ENABLELEVELSYNCHRONISERFORH2PDTXF0LENPKT field.*/
-  #define USBHSCORE_GSTARFXDIS_ENABLELEVELSYNCHRONISERFORH2PDTXF0LENPKT_Min (0x0UL) /*!< Min enumerator value of
-                                                                            ENABLELEVELSYNCHRONISERFORH2PDTXF0LENPKT field.*/
-  #define USBHSCORE_GSTARFXDIS_ENABLELEVELSYNCHRONISERFORH2PDTXF0LENPKT_Max (0x1UL) /*!< Max enumerator value of
-                                                                            ENABLELEVELSYNCHRONISERFORH2PDTXF0LENPKT field.*/
-  #define USBHSCORE_GSTARFXDIS_ENABLELEVELSYNCHRONISERFORH2PDTXF0LENPKT_ENABLE_FIX (0x0UL) /*!< level synchroniser for
-                                                                            h2pd_txf_0len_pkt is enabled and disabled dummy
-                                                                            synchronizer*/
-  #define USBHSCORE_GSTARFXDIS_ENABLELEVELSYNCHRONISERFORH2PDTXF0LENPKT_DISABLE_FIX (0x1UL) /*!< level synchroniser for
-                                                                            h2pd_txf_0len_pkt is disabled and connected through
-                                                                            dummy synchronizer*/
-
-/* EUSB2TERMINATERESUMEONDISCDIS @Bit 26 : Disable fix for Terminating Resume if UTMI HostDisconnect is detected. */
-  #define USBHSCORE_GSTARFXDIS_EUSB2TERMINATERESUMEONDISCDIS_Pos (26UL) /*!< Position of EUSB2TERMINATERESUMEONDISCDIS field.  */
-  #define USBHSCORE_GSTARFXDIS_EUSB2TERMINATERESUMEONDISCDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_EUSB2TERMINATERESUMEONDISCDIS_Pos)
-                                                                            /*!< Bit mask of EUSB2TERMINATERESUMEONDISCDIS
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_EUSB2TERMINATERESUMEONDISCDIS_Min (0x0UL) /*!< Min enumerator value of
-                                                                            EUSB2TERMINATERESUMEONDISCDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_EUSB2TERMINATERESUMEONDISCDIS_Max (0x1UL) /*!< Max enumerator value of
-                                                                            EUSB2TERMINATERESUMEONDISCDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_EUSB2TERMINATERESUMEONDISCDIS_ENABLE_FIX (0x0UL) /*!< Host controller terminates Resume if
-                                                                            HostDisconnect is asserted*/
-  #define USBHSCORE_GSTARFXDIS_EUSB2TERMINATERESUMEONDISCDIS_DISABLE_FIX (0x1UL) /*!< Host controller does not terminate Resume
-                                                                            if HostDisconnect is asserted*/
-
-/* EUSB2FSLSDISCDETECTIONDIS @Bit 27 : Disable fix for FS/LS disconnect detection using UTMI HostDisconnect in MAC PRT. */
-  #define USBHSCORE_GSTARFXDIS_EUSB2FSLSDISCDETECTIONDIS_Pos (27UL) /*!< Position of EUSB2FSLSDISCDETECTIONDIS field.          */
-  #define USBHSCORE_GSTARFXDIS_EUSB2FSLSDISCDETECTIONDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_EUSB2FSLSDISCDETECTIONDIS_Pos) /*!<
-                                                                            Bit mask of EUSB2FSLSDISCDETECTIONDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_EUSB2FSLSDISCDETECTIONDIS_Min (0x0UL) /*!< Min enumerator value of EUSB2FSLSDISCDETECTIONDIS
-                                                                          field.*/
-  #define USBHSCORE_GSTARFXDIS_EUSB2FSLSDISCDETECTIONDIS_Max (0x1UL) /*!< Max enumerator value of EUSB2FSLSDISCDETECTIONDIS
-                                                                          field.*/
-  #define USBHSCORE_GSTARFXDIS_EUSB2FSLSDISCDETECTIONDIS_ENABLE_FIX (0x0UL) /*!< Host controller detects FS/LS disconnect using
-                                                                            utmi_hostdisconnect signal*/
-  #define USBHSCORE_GSTARFXDIS_EUSB2FSLSDISCDETECTIONDIS_DISABLE_FIX (0x1UL) /*!< Host controller detects disconnect by
-                                                                            monitoring 2.5us of SE0 on DP/DM*/
-
-/* HOSTFLUSHEXCESSTKNFIXDIS @Bit 29 : Disable fix for recovering the Host controller when sufficient time is not available in
-                                      the current uF for an overscheduled ISOC OUT or INTR IN transfer. */
-
-  #define USBHSCORE_GSTARFXDIS_HOSTFLUSHEXCESSTKNFIXDIS_Pos (29UL) /*!< Position of HOSTFLUSHEXCESSTKNFIXDIS field.            */
-  #define USBHSCORE_GSTARFXDIS_HOSTFLUSHEXCESSTKNFIXDIS_Msk (0x1UL << USBHSCORE_GSTARFXDIS_HOSTFLUSHEXCESSTKNFIXDIS_Pos) /*!<
-                                                                            Bit mask of HOSTFLUSHEXCESSTKNFIXDIS field.*/
-  #define USBHSCORE_GSTARFXDIS_HOSTFLUSHEXCESSTKNFIXDIS_Min (0x0UL) /*!< Min enumerator value of HOSTFLUSHEXCESSTKNFIXDIS
-                                                                         field.*/
-  #define USBHSCORE_GSTARFXDIS_HOSTFLUSHEXCESSTKNFIXDIS_Max (0x1UL) /*!< Max enumerator value of HOSTFLUSHEXCESSTKNFIXDIS
-                                                                         field.*/
-  #define USBHSCORE_GSTARFXDIS_HOSTFLUSHEXCESSTKNFIXDIS_ENABLE_FIX (0x0UL) /*!< Host controller functionality is as expected if
-                                                                            there is an overscheduled ISOC OUT or INTR IN
-                                                                            transfer*/
-  #define USBHSCORE_GSTARFXDIS_HOSTFLUSHEXCESSTKNFIXDIS_DISABLE_FIX (0x1UL) /*!< Host controller functionality cannot be
-                                                                            determined if there is an overscheduled ISOC OUT or
-                                                                            INTR IN transfer*/
-
-/* TITRANSDONETGLDURINGISOCEOPFDISABLE @Bit 30 : Disable the fix added to not toggle ti_trans_done in SEND_EOP state when the
-                                                 ISOC in tokens responds with zero length packets after end of periodic frame
-                                                 till next start of frame. The fix is added when operating in descriptor dma
-                                                 device mode. */
-
-  #define USBHSCORE_GSTARFXDIS_TITRANSDONETGLDURINGISOCEOPFDISABLE_Pos (30UL) /*!< Position of
-                                                                            TITRANSDONETGLDURINGISOCEOPFDISABLE field.*/
-  #define USBHSCORE_GSTARFXDIS_TITRANSDONETGLDURINGISOCEOPFDISABLE_Msk (0x1UL << USBHSCORE_GSTARFXDIS_TITRANSDONETGLDURINGISOCEOPFDISABLE_Pos)
-                                                                            /*!< Bit mask of TITRANSDONETGLDURINGISOCEOPFDISABLE
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_TITRANSDONETGLDURINGISOCEOPFDISABLE_Min (0x0UL) /*!< Min enumerator value of
-                                                                            TITRANSDONETGLDURINGISOCEOPFDISABLE field.*/
-  #define USBHSCORE_GSTARFXDIS_TITRANSDONETGLDURINGISOCEOPFDISABLE_Max (0x1UL) /*!< Max enumerator value of
-                                                                            TITRANSDONETGLDURINGISOCEOPFDISABLE field.*/
-  #define USBHSCORE_GSTARFXDIS_TITRANSDONETGLDURINGISOCEOPFDISABLE_ENABLE_FIX (0x0UL) /*!< ti_transdone is not toggled after
-                                                                            eopf during ISOC IN transfer till next SOF*/
-  #define USBHSCORE_GSTARFXDIS_TITRANSDONETGLDURINGISOCEOPFDISABLE_DISABLE_FIX (0x1UL) /*!< ti_transdone is toggled after eopf
-                                                                            during ISOC IN transfer till next SOF*/
-
-/* CLEARSOFREFCLKTIMERDURINGDISC @Bit 31 : Disable the STAR fix added to clear the SOF refclk timer during disconnect detection.
-                                           The STAR fix is added when using both UTMI and eUSB2 PHY. */
-
-  #define USBHSCORE_GSTARFXDIS_CLEARSOFREFCLKTIMERDURINGDISC_Pos (31UL) /*!< Position of CLEARSOFREFCLKTIMERDURINGDISC field.  */
-  #define USBHSCORE_GSTARFXDIS_CLEARSOFREFCLKTIMERDURINGDISC_Msk (0x1UL << USBHSCORE_GSTARFXDIS_CLEARSOFREFCLKTIMERDURINGDISC_Pos)
-                                                                            /*!< Bit mask of CLEARSOFREFCLKTIMERDURINGDISC
-                                                                            field.*/
-  #define USBHSCORE_GSTARFXDIS_CLEARSOFREFCLKTIMERDURINGDISC_Min (0x0UL) /*!< Min enumerator value of
-                                                                            CLEARSOFREFCLKTIMERDURINGDISC field.*/
-  #define USBHSCORE_GSTARFXDIS_CLEARSOFREFCLKTIMERDURINGDISC_Max (0x1UL) /*!< Max enumerator value of
-                                                                            CLEARSOFREFCLKTIMERDURINGDISC field.*/
-  #define USBHSCORE_GSTARFXDIS_CLEARSOFREFCLKTIMERDURINGDISC_ENABLE_FIX (0x0UL) /*!< SOF refclk timer is cleared immediately
-                                                                            after device disconnect is detected.*/
-  #define USBHSCORE_GSTARFXDIS_CLEARSOFREFCLKTIMERDURINGDISC_DISABLE_FIX (0x1UL) /*!< SOF refclk timer is not cleared
-                                                                            immediately after device disconnect is detected.*/
-
-
 #endif                                               /*!< !defined(__ASSEMBLER__) && !defined(__ASSEMBLY__)                    */
 
 /* =========================================================================================================================== */
@@ -79408,6 +79658,53 @@ typedef struct {
 /* =========================================================================================================================== */
 
 #if !defined(__ASSEMBLER__) && !defined(__ASSEMBLY__) /*!< Ignore C structs for assembly code.                                 */
+
+/* ================================================== Struct VREGUSB_CONFIG ================================================== */
+/**
+  * @brief CONFIG [VREGUSB_CONFIG] (unspecified)
+  */
+typedef struct {
+  __IM  uint32_t  RESERVED[4];
+  __IOM uint32_t  SETL3V3TIM;                        /*!< (@ 0x00000010) Time from LDO ready to SETTLED3V3 (0us-1000us)        */
+} NRF_VREGUSB_CONFIG_Type;                           /*!< Size = 20 (0x014)                                                    */
+
+/* VREGUSB_CONFIG_SETL3V3TIM: Time from LDO ready to SETTLED3V3 (0us-1000us) */
+  #define VREGUSB_CONFIG_SETL3V3TIM_ResetValue (0x00001F40UL) /*!< Reset value of SETL3V3TIM register.                         */
+
+/* VAL @Bits 0..13 : Timer value */
+  #define VREGUSB_CONFIG_SETL3V3TIM_VAL_Pos (0UL)    /*!< Position of VAL field.                                               */
+  #define VREGUSB_CONFIG_SETL3V3TIM_VAL_Msk (0x3FFFUL << VREGUSB_CONFIG_SETL3V3TIM_VAL_Pos) /*!< Bit mask of VAL field.        */
+  #define VREGUSB_CONFIG_SETL3V3TIM_VAL_Min (0x0000UL) /*!< 0 us                                                               */
+  #define VREGUSB_CONFIG_SETL3V3TIM_VAL_Default (0x1F40UL) /*!< 500 us                                                         */
+  #define VREGUSB_CONFIG_SETL3V3TIM_VAL_Max (0x3E80UL) /*!< 1000 us                                                            */
+
+
+
+/* ================================================= Struct VREGUSB_OVERRIDE ================================================= */
+/**
+  * @brief OVERRIDE [VREGUSB_OVERRIDE] (unspecified)
+  */
+typedef struct {
+  __IM  uint32_t  RESERVED[3];
+  __IOM uint32_t  SETTLED3V3;                        /*!< (@ 0x0000000C) Override the SETTLED3V3 from the digital part         */
+} NRF_VREGUSB_OVERRIDE_Type;                         /*!< Size = 16 (0x010)                                                    */
+
+/* VREGUSB_OVERRIDE_SETTLED3V3: Override the SETTLED3V3 from the digital part */
+  #define VREGUSB_OVERRIDE_SETTLED3V3_ResetValue (0x00000000UL) /*!< Reset value of SETTLED3V3 register.                       */
+
+/* VAL @Bit 0 : Override value for the signal */
+  #define VREGUSB_OVERRIDE_SETTLED3V3_VAL_Pos (0UL)  /*!< Position of VAL field.                                               */
+  #define VREGUSB_OVERRIDE_SETTLED3V3_VAL_Msk (0x1UL << VREGUSB_OVERRIDE_SETTLED3V3_VAL_Pos) /*!< Bit mask of VAL field.       */
+
+/* EN @Bit 31 : Enable the override */
+  #define VREGUSB_OVERRIDE_SETTLED3V3_EN_Pos (31UL)  /*!< Position of EN field.                                                */
+  #define VREGUSB_OVERRIDE_SETTLED3V3_EN_Msk (0x1UL << VREGUSB_OVERRIDE_SETTLED3V3_EN_Pos) /*!< Bit mask of EN field.          */
+  #define VREGUSB_OVERRIDE_SETTLED3V3_EN_Min (0x0UL) /*!< Min enumerator value of EN field.                                    */
+  #define VREGUSB_OVERRIDE_SETTLED3V3_EN_Max (0x1UL) /*!< Max enumerator value of EN field.                                    */
+  #define VREGUSB_OVERRIDE_SETTLED3V3_EN_Disabled (0x0UL) /*!< Override is disabled                                            */
+  #define VREGUSB_OVERRIDE_SETTLED3V3_EN_Enabled (0x1UL) /*!< Override is enabled                                              */
+
+
 /* ===================================================== Struct VREGUSB ====================================================== */
 /**
   * @brief VREGUSB peripheral
@@ -79425,7 +79722,15 @@ typedef struct {
     __IOM uint32_t INTENSET;                         /*!< (@ 0x00000304) Enable interrupt                                      */
     __IOM uint32_t INTENCLR;                         /*!< (@ 0x00000308) Disable interrupt                                     */
     __IM uint32_t INTPEND;                           /*!< (@ 0x0000030C) Pending interrupts                                    */
-  } NRF_VREGUSB_Type;                                /*!< Size = 784 (0x310)                                                   */
+    __IM uint32_t RESERVED3[60];
+    __IM uint32_t STATUS;                            /*!< (@ 0x00000400) Status of USB PM                                      */
+    __IM uint32_t RESERVED4[3];
+    __IOM NRF_VREGUSB_CONFIG_Type CONFIG;            /*!< (@ 0x00000410) (unspecified)                                         */
+    __IM uint32_t RESERVED5[26];
+    __IOM uint32_t PWRUP3V3;                         /*!< (@ 0x0000048C) Power up 3V3                                          */
+    __IM uint32_t RESERVED6[28];
+    __IOM NRF_VREGUSB_OVERRIDE_Type OVERRIDE;        /*!< (@ 0x00000500) (unspecified)                                         */
+  } NRF_VREGUSB_Type;                                /*!< Size = 1296 (0x510)                                                  */
 
 /* VREGUSB_TASKS_START: Enable and start VREGUSB so that it can detect VBUS */
   #define VREGUSB_TASKS_START_ResetValue (0x00000000UL) /*!< Reset value of TASKS_START register.                              */
@@ -79605,6 +79910,70 @@ typedef struct {
   #define VREGUSB_INTPEND_VBUSREMOVED_Max (0x1UL)    /*!< Max enumerator value of VBUSREMOVED field.                           */
   #define VREGUSB_INTPEND_VBUSREMOVED_NotPending (0x0UL) /*!< Read: Not pending                                                */
   #define VREGUSB_INTPEND_VBUSREMOVED_Pending (0x1UL) /*!< Read: Pending                                                       */
+
+
+/* VREGUSB_STATUS: Status of USB PM */
+  #define VREGUSB_STATUS_ResetValue (0x00000000UL)   /*!< Reset value of STATUS register.                                      */
+
+/* READY @Bit 0 : USB PM ready */
+  #define VREGUSB_STATUS_READY_Pos (0UL)             /*!< Position of READY field.                                             */
+  #define VREGUSB_STATUS_READY_Msk (0x1UL << VREGUSB_STATUS_READY_Pos) /*!< Bit mask of READY field.                           */
+  #define VREGUSB_STATUS_READY_Min (0x0UL)           /*!< Min enumerator value of READY field.                                 */
+  #define VREGUSB_STATUS_READY_Max (0x1UL)           /*!< Max enumerator value of READY field.                                 */
+  #define VREGUSB_STATUS_READY_PowerDown (0x0UL)     /*!< USB PM powered down                                                  */
+  #define VREGUSB_STATUS_READY_Powered (0x1UL)       /*!< USB PM powered up                                                    */
+
+/* VBUSDETRAW @Bit 1 : VBUS detected, raw signal */
+  #define VREGUSB_STATUS_VBUSDETRAW_Pos (1UL)        /*!< Position of VBUSDETRAW field.                                        */
+  #define VREGUSB_STATUS_VBUSDETRAW_Msk (0x1UL << VREGUSB_STATUS_VBUSDETRAW_Pos) /*!< Bit mask of VBUSDETRAW field.            */
+  #define VREGUSB_STATUS_VBUSDETRAW_Min (0x0UL)      /*!< Min enumerator value of VBUSDETRAW field.                            */
+  #define VREGUSB_STATUS_VBUSDETRAW_Max (0x1UL)      /*!< Max enumerator value of VBUSDETRAW field.                            */
+  #define VREGUSB_STATUS_VBUSDETRAW_NotVbusDetRaw (0x0UL) /*!< VBUS not detected                                               */
+  #define VREGUSB_STATUS_VBUSDETRAW_VbusDetRaw (0x1UL) /*!< VBUS detected                                                      */
+
+/* VBUSDET @Bit 2 : VBUS detected, filtered */
+  #define VREGUSB_STATUS_VBUSDET_Pos (2UL)           /*!< Position of VBUSDET field.                                           */
+  #define VREGUSB_STATUS_VBUSDET_Msk (0x1UL << VREGUSB_STATUS_VBUSDET_Pos) /*!< Bit mask of VBUSDET field.                     */
+  #define VREGUSB_STATUS_VBUSDET_Min (0x0UL)         /*!< Min enumerator value of VBUSDET field.                               */
+  #define VREGUSB_STATUS_VBUSDET_Max (0x1UL)         /*!< Max enumerator value of VBUSDET field.                               */
+  #define VREGUSB_STATUS_VBUSDET_NotVbusDet (0x0UL)  /*!< VBUS not detected                                                    */
+  #define VREGUSB_STATUS_VBUSDET_VbusDet (0x1UL)     /*!< VBUS detected                                                        */
+
+/* READY3V3 @Bit 5 : Power 3V3 ready */
+  #define VREGUSB_STATUS_READY3V3_Pos (5UL)          /*!< Position of READY3V3 field.                                          */
+  #define VREGUSB_STATUS_READY3V3_Msk (0x1UL << VREGUSB_STATUS_READY3V3_Pos) /*!< Bit mask of READY3V3 field.                  */
+  #define VREGUSB_STATUS_READY3V3_Min (0x0UL)        /*!< Min enumerator value of READY3V3 field.                              */
+  #define VREGUSB_STATUS_READY3V3_Max (0x1UL)        /*!< Max enumerator value of READY3V3 field.                              */
+  #define VREGUSB_STATUS_READY3V3_NotReady3v3 (0x0UL) /*!< Power 3V3 not ready                                                 */
+  #define VREGUSB_STATUS_READY3V3_Ready3v3 (0x1UL)   /*!< Power 3V3 ready                                                      */
+
+/* SETTLED3V3 @Bit 6 : Power 3V3 settled */
+  #define VREGUSB_STATUS_SETTLED3V3_Pos (6UL)        /*!< Position of SETTLED3V3 field.                                        */
+  #define VREGUSB_STATUS_SETTLED3V3_Msk (0x1UL << VREGUSB_STATUS_SETTLED3V3_Pos) /*!< Bit mask of SETTLED3V3 field.            */
+  #define VREGUSB_STATUS_SETTLED3V3_Min (0x0UL)      /*!< Min enumerator value of SETTLED3V3 field.                            */
+  #define VREGUSB_STATUS_SETTLED3V3_Max (0x1UL)      /*!< Max enumerator value of SETTLED3V3 field.                            */
+  #define VREGUSB_STATUS_SETTLED3V3_NotSettled3v3 (0x0UL) /*!< Power 3V3 not settled                                           */
+  #define VREGUSB_STATUS_SETTLED3V3_Settled3v3 (0x1UL) /*!< Power 3V3 settled                                                  */
+
+
+/* VREGUSB_PWRUP3V3: Power up 3V3 */
+  #define VREGUSB_PWRUP3V3_ResetValue (0x00000001UL) /*!< Reset value of PWRUP3V3 register.                                    */
+
+/* MANUAL @Bit 0 : Manual power mode configuration for 3V3 regulator */
+  #define VREGUSB_PWRUP3V3_MANUAL_Pos (0UL)          /*!< Position of MANUAL field.                                            */
+  #define VREGUSB_PWRUP3V3_MANUAL_Msk (0x1UL << VREGUSB_PWRUP3V3_MANUAL_Pos) /*!< Bit mask of MANUAL field.                    */
+  #define VREGUSB_PWRUP3V3_MANUAL_Min (0x0UL)        /*!< Min enumerator value of MANUAL field.                                */
+  #define VREGUSB_PWRUP3V3_MANUAL_Max (0x1UL)        /*!< Max enumerator value of MANUAL field.                                */
+  #define VREGUSB_PWRUP3V3_MANUAL_Off (0x0UL)        /*!< USB 3V3 regulator powered down in manual mode                        */
+  #define VREGUSB_PWRUP3V3_MANUAL_On (0x1UL)         /*!< USB 3V3 regulator powered up in manual mode                          */
+
+/* AUTOMODE @Bit 1 : Automatic power mode configuration */
+  #define VREGUSB_PWRUP3V3_AUTOMODE_Pos (1UL)        /*!< Position of AUTOMODE field.                                          */
+  #define VREGUSB_PWRUP3V3_AUTOMODE_Msk (0x1UL << VREGUSB_PWRUP3V3_AUTOMODE_Pos) /*!< Bit mask of AUTOMODE field.              */
+  #define VREGUSB_PWRUP3V3_AUTOMODE_Min (0x0UL)      /*!< Min enumerator value of AUTOMODE field.                              */
+  #define VREGUSB_PWRUP3V3_AUTOMODE_Max (0x1UL)      /*!< Max enumerator value of AUTOMODE field.                              */
+  #define VREGUSB_PWRUP3V3_AUTOMODE_Auto (0x0UL)     /*!< USB 3V3 regulator automatically powered                              */
+  #define VREGUSB_PWRUP3V3_AUTOMODE_Manual (0x1UL)   /*!< USB 3V3 regulator manually powered                                   */
 
 
 #endif                                               /*!< !defined(__ASSEMBLER__) && !defined(__ASSEMBLY__)                    */

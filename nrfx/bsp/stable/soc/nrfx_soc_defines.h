@@ -1175,6 +1175,18 @@ extern "C" {
 #define KMU_KEYSLOT_ID_MAX KMU_KEYSLOT_ID_Max
 #endif
 
+/* Target window (in 16 MHz reference clock cycles) for LFRC automatic coarse
+ * calibration: [32.768 kHz, 32.768 kHz * 1.035]. */
+#if defined(LFRC_PRESENT)
+#ifndef LFRC_CAL_CYCLES_LIMIT_HI
+#define LFRC_CAL_CYCLES_LIMIT_HI(cal_length) (31250UL << (uint32_t)(cal_length))
+#endif
+#ifndef LFRC_CAL_CYCLES_LIMIT_LO
+#define LFRC_CAL_CYCLES_LIMIT_LO(cal_length) \
+    ((LFRC_CAL_CYCLES_LIMIT_HI(cal_length) * 1000UL + 1034UL) / 1035UL)
+#endif
+#endif
+
 #ifdef __cplusplus
 }
 #endif

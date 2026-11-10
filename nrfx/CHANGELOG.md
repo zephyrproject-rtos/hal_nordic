@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project are documented in this file.
 
+## [4.7.1] - 2026-11-10
+
+### Added
+- Added support for coarse calibration in the LFRC CLOCK driver.
+- Added support for CAL.LFRCOSCTRIM feature in the LFRC HAL.
+- Added support for peak detector amplitude report in the LFXO HAL.
+
+### Changed
+- Updated MDK to version 9.2.2.
+
 ## [4.7.0] - 2026-10-22
 
 ### Added

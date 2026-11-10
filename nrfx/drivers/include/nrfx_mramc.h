@@ -139,12 +139,14 @@ bool nrfx_mramc_valid_address_check(uint32_t addr, bool uicr_allowed);
  */
 bool nrfx_mramc_fits_memory_check(uint32_t addr, bool uicr_allowed, uint32_t bytes);
 
+#if NRF_MRAMC_HAS_ERASEALL || defined(__NRFX_DOXYGEN__)
 /**
  * @brief Function for erasing the whole MRAM memory.
  *
  * @note All user code and UICR will be erased.
  */
 void nrfx_mramc_all_erase(void);
+#endif // NRF_MRAMC_HAS_ERASEALL || defined(__NRFX_DOXYGEN__)
 
 /**
  * @brief Function for checking whether a 32-bit word is writable at the specified address.
