@@ -323,6 +323,36 @@ nrfs_err_t nrfs_pmic_pofwarn_status_get(void *p_context)
 	return nrfs_backend_send(&req, sizeof(req));
 }
 
+nrfs_err_t nrfs_pmic_pofwarn_suspend(bool suspend, void *p_context)
+{
+	if (!m_cb.is_initialized) {
+		return NRFS_ERR_INVALID_STATE;
+	}
+
+	nrfs_pmic_pofwarn_suspend_req_t req;
+
+	NRFS_SERVICE_HDR_FILL(&req, NRFS_PMIC_POFWARN_SUSPEND);
+	req.ctx.ctx = (uint32_t)p_context;
+	req.suspend = suspend ? 1 : 0;
+
+	return nrfs_backend_send(&req, sizeof(req));
+}
+
+nrfs_err_t nrfs_pmic_pofwarn_suspend_no_rsp(bool suspend)
+{
+	if (!m_cb.is_initialized) {
+		return NRFS_ERR_INVALID_STATE;
+	}
+
+	nrfs_pmic_pofwarn_suspend_req_t req;
+
+	NRFS_SERVICE_HDR_FILL(&req, NRFS_PMIC_POFWARN_SUSPEND);
+	NRFS_HDR_NO_RSP_SET(&req.hdr);
+	req.suspend = suspend ? 1 : 0;
+
+	return nrfs_backend_send(&req, sizeof(req));
+}
+
 nrfs_err_t nrfs_pmic_info_read(void *p_context)
 {
 	if (!m_cb.is_initialized) {
@@ -396,6 +426,11 @@ void nrfs_pmic_service_notify(void *p_notification, size_t size)
 		evt.type = NRFS_PMIC_EVT_POFWARN_STATUS;
 		evt.val  = p_status_rsp->data.val;
 		m_cb.handler(&evt, (void *)p_status_rsp->ctx.ctx);
+		break;
+
+	case NRFS_PMIC_POFWARN_SUSPEND:
+		evt.type = NRFS_PMIC_EVT_POFWARN_SUSPEND;
+		m_cb.handler(&evt, (void *)p_data->ctx.ctx);
 		break;
 
 	default:
