@@ -79767,9 +79767,11 @@ typedef struct {
     __IM uint32_t STATUS;                            /*!< (@ 0x00000400) Status of USB PM                                      */
     __IM uint32_t RESERVED4[3];
     __IOM NRF_VREGUSB_CONFIG_Type CONFIG;            /*!< (@ 0x00000410) (unspecified)                                         */
-    __IM uint32_t RESERVED5[26];
+    __IM uint32_t RESERVED5[24];
+    __IOM uint32_t PWRUP;                            /*!< (@ 0x00000484) Power up USB PM                                       */
+    __IM uint32_t RESERVED6;
     __IOM uint32_t PWRUP3V3;                         /*!< (@ 0x0000048C) Power up 3V3                                          */
-    __IM uint32_t RESERVED6[28];
+    __IM uint32_t RESERVED7[28];
     __IOM NRF_VREGUSB_OVERRIDE_Type OVERRIDE;        /*!< (@ 0x00000500) (unspecified)                                         */
   } NRF_VREGUSB_Type;                                /*!< Size = 1296 (0x510)                                                  */
 
@@ -79979,6 +79981,25 @@ typedef struct {
   #define VREGUSB_STATUS_VBUSDET_Max (0x1UL)         /*!< Max enumerator value of VBUSDET field.                               */
   #define VREGUSB_STATUS_VBUSDET_NotVbusDet (0x0UL)  /*!< VBUS not detected                                                    */
   #define VREGUSB_STATUS_VBUSDET_VbusDet (0x1UL)     /*!< VBUS detected                                                        */
+
+/* VREGUSB_PWRUP: Power up USB PM */
+  #define VREGUSB_PWRUP_ResetValue (0x00000000UL)    /*!< Reset value of PWRUP register.                                       */
+
+/* MANUAL @Bit 0 : Manual power mode configuration */
+  #define VREGUSB_PWRUP_MANUAL_Pos (0UL)             /*!< Position of MANUAL field.                                            */
+  #define VREGUSB_PWRUP_MANUAL_Msk (0x1UL << VREGUSB_PWRUP_MANUAL_Pos) /*!< Bit mask of MANUAL field.                          */
+  #define VREGUSB_PWRUP_MANUAL_Min (0x0UL)           /*!< Min enumerator value of MANUAL field.                                */
+  #define VREGUSB_PWRUP_MANUAL_Max (0x1UL)           /*!< Max enumerator value of MANUAL field.                                */
+  #define VREGUSB_PWRUP_MANUAL_Off (0x0UL)           /*!< USB PM powered down in manual mode                                   */
+  #define VREGUSB_PWRUP_MANUAL_On (0x1UL)            /*!< USB PM powered up in manual mode                                     */
+
+/* AUTOMODE @Bit 1 : Automatic power mode configuration */
+  #define VREGUSB_PWRUP_AUTOMODE_Pos (1UL)           /*!< Position of AUTOMODE field.                                          */
+  #define VREGUSB_PWRUP_AUTOMODE_Msk (0x1UL << VREGUSB_PWRUP_AUTOMODE_Pos) /*!< Bit mask of AUTOMODE field.                    */
+  #define VREGUSB_PWRUP_AUTOMODE_Min (0x0UL)         /*!< Min enumerator value of AUTOMODE field.                              */
+  #define VREGUSB_PWRUP_AUTOMODE_Max (0x1UL)         /*!< Max enumerator value of AUTOMODE field.                              */
+  #define VREGUSB_PWRUP_AUTOMODE_Auto (0x0UL)        /*!< USB PM automatically powered                                         */
+  #define VREGUSB_PWRUP_AUTOMODE_Manual (0x1UL)      /*!< USB PM manually powered                                              */
 
 /* READY3V3 @Bit 5 : Power 3V3 ready */
   #define VREGUSB_STATUS_READY3V3_Pos (5UL)          /*!< Position of READY3V3 field.                                          */
