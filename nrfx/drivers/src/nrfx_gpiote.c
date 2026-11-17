@@ -61,15 +61,15 @@
 /*
  * 2 bytes are dedicated for each pin to store it's current state.
  *
- * +--------+-------+-----------------------+-----+--------+--------+---------+-------+
- * | 0      | 1     | 2-4                   | 5   | 6      | 7      | 8-12    | 13-15 |
- * +--------+-------+-----------------------+-----+--------+--------+---------+-------+
- * | in use | dir   | nrfx_gpiote_trigger_t | te  | skip   | N/A    |8:       | TE    |
- * | 0: no  | 0:in  |                       | used| config |        | present | index |
- * | 1: yes | 1:out |                       |     |        |        |9-12:    | (when |
- * |        |       |                       |     |        |        | handler |  used)|
- * |        |       |                       |     |        |        | index   |       |
- * +--------+-------+-----------------------+-----+--------+--------+---------+-------+
+ * +--------+-------+-----------------------+-----+--------+---------+---------+-------+
+ * | 0      | 1     | 2-4                   | 5   | 6      | 7       | 8-12    | 13-15 |
+ * +--------+-------+-----------------------+-----+--------+---------+---------+-------+
+ * | in use | dir   | nrfx_gpiote_trigger_t | te  | skip   | ext     |8:       | TE    |
+ * | 0: no  | 0:in  |                       | used| config | trigger | present | index |
+ * | 1: yes | 1:out |                       |     |        |         |9-12:    | (when |
+ * |        |       |                       |     |        |         | handler |  used)|
+ * |        |       |                       |     |        |         | index   |       |
+ * +--------+-------+-----------------------+-----+--------+---------+---------+-------+
  *
  */
 
@@ -103,6 +103,7 @@ NRFX_STATIC_ASSERT(NRFX_GPIOTE_TRIGGER_MAX <= NRFX_BIT(PIN_FLAG_TRIG_MODE_BITS))
 
 #define PIN_FLAG_TE_USED        NRFX_BIT(5)
 #define PIN_FLAG_SKIP_CONFIG    NRFX_BIT(6)
+#define PIN_FLAG_EXT_TRIGGER    NRFX_BIT(7)
 
 #define PIN_FLAG_HANDLER_PRESENT NRFX_BIT(8)
 
@@ -312,6 +313,23 @@ static bool pin_in_use(nrfx_gpiote_t const * p_instance, uint32_t pin)
     return p_instance->cb.pin_flags[get_pin_idx(pin)] & PIN_FLAG_IN_USE;
 }
 
+/** @brief Checks if pin has a second trigger for a given GPIOTE instance.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ * @param[in] pin        Absolute pin.
+ *
+ * @return True if pin has an external trigger.
+ */
+static bool pin_has_ext_trigger(nrfx_gpiote_t const * p_instance, uint32_t pin)
+{
+    return p_instance->cb.pin_flags[get_pin_idx(pin)] & PIN_FLAG_EXT_TRIGGER;
+}
+
+/* Macro that will allow to remove unused code when the feature is disabled. */
+#define PIN_HAS_EXT_TRIGGER(p_instance, pin) \
+    (NRFX_IS_ENABLED(NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED) && \
+     pin_has_ext_trigger(p_instance, pin))
+
 /** @brief Check if Task/Event is used by a given GPIOTE instance.
  *
  * Assuming that pin is in use.
@@ -396,6 +414,22 @@ static uint8_t pin_te_get(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pin_t pi
     return PIN_GET_TE_ID(p_instance->cb.pin_flags[get_pin_idx(pin)]);
 }
 
+/* Returns second TE channel associated with the pin. */
+static uint8_t pin_extra_te_get(nrfx_gpiote_t const * p_instance,
+                                nrfx_gpiote_pin_t     pin,
+                                uint8_t               main_te)
+{
+    for (uint8_t i = 0; i < GPIOTE_CH_NUM; i++)
+    {
+        if ((p_instance->cb.ch_pin[i] == pin) && (i != main_te))
+        {
+            return i;
+        }
+    }
+
+    return 0;
+}
+
 static bool is_level(nrfx_gpiote_trigger_t trigger)
 {
     return trigger >= NRFX_GPIOTE_TRIGGER_LOW;
@@ -442,12 +476,19 @@ static void release_handler(nrfx_gpiote_t * p_instance, nrfx_gpiote_pin_t pin)
 /* Function releases the handler associated with the pin and sets GPIOTE channel
  * configuration to default if it was used with the pin.
  */
-static void pin_handler_trigger_uninit(nrfx_gpiote_t * p_instance, nrfx_gpiote_pin_t pin)
+static void pin_handler_trigger_uninit(nrfx_gpiote_t * p_instance, nrfx_gpiote_pin_t pin, bool ext)
 {
     if (pin_in_use_by_te(p_instance, pin))
     {
         /* te to default */
-        nrfy_gpiote_te_default(p_instance->p_reg, pin_te_get(p_instance, pin));
+        uint8_t ch = pin_te_get(p_instance, pin);
+
+        if (NRFX_IS_ENABLED(NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED) && ext)
+        {
+            ch = pin_extra_te_get(p_instance, pin, ch);
+        }
+
+        nrfy_gpiote_te_default(p_instance->p_reg, ch);
     }
     else
     {
@@ -463,11 +504,16 @@ static void pin_handler_trigger_uninit(nrfx_gpiote_t * p_instance, nrfx_gpiote_p
 /* Function disabling sense level for the given pin
  * or disabling interrupts and events for GPIOTE channel if it was used with the pin.
  */
-static void pin_trigger_disable(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pin_t pin)
+static void pin_trigger_disable(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pin_t pin, bool ext)
 {
     if (pin_in_use_by_te(p_instance, pin) && pin_is_input(p_instance, pin))
     {
         uint8_t ch = pin_te_get(p_instance, pin);
+
+        if (NRFX_IS_ENABLED(NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED) && ext)
+        {
+            ch = pin_extra_te_get(p_instance, pin, ch);
+        }
 
 #if NRFX_CHECK(NRFX_GPIOTE_CONFIG_NONUNIFORM_INSTANCES)
         nrf_gpiote_int_group_disable(p_instance->p_reg,
@@ -477,6 +523,7 @@ static void pin_trigger_disable(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pi
         nrfy_gpiote_int_disable(p_instance->p_reg, NRFX_BIT(ch));
 #endif
         nrfy_gpiote_event_disable(p_instance->p_reg, ch);
+        nrfy_gpiote_event_clear(p_instance->p_reg, nrf_gpiote_in_event_get(ch));
     }
     else
     {
@@ -484,7 +531,9 @@ static void pin_trigger_disable(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pi
     }
 }
 
-static nrf_gpiote_event_t pin_in_event_get(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pin_t pin)
+static nrf_gpiote_event_t pin_in_event_get(nrfx_gpiote_t const * p_instance,
+                                           nrfx_gpiote_pin_t     pin,
+                                           bool                  ext)
 {
     NRFX_ASSERT(nrfy_gpio_pin_present_check(pin) &&
                 pin_is_input(p_instance, pin) &&
@@ -492,7 +541,14 @@ static nrf_gpiote_event_t pin_in_event_get(nrfx_gpiote_t const * p_instance, nrf
 
     if (pin_in_use_by_te(p_instance, pin))
     {
-        return nrfy_gpiote_in_event_get((uint8_t)pin_te_get(p_instance, pin));
+        uint8_t ch = pin_te_get(p_instance, pin);
+
+        if (NRFX_IS_ENABLED(NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED) && ext)
+        {
+            ch = pin_extra_te_get(p_instance, pin, ch);
+        }
+
+        return nrfy_gpiote_in_event_get(ch);
     }
 
     return NRF_GPIOTE_EVENT_PORT;
@@ -593,8 +649,13 @@ static int pin_uninit(nrfx_gpiote_t * p_instance, nrfx_gpiote_pin_t pin)
         return -EINVAL;
     }
 
-    pin_trigger_disable(p_instance, pin);
-    pin_handler_trigger_uninit(p_instance, pin);
+    pin_trigger_disable(p_instance, pin, false);
+    pin_handler_trigger_uninit(p_instance, pin, false);
+    if (PIN_HAS_EXT_TRIGGER(p_instance, pin))
+    {
+        pin_trigger_disable(p_instance, pin, true);
+        pin_handler_trigger_uninit(p_instance, pin, true);
+    }
     nrfy_gpio_cfg_default(pin);
 
 #if NRF_GPIO_HAS_RETENTION_SETCLEAR
@@ -661,7 +722,8 @@ static int gpiote_input_configure(nrfx_gpiote_t *                        p_insta
         {
             cb->pin_flags[idx] &=
                 (uint16_t) ~(PIN_TE_ID_MASK | PIN_FLAG_TE_USED);
-            if (use_evt) {
+            if (use_evt)
+            {
                 bool edge = trigger <= NRFX_GPIOTE_TRIGGER_TOGGLE;
 
                 /* IN event used. */
@@ -685,6 +747,33 @@ static int gpiote_input_configure(nrfx_gpiote_t *                        p_insta
                     nrfy_gpiote_event_configure(p_instance->p_reg, ch, pin, polarity);
                     cb->ch_pin[ch] = (uint16_t)pin;
                     cb->pin_flags[idx] |= (uint16_t)PIN_FLAG_TE_ID(ch);
+
+#if NRFX_CHECK(NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED)
+                    if (p_config->p_ext_in_channel != NULL)
+                    {
+                        nrf_gpiote_polarity_t ext_pol;
+
+                        if (polarity == NRF_GPIOTE_POLARITY_LOTOHI)
+                        {
+                            ext_pol = NRF_GPIOTE_POLARITY_HITOLO;
+                        }
+                        else if (polarity == NRF_GPIOTE_POLARITY_HITOLO)
+                        {
+                            ext_pol = NRF_GPIOTE_POLARITY_LOTOHI;
+                        }
+                        else
+                        {
+                            return -EINVAL;
+                        }
+
+                        uint8_t ext_ch = *p_config->p_ext_in_channel;
+
+                        nrfy_gpiote_event_disable(p_instance->p_reg, ext_ch);
+                        nrfy_gpiote_event_configure(p_instance->p_reg, ext_ch, pin, ext_pol);
+                        cb->pin_flags[idx] |= (uint16_t)PIN_FLAG_EXT_TRIGGER;
+                        cb->ch_pin[ext_ch] = (uint16_t)pin;
+                    }
+#endif
                 }
             }
         }
@@ -1072,13 +1161,18 @@ static void pin_clr_task_trigger(nrfx_gpiote_t const * p_instance, nrfx_gpiote_p
 
 static void pin_trigger_enable(nrfx_gpiote_t const * p_instance,
                                nrfx_gpiote_pin_t     pin,
-                               bool                  int_enable)
+                               bool                  int_enable,
+                               bool                  ext)
 {
     NRFX_ASSERT(pin_has_trigger(p_instance, pin));
 
     if (pin_in_use_by_te(p_instance, pin) && pin_is_input(p_instance, pin))
     {
         uint8_t ch = pin_te_get(p_instance, pin);
+        if (NRFX_IS_ENABLED(NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED) && ext)
+        {
+            ch = pin_extra_te_get(p_instance, pin, ch);
+        }
 
         nrfy_gpiote_event_clear(p_instance->p_reg, nrf_gpiote_in_event_get(ch));
         nrfy_gpiote_event_enable(p_instance->p_reg, ch);
@@ -1319,27 +1413,59 @@ void nrfx_gpiote_trigger_enable(nrfx_gpiote_t const * p_instance,
 {
     NRFX_ASSERT(p_instance);
 
-    pin_trigger_enable(p_instance, pin, int_enable);
+    pin_trigger_enable(p_instance, pin, int_enable, false);
 }
 
 void nrfx_gpiote_trigger_disable(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pin_t pin)
 {
     NRFX_ASSERT(p_instance);
 
-    pin_trigger_disable(p_instance, pin);
+    pin_trigger_disable(p_instance, pin, false);
 }
+
+#if NRFX_CHECK(NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED)
+void nrfx_gpiote_ext_trigger_enable(nrfx_gpiote_t const * p_instance,
+                                    nrfx_gpiote_pin_t     pin,
+                                    bool                  int_enable)
+{
+    NRFX_ASSERT(p_instance && PIN_HAS_EXT_TRIGGER(p_instance, pin));
+
+    pin_trigger_enable(p_instance, pin, int_enable, true);
+}
+
+void nrfx_gpiote_ext_trigger_disable(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pin_t pin)
+{
+    NRFX_ASSERT(p_instance);
+
+    pin_trigger_disable(p_instance, pin, true);
+}
+#endif // NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED
 
 nrf_gpiote_event_t nrfx_gpiote_in_event_get(nrfx_gpiote_t const * p_instance,
                                             nrfx_gpiote_pin_t     pin)
 {
-    return pin_in_event_get(p_instance, pin);
+    return pin_in_event_get(p_instance, pin, false);
 }
 
 uint32_t nrfx_gpiote_in_event_address_get(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pin_t pin)
 {
-    nrf_gpiote_event_t event = pin_in_event_get(p_instance, pin);
+    nrf_gpiote_event_t event = pin_in_event_get(p_instance, pin, false);
     return nrfy_gpiote_event_address_get(p_instance->p_reg, event);
 }
+
+#if NRFX_CHECK(NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED)
+nrf_gpiote_event_t nrfx_gpiote_ext_in_event_get(nrfx_gpiote_t const * p_instance,
+                                                nrfx_gpiote_pin_t     pin)
+{
+    return pin_in_event_get(p_instance, pin, true);
+}
+
+uint32_t nrfx_gpiote_ext_in_event_address_get(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pin_t pin)
+{
+    nrf_gpiote_event_t event = pin_in_event_get(p_instance, pin, true);
+    return nrfy_gpiote_event_address_get(p_instance->p_reg, event);
+}
+#endif // NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED
 
 static void call_handler(nrfx_gpiote_control_block_t * p_cb,
                          nrfx_gpiote_pin_t             pin,
