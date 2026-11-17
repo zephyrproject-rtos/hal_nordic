@@ -1057,7 +1057,7 @@ void nrfx_nfct_irq_handler(void)
         /* Take into account only the number of whole bytes. */
         nfct_evt.params.rx_frameend.rx_status         = 0;
         nfct_evt.params.rx_frameend.rx_data.p_data    = nrfy_nfct_rxtx_buffer_get(NRF_NFCT);
-        nfct_evt.params.rx_frameend.rx_data.data_size =
+        nfct_evt.params.rx_frameend.rx_data.data_size = rx_short ? 0 :
             NRFX_NFCT_BITS_TO_BYTES(nrfy_nfct_rx_bits_get(NRF_NFCT, true));
 
         if (nrfy_nfct_event_check(NRF_NFCT, NRF_NFCT_EVENT_RXERROR))
