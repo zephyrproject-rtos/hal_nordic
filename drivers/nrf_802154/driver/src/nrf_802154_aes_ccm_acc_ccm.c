@@ -66,7 +66,7 @@
 #include "nrf_802154_utils_byteorder.h"
 #include "platform/nrf_802154_irq.h"
 
-#if defined(NRF54L_SERIES)
+#if defined(NRF54L_SERIES) || defined(NRF71_SERIES)
 #define PPIB_RAD  NRF_PPIB10
 #define PPIB_CCM  NRF_PPIB00
 #define DPPIC_CCM NRF_DPPIC00
