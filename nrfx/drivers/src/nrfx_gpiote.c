@@ -1704,19 +1704,24 @@ static void port_event_handle(NRF_GPIOTE_Type *             p_gpiote,
 }
 #endif // defined(NRF_GPIO_LATCH_PRESENT)
 
-static void gpiote_evt_handle(NRF_GPIOTE_Type *             p_gpiote,
-                              nrfx_gpiote_control_block_t * p_cb,
-                              uint32_t                      mask)
+static void gpiote_event_get(uint32_t idx, NRF_GPIOTE_Type * p_reg, uint32_t * p_event_mask)
 {
-    while (mask)
+    nrf_gpiote_event_t event = (nrf_gpiote_event_t)NRFY_INT_BITPOS_TO_EVENT(idx);
+    if (nrfy_gpiote_event_check(p_reg, event))
     {
-        uint32_t ch = NRF_CTZ(mask);
-        mask &= ~NRFX_BIT(ch);
-        nrfx_gpiote_pin_t pin = p_cb->ch_pin[ch];
-        nrf_gpiote_polarity_t polarity = nrfy_gpiote_event_polarity_get(p_gpiote, ch);
-
-        call_handler(p_cb, pin, gpiote_polarity_to_trigger(polarity));
+        nrfy_gpiote_event_clear(p_reg, event);
+        *p_event_mask |= NRFX_BIT(idx);
     }
+}
+
+static void gpiote_event_handle(uint32_t                      ch,
+                                NRF_GPIOTE_Type const *       p_gpiote,
+                                nrfx_gpiote_control_block_t * p_cb)
+{
+    nrfx_gpiote_pin_t pin = p_cb->ch_pin[ch];
+    nrf_gpiote_polarity_t polarity = nrfy_gpiote_event_polarity_get(p_gpiote, ch);
+
+    call_handler(p_cb, pin, gpiote_polarity_to_trigger(polarity));
 }
 
 static void irq_handler(NRF_GPIOTE_Type * p_gpiote, nrfx_gpiote_control_block_t * p_cb)
@@ -1734,9 +1739,9 @@ static void irq_handler(NRF_GPIOTE_Type * p_gpiote, nrfx_gpiote_control_block_t 
     uint32_t enabled_events = nrf_gpiote_int_enable_check(p_gpiote, NRF_GPIOTE_INT_IN_MASK) |
                                                           NRF_GPIOTE_INT_PORT_MASK;
 #endif
-    uint32_t evt_mask = nrfy_gpiote_events_process(p_gpiote,
-                                                   enabled_events,
-                                                   p_config->channels_number);
+    uint32_t evt_mask = 0;
+
+    NRFX_FOR_EACH_BIT(enabled_events, 0, gpiote_event_get, p_gpiote, &evt_mask);
 
     /* Handle PORT event. */
     if (evt_mask & (uint32_t)NRF_GPIOTE_INT_PORT_MASK)
@@ -1746,7 +1751,7 @@ static void irq_handler(NRF_GPIOTE_Type * p_gpiote, nrfx_gpiote_control_block_t 
     }
 
     /* Process pin events. */
-    gpiote_evt_handle(p_gpiote, p_cb, evt_mask);
+    NRFX_FOR_EACH_BIT(evt_mask, 0, gpiote_event_handle, p_gpiote, p_cb);
 }
 
 void nrfx_gpiote_irq_handler(nrfx_gpiote_t * p_instance)
