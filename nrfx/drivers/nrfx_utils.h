@@ -896,6 +896,25 @@ do {                                                         \
     _NRFX_FOR_EACH_IDX_FIXED_ARG(F, sep, fixed_arg, NRFX_REVERSE_ARGS(__VA_ARGS__))
 
 /**
+ * @brief Macro for calling specified function for each bit set in the provided bitmask.
+ *
+ * For each bit set in mask, the function is called with the bit position as the first argument,
+ * with optional arguments following the index.
+ *
+ * @param mask The mask to handle.
+ * @param rev  If 1, the bits are processed from the most significant bit.
+ * @param func The function/macro to call for each bit set in mask.
+ * @param ...  The arguments to pass to the function.
+ */
+#define NRFX_FOR_EACH_BIT(mask, rev, func, ...) \
+    while (mask != 0) \
+    { \
+        uint32_t idx = (uint32_t)(rev ? (31 - NRFX_CLZ(mask)) : NRFX_CTZ(mask)); \
+        mask &= ~NRFX_BIT(idx); \
+        func(idx, ##__VA_ARGS__); \
+    } \
+
+/**
  * @brief Macro for reversing arguments order.
  *
  * @param ... Variable argument list.
