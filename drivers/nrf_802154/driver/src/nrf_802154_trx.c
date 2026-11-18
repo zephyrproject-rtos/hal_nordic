@@ -145,7 +145,10 @@
 #if !defined(CONFIG_SOC_SERIES_BSIM_NRFXX)
 #define MAX_RAMPDOWN_CYCLES (50 * (SystemCoreClock / 1000000UL)) ///< Maximum number of busy wait loop cycles that radio ramp-down is allowed to take
 #else
-#define MAX_RAMPDOWN_CYCLES 10
+/* Each iteration waits 1 us on bsim. Allow for the 21 us IEEE 802.15.4
+ * TX ramp-down time in the nRF RADIO model.
+ */
+#define MAX_RAMPDOWN_CYCLES 50
 #endif
 
 /* Macro to turn off radio high voltage.
