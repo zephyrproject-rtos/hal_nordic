@@ -401,6 +401,12 @@ extern "C" {
         NRF_PIN_PORT_TO_PIN_NUMBER(3U, 4), \
         NRF_PIN_PORT_TO_PIN_NUMBER(4U, 4), \
         NRF_PIN_PORT_TO_PIN_NUMBER(5U, 4),
+#elif defined(NRF52805_XXAA)
+    #define SAADC_EXTERNAL_AIN_PSELS     \
+        NRFX_SAADC_INPUT_NOT_PRESENT,    \
+        NRFX_SAADC_INPUT_NOT_PRESENT,    \
+        NRF_SAADC_INPUT_AIN2,            \
+        NRF_SAADC_INPUT_AIN3,
 #else /* legacy platforms */
     #define SAADC_EXTERNAL_AIN_PSELS                                                   \
         NRF_SAADC_INPUT_AIN0,                                                          \
