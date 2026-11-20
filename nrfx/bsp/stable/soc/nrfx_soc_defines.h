@@ -35,6 +35,7 @@
 #define NRFX_SOC_DEFINES_H__
 
 #include <nrfx.h>
+#include "../include/nrfx_analog/nrfx_analog_inputs.h"
 
 #ifdef __cplusplus
 extern "C" {

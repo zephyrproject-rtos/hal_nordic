@@ -54,47 +54,46 @@ extern "C" {
 /** @brief Symbol specifying internal reference voltage. */
 #define NRFX_ANALOG_REF_INTERNAL_VAL ANALOG_REF_INTERNAL_VAL
 
-/** @brief Symbol specifying internal inputs offset. */
-#define NRFX_ANALOG_AIN_INTERNAL_OFFSET 128
-
-/** @brief Symbol specifying test inputs offset. */
-#define NRFX_ANALOG_AIN_TEST_OFFSET 64
+/*
+ * NRFX_ANALOG_AIN_INTERNAL_OFFSET, NRFX_ANALOG_AIN_TEST_OFFSET and the values of
+ * nrfx_analog_input_t are defined in nrfx_analog/nrfx_analog_inputs.h of the BSP.
+ */
 
 /** @brief Generic analog input types. */
 typedef enum {
-    NRFX_ANALOG_EXTERNAL_AIN0 = 0,                              ///< External analog input 0
-    NRFX_ANALOG_EXTERNAL_AIN1,                                  ///< External analog input 1
-    NRFX_ANALOG_EXTERNAL_AIN2,                                  ///< External analog input 2
-    NRFX_ANALOG_EXTERNAL_AIN3,                                  ///< External analog input 3
-    NRFX_ANALOG_EXTERNAL_AIN4,                                  ///< External analog input 4
-    NRFX_ANALOG_EXTERNAL_AIN5,                                  ///< External analog input 5
-    NRFX_ANALOG_EXTERNAL_AIN6,                                  ///< External analog input 6
-    NRFX_ANALOG_EXTERNAL_AIN7,                                  ///< External analog input 7
-    NRFX_ANALOG_EXTERNAL_AIN8,                                  ///< External analog input 8
-    NRFX_ANALOG_EXTERNAL_AIN9,                                  ///< External analog input 9
-    NRFX_ANALOG_EXTERNAL_AIN10,                                 ///< External analog input 10
-    NRFX_ANALOG_EXTERNAL_AIN11,                                 ///< External analog input 11
-    NRFX_ANALOG_EXTERNAL_AIN12,                                 ///< External analog input 12
-    NRFX_ANALOG_EXTERNAL_AIN13,                                 ///< External analog input 13
-    NRFX_ANALOG_TEST_AVSS = NRFX_ANALOG_AIN_TEST_OFFSET,        ///< Test AVSS
-    NRFX_ANALOG_INTERNAL_VDD = NRFX_ANALOG_AIN_INTERNAL_OFFSET, ///< Internal VDD
-    NRFX_ANALOG_INTERNAL_VDDDIV2,                               ///< Internal VDD/2
-    NRFX_ANALOG_INTERNAL_AVDD,                                  ///< Internal AVDD
-    NRFX_ANALOG_INTERNAL_DVDD,                                  ///< Internal DVDD
-    NRFX_ANALOG_INTERNAL_VDDHDIV5,                              ///< Internal VDDH/5
-    NRFX_ANALOG_INTERNAL_VDDL,                                  ///< Internal VDDL
-    NRFX_ANALOG_INTERNAL_DECB,                                  ///< Internal DECB
-    NRFX_ANALOG_INTERNAL_VSS,                                   ///< Internal VSS
-    NRFX_ANALOG_INTERNAL_VDDAO3V0,                              ///< Internal VDDA - 3.0V
-    NRFX_ANALOG_INTERNAL_VDDAO1V8,                              ///< Internal VDDA - 1.8V
-    NRFX_ANALOG_INTERNAL_VDDAO0V8,                              ///< Internal VDDA - 0.8V
-    NRFX_ANALOG_INTERNAL_VDDRF,                                 ///< Internal VDDRF
-    NRFX_ANALOG_INTERNAL_VBAT,                                  ///< Internal VBAT
-    NRFX_ANALOG_INTERNAL0,                                      ///< Internal input 0
-    NRFX_ANALOG_INTERNAL1,                                      ///< Internal input 1
-    NRFX_ANALOG_INTERNAL2,                                      ///< Internal input 2
-    NRFX_ANALOG_INTERNAL3,                                      ///< Internal input 3
-    NRFX_ANALOG_INPUT_DISABLED = UINT8_MAX,                     ///< Analog input disabled
+    NRFX_ANALOG_EXTERNAL_AIN0     = NRFX_ANALOG_EXTERNAL_AIN0_VAL,     ///< External analog input 0
+    NRFX_ANALOG_EXTERNAL_AIN1     = NRFX_ANALOG_EXTERNAL_AIN1_VAL,     ///< External analog input 1
+    NRFX_ANALOG_EXTERNAL_AIN2     = NRFX_ANALOG_EXTERNAL_AIN2_VAL,     ///< External analog input 2
+    NRFX_ANALOG_EXTERNAL_AIN3     = NRFX_ANALOG_EXTERNAL_AIN3_VAL,     ///< External analog input 3
+    NRFX_ANALOG_EXTERNAL_AIN4     = NRFX_ANALOG_EXTERNAL_AIN4_VAL,     ///< External analog input 4
+    NRFX_ANALOG_EXTERNAL_AIN5     = NRFX_ANALOG_EXTERNAL_AIN5_VAL,     ///< External analog input 5
+    NRFX_ANALOG_EXTERNAL_AIN6     = NRFX_ANALOG_EXTERNAL_AIN6_VAL,     ///< External analog input 6
+    NRFX_ANALOG_EXTERNAL_AIN7     = NRFX_ANALOG_EXTERNAL_AIN7_VAL,     ///< External analog input 7
+    NRFX_ANALOG_EXTERNAL_AIN8     = NRFX_ANALOG_EXTERNAL_AIN8_VAL,     ///< External analog input 8
+    NRFX_ANALOG_EXTERNAL_AIN9     = NRFX_ANALOG_EXTERNAL_AIN9_VAL,     ///< External analog input 9
+    NRFX_ANALOG_EXTERNAL_AIN10    = NRFX_ANALOG_EXTERNAL_AIN10_VAL,    ///< External analog input 10
+    NRFX_ANALOG_EXTERNAL_AIN11    = NRFX_ANALOG_EXTERNAL_AIN11_VAL,    ///< External analog input 11
+    NRFX_ANALOG_EXTERNAL_AIN12    = NRFX_ANALOG_EXTERNAL_AIN12_VAL,    ///< External analog input 12
+    NRFX_ANALOG_EXTERNAL_AIN13    = NRFX_ANALOG_EXTERNAL_AIN13_VAL,    ///< External analog input 13
+    NRFX_ANALOG_TEST_AVSS         = NRFX_ANALOG_TEST_AVSS_VAL,         ///< Test AVSS
+    NRFX_ANALOG_INTERNAL_VDD      = NRFX_ANALOG_INTERNAL_VDD_VAL,      ///< Internal VDD
+    NRFX_ANALOG_INTERNAL_VDDDIV2  = NRFX_ANALOG_INTERNAL_VDDDIV2_VAL,  ///< Internal VDD/2
+    NRFX_ANALOG_INTERNAL_AVDD     = NRFX_ANALOG_INTERNAL_AVDD_VAL,     ///< Internal AVDD
+    NRFX_ANALOG_INTERNAL_DVDD     = NRFX_ANALOG_INTERNAL_DVDD_VAL,     ///< Internal DVDD
+    NRFX_ANALOG_INTERNAL_VDDHDIV5 = NRFX_ANALOG_INTERNAL_VDDHDIV5_VAL, ///< Internal VDDH/5
+    NRFX_ANALOG_INTERNAL_VDDL     = NRFX_ANALOG_INTERNAL_VDDL_VAL,     ///< Internal VDDL
+    NRFX_ANALOG_INTERNAL_DECB     = NRFX_ANALOG_INTERNAL_DECB_VAL,     ///< Internal DECB
+    NRFX_ANALOG_INTERNAL_VSS      = NRFX_ANALOG_INTERNAL_VSS_VAL,      ///< Internal VSS
+    NRFX_ANALOG_INTERNAL_VDDAO3V0 = NRFX_ANALOG_INTERNAL_VDDAO3V0_VAL, ///< Internal VDDA - 3.0V
+    NRFX_ANALOG_INTERNAL_VDDAO1V8 = NRFX_ANALOG_INTERNAL_VDDAO1V8_VAL, ///< Internal VDDA - 1.8V
+    NRFX_ANALOG_INTERNAL_VDDAO0V8 = NRFX_ANALOG_INTERNAL_VDDAO0V8_VAL, ///< Internal VDDA - 0.8V
+    NRFX_ANALOG_INTERNAL_VDDRF    = NRFX_ANALOG_INTERNAL_VDDRF_VAL,    ///< Internal VDDRF
+    NRFX_ANALOG_INTERNAL_VBAT     = NRFX_ANALOG_INTERNAL_VBAT_VAL,     ///< Internal VBAT
+    NRFX_ANALOG_INTERNAL0         = NRFX_ANALOG_INTERNAL0_VAL,         ///< Internal input 0
+    NRFX_ANALOG_INTERNAL1         = NRFX_ANALOG_INTERNAL1_VAL,         ///< Internal input 1
+    NRFX_ANALOG_INTERNAL2         = NRFX_ANALOG_INTERNAL2_VAL,         ///< Internal input 2
+    NRFX_ANALOG_INTERNAL3         = NRFX_ANALOG_INTERNAL3_VAL,         ///< Internal input 3
+    NRFX_ANALOG_INPUT_DISABLED    = NRFX_ANALOG_INPUT_DISABLED_VAL,    ///< Analog input disabled
 } nrfx_analog_input_t;
 
 /** @} */
