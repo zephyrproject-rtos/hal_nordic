@@ -3,6 +3,10 @@ name: hal_nordic
 build:
   cmake-ext: True
   kconfig-ext: True
+  settings:
+    # Provides <dts_root>/include, so that devicetree sources can include
+    # the nrfx_analog/ headers with the analog input definitions.
+    dts_root: nrfx/bsp/stable
 blobs:
 {% for _ , blob in blobs.items() %}
     - path: {{ blob.path }}
