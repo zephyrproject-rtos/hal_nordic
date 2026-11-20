@@ -232,6 +232,7 @@ typedef enum {
 
 #ifdef NRF_PPR                                       /*!< Remap NRF_DOMAIN_X instances to NRF_X symbol for ease of use.        */
   #define NRF_VPRCLIC                             NRF_PPR_VPRCLIC
+  #define NRF_LRCCONF010                          NRF_APPLICATION_LRCCONF010
 #endif                                               /*!< NRF_PPR                                                              */
 
 /* ========================================== End of section using anonymous unions ========================================== */
