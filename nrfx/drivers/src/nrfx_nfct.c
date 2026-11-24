@@ -1050,10 +1050,14 @@ void nrfx_nfct_irq_handler(void)
             .evt_id = NRFX_NFCT_EVT_RX_FRAMEEND
         };
 
+        /* Frame shorter than the CRC (e.g. 7-bit REQA/WUPA): subtracting the CRC
+           would underflow and report a ~8 KB frame. */
+        bool rx_short = (nrfy_nfct_rx_bits_get(NRF_NFCT, false) < (8u * NRF_NFCT_CRC_SIZE));
+
         /* Take into account only the number of whole bytes. */
         nfct_evt.params.rx_frameend.rx_status         = 0;
         nfct_evt.params.rx_frameend.rx_data.p_data    = nrfy_nfct_rxtx_buffer_get(NRF_NFCT);
-        nfct_evt.params.rx_frameend.rx_data.data_size =
+        nfct_evt.params.rx_frameend.rx_data.data_size = rx_short ? 0 :
             NRFX_NFCT_BITS_TO_BYTES(nrfy_nfct_rx_bits_get(NRF_NFCT, true));
 
         if (nrfy_nfct_event_check(NRF_NFCT, NRF_NFCT_EVENT_RXERROR))
@@ -1069,12 +1073,20 @@ void nrfx_nfct_irq_handler(void)
             nrfy_nfct_rx_frame_status_clear(NRF_NFCT, NRFX_NFCT_FRAME_STATUS_RX_ALL_MASK);
         }
 
+        /* Report the short frame as a CRC error so that the upper layer discards it. */
+        if (rx_short)
+        {
+            nfct_evt.params.rx_frameend.rx_status |= NRF_NFCT_RX_FRAME_STATUS_CRC_MASK;
+        }
+
         NRFX_NFCT_CB_HANDLE(m_nfct_cb.config.cb, nfct_evt);
 
         NRFX_LOG_DEBUG("Rx fend");
     }
 
-    if (NRFX_NFCT_EVT_ACTIVE(SELECTED, evt_mask))
+    /* Ignore SELECTED raised after the field was lost: the upper layer would arm RX
+       out of field and a short frame (REQA/WUPA) of the next field would reach SW. */
+    if (NRFX_NFCT_EVT_ACTIVE(SELECTED, evt_mask) && m_nfct_cb.field_on)
     {
         /* Clear also RX END and RXERROR events because SW does not take care of
            commands that were received before selecting the tag. */
