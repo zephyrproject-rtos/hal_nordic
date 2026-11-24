@@ -163,6 +163,11 @@ typedef struct
     nrf_gpio_pin_pull_t          const * p_pull_config;    ///< Pull configuration. If NULL, the current configuration is untouched.
     nrfx_gpiote_trigger_config_t const * p_trigger_config; ///< Interrupt/event configuration. If NULL, the current configuration is untouched.
     nrfx_gpiote_handler_config_t const * p_handler_config; ///< Handler configuration. If NULL it is untouched.
+#if NRFX_CHECK(NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED)
+    uint8_t const *                      p_ext_in_channel; /**< Channel used for the second trigger. If NULL, single trigger is used.
+                                                            *   It can only be used when the main trigger is using IN event and single edge trigger. Second trigger is configured as the opposing polarity.
+                                                            *   Available on supported SoCs. */
+#endif
 } nrfx_gpiote_input_pin_config_t;
 
 /** @brief Output pin default configuration. */
@@ -358,6 +363,31 @@ void nrfx_gpiote_trigger_enable(nrfx_gpiote_t const * p_instance,
  */
 void nrfx_gpiote_trigger_disable(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pin_t pin);
 
+#if NRFX_CHECK(NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED) || defined(__NRFX_DOXYGEN__)
+/**
+ * @brief Function for enabling the second edge detection trigger for the given pin.
+ *
+ * @warning It can only be used when pin was configured to use two IN events.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ * @param[in] pin        Absolute pin number.
+ * @param[in] int_enable True to enable the interrupt. Must be true when sensing is used.
+ */
+void nrfx_gpiote_ext_trigger_enable(nrfx_gpiote_t const * p_instance,
+                                    nrfx_gpiote_pin_t     pin,
+                                    bool                  int_enable);
+/**
+ * @brief Function for disabling the second edge detection trigger for the given pin.
+ *
+ * @warning It can only be used when pin was configured to use two IN events.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ * @param[in] pin        Absolute pin number.
+ */
+void nrfx_gpiote_ext_trigger_disable(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pin_t pin);
+
+#endif // NRFX_CHECK(NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED) || defined(__NRFX_DOXYGEN__)
+
 /**
  * @brief Set global callback called for each event.
  *
@@ -531,6 +561,34 @@ nrf_gpiote_event_t nrfx_gpiote_in_event_get(nrfx_gpiote_t const * p_instance,
  * @return Address of the specified input pin event.
  */
 uint32_t nrfx_gpiote_in_event_address_get(nrfx_gpiote_t const * p_instance, nrfx_gpiote_pin_t pin);
+
+#if NRFX_CHECK(NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED) || defined(__NRFX_DOXYGEN__)
+/**
+ * @brief Function for getting the second edge detection input pin event.
+ *
+ * @warning It can only be used when pin was configured to use two IN events.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ * @param[in] pin        Pin number.
+ *
+ * @return Event associated with the second edge detection input pin.
+ */
+nrf_gpiote_event_t nrfx_gpiote_ext_in_event_get(nrfx_gpiote_t const * p_instance,
+                                                nrfx_gpiote_pin_t     pin);
+
+/**
+ * @brief Function for getting the address of the second edge detection input pin event.
+ *
+ * @warning It can only be used when pin was configured to use two IN events.
+ *
+ * @param[in] p_instance Pointer to the driver instance structure.
+ * @param[in] pin        Pin number.
+ *
+ * @return Address of the second edge detection input pin event.
+ */
+uint32_t nrfx_gpiote_ext_in_event_address_get(nrfx_gpiote_t const * p_instance,
+                                              nrfx_gpiote_pin_t     pin);
+#endif // NRFX_CHECK(NRFX_GPIOTE_CONFIG_EXT_IN_EVENT_ENABLED) || defined(__NRFX_DOXYGEN__)
 
 /**
  * @brief Function for forcing a specific state on the pin configured as task.
