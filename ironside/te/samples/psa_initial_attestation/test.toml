@@ -1,0 +1,6 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+description = "Get a signed Initial Attestation token from UROT and report every claim in it, decoded with a CBOR parser and looked up by label (needs the IKG seed provisioned, like psa_policy_guard)"
+tier = "pr"    # fast pre-merge sweep: the attestation representative, and the
+               # one test that fails if the IKG seed was not enrolled.
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED.

@@ -1,0 +1,3 @@
+description = "Run code on the VPR (FLPR) from a non-secure App and let it drive a pad: without IronSide's CTRLSEL request the pin stays dead, with it the pad follows the FLPR's VIO"
+tier = "pr"
+timeout = 8

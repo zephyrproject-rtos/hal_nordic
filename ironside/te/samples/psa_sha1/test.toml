@@ -1,0 +1,4 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+description = "SHA-1 as a plain hash matches the FIPS 180 vector; HMAC-SHA-1 and ECDSA over SHA-1 are refused"
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED

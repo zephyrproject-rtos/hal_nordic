@@ -1,0 +1,11 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+#
+# Note: this sample reads the MCUboot header at the App slot base, so it only has
+# a version to report when run from a *signed* image - i.e. under
+# a *signed* run of the suite (which signs each sample with the App key). An
+# unsigned flash has no header and the sample prints INTEGRATION_KIT_TEST_FAIL.
+description = "Print the App's own version from the MCUboot ih_ver header (in-place DFU target)"
+timeout = 5    # max wait for INTEGRATION_KIT_TEST_FINISHED; the runner exits early on it,
+               # so this is just the ceiling for a hung/failing run (~8x the
+               # ~0.5s a passing run actually takes).

@@ -1,0 +1,3 @@
+# IronSide Integration Kit test metadata.
+description = "AES-256-CBC (PKCS7) encrypt/decrypt round-trip via UROT"
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED

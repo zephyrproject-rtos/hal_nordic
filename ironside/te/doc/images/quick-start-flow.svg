@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="355" viewBox="0 0 880 355" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#444"/>
+    </marker>
+  </defs>
+
+  <text x="440" y="26" text-anchor="middle" font-size="18" font-weight="bold" fill="#222">IronSide Integration Kit quick start flow</text>
+
+  <!-- Requirements zone -->
+  <rect x="20" y="45" width="140" height="265" rx="8" fill="#fdf6e3" stroke="#b7791f" stroke-width="2"/>
+  <text x="90" y="66" text-anchor="middle" font-size="12" font-weight="bold" fill="#7a4f10">Gather requirements</text>
+
+  <!-- JFrog access -->
+  <rect x="30" y="78" width="120" height="60" rx="6" fill="#ffffff" stroke="#b7791f" stroke-width="1.5"/>
+  <text x="90" y="98" text-anchor="middle" font-size="11" font-weight="bold" fill="#7a4f10">Access to Nordic</text>
+  <text x="90" y="112" text-anchor="middle" font-size="11" font-weight="bold" fill="#7a4f10">Semiconductor</text>
+  <text x="90" y="126" text-anchor="middle" font-size="11" font-weight="bold" fill="#7a4f10">Artifactory</text>
+
+  <!-- Install software -->
+  <rect x="30" y="150" width="120" height="46" rx="6" fill="#ffffff" stroke="#b7791f" stroke-width="1.5"/>
+  <text x="90" y="177" text-anchor="middle" font-size="11" font-weight="bold" fill="#7a4f10">Install software</text>
+
+  <!-- DK in requirements -->
+  <rect x="30" y="240" width="120" height="46" rx="6" fill="#ffffff" stroke="#888" stroke-width="1.5"/>
+  <text x="90" y="260" text-anchor="middle" font-size="12" font-weight="bold" fill="#444">Hardware</text>
+  <text x="90" y="276" text-anchor="middle" font-size="10" fill="#666">nRF54L Series DK</text>
+
+  <!-- requirements to host and to DK -->
+  <line x1="160" y1="125" x2="188" y2="125" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="150" y1="263" x2="188" y2="263" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Host zone -->
+  <rect x="190" y="45" width="670" height="140" rx="8" fill="#eef0f7" stroke="#5a4fa0" stroke-width="2"/>
+  <text x="205" y="66" font-size="13" font-weight="bold" fill="#3d3577">Host PC - IronSide Integration Kit scripts</text>
+
+  <!-- Create keyset -->
+  <rect x="206" y="80" width="110" height="90" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="261" y="118" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Create keyset</text>
+  <text x="261" y="136" text-anchor="middle" font-size="10" fill="#555">iron_keychain.py</text>
+
+  <!-- Get bundle and sign it -->
+  <rect x="338" y="80" width="110" height="90" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="393" y="108" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Get bundle</text>
+  <text x="393" y="123" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">and sign it</text>
+  <text x="393" y="141" text-anchor="middle" font-size="10" fill="#555">ironside_bundle.py</text>
+
+  <!-- Install IronSide TE bundle -->
+  <rect x="470" y="80" width="110" height="90" rx="6" fill="#ffffff" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="525" y="100" text-anchor="middle" font-size="12" font-weight="bold" fill="#8e2a20">Install</text>
+  <text x="525" y="115" text-anchor="middle" font-size="12" font-weight="bold" fill="#8e2a20">IronSide TE</text>
+  <text x="525" y="130" text-anchor="middle" font-size="12" font-weight="bold" fill="#8e2a20">bundle</text>
+  <text x="525" y="149" text-anchor="middle" font-size="10" fill="#555">ironside_install.py</text>
+
+  <!-- Sign app -->
+  <rect x="602" y="80" width="110" height="90" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="657" y="118" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Sign app</text>
+  <text x="657" y="136" text-anchor="middle" font-size="10" fill="#555">sign.py</text>
+
+  <!-- Upload app -->
+  <rect x="734" y="80" width="110" height="90" rx="6" fill="#ffffff" stroke="#3a78c2" stroke-width="1.5"/>
+  <text x="789" y="118" text-anchor="middle" font-size="12" font-weight="bold" fill="#23507f">Upload app</text>
+  <text x="789" y="136" text-anchor="middle" font-size="10" fill="#555">app_update.py</text>
+
+  <!-- step arrows -->
+  <line x1="316" y1="125" x2="336" y2="125" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="448" y1="125" x2="468" y2="125" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="580" y1="125" x2="600" y2="125" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="712" y1="125" x2="732" y2="125" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Device zone -->
+  <rect x="190" y="215" width="670" height="95" rx="8" fill="#f7f7f7" stroke="#888" stroke-width="2"/>
+  <text x="205" y="236" font-size="13" font-weight="bold" fill="#444">nRF54L Series DK</text>
+
+  <!-- IROT + UROT -->
+  <rect x="470" y="250" width="110" height="46" rx="6" fill="#fdeceb" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="525" y="270" text-anchor="middle" font-size="12" font-weight="bold" fill="#8e2a20">IROT + UROT</text>
+  <text x="525" y="286" text-anchor="middle" font-size="10" fill="#333">secure world</text>
+
+  <!-- App -->
+  <rect x="727" y="250" width="124" height="46" rx="6" fill="#e8f1fb" stroke="#3a78c2" stroke-width="1.5"/>
+  <text x="789" y="270" text-anchor="middle" font-size="12" font-weight="bold" fill="#23507f">hello_world app</text>
+  <text x="789" y="286" text-anchor="middle" font-size="10" fill="#333">non-secure, LEDs blink</text>
+
+  <!-- device arrows -->
+  <line x1="580" y1="273" x2="725" y2="273" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="652" y="266" text-anchor="middle" font-size="10" fill="#555">verifies + boots</text>
+
+  <!-- DK to Host PC, install / upload arrows (dashed) -->
+  <line x1="393" y1="213" x2="393" y2="187" stroke="#444" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow)"/>
+  <text x="385" y="204" text-anchor="end" font-size="10" fill="#555">Connect to PC</text>
+  <line x1="525" y1="172" x2="525" y2="248" stroke="#444" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow)"/>
+  <line x1="789" y1="172" x2="789" y2="248" stroke="#444" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow)"/>
+
+  <text x="440" y="335" text-anchor="middle" font-size="11" fill="#555" font-style="italic">Every step on the host uses the same keyset.</text>
+</svg>

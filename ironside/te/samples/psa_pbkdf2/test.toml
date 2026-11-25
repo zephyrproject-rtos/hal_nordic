@@ -1,0 +1,4 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+description = "PBKDF2-HMAC-SHA-256 (RFC 7914 vector, and 10000 iterations) and PBKDF2-AES-CMAC-PRF-128 at Thread's 16384 iterations, from a password key; the password key cannot be exported and PBKDF2 over SHA-1 is refused"
+timeout = 30    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED

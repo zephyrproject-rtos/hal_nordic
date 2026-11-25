@@ -1,0 +1,5 @@
+# IronSide Integration Kit test metadata.
+description = "AES-256-GCM authenticated encrypt/decrypt (the DFU firmware-decrypt path) via UROT"
+tier = "pr"    # fast pre-merge sweep: the symmetric-crypto representative, and
+               # the one cipher the firmware-decrypt path itself depends on.
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED (~0.5s)

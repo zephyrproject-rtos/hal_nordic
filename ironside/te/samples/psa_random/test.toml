@@ -1,0 +1,4 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+description = "Generate random bytes via UROT's PSA Crypto service (CRACEN CTR-DRBG)"
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED (~0.5s)

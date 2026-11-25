@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="560" viewBox="0 0 940 560" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#444"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="6" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L6,2.5 L0,5 Z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="940" height="560" fill="#ffffff"/>
+  <text x="470" y="28" text-anchor="middle" font-size="17" font-weight="bold" fill="#222222">A call from a level-6 handler: CRACEN at secure 6</text>
+  <rect x="10" y="70" width="920" height="62" rx="0" fill="#f7f7f7" stroke="none" stroke-width="0"/>
+  <text x="246" y="99" text-anchor="end" font-size="12" fill="#23507f" font-weight="bold">NS interrupt, level 2</text>
+  <text x="246" y="114" text-anchor="end" font-size="11" fill="#666">secure 5</text>
+  <line x1="260" y1="113" x2="920" y2="113" stroke="#cccccc" stroke-width="1"/>
+  <text x="246" y="161" text-anchor="end" font-size="12" fill="#8e2a20" font-weight="bold">CRACEN</text>
+  <text x="246" y="176" text-anchor="end" font-size="11" fill="#666">secure 6 during the call</text>
+  <line x1="260" y1="175" x2="920" y2="175" stroke="#cccccc" stroke-width="1"/>
+  <rect x="10" y="194" width="920" height="62" rx="0" fill="#f7f7f7" stroke="none" stroke-width="0"/>
+  <text x="246" y="223" text-anchor="end" font-size="12" fill="#23507f" font-weight="bold">NS interrupt, level 4</text>
+  <text x="246" y="238" text-anchor="end" font-size="11" fill="#666">secure 6</text>
+  <line x1="260" y1="237" x2="920" y2="237" stroke="#cccccc" stroke-width="1"/>
+  <text x="246" y="285" text-anchor="end" font-size="12" fill="#23507f" font-weight="bold">Caller: NS handler, level 6</text>
+  <text x="246" y="300" text-anchor="end" font-size="11" fill="#666">secure 7</text>
+  <line x1="260" y1="299" x2="920" y2="299" stroke="#cccccc" stroke-width="1"/>
+  <rect x="10" y="318" width="920" height="62" rx="0" fill="#f7f7f7" stroke="none" stroke-width="0"/>
+  <text x="246" y="347" text-anchor="end" font-size="12" fill="#23507f" font-weight="bold">NS interrupt, level 7</text>
+  <text x="246" y="362" text-anchor="end" font-size="11" fill="#666">secure 7</text>
+  <line x1="260" y1="361" x2="920" y2="361" stroke="#cccccc" stroke-width="1"/>
+  <text x="18" y="60" text-anchor="start" font-size="10" fill="#666" font-style="italic">more urgent</text>
+  <rect x="260" y="275" width="70" height="24" rx="2" fill="#3a78c2" stroke="#3a78c2" stroke-width="1"/>
+  <text x="295" y="291" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">handler</text>
+  <rect x="330" y="275" width="65" height="24" rx="2" fill="#c0392b" stroke="#c0392b" stroke-width="1"/>
+  <text x="362.5" y="291" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">call</text>
+  <rect x="395" y="151" width="95" height="24" rx="2" fill="#c0392b" stroke="#c0392b" stroke-width="1"/>
+  <text x="442.5" y="167" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">handler</text>
+  <rect x="490" y="89" width="70" height="24" rx="2" fill="#3a78c2" stroke="#3a78c2" stroke-width="1"/>
+  <text x="525" y="105" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">handler</text>
+  <rect x="560" y="151" width="50" height="24" rx="2" fill="#c0392b" stroke="#c0392b" stroke-width="1"/>
+  <text x="585" y="167" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">handler</text>
+  <rect x="425" y="216" width="185" height="18" rx="2" fill="#fdf1d8" stroke="#c98a1b" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="517.5" y="229" text-anchor="middle" font-size="11" fill="#5a3d00" font-weight="bold">held off</text>
+  <rect x="610" y="213" width="70" height="24" rx="2" fill="#3a78c2" stroke="#3a78c2" stroke-width="1"/>
+  <text x="645" y="229" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">handler</text>
+  <rect x="680" y="275" width="80" height="24" rx="2" fill="#c0392b" stroke="#c0392b" stroke-width="1"/>
+  <text x="720" y="291" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">call</text>
+  <rect x="760" y="275" width="60" height="24" rx="2" fill="#3a78c2" stroke="#3a78c2" stroke-width="1"/>
+  <text x="790" y="291" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">handler</text>
+  <rect x="455" y="340" width="365" height="18" rx="2" fill="#ffffff" stroke="#999999" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text x="637.5" y="353" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">waits for the caller</text>
+  <rect x="820" y="337" width="80" height="24" rx="2" fill="#3a78c2" stroke="#3a78c2" stroke-width="1"/>
+  <text x="860" y="353" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">handler</text>
+  <path d="M390,139 L400,139 L395,147 Z" fill="#222222"/>
+  <path d="M420,201 L430,201 L425,209 Z" fill="#222222"/>
+  <path d="M450,325 L460,325 L455,333 Z" fill="#222222"/>
+  <path d="M485,77 L495,77 L490,85 Z" fill="#222222"/>
+  <line x1="395" y1="287" x2="395" y2="163" stroke="#777" stroke-width="1" stroke-dasharray="2 2"/>
+  <line x1="490" y1="163" x2="490" y2="101" stroke="#777" stroke-width="1" stroke-dasharray="2 2"/>
+  <line x1="560" y1="101" x2="560" y2="163" stroke="#777" stroke-width="1" stroke-dasharray="2 2"/>
+  <line x1="610" y1="163" x2="610" y2="225" stroke="#777" stroke-width="1" stroke-dasharray="2 2"/>
+  <line x1="680" y1="225" x2="680" y2="287" stroke="#777" stroke-width="1" stroke-dasharray="2 2"/>
+  <line x1="820" y1="287" x2="820" y2="349" stroke="#777" stroke-width="1" stroke-dasharray="2 2"/>
+  <line x1="330" y1="70" x2="330" y2="392" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="1 3"/>
+  <circle cx="330" cy="400" r="9" fill="#222222"/>
+  <text x="330" y="404" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">1</text>
+  <line x1="490" y1="70" x2="490" y2="392" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="1 3"/>
+  <circle cx="490" cy="400" r="9" fill="#222222"/>
+  <text x="490" y="404" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">2</text>
+  <line x1="610" y1="70" x2="610" y2="392" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="1 3"/>
+  <circle cx="610" cy="400" r="9" fill="#222222"/>
+  <text x="610" y="404" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">3</text>
+  <line x1="760" y1="70" x2="760" y2="392" stroke="#aaaaaa" stroke-width="1" stroke-dasharray="1 3"/>
+  <circle cx="760" cy="400" r="9" fill="#222222"/>
+  <text x="760" y="404" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">4</text>
+  <circle cx="40" cy="432" r="8" fill="#222222"/>
+  <text x="40" y="436" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">1</text>
+  <text x="54" y="436" text-anchor="start" font-size="11" fill="#222222">Call accepted: CRACEN boosted to secure 6</text>
+  <circle cx="40" cy="455" r="8" fill="#222222"/>
+  <text x="40" y="459" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">2</text>
+  <text x="54" y="459" text-anchor="start" font-size="11" fill="#222222">Level 2 is more urgent than CRACEN and preempts its handler</text>
+  <circle cx="40" cy="478" r="8" fill="#222222"/>
+  <text x="40" y="482" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">3</text>
+  <text x="54" y="482" text-anchor="start" font-size="11" fill="#222222">Level 4 ties with CRACEN, so it waits for CRACEN's handler, then preempts the call</text>
+  <circle cx="40" cy="501" r="8" fill="#222222"/>
+  <text x="40" y="505" text-anchor="middle" font-size="10" fill="#ffffff" font-weight="bold">4</text>
+  <text x="54" y="505" text-anchor="start" font-size="11" fill="#222222">Call returns: CRACEN restored. Level 7 does not preempt the caller, so it waits for the caller's handler to return</text>
+  <rect x="40" y="535" width="18" height="14" rx="3" fill="#3a78c2" stroke="#3a78c2" stroke-width="1.5"/>
+  <text x="65" y="546" text-anchor="start" font-size="12" fill="#222222">Non-secure code</text>
+  <rect x="183.5" y="535" width="18" height="14" rx="3" fill="#c0392b" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="208.5" y="546" text-anchor="start" font-size="12" fill="#222222">Secure code</text>
+  <rect x="301.8" y="535" width="18" height="14" rx="3" fill="#fdf1d8" stroke="#c98a1b" stroke-width="1.5"/>
+  <text x="326.8" y="546" text-anchor="start" font-size="12" fill="#222222">Pending, held off by CRACEN</text>
+  <rect x="520.9" y="535" width="18" height="14" rx="3" fill="#ffffff" stroke="#999999" stroke-width="1.5"/>
+  <text x="545.9" y="546" text-anchor="start" font-size="12" fill="#222222">Pending, waits for the caller</text>
+  <path d="M735,538 L745,538 L740,546 Z" fill="#222222"/>
+  <text x="752" y="546" text-anchor="start" font-size="12" fill="#222222">interrupt pends</text>
+</svg>

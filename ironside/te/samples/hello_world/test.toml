@@ -1,0 +1,8 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+description = "Print a greeting over UART, then blink the DK LEDs (proves the build -> flash -> UART flow)"
+tier = "pr"    # fast pre-merge sweep: the cheapest end-to-end proof that a
+               # signed App builds, flashes, boots behind the RoT and talks.
+timeout = 5    # max wait for INTEGRATION_KIT_TEST_FINISHED; the runner exits early on it,
+               # so this is just the ceiling for a hung/failing run (~8x the
+               # ~0.5s a passing run actually takes).

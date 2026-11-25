@@ -1,0 +1,329 @@
+{
+  "about": [
+    "Every configuration field an IronSide bundle carries, in one place."
+  ],
+  "schema": 1,
+  "profiles": {
+    "base": {
+      "title": "base configuration",
+      "short-title": "base config",
+      "generator-title": "base configuration (IronSide UICR region)",
+      "profile-file": "ironside-te-config.base.json",
+      "summary": "the write-once UICR words: the partition layout, the PSA key slots and the IKG SEED selection",
+      "scopes": {
+        "bundle": {"omitted-note": "keeps current value if omitted"},
+        "generator": {"omitted-note": "default: {reference-kb} kB"}
+      },
+      "all-or-nothing": {
+        "what": "partition sizes",
+        "fields": ["slot1-size-kb", "storage-size-kb", "dfuimage-size-kb"]
+      },
+      "fields": [
+        {
+          "name": "format-version",
+          "scope": ["generator"],
+          "value": "string",
+          "metavar": "VER",
+          "default": "1.0",
+          "help": "format version (default: {default})"
+        },
+        {
+          "name": "slot1-size-kb",
+          "dest": "slot1_kb",
+          "partition": "slot1",
+          "region": "irot",
+          "profile": true,
+          "value": "int",
+          "metavar": "KB",
+          "unit": "kB",
+          "help": "SLOT1 partition size in kB",
+          "constraints": ["multiple of 4"],
+          "reference-kb": 128
+        },
+        {
+          "name": "storage-size-kb",
+          "dest": "storage_kb",
+          "partition": "appstorage",
+          "region": "irot",
+          "profile": true,
+          "value": "int",
+          "metavar": "KB",
+          "unit": "kB",
+          "help": "STORAGE partition size in kB",
+          "constraints": ["multiple of 4", "0 disables"],
+          "reference-kb": 64
+        },
+        {
+          "name": "urotstorage-size-kb",
+          "dest": "urotstorage_kb",
+          "partition": "urotstorage",
+          "region": "irot",
+          "profile": true,
+          "value": "int",
+          "metavar": "KB",
+          "unit": "kB",
+          "help": "UROTSTORAGE partition size in kB",
+          "constraints": ["multiple of 4", "minimum 4"],
+          "reference-kb": 4
+        },
+        {
+          "name": "dfuimage-size-kb",
+          "dest": "dfuimage_kb",
+          "partition": "dfuimage",
+          "region": "irot",
+          "profile": true,
+          "value": "int",
+          "metavar": "KB",
+          "unit": "kB",
+          "help": "DFUIMAGE partition size in kB",
+          "constraints": ["multiple of 4", "0 disables"],
+          "reference-kb": 32
+        },
+        {
+          "name": "key-slot-storage-size-bytes",
+          "dest": "key_slot_storage_size",
+          "scope": ["bundle"],
+          "region": "urot",
+          "profile": true,
+          "label": "key slot storage size",
+          "value": "int",
+          "metavar": "BYTES",
+          "unit": "B",
+          "help": "PSA key slot storage size in bytes, 1536..42496 (default: 1536, the 8 slots every device has at the top of the fixed 32 kB ROT-RAM). It holds every whole 192 B slot that fits, BYTES / 192 slots. Anything above 1536 is secure RAM reserved above ROT-RAM and must be a multiple of the part's RAM split granule (32 B on the nRF54LM20 and nRF54LV10A, 4096 B on the nRF54L15), so a size is 1536 plus that multiple. The non-secure RAM starts where the storage ends, so an application must be built for the same bundle"
+        },
+        {
+          "name": "ikg-seed-select",
+          "dest": "ikg_seed_select",
+          "scope": ["bundle"],
+          "region": "urot",
+          "profile": true,
+          "label": "IKG SEED selection",
+          "value": "string",
+          "values": "ikg-seed-select",
+          "parser": "ikg-seed-select",
+          "metavar": "ENTRY",
+          "help": "IKG SEED entry the device derives its identity from: {ENTRY} (default: auto). auto leaves the selection to provisioning, which selects User SEED when it is Locked and Nordic SEED otherwise. The selected entry must hold a SEED, and provision-user-seed yes refuses nordic. Changing it on a device takes an ERASEALL",
+          "enums": {"ENTRY": {"enum": "ikg-seed-select", "join": " or "}}
+        },
+        {
+          "name": "no-partitions",
+          "scope": ["generator"],
+          "value": "flag",
+          "help": "do not write partitions (device requires another source)"
+        },
+        {
+          "name": "no-authlock",
+          "scope": ["generator"],
+          "value": "flag",
+          "help": "omit the APPROTECTAUTHLOCK marker (bench use only)"
+        },
+        {
+          "name": "allow-no-urot",
+          "scope": ["generator"],
+          "value": "flag",
+          "help": "allow a configuration without UROT keys (device will not boot)"
+        }
+      ]
+    },
+    "image": {
+      "title": "image configuration",
+      "short-title": "image config",
+      "profile-file": "ironside-te-config.image.json",
+      "summary": "the protected TLV inside the UROT image: DFU triggers, the non-secure watchdog and the power-fail comparator",
+      "formatversions": ["1.0"],
+      "fields": [
+        {
+          "name": "dfu-trigger-gpio",
+          "profile": true,
+          "value": "string",
+          "metavar": "P<PORT>.<PIN>[,LEVEL][,PULL]",
+          "help": "GPIO trigger, for example P1.8,low (LEVEL: {LEVEL}, PULL: {PULL})",
+          "enums": {"LEVEL": "gpio-level", "PULL": "gpio-pull"},
+          "disabled-by": "no-dfu-trigger-gpio",
+          "display": {"off": "disabled"}
+        },
+        {
+          "name": "no-dfu-trigger-gpio",
+          "profile": true,
+          "editing-only": true,
+          "value": "flag",
+          "help": "disable the GPIO trigger",
+          "disables": "dfu-trigger-gpio"
+        },
+        {
+          "name": "dfu-trigger-resetreas",
+          "profile": true,
+          "value": "string-list",
+          "values": "resetreas",
+          "metavar": "R",
+          "help": "reset reason trigger, space or comma separated (R: {R})",
+          "enums": {"R": "resetreas"},
+          "display": {"off": "none", "join": " "}
+        },
+        {
+          "name": "dfu-trigger-fault",
+          "profile": true,
+          "value": "flag",
+          "help": "boot IronSide DFU on the boot after a non-secure fault, so it can export the fault record",
+          "disabled-by": "no-dfu-trigger-fault",
+          "display": {"off": "disabled"}
+        },
+        {
+          "name": "no-dfu-trigger-fault",
+          "profile": true,
+          "editing-only": true,
+          "value": "flag",
+          "help": "disable the fault trigger",
+          "disables": "dfu-trigger-fault"
+        },
+        {
+          "name": "wdtstart-crv-ms",
+          "profile": true,
+          "value": "float",
+          "metavar": "MS",
+          "help": "non-secure watchdog timeout in milliseconds (0 disables)",
+          "exclusive-with": ["wdt-crv"],
+          "display": {"off": "off"}
+        },
+        {
+          "name": "wdt-crv",
+          "profile": true,
+          "value": "int0",
+          "hidden": true,
+          "help": "exact WDT31 CRV, for tests that assert one",
+          "exclusive-with": ["wdtstart-crv-ms"],
+          "display": {"format": "hex"}
+        },
+        {
+          "name": "pof",
+          "profile": true,
+          "value": "string",
+          "metavar": "CODE[,noevent]",
+          "help": "power-fail comparator threshold, as the raw per-part THRESHOLD code 0..15 from the datasheet; add noevent to suppress the POFWARN event",
+          "disabled-by": "no-pof",
+          "display": {"off": "disabled"}
+        },
+        {
+          "name": "no-pof",
+          "profile": true,
+          "editing-only": true,
+          "value": "flag",
+          "help": "disable the power-fail comparator",
+          "disables": "pof"
+        },
+        {
+          "name": "board-lfxo",
+          "profile": true,
+          "value": "string",
+          "metavar": "CAP_PF[,bypass]",
+          "help": "LFXO crystal load capacitance in picofarads, e.g. 17, with bypass when an external clock drives LFXO instead of a crystal. UROT does not boot without it. If never set, signing applies the nRF54L DK value 17, with a warning"
+        },
+        {
+          "name": "board-hfxo",
+          "profile": true,
+          "value": "int",
+          "metavar": "PF",
+          "unit": "pF",
+          "help": "HFXO crystal load capacitance in picofarads. UROT does not boot without it. If never set, signing applies the nRF54L DK value 15, with a warning"
+        },
+        {
+          "name": "board-vreg",
+          "profile": true,
+          "value": "string",
+          "values": "vreg-mode",
+          "metavar": "MODE",
+          "help": "main regulator mode: {MODE}. dcdc needs the DC/DC inductor on the board. UROT does not boot without it. If never set, signing applies the nRF54L DK value dcdc, with a warning",
+          "enums": {"MODE": {"enum": "vreg-mode", "join": " or "}}
+        },
+        {
+          "name": "authop-revoke-gen",
+          "profile": true,
+          "value": "string",
+          "metavar": "GEN",
+          "help": "revoke AUTHOP generation GEN (0, 1 or 2) and every older one on each device the UROT update reaches, or none. A later release should keep it, and lowering it only warns. Revoking generation 2, the last one, removes every authenticated debug operation from the device permanently"
+        }
+      ]
+    },
+    "provisioning": {
+      "title": "provisioning configuration",
+      "short-title": "provisioning config",
+      "profile-file": "ironside-te-config.provisioning.json",
+      "summary": "the deployment's permanent choices: how the access port closes, and which IKG SEED entries provisioning writes",
+      "fields": [
+        {
+          "name": "ap-closure",
+          "profile": true,
+          "label": "access port closure method",
+          "value": "string",
+          "values": "ap-closure",
+          "parser": "ap-closure",
+          "metavar": "METHOD",
+          "default-value": "authenticated",
+          "help": "access port closure method: {METHOD} (default: {default}). The hardware-fixed method is permanent. The authenticated method allows authenticated debug",
+          "enums": {"METHOD": {"enum": "ap-closure", "join": " or "}}
+        },
+{
+          "name": "provision-user-seed",
+          "profile": true,
+          "label": "User SEED provisioning",
+          "value": "string",
+          "values": "provision-user-seed",
+          "parser": "provision-user-seed",
+          "metavar": "CHOICE",
+          "default-value": "no",
+          "help": "whether provisioning enrolls User SEED: {CHOICE} (default: {default}). no writes no SEED slot and uses the entry the device already has, so provisioning an unseeded device stops before anything is written. yes enrolls User SEED, which is permanent, and leaves Nordic SEED as it is. See the section \"User SEED provisioning\" in the user guide",
+          "enums": {"CHOICE": {"enum": "provision-user-seed", "join": " or "}}
+        }
+      ]
+    }
+  },
+  "enums": {
+    "gpio-level": {
+      "holder": "the active level of a DFU-entry GPIO trigger, which UROT derives from the stored pull",
+      "values": [
+        {"name": "low", "implied-pull": "pullup"},
+        {"name": "high", "implied-pull": "pulldown"}
+      ]
+    },
+    "gpio-pull": {
+      "holder": "lib/conf_img.py GPIO_PULL",
+      "values": [{"name": "disabled"}, {"name": "pulldown"}, {"name": "pullup"}]
+    },
+    "resetreas": {
+      "holder": "lib/conf_img.py RESETREAS",
+      "values": [
+        {"name": "dog0"},
+        {"name": "dog1"},
+        {"name": "lockup"},
+        {"name": "resetpin"},
+        {"name": "none", "disables": true}
+      ]
+    },
+    "vreg-mode": {
+      "holder": "lib/conf_img.py BOARD_VREG_DCDC",
+      "values": [{"name": "dcdc"}, {"name": "ldo"}]
+    },
+    "ap-closure": {
+      "holder": "lib/prov_batches.py CLOSURE_METHODS and CLOSURE_LABELS",
+      "values": [
+        {"name": "authenticated", "abi": "auth-lock", "label": "authenticated"},
+        {"name": "hardware-fixed", "abi": "hw-lock", "label": "hardware fixed"}
+      ]
+    },
+    "ikg-seed-select": {
+      "holder": "lib/uicr.py IKG_SEED_SELECTIONS and IKG_SEED_SELECT_AUTO",
+      "values": [
+        {"name": "nordic", "label": "Nordic SEED"},
+        {"name": "user", "label": "User SEED"},
+        {"name": "auto", "label": "selected by provisioning"}
+      ]
+    },
+    "provision-user-seed": {
+      "holder": "lib/prov_batches.py USER_SEED_CHOICES and SEED_LABELS",
+      "values": [
+        {"name": "no", "abi": "check", "label": "no, use the IKG SEED the device already has"},
+        {"name": "yes", "abi": "user", "label": "yes, enroll User SEED"}
+      ]
+    }
+  }
+}

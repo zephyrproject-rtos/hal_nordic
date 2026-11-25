@@ -1,0 +1,6 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+description = "Derive a device-unique key from the MEXT IKG root (SP 800-108) and AES-GCM an NVM record at rest"
+tier = "pr"    # fast pre-merge sweep: the representative for keys derived from
+               # a hardware identity root, which no other gated test touches.
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED (~0.5s)

@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1113px" height="640px" viewBox="0 0 1113 640">
+<g>
+<g data-cell-id="0">
+<g data-cell-id="1">
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-63">
+<g transform="translate(0.5,0.5)">
+<rect x="381" y="330" width="730" height="308" fill="#ffffff" stroke="#000000" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="746" y="352.36" text-anchor="middle" font-family="Helvetica" font-size="16" font-weight="bold" fill="#000000"><tspan x="746" y="352.36">Two party production</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-62">
+<g transform="translate(0.5,0.5)">
+<rect x="381" y="22.5" width="730" height="240" fill="#ffffff" stroke="#000000" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="746" y="45.36" text-anchor="middle" font-family="Helvetica" font-size="16" font-weight="bold" fill="#000000"><tspan x="746" y="45.36">Single party production</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-65">
+<g transform="translate(0.5,0.5)">
+<path d="M 921 540 L 941 540 L 921 540 L 934.63 540" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 939.88 540 L 932.88 543.5 L 934.63 540 L 932.88 536.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-21">
+<g transform="translate(0.5,0.5)">
+<ellipse cx="881" cy="540" rx="40" ry="40" fill="#60a917" stroke="none"/>
+<path d="M 865.14 521.94 C 864.48 521.94 863.89 522.36 863.67 522.98 L 859.18 535.53 C 859 536.02 859.08 536.57 859.39 536.99 C 860.64 538.68 862.6 539.61 864.59 539.84 L 864.59 556.37 C 864.59 556.78 864.76 557.18 865.05 557.47 C 865.34 557.76 865.74 557.93 866.16 557.93 L 885.71 557.93 C 886.58 557.93 887.27 557.23 887.27 556.37 L 887.27 539.84 C 888.75 539.61 890.1 539.03 891.25 538.14 C 892.07 538.78 892.97 539.44 894.24 539.8 L 894.24 556.37 C 894.24 556.78 894.41 557.18 894.7 557.47 C 894.99 557.76 895.39 557.93 895.8 557.93 C 896.22 557.93 896.62 557.76 896.91 557.47 C 897.2 557.18 897.37 556.78 897.37 556.37 L 897.37 539.9 C 899.41 539.57 901.29 538.5 902.54 537.08 C 902.92 536.64 903.03 536.02 902.82 535.48 L 897.89 522.94 C 897.65 522.34 897.08 521.94 896.44 521.94 Z M 866.24 525.07 L 895.37 525.07 L 899.47 535.51 C 898.52 536.22 897.12 536.92 896.15 536.92 C 896.13 536.92 896.11 536.92 896.09 536.92 C 894.99 536.96 893.17 535.8 892.18 534.97 C 891.55 534.43 890.61 534.48 890.04 535.08 C 888.94 536.23 887.58 536.85 885.92 536.85 C 884.5 536.85 883.13 536.29 882.24 534.99 C 881.95 534.56 881.46 534.3 880.94 534.31 C 880.43 534.31 879.94 534.57 879.65 535 C 878.82 536.25 877.41 536.92 875.7 536.92 C 874.5 536.92 873.11 536.06 871.94 534.89 C 871.62 534.58 871.19 534.41 870.75 534.44 C 870.3 534.46 869.89 534.68 869.61 535.02 C 869.41 535.27 868.75 535.82 867.96 536.2 C 867.17 536.57 866.25 536.82 865.55 536.82 C 864.51 536.82 863.27 536.33 862.45 535.66 Z M 870.85 538.11 C 872.16 539.17 873.78 540.04 875.7 540.04 C 877.62 540.04 879.51 539.42 880.96 538.19 C 881.9 538.99 883.01 539.51 884.15 539.77 L 884.15 554.8 L 867.72 554.8 L 867.72 539.61 C 868.27 539.45 868.82 539.25 869.31 539.01 C 869.87 538.74 870.39 538.44 870.85 538.11 Z M 896.18 540.04 C 896.19 540.04 896.2 540.04 896.21 540.04 L 896.15 540.04 C 896.16 540.04 896.17 540.04 896.18 540.04 Z M 873.12 544.6 C 872.26 544.6 871.56 545.3 871.56 546.17 C 871.56 546.58 871.73 546.98 872.02 547.27 C 872.31 547.56 872.71 547.73 873.12 547.73 L 878.66 547.73 C 879.53 547.73 880.23 547.03 880.23 546.17 C 880.23 545.3 879.53 544.6 878.66 544.6 Z" fill="#ffffff" stroke="none"/>
+</g>
+<g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-59">
+<g transform="translate(0.5,0.5)">
+<path d="M 881 445 L 881 493.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 881 498.88 L 877.5 491.88 L 881 493.63 L 884.5 491.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-22">
+<g transform="translate(0.5,0.5)">
+<rect x="772" y="415" width="218" height="30" rx="4.5" ry="4.5" fill="#60a917" stroke="#2d7600"/>
+</g>
+<g>
+<g>
+<text x="881" y="434.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="881" y="434.32">production_two_phase_2.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-48">
+<g transform="translate(0.5,0.5)">
+<path d="M 780 194.7 L 800 194.7 L 781 194.7 L 794.63 194.72" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 799.88 194.73 L 792.88 198.22 L 794.63 194.72 L 792.89 191.22 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-23">
+<g>
+<ellipse cx="740" cy="194.73" rx="40" ry="40" fill="#e51400" stroke="none"/>
+<path d="M 739.95 171.68 C 739.57 171.68 739.2 171.84 738.93 172.11 C 738.66 172.38 738.51 172.74 738.51 173.13 L 738.51 174.39 C 735.26 174.76 732.35 176.26 730.2 178.38 C 727.86 180.69 726.36 183.67 726.2 186.67 L 723.52 186.67 C 723.14 186.67 722.77 186.83 722.5 187.1 C 722.23 187.37 722.08 187.73 722.08 188.12 C 722.08 188.5 722.23 188.87 722.5 189.14 C 722.77 189.41 723.14 189.56 723.52 189.56 L 726.15 189.56 L 726.19 203.87 L 723.59 203.87 C 723.21 203.87 722.84 204.02 722.57 204.29 C 722.3 204.56 722.15 204.93 722.15 205.31 L 722.15 211.52 C 722.15 211.9 722.3 212.27 722.57 212.54 C 722.84 212.81 723.21 212.96 723.59 212.96 L 756.49 212.96 C 756.88 212.96 757.24 212.81 757.51 212.54 C 757.79 212.27 757.94 211.9 757.94 211.52 L 757.94 205.31 C 757.94 204.93 757.79 204.56 757.51 204.29 C 757.24 204.02 756.88 203.87 756.49 203.87 L 753.99 203.87 L 753.86 189.56 L 756.61 189.56 C 756.99 189.56 757.35 189.41 757.63 189.14 C 757.9 188.87 758.05 188.5 758.05 188.12 C 758.05 187.73 757.9 187.37 757.63 187.1 C 757.35 186.83 756.99 186.67 756.61 186.67 L 753.76 186.67 C 753.36 180.22 748.2 175.03 741.39 174.37 L 741.39 173.13 C 741.39 172.33 740.75 171.68 739.95 171.68 Z M 739.95 177.11 C 746.01 177.11 750.46 181.36 750.88 186.68 L 729.09 186.68 C 729.25 184.6 730.37 182.27 732.22 180.44 C 734.23 178.46 736.98 177.11 739.95 177.11 Z M 729.03 189.56 L 732.32 189.56 L 732.32 203.87 L 729.08 203.87 Z M 735.21 189.56 L 738.62 189.56 L 738.62 203.87 L 735.21 203.87 Z M 741.5 189.56 L 744.92 189.56 L 744.92 203.87 L 741.5 203.87 Z M 747.8 189.56 L 750.98 189.56 L 751.1 203.87 L 747.8 203.87 Z M 725.04 206.75 L 755.05 206.75 L 755.05 210.08 L 725.04 210.08 Z" fill="#ffffff" stroke="none"/>
+</g>
+<g>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-27">
+<g transform="translate(0.5,0.5)">
+<path d="M 740 104.73 L 740 148.36" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 740 153.61 L 736.5 146.61 L 740 148.36 L 743.5 146.61 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-24">
+<g transform="translate(0.5,0.5)">
+<rect x="631" y="74.73" width="218" height="30" rx="4.5" ry="4.5" fill="#e51400" stroke="#b20000"/>
+</g>
+<g>
+<g>
+<text x="740" y="94.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="740" y="94.32">production_single_phase.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-51">
+<g transform="translate(0.5,0.5)">
+<path d="M 600 442.5 L 600 486.13" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 600 491.38 L 596.5 484.38 L 600 486.13 L 603.5 484.38 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-34">
+<g transform="translate(0.5,0.5)">
+<rect x="491" y="412.5" width="218" height="30" rx="4.5" ry="4.5" fill="#e51400" stroke="#b20000"/>
+</g>
+<g>
+<g>
+<text x="600" y="432.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="600" y="432.32">production_two_phase_1.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-57">
+<g transform="translate(0.5,0.5)">
+<path d="M 640 532.5 L 660 532.5 L 666.62 532.75" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 671.86 532.96 L 664.73 536.18 L 666.62 532.75 L 665 529.19 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-36">
+<g>
+<ellipse cx="600" cy="532.5" rx="40" ry="40" fill="#e51400" stroke="none"/>
+<path d="M 599.95 509.45 C 599.57 509.45 599.2 509.61 598.93 509.88 C 598.66 510.15 598.51 510.51 598.51 510.9 L 598.51 512.16 C 595.26 512.53 592.35 514.03 590.2 516.15 C 587.86 518.46 586.36 521.44 586.2 524.44 L 583.52 524.44 C 583.14 524.44 582.77 524.6 582.5 524.87 C 582.23 525.14 582.08 525.5 582.08 525.89 C 582.08 526.27 582.23 526.64 582.5 526.91 C 582.77 527.18 583.14 527.33 583.52 527.33 L 586.15 527.33 L 586.19 541.64 L 583.59 541.64 C 583.21 541.64 582.84 541.79 582.57 542.06 C 582.3 542.33 582.15 542.7 582.15 543.08 L 582.15 549.29 C 582.15 549.67 582.3 550.04 582.57 550.31 C 582.84 550.58 583.21 550.73 583.59 550.73 L 616.49 550.73 C 616.88 550.73 617.24 550.58 617.51 550.31 C 617.79 550.04 617.94 549.67 617.94 549.29 L 617.94 543.08 C 617.94 542.7 617.79 542.33 617.51 542.06 C 617.24 541.79 616.88 541.64 616.49 541.64 L 613.99 541.64 L 613.86 527.33 L 616.61 527.33 C 616.99 527.33 617.35 527.18 617.63 526.91 C 617.9 526.64 618.05 526.27 618.05 525.89 C 618.05 525.5 617.9 525.14 617.63 524.87 C 617.35 524.6 616.99 524.44 616.61 524.44 L 613.76 524.44 C 613.36 517.99 608.2 512.8 601.39 512.14 L 601.39 510.9 C 601.39 510.1 600.75 509.45 599.95 509.45 Z M 599.95 514.88 C 606.01 514.88 610.46 519.13 610.88 524.45 L 589.09 524.45 C 589.25 522.37 590.37 520.04 592.22 518.21 C 594.23 516.23 596.98 514.88 599.95 514.88 Z M 589.03 527.33 L 592.32 527.33 L 592.32 541.64 L 589.08 541.64 Z M 595.21 527.33 L 598.62 527.33 L 598.62 541.64 L 595.21 541.64 Z M 601.5 527.33 L 604.92 527.33 L 604.92 541.64 L 601.5 541.64 Z M 607.8 527.33 L 610.98 527.33 L 611.1 541.64 L 607.8 541.64 Z M 585.04 544.52 L 615.05 544.52 L 615.05 547.85 L 585.04 547.85 Z" fill="#ffffff" stroke="none"/>
+</g>
+<g>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-40">
+<g transform="translate(0.5,0.5)">
+<path d="M 661 195.27 L 681 195.3 L 693.64 194.9" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 698.88 194.74 L 692 198.45 L 693.64 194.9 L 691.78 191.46 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-53">
+<g transform="translate(0.5,0.5)">
+<path d="M 521 532.5 L 542 532.5 L 540 532.5 L 553.63 532.5" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 558.88 532.5 L 551.88 536 L 553.63 532.5 L 551.88 529 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-1">
+<g>
+<ellipse cx="146" cy="40" rx="40" ry="40" fill="#e51400" stroke="none"/>
+<path d="M 145.95 16.95 C 145.16 16.95 144.51 17.6 144.51 18.4 L 144.51 19.66 C 141.26 20.03 138.35 21.53 136.2 23.65 C 133.86 25.96 132.36 28.93 132.2 31.94 L 129.52 31.94 C 128.72 31.94 128.08 32.59 128.08 33.39 C 128.08 34.18 128.72 34.83 129.52 34.83 L 132.15 34.83 L 132.19 49.14 L 129.59 49.14 C 128.8 49.14 128.15 49.78 128.15 50.58 L 128.15 56.79 C 128.15 57.59 128.8 58.23 129.59 58.23 L 162.49 58.23 C 162.88 58.23 163.24 58.08 163.51 57.81 C 163.79 57.54 163.94 57.17 163.94 56.79 L 163.94 50.58 C 163.94 50.2 163.79 49.83 163.51 49.56 C 163.24 49.29 162.88 49.14 162.49 49.14 L 159.99 49.14 L 159.86 34.83 L 162.61 34.83 C 163.4 34.83 164.05 34.18 164.05 33.39 C 164.05 32.59 163.4 31.94 162.61 31.94 L 159.76 31.94 C 159.36 25.49 154.2 20.3 147.39 19.63 L 147.39 18.4 C 147.39 17.6 146.75 16.95 145.95 16.95 Z M 145.95 22.38 C 152.01 22.38 156.46 26.63 156.88 31.94 L 135.09 31.94 C 135.25 29.87 136.37 27.54 138.22 25.71 C 140.23 23.73 142.98 22.38 145.95 22.38 Z M 135.03 34.83 L 138.32 34.83 L 138.32 49.14 L 135.08 49.14 Z M 141.21 34.83 L 144.62 34.83 L 144.62 49.14 L 141.21 49.14 Z M 147.5 34.83 L 150.92 34.83 L 150.92 49.14 L 147.5 49.14 Z M 153.8 34.83 L 156.98 34.83 L 157.1 49.14 L 153.8 49.14 Z M 131.04 52.02 L 161.05 52.02 L 161.05 55.35 L 131.04 55.35 Z" fill="#ffffff" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="146.5" y="102.36" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#000000"><tspan x="146.5" y="102.36">Trusted Production Programming Party</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-2">
+<g transform="translate(0.5,0.5)">
+<ellipse cx="146" cy="160" rx="40" ry="40" fill="#60a917" stroke="none"/>
+<path d="M 130.14 141.94 C 129.48 141.94 128.89 142.36 128.67 142.98 L 124.18 155.53 C 124 156.02 124.08 156.57 124.39 156.98 C 125.64 158.68 127.6 159.61 129.59 159.84 L 129.59 176.36 C 129.59 177.23 130.29 177.93 131.16 177.93 L 150.71 177.93 C 151.58 177.93 152.27 177.23 152.27 176.36 L 152.27 159.84 C 153.75 159.61 155.1 159.02 156.25 158.14 C 157.07 158.77 157.97 159.44 159.24 159.8 L 159.24 176.36 C 159.24 177.23 159.94 177.93 160.8 177.93 C 161.22 177.93 161.62 177.76 161.91 177.47 C 162.2 177.18 162.37 176.78 162.37 176.36 L 162.37 159.89 C 164.41 159.56 166.29 158.5 167.54 157.08 C 167.92 156.64 168.03 156.02 167.82 155.48 L 162.89 142.93 C 162.65 142.34 162.08 141.94 161.44 141.94 Z M 131.24 145.07 L 160.37 145.07 L 164.47 155.51 C 163.52 156.22 162.12 156.92 161.15 156.92 C 161.13 156.92 161.11 156.92 161.09 156.92 C 159.99 156.96 158.17 155.8 157.18 154.96 C 156.55 154.43 155.61 154.48 155.04 155.08 C 153.94 156.23 152.58 156.85 150.92 156.85 C 149.5 156.85 148.13 156.28 147.24 154.99 C 146.95 154.56 146.46 154.3 145.94 154.31 C 145.43 154.31 144.94 154.57 144.65 155 C 143.82 156.25 142.41 156.92 140.7 156.92 C 139.5 156.92 138.11 156.06 136.94 154.89 C 136.62 154.58 136.19 154.41 135.75 154.44 C 135.3 154.46 134.89 154.67 134.61 155.02 C 134.41 155.27 133.75 155.81 132.96 156.19 C 132.17 156.57 131.25 156.82 130.55 156.82 C 129.51 156.82 128.27 156.33 127.45 155.66 Z M 135.85 158.11 C 137.16 159.17 138.78 160.04 140.7 160.04 C 142.62 160.04 144.51 159.42 145.96 158.19 C 146.9 158.99 148.01 159.51 149.15 159.77 L 149.15 174.8 L 132.72 174.8 L 132.72 159.6 C 133.27 159.44 133.82 159.25 134.31 159.01 C 134.87 158.74 135.39 158.44 135.85 158.11 Z M 161.18 160.04 C 161.19 160.04 161.2 160.04 161.21 160.04 L 161.15 160.04 C 161.16 160.04 161.17 160.04 161.18 160.04 Z M 138.12 164.6 C 137.71 164.6 137.31 164.77 137.02 165.06 C 136.73 165.35 136.56 165.75 136.56 166.16 C 136.56 166.58 136.73 166.97 137.02 167.27 C 137.31 167.56 137.71 167.73 138.12 167.73 L 143.66 167.73 C 144.08 167.73 144.48 167.56 144.77 167.27 C 145.06 166.97 145.23 166.58 145.23 166.16 C 145.23 165.75 145.06 165.35 144.77 165.06 C 144.48 164.77 144.08 164.6 143.66 164.6 Z" fill="#ffffff" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="146.5" y="222.36" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#000000"><tspan x="146.5" y="222.36">Untrusted Production Programming Party</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="b_1fAHGxSKoO9IPCKe7q-67">
+<g>
+<rect x="191" y="275" width="130" height="55" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="256" y="299.64" text-anchor="middle" font-family="Helvetica" font-size="14" fill="#000000"><tspan x="256" y="299.64">No assets installed</tspan><tspan x="256" y="316.44">No assets protected</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-2">
+<g transform="translate(0.5,0.5)">
+<rect x="41" y="252.5" width="60" height="100" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="71" y="271.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="71" y="271.52">S</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-3">
+<g transform="translate(0.5,0.5)">
+<rect x="101" y="252.5" width="60" height="100" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="131" y="271.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="131" y="271.52">NS</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-17">
+<g>
+<rect x="196" y="533" width="130" height="55" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="261" y="557.64" text-anchor="middle" font-family="Helvetica" font-size="14" fill="#000000"><tspan x="261" y="557.64">All assets installed</tspan><tspan x="261" y="574.44">All assets protected</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-20">
+<g transform="translate(0.5,0.5)">
+<path d="M 91 285 L 111 285 L 131 302.5 L 111 320 L 91 320 L 71 302.5 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="101" y="307.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="101" y="307.32">nRF</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-35">
+<g/>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-36">
+<g transform="translate(0.5,0.5)">
+<rect x="41" y="510.5" width="60" height="100" fill="#c2c2c2" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="71" y="529.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="71" y="529.52">S</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-37">
+<g transform="translate(0.5,0.5)">
+<rect x="101" y="510.5" width="60" height="100" fill="#c2c2c2" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="131" y="529.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="131" y="529.52">NS</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-38">
+<g transform="translate(0.5,0.5)">
+<path d="M 91 543 L 111 543 L 131 560.5 L 111 578 L 91 578 L 71 560.5 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="101" y="565.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="101" y="565.32">nRF</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="jop3mYkmZgWnEtKgWX59-7">
+<g>
+<rect x="59" y="593" width="24" height="15" fill="#cccc00" stroke="#000000" stroke-width="2"/>
+<path d="M 62 593 L 62 587 C 62 582.03 66.03 578 71 578 C 75.97 578 80 582.03 80 587 L 80 593" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="jop3mYkmZgWnEtKgWX59-14">
+<g>
+<rect x="119" y="593" width="24" height="15" fill="#cccc00" stroke="#000000" stroke-width="2"/>
+<path d="M 122 593 L 122 587 C 122 582.03 126.03 578 131 578 C 135.97 578 140 582.03 140 587 L 140 593" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-43">
+<g/>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-44">
+<g transform="translate(0.5,0.5)">
+<rect x="801" y="144.73" width="60" height="100" fill="#c2c2c2" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="831" y="163.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="831" y="163.52">S</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-45">
+<g transform="translate(0.5,0.5)">
+<rect x="861" y="144.73" width="60" height="100" fill="#c2c2c2" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="891" y="163.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="891" y="163.52">NS</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-46">
+<g transform="translate(0.5,0.5)">
+<path d="M 851 177.23 L 871 177.23 L 891 194.73 L 871 212.23 L 851 212.23 L 831 194.73 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="861" y="199.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="861" y="199.32">nRF</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="jop3mYkmZgWnEtKgWX59-11">
+<g>
+<rect x="819" y="227.23" width="24" height="15" fill="#cccc00" stroke="#000000" stroke-width="2"/>
+<path d="M 822 227.23 L 822 221.23 C 822 216.26 826.03 212.23 831 212.23 C 835.97 212.23 840 216.26 840 221.23 L 840 227.23" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="jop3mYkmZgWnEtKgWX59-13">
+<g>
+<rect x="879" y="227.23" width="24" height="15" fill="#cccc00" stroke="#000000" stroke-width="2"/>
+<path d="M 882 227.23 L 882 221.23 C 882 216.26 886.03 212.23 891 212.23 C 895.97 212.23 900 216.26 900 221.23 L 900 227.23" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-47">
+<g/>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-40">
+<g transform="translate(0.5,0.5)">
+<rect x="541" y="145.27" width="60" height="100" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="571" y="163.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="571" y="163.52">S</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-41">
+<g transform="translate(0.5,0.5)">
+<rect x="601" y="145.27" width="60" height="100" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="631" y="163.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="631" y="163.52">NS</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-42">
+<g transform="translate(0.5,0.5)">
+<path d="M 591 177.77 L 611 177.77 L 631 195.27 L 611 212.77 L 591 212.77 L 571 195.27 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="601" y="199.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="601" y="199.32">nRF</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-49">
+<g/>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-50">
+<g transform="translate(0.5,0.5)">
+<rect x="401" y="490" width="60" height="100" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="431" y="508.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="431" y="508.52">S</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-51">
+<g transform="translate(0.5,0.5)">
+<rect x="461" y="490" width="60" height="100" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="491" y="508.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="491" y="508.52">NS</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-52">
+<g transform="translate(0.5,0.5)">
+<path d="M 451 522.5 L 471 522.5 L 491 540 L 471 557.5 L 451 557.5 L 431 540 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="461" y="544.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="461" y="544.32">nRF</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-56">
+<g/>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-53">
+<g transform="translate(0.5,0.5)">
+<rect x="671" y="490" width="60" height="100" fill="#c2c2c2" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="701" y="508.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="701" y="508.52">S</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-54">
+<g transform="translate(0.5,0.5)">
+<rect x="731" y="490" width="60" height="100" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="761" y="508.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="761" y="508.52">NS</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-55">
+<g transform="translate(0.5,0.5)">
+<path d="M 721 522.5 L 741 522.5 L 761 540 L 741 557.5 L 721 557.5 L 701 540 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="731" y="544.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="731" y="544.32">nRF</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="jop3mYkmZgWnEtKgWX59-8">
+<g>
+<rect x="689" y="572.5" width="24" height="15" fill="#cccc00" stroke="#000000" stroke-width="2"/>
+<path d="M 692 572.5 L 692 566.5 C 692 561.53 696.03 557.5 701 557.5 C 705.97 557.5 710 561.53 710 566.5 L 710 572.5" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-58">
+<g transform="translate(0.5,0.5)">
+<path d="M 791 540 L 834.63 540" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 839.88 540 L 832.88 543.5 L 834.63 540 L 832.88 536.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-61">
+<g/>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-62">
+<g transform="translate(0.5,0.5)">
+<rect x="941" y="490" width="60" height="100" fill="#c2c2c2" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="971" y="508.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="971" y="508.52">S</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-63">
+<g transform="translate(0.5,0.5)">
+<rect x="1001" y="490" width="60" height="100" fill="#c2c2c2" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="1031" y="508.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="1031" y="508.52">NS</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-64">
+<g transform="translate(0.5,0.5)">
+<path d="M 991 522.5 L 1011 522.5 L 1031 540 L 1011 557.5 L 991 557.5 L 971 540 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="1001" y="544.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="1001" y="544.32">nRF</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="jop3mYkmZgWnEtKgWX59-9">
+<g>
+<rect x="959" y="572.5" width="24" height="15" fill="#cccc00" stroke="#000000" stroke-width="2"/>
+<path d="M 962 572.5 L 962 566.5 C 962 561.53 966.03 557.5 971 557.5 C 975.97 557.5 980 561.53 980 566.5 L 980 572.5" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="jop3mYkmZgWnEtKgWX59-10">
+<g>
+<rect x="1019" y="572.5" width="24" height="15" fill="#cccc00" stroke="#000000" stroke-width="2"/>
+<path d="M 1022 572.5 L 1022 566.5 C 1022 561.53 1026.03 557.5 1031 557.5 C 1035.97 557.5 1040 561.53 1040 566.5 L 1040 572.5" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-66">
+<g/>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-8">
+<g>
+<rect x="191" y="395" width="140" height="55" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="261" y="419.64" text-anchor="middle" font-family="Helvetica" font-size="14" fill="#000000"><tspan x="261" y="419.64">Secure assets installed</tspan><tspan x="261" y="436.44">Secure assets protected</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-27">
+<g/>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-28">
+<g transform="translate(0.5,0.5)">
+<rect x="41" y="377.5" width="60" height="100" fill="#c2c2c2" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="71" y="396.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="71" y="396.52">S</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-29">
+<g transform="translate(0.5,0.5)">
+<rect x="101" y="377.5" width="60" height="100" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="131" y="396.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="131" y="396.52">NS</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="B8lWEZSAnZDKFS_z7Kak-30">
+<g transform="translate(0.5,0.5)">
+<path d="M 91 410 L 111 410 L 131 427.5 L 111 445 L 91 445 L 71 427.5 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="101" y="432.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="101" y="432.32">nRF</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="jop3mYkmZgWnEtKgWX59-6">
+<g>
+<rect x="59" y="460" width="24" height="15" fill="#cccc00" stroke="#000000" stroke-width="2"/>
+<path d="M 62 460 L 62 454 C 62 449.03 66.03 445 71 445 C 75.97 445 80 449.03 80 454 L 80 460" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

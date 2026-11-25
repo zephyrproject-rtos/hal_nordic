@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="300" viewBox="0 0 860 300" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#444"/>
+    </marker>
+  </defs>
+
+  <text x="430" y="26" text-anchor="middle" font-size="18" font-weight="bold" fill="#222">Uploading application firmware through IronSide DFU</text>
+
+  <!-- Steps -->
+  <rect x="20" y="60" width="180" height="80" rx="6" fill="#e8f1fb" stroke="#3a78c2" stroke-width="1.5"/>
+  <text x="110" y="94" text-anchor="middle" font-size="12" font-weight="bold" fill="#23507f">Signed image</text>
+  <text x="110" y="114" text-anchor="middle" font-size="10" fill="#333">app.signed.hex</text>
+
+  <rect x="233" y="60" width="180" height="80" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="323" y="88" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Encrypt</text>
+  <text x="323" y="108" text-anchor="middle" font-size="10" fill="#555">app_update.py</text>
+  <text x="323" y="123" text-anchor="middle" font-size="10" fill="#555">--keyset, --kek-gen 0|1|2</text>
+
+  <rect x="446" y="60" width="180" height="80" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="536" y="88" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Upload to IronSide DFU</text>
+  <text x="536" y="108" text-anchor="middle" font-size="10" fill="#555">SMP over serial</text>
+  <text x="536" y="123" text-anchor="middle" font-size="10" fill="#555">--target app: written in place</text>
+
+  <rect x="659" y="60" width="180" height="80" rx="6" fill="#fdeceb" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="749" y="88" text-anchor="middle" font-size="12" font-weight="bold" fill="#8e2a20">Reset and boot</text>
+  <text x="749" y="108" text-anchor="middle" font-size="10" fill="#333">UROT verifies</text>
+  <text x="749" y="123" text-anchor="middle" font-size="10" fill="#333">the application</text>
+
+  <line x1="200" y1="100" x2="231" y2="100" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="413" y1="100" x2="444" y2="100" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="626" y1="100" x2="657" y2="100" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Alternatives -->
+  <rect x="238" y="190" width="170" height="60" rx="6" fill="#f7f7f7" stroke="#888" stroke-width="1.5"/>
+  <text x="323" y="207" text-anchor="middle" font-size="10" font-weight="bold" fill="#444">Prebuilt package</text>
+  <text x="323" y="222" text-anchor="middle" font-size="10" fill="#555">build-ota-package</text>
+  <text x="323" y="237" text-anchor="middle" font-size="10" fill="#555">upload with --ota-image</text>
+
+  <rect x="451" y="190" width="170" height="60" rx="6" fill="#f7f7f7" stroke="#888" stroke-width="1.5"/>
+  <text x="536" y="207" text-anchor="middle" font-size="10" font-weight="bold" fill="#444">Staged update</text>
+  <text x="536" y="222" text-anchor="middle" font-size="10" fill="#555">--target candidate</text>
+  <text x="536" y="237" text-anchor="middle" font-size="10" fill="#555">verified before it is copied</text>
+
+  <line x1="323" y1="190" x2="323" y2="143" stroke="#888" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <line x1="536" y1="190" x2="536" y2="143" stroke="#888" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <text x="329" y="172" font-size="10" font-style="italic" fill="#666">or</text>
+  <text x="542" y="172" font-size="10" font-style="italic" fill="#666">or</text>
+
+  <text x="430" y="284" text-anchor="middle" font-size="11" font-style="italic" fill="#555">Grey boxes are alternatives to the step above them.</text>
+</svg>

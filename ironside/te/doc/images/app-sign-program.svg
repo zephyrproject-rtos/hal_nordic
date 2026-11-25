@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="614px" height="342px" viewBox="0 0 614 342">
+<g>
+<g data-cell-id="0">
+<g data-cell-id="1">
+<g data-cell-id="WtrWqAhtZiDvn5MJPI99-3">
+<g transform="translate(0.5,0.5)">
+<rect x="170" y="150" width="180" height="190" rx="27" ry="27" fill="#ffffff" stroke="#000000" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="x65UBpQaGNs3EjZL6H6Z-1">
+<g transform="translate(0.5,0.5)">
+<rect x="10" y="160" width="120" height="60" rx="9" ry="9" fill="#ffffff" stroke="#000000" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="nFNq2djNqeHfKLcxvzDT-26">
+<g transform="translate(0.5,0.5)">
+<rect x="450" y="170" width="160" height="120" rx="1.2" ry="1.2" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="530" y="234.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="530" y="234.32">unused_nvm</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="nFNq2djNqeHfKLcxvzDT-8">
+<g transform="translate(0.5,0.5)">
+<path d="M 47.5 180 L 92.5 180 L 112.5 190 L 92.5 200 L 47.5 200 L 27.5 190 Z" fill="#a20025" stroke="#6f0000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="70.5" y="194.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="70.5" y="194.32">keyset</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="nFNq2djNqeHfKLcxvzDT-10">
+<g transform="translate(0.5,0.5)">
+<rect x="170" y="70" width="130" height="30" rx="4.5" ry="4.5" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="235" y="89.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="235" y="89.32">scripts/sign.py</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="nFNq2djNqeHfKLcxvzDT-15">
+<g transform="translate(0.5,0.5)">
+<rect x="170" y="120" width="160" height="10" rx="1.5" ry="1.5" fill="#008a00" stroke="#005700"/>
+</g>
+<g>
+<g>
+<text x="250" y="129.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="250" y="129.32">application_sign_tlv.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="nFNq2djNqeHfKLcxvzDT-4">
+<g transform="translate(0.5,0.5)">
+<rect x="180" y="15" width="110" height="30" rx="4.5" ry="4.5" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+<g>
+<g>
+<text x="235" y="34.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="235" y="34.32">build/app.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="nFNq2djNqeHfKLcxvzDT-20">
+<g transform="translate(0.5,0.5)">
+<rect x="450" y="0" width="160" height="300" fill="#ffffff" stroke="#000000"/>
+</g>
+</g>
+<g data-cell-id="nFNq2djNqeHfKLcxvzDT-21">
+<g transform="translate(0.5,0.5)">
+<rect x="450" y="0" width="160" height="20" rx="0.2" ry="0.2" fill="#ffcccc" stroke="#666666"/>
+</g>
+<g>
+<g>
+<text x="530" y="14.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="530" y="14.32">irot.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="nFNq2djNqeHfKLcxvzDT-22">
+<g transform="translate(0.5,0.5)">
+<rect x="450" y="20" width="160" height="30" fill="#ff9999" stroke="#666666"/>
+</g>
+<g>
+<g>
+<text x="530" y="39.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="530" y="39.32">urot.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="nFNq2djNqeHfKLcxvzDT-23">
+<g transform="translate(0.5,0.5)">
+<rect x="451.25" y="50" width="160" height="10" rx="1.5" ry="1.5" fill="#008a00" stroke="#005700"/>
+</g>
+<g>
+<g>
+<text x="531" y="59.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="531" y="59.32">urot_sign_tlv.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="nFNq2djNqeHfKLcxvzDT-24">
+<g transform="translate(0.5,0.5)">
+<rect x="450" y="80" width="160" height="10" rx="1.5" ry="1.5" fill="#008a00" stroke="#005700"/>
+</g>
+<g>
+<g>
+<text x="530" y="89.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="530" y="89.32">iron_tz_dfu_sign_tlv.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="nFNq2djNqeHfKLcxvzDT-25">
+<g transform="translate(0.5,0.5)">
+<rect x="450" y="60" width="160" height="20" fill="#ffffcc" stroke="#666666"/>
+</g>
+<g>
+<g>
+<text x="530" y="74.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="530" y="74.32">iron_tz_dfu.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="nFNq2djNqeHfKLcxvzDT-34">
+<g transform="translate(0.5,0.5)">
+<rect x="450" y="260" width="160" height="40" fill="#f5f5f5" stroke="#666666"/>
+</g>
+<g>
+<g>
+<text x="530" y="278.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="530" y="278.52">UICR</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="nFNq2djNqeHfKLcxvzDT-35">
+<g transform="translate(0.5,0.5)">
+<path d="M 503.75 280 L 560 280 L 580 290 L 560 300 L 503.75 300 L 483.75 290 Z" fill="#a20025" stroke="#6f0000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="532" y="294.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="532" y="294.32">keyset</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="x65UBpQaGNs3EjZL6H6Z-4">
+<g transform="translate(0.5,0.5)">
+<path d="M 235 63.63 L 235 51.37" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 235 68.88 L 231.5 61.88 L 235 63.63 L 238.5 61.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 235 46.12 L 238.5 53.12 L 235 51.37 L 231.5 53.12 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="x65UBpQaGNs3EjZL6H6Z-6">
+<g transform="translate(0.5,0.5)">
+<path d="M 210 102 L 210 113.63" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 210 118.88 L 206.5 111.88 L 210 113.63 L 213.5 111.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="x65UBpQaGNs3EjZL6H6Z-10">
+<g transform="translate(0.5,0.5)">
+<path d="M 320.44 93.21 L 320.56 76.21 L 360.03 76.5 L 397.5 76.5 L 397.5 66 L 419.5 85 L 397.5 104 L 397.5 93.5 L 359.97 93.5 Z" fill="none" stroke="#000000" stroke-miterlimit="1.42"/>
+<path d="M 397.5 76.5 L 397.5 66 L 419.5 85 L 397.5 104 L 397.5 93.5" fill="none" stroke="#000000" stroke-miterlimit="4"/>
+</g>
+<g data-cell-id="bLYHmYupcpHIgZ9XTNOs-3">
+<g>
+<g>
+<text x="373.5" y="89.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="373.5" y="89.96">flash.py</tspan></text>
+<text x="375" y="60" text-anchor="middle" font-family="Helvetica" font-size="10" fill="#000000"><tspan x="375" y="60">uses nrfutil</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="dqoDAIJUM0VEWP-BXmLk-8">
+<g/>
+<g data-cell-id="dqoDAIJUM0VEWP-BXmLk-6">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="45" width="140" height="60" rx="9" ry="9" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="70" y="63.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="70" y="63.52">OS keyring</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="dqoDAIJUM0VEWP-BXmLk-7">
+<g transform="translate(0.5,0.5)">
+<rect x="10" y="75" width="120" height="20" rx="3" ry="3" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="70" y="89.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="70" y="89.32">'dev'</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="dqoDAIJUM0VEWP-BXmLk-9">
+<g transform="translate(0.5,0.5)">
+<path d="M 170 85 L 136.37 85" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 131.12 85 L 138.12 81.5 L 136.37 85 L 138.12 88.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="dqoDAIJUM0VEWP-BXmLk-12">
+<g transform="translate(0.5,0.5)">
+<path d="M 70 101.37 L 70 160" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 70 96.12 L 73.5 103.12 L 70 101.37 L 66.5 103.12 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="bLYHmYupcpHIgZ9XTNOs-1">
+<g transform="translate(0.5,0.5)">
+<rect x="450" y="90" width="160" height="130" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+<g>
+<g>
+<text x="530" y="159.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="530" y="159.32">app.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="BRZEloLksA3OI-wuHJhC-15">
+<g transform="translate(0.5,0.5)">
+<path d="M 260 100 L 260 143.62" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 260 148.87 L 256.5 141.87 L 260 143.62 L 263.5 141.87 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="BRZEloLksA3OI-wuHJhC-14">
+<g transform="translate(0.5,0.5)">
+<rect x="450" y="220" width="160" height="10" rx="1.5" ry="1.5" fill="#008a00" stroke="#005700"/>
+</g>
+<g>
+<g>
+<text x="530" y="229.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="530" y="229.32">application_sign_tlv</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="WtrWqAhtZiDvn5MJPI99-1">
+<g transform="translate(0.5,0.5)">
+<rect x="180" y="170" width="160" height="130" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+<g>
+<g>
+<text x="260" y="239.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="260" y="239.32">app.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="WtrWqAhtZiDvn5MJPI99-2">
+<g transform="translate(0.5,0.5)">
+<rect x="180" y="300" width="160" height="10" rx="1.5" ry="1.5" fill="#008a00" stroke="#005700"/>
+</g>
+<g>
+<g>
+<text x="260" y="309.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="260" y="309.32">application_sign_tlv.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="WtrWqAhtZiDvn5MJPI99-4">
+<g>
+<rect x="230" y="310" width="60" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="260" y="329.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="260" y="329.32">app.signed.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="WtrWqAhtZiDvn5MJPI99-5">
+<g transform="translate(0.5,0.5)">
+<path d="M 349.82 261.34 L 370 260 L 370 106.37" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 370 101.12 L 373.5 108.12 L 370 106.37 L 366.5 108.12 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

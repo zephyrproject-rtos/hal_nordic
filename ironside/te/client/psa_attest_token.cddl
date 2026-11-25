@@ -1,0 +1,267 @@
+; SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+;
+; IronSide TE - PSA Initial Attestation token format (CDDL, RFC 8610).
+;
+; The wire format of the token psa_initial_attest_get_token() returns, per
+; RFC 9783 ("PSA Attestation Token"). This file is the contract: decode a token
+; with a CBOR parser against the shapes below, looking claims up BY LABEL.
+;
+; Do not decode a token by byte offset. Every claim's position depends on the
+; claim set, and the claim set has changed in every release that added a claim.
+; A parser that searches by label survives those changes; a hardcoded offset
+; does not, and fails silently - it reads a well-formed value from the wrong
+; place. The client header (include/ironside_client/psa/initial_attestation.h)
+; publishes the labels and the value lengths for exactly this reason, and
+; publishes no offsets.
+;
+; Two properties of the encoding a decoder may rely on, and one it may not:
+;
+;   - The claims map is DEFINITE-LENGTH, and so is every string and array in
+;     the token. A decoder needs no indefinite-length support.
+;   - The claims map holds exactly the 9 entries below, with no duplicates.
+;   - Map entry ORDER is not part of this contract. CBOR does not require
+;     canonical key ordering and RFC 9783 imposes none, so a decoder MUST
+;     search by label rather than assume a position. As it happens the nonce is
+;     emitted last today; that is an encoder detail and not something to
+;     depend on.
+;
+; The token size is fixed for a given challenge size (620 bytes at a 64-byte
+; challenge - PSA_INITIAL_ATTEST_MAX_TOKEN_SIZE), which is why some claims are
+; rendered fixed-width below. That is a buffer-sizing guarantee, not an
+; invitation to index into the token.
+
+start = psa-attestation-token
+
+; ------------------------------------------------------------------------
+; COSE_Sign1 envelope (RFC 9052), tagged. ES256 over the claims map.
+; ------------------------------------------------------------------------
+;
+; The signature covers the COSE Sig_structure
+;   ["Signature1", protected, external_aad, payload]
+; where external_aad is a zero-length bstr. A verifier reconstructs it from the
+; PROTECTED and PAYLOAD bstrs AS ENCODED - the enclosing byte strings, not the
+; values inside them - which is what a CBOR parser hands back for a bstr, so no
+; byte arithmetic over the token is needed. Verify with the device's Identity
+; Attestation Key (IAK) public part, registered at manufacturing time and found
+; by the instance-id claim.
+
+psa-attestation-token = #6.18([
+  protected   : bstr .cbor protected-header,
+  unprotected : empty-map,
+  payload     : bstr .cbor claims-map,
+  signature   : bstr .size 64,   ; ECDSA P-256 raw r || s, not DER
+])
+
+protected-header = { 1 => -7 }   ; alg: ES256 (ECDSA w/ SHA-256)
+empty-map = {}
+
+; ------------------------------------------------------------------------
+; The claims map.
+; ------------------------------------------------------------------------
+;
+; Seven claims RFC 9783 marks MUST, one it marks MAY (boot-seed), and one
+; vendor claim (device-uuid). Nothing else. A claim absent here is absent from
+; the token - notably certification-reference and
+; verification-service-indicator, which this profile omits.
+
+; The entries are LISTED in the order IronSide currently emits them, purely so
+; that a code generator producing an order-sensitive decoder (zcbor's default,
+; for one) works against a real token without being re-ordered by hand. It is a
+; convenience, not a promise: see the note at the top of this file, and search
+; by label in anything you write yourself.
+claims-map = {
+  client-id           => client-id-claim,
+  instance-id         => instance-id-claim,
+  implementation-id   => implementation-id-claim,
+  security-lifecycle  => security-lifecycle-claim,
+  software-components => software-components-claim,
+  profile-definition  => profile-definition-claim,
+  device-uuid         => device-uuid-claim,
+  boot-seed           => boot-seed-claim,
+  nonce               => nonce-claim,
+}
+
+; --- nonce (EAT label 10) -----------------------------------------------
+;
+; The challenge the caller passed to psa_initial_attest_get_token(), verbatim.
+; A verifier holds it against the value it issued; that is what makes the token
+; non-replayable. One of the three PSA-legal sizes, and it is the size the
+; caller sent - the token does not choose it.
+
+nonce = 10
+nonce-claim = bstr .size 32 / bstr .size 48 / bstr .size 64
+
+; --- instance-id / EAT ueid (label 256) ---------------------------------
+;
+; 0x01 (UEID type RAND) || SHA-256(IAK public key). Identifies the attestation
+; key, and so in IronSide TE also the device: a device has one IAK for its
+; lifetime. Strip the leading type byte to get the registry lookup key.
+;
+; A device re-keyed at RMA attests under a NEW instance-id while remaining the
+; same die. Use the device-uuid claim to name the die.
+
+instance-id = 256
+instance-id-claim = bstr .size 33
+
+; --- implementation-id (PSA label 2396) ---------------------------------
+;
+; Names the PSA RoT implementation - which part, and which version of
+; IronSide's immutable boot stage (IROT). Identifies the IMPLEMENTATION, not
+; the instance: every device of one part, silicon revision and IROT version
+; reports the same 32 bytes. No per-die register is an input.
+;
+; READ THE SCHEME VERSION FIRST. A later layout takes a new number rather than
+; reinterpreting this one, so a reader that finds a number it does not know
+; must treat the 32 bytes as opaque. Ignore the reserved tail rather than
+; requiring a value: a later release may name a field there, and every field
+; ahead of it keeps its meaning.
+;
+; The client header publishes these as PSA_INITIAL_ATTEST_IMPL_ID_* byte
+; offsets, which are offsets INTO THIS VALUE and not into the token - a CBOR
+; parser hands back the 32 bytes and does not resolve their internals.
+; scripts/lib/impl_id.py composes and decodes the same bytes host side.
+;
+;   byte  0     scheme version, currently 1
+;   bytes 1-4   FICR.INFO.PART      (big-endian)
+;   bytes 5-8   FICR.INFO.VARIANT   (big-endian; four ASCII chars on a part
+;                                    whose VARIANT is printable)
+;   bytes 9-12  FICR.INFO.CONFIGID  (big-endian)
+;   bytes 13-14 FICR.INFO.RAM  in kB (big-endian)
+;   bytes 15-16 FICR.INFO.RRAM in kB (big-endian)
+;   bytes 17-20 IROT version: major, minor, patch, tweak
+;   bytes 21-31 reserved, written zero, ignore on read
+
+implementation-id = 2396
+implementation-id-claim = bstr .size 32
+
+; --- client-id (PSA label 2394) -----------------------------------------
+;
+; The security domain of the caller. RFC 9783 section 4.1.2 gives negative ids
+; to callers outside the secure processing environment and forbids 0. It is
+; always -1 here: IronSide TE has one non-secure security domain, and both
+; non-secure images (the App and IronSide DFU) are that domain, so the claim
+; does not say which of them asked.
+;
+; RFC 9783 section 4.1.2 puts the duty of CHECKING this claim on the verifier.
+; A verification path that ignores it is incomplete however well the signature
+; verifies.
+
+client-id = 2394
+client-id-claim = -1
+
+; --- security-lifecycle (PSA label 2395) --------------------------------
+;
+; The device's PSA lifecycle state. Only the four DEPLOYABLE states can appear:
+; a device that resolves to UNKNOWN (0x0000) or DECOMMISSIONED (0x6000) is
+; issued no token at all and gets PSA_ERROR_NOT_PERMITTED, so seeing either
+; value in a token is a device-side regression rather than a device state.
+;
+; Encoded as a CBOR unsigned integer. The client header spells the values as
+; PSA_LIFECYCLE_*.
+
+security-lifecycle = 2395
+security-lifecycle-claim =
+    0x1000  ; ASSEMBLY_AND_TEST
+  / 0x2000  ; PSA_ROT_PROVISIONING
+  / 0x3000  ; SECURED
+  / 0x4000  ; NON_PSA_ROT_DEBUG
+
+; --- profile-definition (EAT label 265) ---------------------------------
+;
+; The claim-set profile this token follows, which a PSA verification service
+; dispatches on. RFC 9783 section 4.5.2.1 fixes the spelling: the fragment is
+; appended to the "tag:psacertified.org,2023:psa" tag URI.
+;
+; The trailing hyphens are padding, and they are deliberate: they hold the
+; value at 43 bytes, which is what keeps the token size fixed. Match the value
+; exactly, padding included.
+
+profile-definition = 265
+profile-definition-claim = "tag:psacertified.org,2023:psa#ironside-----"
+
+; --- software-components (PSA label 2399) -------------------------------
+;
+; One record per image IronSide TE measures: always all three, always UROT then
+; the App then IronSide DFU. Search a record by its measurement-type rather
+; than by array position if you care which image you are reading.
+;
+; The measurement algorithm is not a per-record field. It is SHA-256 for the
+; whole token, fixed by the ES256 algorithm in the protected header.
+;
+; RFC 9783's measurement-description (key 6) is omitted.
+
+software-components = 2399
+software-components-claim = [ 3*3 software-component ]
+
+software-component = {
+  measurement-type  => sw-measurement-type,
+  measurement-value => sw-measurement-value,
+  version           => sw-version,
+  signer-id         => sw-signer-id,
+}
+
+measurement-type = 1
+; "UROT", "APP" or "DFU".
+sw-measurement-type = "UROT" / "APP" / "DFU"
+
+measurement-value = 2
+; SHA-256 over the image's signed region - header, body and protected TLVs,
+; exactly the bytes IronSide verifies before booting the image - so a reference
+; value comes straight off the released artifact. A slot holding no parseable
+; image measures as the hash of zero bytes.
+sw-measurement-value = bstr .size 32
+
+version = 4
+; The image header's own version, rendered FIXED-WIDTH as "NNN.NNN.NNN+NNN"
+; (zero-padded, e.g. "001.002.003+004"), which is what keeps the token size
+; fixed. Strip the zero padding to compare against a version printed the
+; ordinary way; scripts/lib/mcuboot_image.py prints the same version unpadded
+; as "{major}.{minor}.{patch}+{tweak}".
+sw-version = tstr .size 15
+
+signer-id = 5
+; SHA-256 of the 32-byte key record this image's signature was checked against.
+; The record is itself a digest: for App and DFU the SHA-256 of the ECDSA P-384
+; public key, and for UROT the SHA-256 of its ECDSA P-384 and ML-DSA-65 public keys.
+sw-signer-id = bstr .size 32
+
+; --- boot-seed (EAT label 268) ------------------------------------------
+;
+; A property of the BOOT SESSION rather than of the device or its images: the
+; same value in every token one boot session emits, and a different value in
+; every other boot session's. Two tokens carrying the same boot seed are two
+; reports about one run; different seeds mean a reset happened in between,
+; which the nonce cannot express - it binds a token to one challenge, not two
+; tokens to each other.
+;
+; It is PUBLIC. It travels in the clear in every token, and RFC 9711 section
+; 4.2.13 is normative that a boot seed is not a secret and MUST NOT be used
+; where a secret seed is needed, such as seeding a random number generator. It
+; labels a boot session; it is not key material.
+
+boot-seed = 268
+boot-seed-claim = bstr .size 32
+
+; --- device-uuid (vendor label -1000000) --------------------------------
+;
+; The 128-bit unique identifier of the die this token came off: FICR.INFO.UUID,
+; each of the four words little-endian, which makes the value byte-for-byte the
+; ADAC soc_id TLV for the same device. Hold a token against `adac.py discovery`
+; output directly.
+;
+; The label is in the CWT claim registry's Private Use range (RFC 8392 section
+; 9.1), so a verifier that only knows RFC 9783 skips it. The block
+; -1000000..-1000999 is reserved for further Nordic claims.
+;
+; Unlike instance-id this survives IAK rotation, so it is what names the die
+; across an RMA re-key.
+;
+; WARNING: it is a stable, unauthenticated-read device identifier present in
+; EVERY token, so a token is linkable across sessions and across IAK rotation
+; by anyone who sees one. The nonce makes tokens non-replayable, not
+; unlinkable, and the service applies no access control - any non-secure caller
+; may ask. A deployment that needs unlinkable attestation cannot use this claim
+; set.
+
+device-uuid = -1000000
+device-uuid-claim = bstr .size 16

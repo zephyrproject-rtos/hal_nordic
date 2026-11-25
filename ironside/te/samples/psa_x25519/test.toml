@@ -1,0 +1,4 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+description = "X25519 key agreement against the RFC 7748 known-answer vector, plus Curve448 being unavailable"
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED

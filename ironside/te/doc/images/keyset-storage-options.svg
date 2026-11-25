@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="430" viewBox="0 0 760 430" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#444"/>
+    </marker>
+  </defs>
+
+  <text x="380" y="26" text-anchor="middle" font-size="18" font-weight="bold" fill="#222">IronSide TE keyset storage options</text>
+
+  <!-- Sources -->
+  <rect x="40" y="50" width="200" height="50" rx="25" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="140" y="80" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Generate new keys</text>
+
+  <rect x="520" y="50" width="200" height="50" rx="25" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="620" y="71" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Existing key files</text>
+  <text x="620" y="88" text-anchor="middle" font-size="10" fill="#555">from another developer or a backup</text>
+
+  <!-- Keyset stores -->
+  <rect x="40" y="190" width="200" height="70" rx="6" fill="#eef0f7" stroke="#5a4fa0" stroke-width="2"/>
+  <text x="140" y="220" text-anchor="middle" font-size="13" font-weight="bold" fill="#3d3577">OS keyring</text>
+  <text x="140" y="238" text-anchor="middle" font-size="10" fill="#555">keyring:NAME</text>
+
+  <rect x="520" y="190" width="200" height="70" rx="6" fill="#eef0f7" stroke="#5a4fa0" stroke-width="2"/>
+  <text x="620" y="220" text-anchor="middle" font-size="13" font-weight="bold" fill="#3d3577">Directory</text>
+  <text x="620" y="238" text-anchor="middle" font-size="10" fill="#555">dir:PATH</text>
+
+  <!-- Consumers -->
+  <rect x="230" y="340" width="300" height="56" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="380" y="364" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">IronSDK scripts</text>
+  <text x="380" y="382" text-anchor="middle" font-size="10" fill="#555">--keyset keyring:NAME or dir:PATH</text>
+
+  <!-- Generate and copy -->
+  <line x1="140" y1="100" x2="140" y2="188" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="148" y="148" font-size="10" fill="#555">new --keyset keyring:NAME</text>
+
+  <line x1="220" y1="100" x2="540" y2="188" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="350" y="128" font-size="10" fill="#555">new --keyset dir:PATH</text>
+
+  <line x1="620" y1="100" x2="620" y2="188" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="628" y="148" font-size="10" fill="#555">copy to a directory</text>
+
+  <!-- Import and export -->
+  <line x1="520" y1="210" x2="242" y2="210" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="380" y="203" text-anchor="middle" font-size="10" fill="#555">new --keyset keyring:NAME --from-dir PATH</text>
+
+  <line x1="240" y1="245" x2="518" y2="245" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="380" y="260" text-anchor="middle" font-size="10" fill="#555">export NAME --out-dir PATH</text>
+
+  <!-- Use -->
+  <line x1="140" y1="260" x2="288" y2="338" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="620" y1="260" x2="472" y2="338" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+</svg>

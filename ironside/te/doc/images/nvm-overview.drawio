@@ -1,0 +1,46 @@
+<mxfile host="ac.draw.io">
+  <diagram id="YdjitwwM3RgFjZ07IvDa" name="Page-1">
+    <mxGraphModel dx="1414" dy="952" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="gCXtOzs0FpRMKWKg-IUy-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=0;" value="" vertex="1">
+          <mxGeometry height="310" width="120" x="70" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="gCXtOzs0FpRMKWKg-IUy-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCCCC;strokeColor=#b85450;arcSize=24;fontSize=10;" value="IROT" vertex="1">
+          <mxGeometry height="10" width="120" x="70" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="gCXtOzs0FpRMKWKg-IUy-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9999;strokeColor=#b85450;arcSize=0;" value="UROT" vertex="1">
+          <mxGeometry height="30" width="120" x="70" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="gCXtOzs0FpRMKWKg-IUy-4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFCC;strokeColor=#b85450;arcSize=0;" value="IronSide DFU" vertex="1">
+          <mxGeometry height="20" width="120" x="70" y="341" as="geometry" />
+        </mxCell>
+        <mxCell id="gCXtOzs0FpRMKWKg-IUy-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;arcSize=0;" value="SLOT0" vertex="1">
+          <mxGeometry height="210" width="120" x="70" y="91" as="geometry" />
+        </mxCell>
+        <mxCell id="-oAaZcHNryMh6OYN2E5W-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;dashed=1;arcSize=0;" value="SLOT1" vertex="1">
+          <mxGeometry height="30" width="120" x="70" y="301" as="geometry" />
+        </mxCell>
+        <mxCell id="urotstorage-box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCCCC;strokeColor=#b85450;arcSize=0;fontSize=10;" value="UROT storage" vertex="1">
+          <mxGeometry height="10" width="120" x="70" y="331" as="geometry" />
+        </mxCell>
+        <mxCell id="urotstorage-label" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=10;" value="Secure" vertex="1">
+          <mxGeometry height="20" width="60" x="210" y="326" as="geometry" />
+        </mxCell>
+        <mxCell id="A63m4sEJFc7TB93rzf_u-2" edge="1" parent="1" style="endArrow=none;html=1;rounded=0;" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="200" y="90" as="sourcePoint" />
+            <mxPoint x="290" y="90" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="A63m4sEJFc7TB93rzf_u-3" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Secure" vertex="1">
+          <mxGeometry height="30" width="60" x="210" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="A63m4sEJFc7TB93rzf_u-5" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Non-Secure" vertex="1">
+          <mxGeometry height="30" width="80" x="200" y="90" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

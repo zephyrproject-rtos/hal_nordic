@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="956px" height="511px" viewBox="0 0 956 511">
+<g>
+<g data-cell-id="0">
+<g data-cell-id="1">
+<g data-cell-id="c1">
+<g>
+<rect x="0" y="0" width="340" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="338" y="19.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="19.32">0x00000000 </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c2">
+<g transform="translate(0.5,0.5)">
+<rect x="350" y="15" width="230" height="80" fill="#e6e6e6" stroke="#b85450"/>
+</g>
+</g>
+<g data-cell-id="c3">
+<g>
+<rect x="350" y="15" width="150" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="352" y="33.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="352" y="33.52"> Reserved</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c4">
+<g>
+<rect x="595" y="15" width="360" height="80" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="597" y="59.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="597" y="59.32">140 kB, fixed</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c5">
+<g>
+<rect x="0" y="80" width="340" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="338" y="99.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="99.32">0x00023000 </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c6">
+<g transform="translate(0.5,0.5)">
+<rect x="350" y="95" width="230" height="200" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+</g>
+<g data-cell-id="c7">
+<g>
+<rect x="350" y="95" width="150" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="352" y="113.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="352" y="113.52"> SLOT0</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c8">
+<g>
+<rect x="595" y="95" width="360" height="200" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="597" y="199.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="597" y="199.32">The rest, more than 0</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c9">
+<g transform="translate(0.5,0.5)">
+<rect x="350" y="295" width="230" height="60" fill="#f5f5f5" stroke="#666666" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="c10">
+<g>
+<rect x="350" y="295" width="150" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="352" y="313.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="352" y="313.52"> SLOT1</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c11">
+<g>
+<rect x="595" y="295" width="360" height="60" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="597" y="322.12" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="597" y="322.12">--slot1-size-kb, default 128</tspan><tspan x="597" y="336.52">Multiple of 4, at least 4</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c12">
+<g transform="translate(0.5,0.5)">
+<rect x="350" y="355" width="230" height="50" fill="#f5f5f5" stroke="#666666" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="c13">
+<g>
+<rect x="350" y="355" width="150" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="352" y="373.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="352" y="373.52"> STORAGE</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c14">
+<g>
+<rect x="595" y="355" width="360" height="50" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="597" y="377.12" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="597" y="377.12">--storage-size-kb, default 64</tspan><tspan x="597" y="391.52">Multiple of 4, 0 omits it</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c15">
+<g transform="translate(0.5,0.5)">
+<rect x="350" y="405" width="230" height="40" fill="#e6e6e6" stroke="#b85450"/>
+</g>
+</g>
+<g data-cell-id="c16">
+<g>
+<rect x="350" y="405" width="150" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="352" y="423.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="352" y="423.52"> UROTSTORAGE</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c17">
+<g>
+<rect x="595" y="405" width="360" height="40" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="597" y="422.12" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="597" y="422.12">--urotstorage-size-kb, default 4</tspan><tspan x="597" y="436.52">Multiple of 4, at least 4</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c18">
+<g transform="translate(0.5,0.5)">
+<rect x="350" y="445" width="230" height="50" fill="#fff2cc" stroke="#b85450"/>
+</g>
+</g>
+<g data-cell-id="c19">
+<g>
+<rect x="350" y="445" width="150" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="352" y="463.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="352" y="463.52"> DFUIMAGE</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c20">
+<g>
+<rect x="595" y="445" width="360" height="50" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="597" y="467.12" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="597" y="467.12">--dfuimage-size-kb, default 32</tspan><tspan x="597" y="481.52">Multiple of 4, 0 omits it</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c21">
+<g>
+<rect x="0" y="480" width="340" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="338" y="499.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="499.32">NVM end </tspan></text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

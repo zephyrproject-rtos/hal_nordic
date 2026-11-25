@@ -1,0 +1,3 @@
+# IronSide Integration Kit test metadata.
+description = "Multi-part AES-256-CCM: generated key, generated nonce, chunked encrypt/decrypt via UROT"
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED

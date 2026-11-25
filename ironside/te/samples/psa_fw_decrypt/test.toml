@@ -1,0 +1,3 @@
+# IronSide Integration Kit test metadata.
+description = "AES-KW-unwrap a session DEK from one shared vendor KEK, then AES-CTR decrypt UROT/App/DFU payload blocks with it"
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED (~0.5s)

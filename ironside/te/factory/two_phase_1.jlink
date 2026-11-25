@@ -1,0 +1,72 @@
+// SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+//
+// IronSide TE two-phase provisioning, PHASE 1: Empty -> PRoT Provisioning.
+// Installs the images, the rollback counters and every OTA KEK generation, then
+// engages the protection registers.
+//
+// Step 3 of 4, referencing no files. See single_phase.jlink for the full
+// sequence, for why step 2 must program the RAM sections too, for the
+// must-not-boot-in-between rule, and for why the exit code is not a verdict --
+// this script's device steps are identical to it.
+//
+//   1. erase the part                  see the production programming guide
+//   2. program production_two_phase_1.hex        ALL of it -- NVM/UICR *and* RAM
+//   3. JLinkExe -nogui 1 -SelectEmuBySN <SN> -CommandFile two_phase_1.jlink \
+//              -Log results/two_phase_1.log
+//   4. check_prov_result.py --bundle production_two_phase_1.hex --result results/result.bin
+//
+// The bundle comes from:
+//   ironside_bundle.py build-production-hex <bundle> -o <dir>
+//
+// which writes this phase's hex and phase 2's alongside the single-phase hex.
+// The bundle must be prepared first -- update-keys, then sign-component.
+//
+// One difference from the single-phase flow, and it is in the batch that bundle
+// carries rather than in anything below: this one does not close the non-secure
+// AP. SECAPPROTECT here takes the secure AP away at the commit reset;
+// set-approtect is phase 2's whole job, and by then only the non-secure firmware
+// can reach it.
+//
+// Emitted from Unseeded, as the single-phase bundle is, so one artifact serves a
+// factory-fresh part: the batch enrolls the IKG seed and exports the IAK, and a
+// part already holding a seed takes the same bundle (the enrollment tolerates its
+// own failure, and the seed survives ERASEALL). A bundle emitted from Empty
+// instead carries neither op -- feed a fresh part that and it reaches PRoT with no
+// device identity and no usable OTA KEK, sealed and unrecoverable.
+
+EoE 1
+SelectInterface SWD
+Speed 4000
+Device Cortex-M33
+Connect
+
+// --- Catch the core at its reset vector, before IROT runs. Must preserve the
+// --- RAM written in step 2 -- see single_phase.jlink.
+Reset
+WaitHalt 3000
+
+// --- Clear the result header.
+W4 0x20071000, 0x00000000
+W4 0x20071004, 0x00000000
+W4 0x20071008, 0x00000000
+W4 0x2007100C, 0x00000000
+
+// --- Redirect into the secure provisioning firmware.
+// --- No R13 write: Commander has no spelling for register index 13, and the core
+// --- resets with SPSEL=0 so R13 is the banked MSP written above -- see
+// --- single_phase.jlink.
+W4 0xE000ED08, 0x20013000
+WReg MSP, 0x20032800
+SetPC 0x20012800
+WReg XPSR, 0x01000000
+Go
+
+WaitHalt 10000
+SaveBin results/result.bin, 0x20071000, 0x200
+
+// --- Commit with a pin reset. SECAPPROTECT takes effect here: after this the
+// --- secure AP is gone and nothing in this script could run again.
+WriteDP 2 0x02000000
+WriteAP 0 0x00000004
+WriteAP 0 0x00000000
+qc

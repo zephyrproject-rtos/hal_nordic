@@ -1,0 +1,70 @@
+<mxfile host="ac.draw.io">
+  <diagram id="ug-ram-addresses" name="Page-1">
+    <mxGraphModel grid="1" gridSize="10" guides="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="c1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=right;" value="0x20000000&amp;nbsp;" vertex="1">
+          <mxGeometry height="30" width="340" x="20" y="715" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6E6E6;strokeColor=#b85450;arcSize=0;align=left;" value="" vertex="1">
+          <mxGeometry height="80" width="230" x="370" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=left;verticalAlign=top;" value="&amp;nbsp;Reserved" vertex="1">
+          <mxGeometry height="30" width="150" x="370" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=left;" value="31232 B + key slot storage size&lt;br&gt;--key-slot-storage-size-bytes: 1536 plus a&lt;br&gt;multiple of the RAM split granule, at most 42496" vertex="1">
+          <mxGeometry height="80" width="360" x="615" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="c5" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=right;" value="0x20008000 to 0x20012000&amp;nbsp;" vertex="1">
+          <mxGeometry height="30" width="340" x="20" y="795" as="geometry" />
+        </mxCell>
+        <mxCell id="c6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;arcSize=0;" value="" vertex="1">
+          <mxGeometry height="200" width="230" x="370" y="810" as="geometry" />
+        </mxCell>
+        <mxCell id="c7" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=left;verticalAlign=top;" value="&amp;nbsp;APP-RAM" vertex="1">
+          <mxGeometry height="30" width="150" x="370" y="810" as="geometry" />
+        </mxCell>
+        <mxCell id="c8" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=left;" value="The rest, up to APP-XRAM or VPRCTX-RAM&lt;br&gt;Starts at 0x20008000 by default,&lt;br&gt;and at 0x20012000 at the latest" vertex="1">
+          <mxGeometry height="200" width="360" x="615" y="810" as="geometry" />
+        </mxCell>
+        <mxCell id="c9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;arcSize=0;" value="" vertex="1">
+          <mxGeometry height="70" width="230" x="370" y="1010" as="geometry" />
+        </mxCell>
+        <mxCell id="c10" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=left;verticalAlign=top;" value="&amp;nbsp;APP-XRAM" vertex="1">
+          <mxGeometry height="30" width="150" x="370" y="1010" as="geometry" />
+        </mxCell>
+        <mxCell id="c11" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=left;" value="size argument of ironside_devmgmt_xram_region_define()&lt;br&gt;Non-zero multiple of 4 kB, smaller than APP-RAM&lt;br&gt;Only once defined at runtime, not on nRF54L15" vertex="1">
+          <mxGeometry height="70" width="360" x="615" y="1010" as="geometry" />
+        </mxCell>
+        <mxCell id="c12" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=right;" value="RAM end - 1 kB&amp;nbsp;" vertex="1">
+          <mxGeometry height="30" width="340" x="20" y="1065" as="geometry" />
+        </mxCell>
+        <mxCell id="c13" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;arcSize=0;" value="" vertex="1">
+          <mxGeometry height="40" width="230" x="370" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="c14" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=left;verticalAlign=top;" value="&amp;nbsp;VPRCTX-RAM" vertex="1">
+          <mxGeometry height="30" width="150" x="370" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="c15" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=left;" value="736 B, not linked, not on nRF54L15" vertex="1">
+          <mxGeometry height="40" width="360" x="615" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="c16" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=right;" value="RAM end - 288 B&amp;nbsp;" vertex="1">
+          <mxGeometry height="30" width="340" x="20" y="1105" as="geometry" />
+        </mxCell>
+        <mxCell id="c17" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6E6E6;strokeColor=#666666;dashed=1;arcSize=0;" value="" vertex="1">
+          <mxGeometry height="30" width="230" x="370" y="1120" as="geometry" />
+        </mxCell>
+        <mxCell id="c18" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=left;verticalAlign=top;" value="&amp;nbsp;Reserved" vertex="1">
+          <mxGeometry height="30" width="150" x="370" y="1120" as="geometry" />
+        </mxCell>
+        <mxCell id="c19" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=left;" value="288 B, not on nRF54L15" vertex="1">
+          <mxGeometry height="30" width="360" x="615" y="1120" as="geometry" />
+        </mxCell>
+        <mxCell id="c20" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;verticalAlign=middle;rounded=0;align=right;" value="RAM end&amp;nbsp;" vertex="1">
+          <mxGeometry height="30" width="340" x="20" y="1135" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

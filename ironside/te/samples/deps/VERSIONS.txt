@@ -1,0 +1,38 @@
+# nrfx / CMSIS_6 -- pinned versions, NOT vendored into this IronSide Integration Kit.
+#
+# You (the consumer) must fetch these yourself and either place them at
+# deps/<name> below (the build's default) or point the build at wherever
+# you already keep them, via IRONSIDE_INTEGRATION_KIT_NRFX / IRONSIDE_INTEGRATION_KIT_CMSIS (env vars for
+# scripts/build.py, or -D cache vars for a direct cmake invocation):
+#
+#   IRONSIDE_INTEGRATION_KIT_NRFX=/path/to/nrfx  IRONSIDE_INTEGRATION_KIT_CMSIS=/path/to/CMSIS_6/CMSIS/Core/Include
+#
+# Place checkouts under samples/deps/<name> (the build default) or point the
+# env vars at your own trees.
+#
+# Use the exact tag below, not just "latest" -- this release was built and
+# HW-verified against these commits (register headers, MDK startup, nrfx_config
+# layout); a newer checkout may still work but is unverified. The fetch line
+# clones only that tag's commit, without history.
+#
+# Do NOT substitute the nrfx copy bundled in an NCS/west workspace: that copy
+# deliberately omits the MDK startup/IRQ-vector files this IronSide Integration Kit's samples link
+# against (Zephyr supplies those there instead). Use the full upstream repo.
+#
+# Each dependency ships under its own upstream license (see the LICENSE file
+# in the checkout itself) -- this IronSide Integration Kit does not redistribute it, so complying
+# with those terms is on you.
+
+[CMSIS_6]
+url    = https://github.com/ARM-software/CMSIS_6
+tag    = v6.3.0
+commit = 45dab712ad84f8cbbf2b7bfc089c19088507df6f
+fetch  = git clone --depth 1 --branch v6.3.0 https://github.com/ARM-software/CMSIS_6 samples/deps/CMSIS_6
+zip    = https://github.com/ARM-software/CMSIS_6/archive/45dab712ad84f8cbbf2b7bfc089c19088507df6f.zip
+
+[nrfx]
+url    = https://github.com/nordicsemi/nrfx
+tag    = v4.2.1
+commit = aa83d4df8d5f41b591f23a8555794632afb3475d
+fetch  = git clone --depth 1 --branch v4.2.1 https://github.com/nordicsemi/nrfx samples/deps/nrfx
+zip    = https://github.com/nordicsemi/nrfx/archive/aa83d4df8d5f41b591f23a8555794632afb3475d.zip

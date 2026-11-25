@@ -1,0 +1,98 @@
+// SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+//
+// IronSide TE single-phase provisioning: Unseeded -> Secured.
+// One programmed bundle, ONE provisioning batch, one reset.
+//
+// Step 3 of 4. This script references no files: everything it needs is already
+// on the device, put there by step 2.
+//
+//   1. erase the part                  see the production programming guide
+//   2. program production_single_phase.hex     ALL of it -- NVM/UICR *and* RAM
+//   3. JLinkExe -nogui 1 -SelectEmuBySN <SN> -CommandFile single_phase.jlink \
+//              -Log results/single_phase.log
+//   4. check_prov_result.py --bundle production_single_phase.hex \
+//              --result results/result.bin
+//
+// Step 2 must write the bundle's RAM sections too, not just NVM/UICR: the RAM
+// half is the secure provisioning firmware AND the batch it executes, and this
+// script only starts what is already there. With `nrfutil device program` that
+// is the whole hex and nothing else -- no split.
+//
+// !! THE PART MUST NOT BE ALLOWED TO BOOT BETWEEN STEP 2 AND STEP 3. The
+// !! provisioning firmware sits at 0x20012800, which is NON-SECURE RAM (UROT
+// !! keeps the low 32 KB and the PSA key region above it secure), so a boot that reaches IronSide DFU runs
+// !! exactly there and overwrites it. `nrfutil device program` is safe by
+// !! default -- its post-program reset action is RESET_NONE -- but a programmer
+// !! that resets, or an operator who power-cycles or presses reset, destroys the
+// !! image. The failure is not silent: check_prov_result.py reports an all-zero
+// !! result buffer, i.e. that the batch never ran.
+//
+// The exit code of this script is not a verdict. EoE 1 plus WaitHalt catch a
+// failed connect and a firmware that never finished, but Commander cannot read
+// the batch's per-operation statuses -- it has no conditionals and the result is
+// CBOR. check_prov_result.py is the gate and a station must run it.
+//
+// The bundle comes from:
+//   ironside_bundle.py build-production-hex <bundle> -o <dir>
+//
+// The bundle must be prepared first -- update-keys, which provisions the
+// verification keys and builds the provisioning batch this hex carries, then
+// sign-component.
+//
+// Nothing below needs a device profile -- this script programs nothing, so no
+// flash loader is involved and a generic core connect is enough. That is also
+// what the Python driver connects as.
+
+EoE 1
+SelectInterface SWD
+Speed 4000
+Device Cortex-M33
+Connect
+
+// --- Catch the core at its reset vector, before IROT runs. This clears any lockup
+// --- left by the post-erase boot attempt into erased RRAM, and guarantees the
+// --- SECURE state the secure firmware must run in.
+// ---
+// --- This reset must PRESERVE the RAM written in step 2. A warm reset does not
+// --- power-cycle SRAM, and the core is caught before a single instruction
+// --- executes, so nothing overwrites it -- but note this is the one assumption
+// --- the Python driver never had to make, because it loaded RAM *after* its
+// --- reset. If it does not hold, drop these two lines: with nothing having
+// --- executed since step 2, IROT has not run and the reset is not required.
+Reset
+WaitHalt 3000
+
+// --- Clear the result header, so a stale buffer cannot read as a fresh result.
+W4 0x20071000, 0x00000000
+W4 0x20071004, 0x00000000
+W4 0x20071008, 0x00000000
+W4 0x2007100C, 0x00000000
+
+// --- Redirect the halted core into the provisioning firmware. Secure view, so
+// --- the secure banked VTOR and MSP. 0x20012800 is a reset trampoline both
+// --- provisioning images share, which is why one fixed PC starts either.
+// --- The Python driver writes the banked MSP *and* register index 13; Commander
+// --- has no spelling for the latter (`WReg R13`/`WReg SP` are both "Illegal
+// --- register name"), and it needs none: the core resets with SPSEL=0, so R13 IS
+// --- the banked MSP written above. `MSP`, `MSP_NS` and `XPSR` are all accepted by
+// --- name -- verified against this DLL, not assumed.
+W4 0xE000ED08, 0x20013000
+WReg MSP, 0x20032800
+SetPC 0x20012800
+WReg XPSR, 0x01000000
+Go
+
+// --- The firmware ends in BKPT, so the halt IS the completion signal; there is
+// --- no in-band marker. A real wait, and with EoE 1 a timeout ends the script.
+WaitHalt 10000
+SaveBin results/result.bin, 0x20071000, 0x200
+
+// --- Commit with a pin reset: CTRL-AP RESET = CTRLAPPIN, then release.
+// --- Not a system reset -- that writes AIRCR and must halt the core first,
+// --- which the AP closure below forbids. Not CTRLAPHARD either -- that sets
+// --- RESETREAS.CTRLAPHARD, which UROT reads as a request to enter ADAC instead
+// --- of booting. This reset is where SECAPPROTECT takes effect.
+WriteDP 2 0x02000000
+WriteAP 0 0x00000004
+WriteAP 0 0x00000000
+qc

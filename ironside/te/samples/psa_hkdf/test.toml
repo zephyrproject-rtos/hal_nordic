@@ -1,0 +1,4 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+description = "HKDF-SHA-256 against the RFC 5869 test case 1, one-shot and as extract then expand; an HKDF over a hash outside the allowlist and the TLS 1.2 PSK-to-master-secret KDF are refused"
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED

@@ -1,0 +1,3 @@
+# IronSide Integration Kit test metadata.
+description = "Import an HMAC user key and compute HMAC-SHA-256 via UROT's PSA Crypto service"
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED (~0.5s)
