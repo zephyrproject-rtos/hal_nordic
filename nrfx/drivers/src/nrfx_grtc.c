@@ -766,6 +766,8 @@ void nrfx_grtc_syscounter_cc_interval_set(uint8_t channel, uint32_t start_val, u
 #else
     nrfy_grtc_sys_counter_interval_set(NRF_GRTC, val);
 #endif
+    while (!ready_check())
+    {}
     nrfy_grtc_sys_counter_cc_add_set(NRF_GRTC,
                                      channel,
                                      start_val,
@@ -795,6 +797,9 @@ void nrfx_grtc_syscounter_cc_rel_set(uint8_t channel,
     NRFX_ASSERT(syscounter_check(channel) == 0);
 
     m_cb.cc_value[m_cb.ch_to_data[channel]] += val;
+
+    while ((reference == NRFX_GRTC_CC_RELATIVE_SYSCOUNTER) && !ready_check())
+    {}
     nrfy_grtc_sys_counter_cc_add_set(NRF_GRTC,
                                      channel,
                                      val,
@@ -808,6 +813,8 @@ int nrfx_grtc_syscounter_cc_relative_set(nrfx_grtc_channel_t *             p_cha
 {
     NRFX_ASSERT((m_cb.state != NRFX_DRV_STATE_UNINITIALIZED) && p_chan_data);
     int err_code = syscounter_check(p_chan_data->channel);
+    bool repeat;
+
     if (err_code != 0)
     {
         NRFX_LOG_WARNING("Function: %s, error code: %s.",
@@ -817,15 +824,22 @@ int nrfx_grtc_syscounter_cc_relative_set(nrfx_grtc_channel_t *             p_cha
     }
 
     cc_channel_prepare(p_chan_data);
-    NRFX_CRITICAL_SECTION_ENTER();
-    nrfy_grtc_sys_counter_compare_event_clear(NRF_GRTC, p_chan_data->channel);
-    {
-        nrfy_grtc_sys_counter_cc_add_set(NRF_GRTC,
-                                         p_chan_data->channel,
-                                         val,
-                                         (nrf_grtc_cc_add_reference_t)reference);
-    }
-    NRFX_CRITICAL_SECTION_EXIT();
+    do {
+        /* Ensure that the SYSCOUNTER is in active state. */
+        while ((reference == NRFX_GRTC_CC_RELATIVE_SYSCOUNTER) && !ready_check())
+        {}
+        NRFX_CRITICAL_SECTION_ENTER();
+        repeat = (reference == NRFX_GRTC_CC_RELATIVE_SYSCOUNTER) && !ready_check();
+        if (!repeat)
+        {
+            nrfy_grtc_sys_counter_compare_event_clear(NRF_GRTC, p_chan_data->channel);
+            nrfy_grtc_sys_counter_cc_add_set(NRF_GRTC,
+                                             p_chan_data->channel,
+                                             val,
+                                             (nrf_grtc_cc_add_reference_t)reference);
+        }
+        NRFX_CRITICAL_SECTION_EXIT();
+    } while (repeat);
 
     if (enable_irq)
     {

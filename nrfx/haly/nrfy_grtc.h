@@ -1048,12 +1048,16 @@ NRFY_STATIC_INLINE uint64_t __nrfy_internal_grtc_rt_counter_read(NRF_GRTC_Type c
 
 NRFY_STATIC_INLINE bool __nrfy_internal_grtc_sys_counter_ready_check(NRF_GRTC_Type const * p_reg)
 {
+#if NRFX_CHECK(ISA_ARM) && (__CORTEX_M == 33U)
+    return !(nrf_grtc_sys_counter_get(p_reg) & ((uint64_t)NRF_GRTC_SYSCOUNTERH_BUSY_MASK << 32));
+#else
     nrf_grtc_sys_counter_low_get(p_reg); // Dummy read, required.
     nrf_barrier_r();
     bool check = ((nrf_grtc_sys_counter_high_get(p_reg) & GRTC_SYSCOUNTER_SYSCOUNTERH_BUSY_Msk)
                  >> GRTC_SYSCOUNTER_SYSCOUNTERH_BUSY_Pos) == GRTC_SYSCOUNTER_SYSCOUNTERH_BUSY_Ready;
     nrf_barrier_r();
     return check;
+#endif
 }
 
 #ifdef __cplusplus
