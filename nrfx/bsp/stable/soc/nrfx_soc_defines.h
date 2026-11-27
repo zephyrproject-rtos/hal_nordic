@@ -35,6 +35,8 @@
 #define NRFX_SOC_DEFINES_H__
 
 #include <nrfx.h>
+#include "../include/nrfx_analog/nrfx_analog_inputs.h"
+#include "../include/nrfx_analog/nrfx_ain_map.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,6 +59,44 @@ extern "C" {
 #endif
 #endif
 
+/*
+ * External analog input tables derived from NRFX_AIN_TABLE (see nrfx_ain_map.h).
+ * On SoCs where analog inputs are configured using pin numbers, the entry holds the pin.
+ * Otherwise, it holds the input selection of the given AIN.
+ */
+#if defined(NRFX_AIN_TABLE)
+#define NRFX_SAADC_AIN_PSEL(idx, port, pin, saadc, comp, lpcomp)                    \
+    NRFX_COND_CODE_1(saadc,                                                         \
+        (NRFX_COND_CODE_1(NRF_SAADC_HAS_AIN_AS_PIN,                                 \
+            (NRF_PIN_PORT_TO_PIN_NUMBER(pin, port)), (NRF_SAADC_INPUT_AIN##idx)),), \
+        (NRFX_SAADC_INPUT_NOT_PRESENT,))
+#define NRFX_SAADC_AIN_NA(idx) NRFX_SAADC_INPUT_NOT_PRESENT,
+
+#define NRFX_COMP_AIN_PSEL(idx, port, pin, saadc, comp, lpcomp)                     \
+    NRFX_COND_CODE_1(comp,                                                          \
+        (NRFX_COND_CODE_1(NRF_COMP_HAS_AIN_AS_PIN,                                  \
+            (NRF_PIN_PORT_TO_PIN_NUMBER(pin, port)), (NRF_COMP_INPUT_##idx)),),     \
+        ((nrf_comp_input_t)NRFX_COMP_INPUT_NOT_PRESENT,))
+#define NRFX_COMP_AIN_NA(idx) (nrf_comp_input_t)NRFX_COMP_INPUT_NOT_PRESENT,
+
+#define NRFX_LPCOMP_AIN_PSEL(idx, port, pin, saadc, comp, lpcomp)                   \
+    NRFX_COND_CODE_1(lpcomp,                                                        \
+        (NRFX_COND_CODE_1(NRF_LPCOMP_HAS_AIN_AS_PIN,                                \
+            (NRF_PIN_PORT_TO_PIN_NUMBER(pin, port)), (NRF_LPCOMP_INPUT_##idx)),),   \
+        ((nrf_lpcomp_input_t)NRFX_LPCOMP_INPUT_NOT_PRESENT,))
+#define NRFX_LPCOMP_AIN_NA(idx) (nrf_lpcomp_input_t)NRFX_LPCOMP_INPUT_NOT_PRESENT,
+
+#ifndef SAADC_EXTERNAL_AIN_PSELS
+#define SAADC_EXTERNAL_AIN_PSELS NRFX_AIN_TABLE(NRFX_SAADC_AIN_PSEL, NRFX_SAADC_AIN_NA)
+#endif
+#ifndef COMP_EXTERNAL_AIN_PSELS
+#define COMP_EXTERNAL_AIN_PSELS NRFX_AIN_TABLE(NRFX_COMP_AIN_PSEL, NRFX_COMP_AIN_NA)
+#endif
+#ifndef LPCOMP_EXTERNAL_AIN_PSELS
+#define LPCOMP_EXTERNAL_AIN_PSELS NRFX_AIN_TABLE(NRFX_LPCOMP_AIN_PSEL, NRFX_LPCOMP_AIN_NA)
+#endif
+#endif /* defined(NRFX_AIN_TABLE) */
+
 #ifndef COMP_EXTERNAL_AIN_PSELS
 #if defined(NRF9220_XXAA) || defined(NRF9230_ENGB_XXAA) || defined(NRF54H20_XXAA)
     #define COMP_EXTERNAL_AIN_PSELS        \
@@ -68,16 +108,6 @@ extern "C" {
         NRF_PIN_PORT_TO_PIN_NUMBER(5U, 1), \
         NRF_PIN_PORT_TO_PIN_NUMBER(6U, 1), \
         NRF_PIN_PORT_TO_PIN_NUMBER(7U, 1)
-#elif defined(NRF54L05_XXAA) || defined(NRF54L10_XXAA) || defined(NRF54L15_XXAA)
-    #define COMP_EXTERNAL_AIN_PSELS         \
-        NRF_PIN_PORT_TO_PIN_NUMBER(4U, 1),  \
-        NRF_PIN_PORT_TO_PIN_NUMBER(5U, 1),  \
-        NRF_PIN_PORT_TO_PIN_NUMBER(6U, 1),  \
-        NRF_PIN_PORT_TO_PIN_NUMBER(7U, 1),  \
-        NRF_PIN_PORT_TO_PIN_NUMBER(11U, 1), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(12U, 1), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(13U, 1), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(14U, 1)
 #elif defined(NRF54LM20A_XXAA) || defined(NRF54LM20B_XXAA)
     #define COMP_EXTERNAL_AIN_PSELS         \
         NRF_PIN_PORT_TO_PIN_NUMBER(0U, 1),  \
@@ -98,19 +128,6 @@ extern "C" {
         NRF_PIN_PORT_TO_PIN_NUMBER(10U, 1), \
         NRF_PIN_PORT_TO_PIN_NUMBER(11U, 1), \
         NRF_PIN_PORT_TO_PIN_NUMBER(12U, 1)
-#elif defined(NRF7120_ENGA_XXAA) || defined(NRF7120E_ENGA_XXAA) || \
-    defined(NRF7120_XXAA) || defined(NRF7120E_XXAA)
-    #define COMP_EXTERNAL_AIN_PSELS                     \
-        NRF_PIN_PORT_TO_PIN_NUMBER(0U, 0),              \
-        NRF_PIN_PORT_TO_PIN_NUMBER(1U, 0),              \
-        NRF_PIN_PORT_TO_PIN_NUMBER(2U, 0),              \
-        NRF_PIN_PORT_TO_PIN_NUMBER(3U, 0),              \
-        NRF_PIN_PORT_TO_PIN_NUMBER(4U, 0),              \
-        NRF_PIN_PORT_TO_PIN_NUMBER(6U, 0),              \
-        NRF_PIN_PORT_TO_PIN_NUMBER(7U, 0),              \
-        NRF_PIN_PORT_TO_PIN_NUMBER(8U, 0),              \
-        NRF_PIN_PORT_TO_PIN_NUMBER(0U, 4),              \
-        NRF_PIN_PORT_TO_PIN_NUMBER(1U, 4)
 #else /* legacy platforms */
     #define COMP_EXTERNAL_AIN_PSELS                                             \
         NRF_COMP_INPUT_0,                                                       \
@@ -210,16 +227,6 @@ extern "C" {
         NRF_PIN_PORT_TO_PIN_NUMBER(5U, 1), \
         NRF_PIN_PORT_TO_PIN_NUMBER(6U, 1), \
         NRF_PIN_PORT_TO_PIN_NUMBER(7U, 1),
-#elif defined(NRF54L05_XXAA) || defined(NRF54L10_XXAA) || defined(NRF54L15_XXAA)
-    #define LPCOMP_EXTERNAL_AIN_PSELS       \
-        NRF_PIN_PORT_TO_PIN_NUMBER(4U, 1),  \
-        NRF_PIN_PORT_TO_PIN_NUMBER(5U, 1),  \
-        NRF_PIN_PORT_TO_PIN_NUMBER(6U, 1),  \
-        NRF_PIN_PORT_TO_PIN_NUMBER(7U, 1),  \
-        NRF_PIN_PORT_TO_PIN_NUMBER(11U, 1), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(12U, 1), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(13U, 1), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(14U, 1),
 #elif defined(NRF54LM20A_XXAA) || defined(NRF54LM20B_XXAA)
     #define LPCOMP_EXTERNAL_AIN_PSELS       \
         NRF_PIN_PORT_TO_PIN_NUMBER(0U, 1),  \
@@ -240,21 +247,6 @@ extern "C" {
         NRF_PIN_PORT_TO_PIN_NUMBER(10U, 1), \
         NRF_PIN_PORT_TO_PIN_NUMBER(11U, 1), \
         NRF_PIN_PORT_TO_PIN_NUMBER(12U, 1),
-#elif defined(NRF7120_ENGA_XXAA) || defined(NRF7120E_ENGA_XXAA) || \
-    defined(NRF7120_XXAA) || defined(NRF7120E_XXAA)
-    #define LPCOMP_EXTERNAL_AIN_PSELS                      \
-        NRF_PIN_PORT_TO_PIN_NUMBER(0U, 0),                 \
-        NRF_PIN_PORT_TO_PIN_NUMBER(1U, 0),                 \
-        NRF_PIN_PORT_TO_PIN_NUMBER(2U, 0),                 \
-        NRF_PIN_PORT_TO_PIN_NUMBER(3U, 0),                 \
-        NRF_PIN_PORT_TO_PIN_NUMBER(4U, 0),                 \
-        NRF_PIN_PORT_TO_PIN_NUMBER(6U, 0),                 \
-        NRF_PIN_PORT_TO_PIN_NUMBER(7U, 0),                 \
-        NRF_PIN_PORT_TO_PIN_NUMBER(8U, 0),                 \
-        (nrf_lpcomp_input_t)NRFX_LPCOMP_INPUT_NOT_PRESENT, \
-        (nrf_lpcomp_input_t)NRFX_LPCOMP_INPUT_NOT_PRESENT, \
-        NRF_PIN_PORT_TO_PIN_NUMBER(2U, 4),                 \
-        NRF_PIN_PORT_TO_PIN_NUMBER(3U, 4)
 #else /* legacy platforms */
     #define LPCOMP_EXTERNAL_AIN_PSELS \
         NRF_LPCOMP_INPUT_0,           \
@@ -348,16 +340,6 @@ extern "C" {
         NRF_PIN_PORT_TO_PIN_NUMBER(3U, 9), \
         NRF_PIN_PORT_TO_PIN_NUMBER(4U, 9), \
         NRF_PIN_PORT_TO_PIN_NUMBER(5U, 9),
-#elif defined(NRF54L05_XXAA) || defined(NRF54L10_XXAA) || defined(NRF54L15_XXAA)
-    #define SAADC_EXTERNAL_AIN_PSELS       \
-        NRF_PIN_PORT_TO_PIN_NUMBER(4U, 1),  \
-        NRF_PIN_PORT_TO_PIN_NUMBER(5U, 1),  \
-        NRF_PIN_PORT_TO_PIN_NUMBER(6U, 1),  \
-        NRF_PIN_PORT_TO_PIN_NUMBER(7U, 1),  \
-        NRF_PIN_PORT_TO_PIN_NUMBER(11U, 1), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(12U, 1), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(13U, 1), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(14U, 1),
 #elif defined(NRF54LM20A_XXAA) || defined(NRF54LM20B_XXAA)
     #define SAADC_EXTERNAL_AIN_PSELS        \
         NRF_PIN_PORT_TO_PIN_NUMBER(0U, 1),  \
@@ -384,23 +366,6 @@ extern "C" {
         NRF_PIN_PORT_TO_PIN_NUMBER(5U, 1), \
         NRF_PIN_PORT_TO_PIN_NUMBER(6U, 1), \
         NRF_PIN_PORT_TO_PIN_NUMBER(7U, 1),
-#elif defined(NRF7120_ENGA_XXAA) || defined(NRF7120E_ENGA_XXAA) || \
-    defined(NRF7120_XXAA) || defined(NRF7120E_XXAA)
-    #define SAADC_EXTERNAL_AIN_PSELS       \
-        NRF_PIN_PORT_TO_PIN_NUMBER(0U, 0), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(1U, 0), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(2U, 0), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(3U, 0), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(4U, 0), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(6U, 0), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(7U, 0), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(8U, 0), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(0U, 4), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(1U, 4), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(2U, 4), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(3U, 4), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(4U, 4), \
-        NRF_PIN_PORT_TO_PIN_NUMBER(5U, 4),
 #else /* legacy platforms */
     #define SAADC_EXTERNAL_AIN_PSELS                                                   \
         NRF_SAADC_INPUT_AIN0,                                                          \
