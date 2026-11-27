@@ -1,0 +1,5 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+description = "Read a register on a secure peripheral via the platform ioctl service"
+tier = "pr"    # fast pre-merge sweep: the platform-ioctl representative.
+timeout = 5

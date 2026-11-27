@@ -1,0 +1,5 @@
+# IronSide Integration Kit test metadata.
+description = "Provision + use a persistent AES key in the URoT storage for AES-GCM via UROT"
+tier = "pr"    # fast pre-merge sweep: the persistent-key representative - the encrypted,
+               # rotation and unwrap demos all build on this provisioning flow.
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED (~0.5s)

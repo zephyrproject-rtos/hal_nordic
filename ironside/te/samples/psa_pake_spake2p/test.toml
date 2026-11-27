@@ -1,0 +1,4 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+description = "SPAKE2+ Matter variant (secp256r1): prover and verifier run through the NSC from a PBKDF2-derived key pair and its verifier key, the shared keys agree, a different passcode is caught by key confirmation, and the other SPAKE2+ variants and curves are refused"
+timeout = 20    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED

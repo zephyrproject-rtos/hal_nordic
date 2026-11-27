@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="452px" height="582px" viewBox="0 0 452 582">
+<g>
+<g data-cell-id="0">
+<g data-cell-id="1">
+<g data-cell-id="IXuSkSpvKrYIxzY6d5Xc-1">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="0" width="230" height="580" fill="#ffffff" stroke="#000000"/>
+</g>
+</g>
+<g data-cell-id="IXuSkSpvKrYIxzY6d5Xc-3">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="0" width="230" height="80" fill="#e6e6e6" stroke="#b85450"/>
+</g>
+</g>
+<g data-cell-id="IXuSkSpvKrYIxzY6d5Xc-5">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="80" width="230" height="204" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+</g>
+<g data-cell-id="IXuSkSpvKrYIxzY6d5Xc-6">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="284" width="230" height="204" fill="#f5f5f5" stroke="#666666" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="IXuSkSpvKrYIxzY6d5Xc-7">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="488" width="230" height="62" fill="#f5f5f5" stroke="#666666" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="urotstorage-box">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="550" width="230" height="30" fill="#e6e6e6" stroke="#b85450"/>
+</g>
+</g>
+<g data-cell-id="IXuSkSpvKrYIxzY6d5Xc-9">
+<g>
+<rect x="0" y="0" width="60" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="19.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="19.32"> Reserved</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="IXuSkSpvKrYIxzY6d5Xc-10">
+<g>
+<rect x="0" y="80" width="60" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="99.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="99.32"> SLOT0</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="IXuSkSpvKrYIxzY6d5Xc-11">
+<g>
+<rect x="0" y="284" width="60" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="303.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="303.32"> SLOT1</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="IXuSkSpvKrYIxzY6d5Xc-12">
+<g>
+<rect x="0" y="488" width="90" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="507.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="507.32"> STORAGE</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="urotstorage-label">
+<g>
+<rect x="0" y="550" width="110" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="569.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="569.32"> UROTSTORAGE</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="IXuSkSpvKrYIxzY6d5Xc-16">
+<g>
+<rect x="100" y="80" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="99.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="228" y="99.32">RX </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="IXuSkSpvKrYIxzY6d5Xc-17">
+<g>
+<rect x="170" y="285" width="60" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="304.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="228" y="304.32">RW  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="IXuSkSpvKrYIxzY6d5Xc-18">
+<g>
+<rect x="170" y="488" width="60" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="507.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="228" y="507.32">RW  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="7UTkIn-0q3vgznBaAazF-3">
+<g>
+<rect x="100" y="100" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="119.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="228" y="119.32"><tspan font-style="italic">[RWX]</tspan> </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="7UTkIn-0q3vgznBaAazF-5">
+<g transform="translate(0.5,0.5)">
+<path d="M 310 0 L 420 0 L 450 30 L 450 150 L 310 150 L 310 0 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 420 0 L 420 30 L 450 30 Z" fill-opacity="0.05" fill="#000000" stroke="none"/>
+<path d="M 420 0 L 420 30 L 450 30" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="312" y="18.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="312" y="18.52"><tspan font-style="italic"> </tspan></tspan><tspan x="312" y="32.92"></tspan><tspan x="312" y="47.32"><tspan font-style="italic">  [perm]</tspan>:</tspan><tspan x="312" y="61.72">  <tspan font-weight="bold">Open</tspan>,</tspan><tspan x="312" y="76.12">  <tspan font-weight="bold">PRoT Provisioning</tspan></tspan></text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

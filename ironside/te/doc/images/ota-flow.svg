@@ -1,0 +1,1022 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="616px" height="2467px" viewBox="0 0 616 2467">
+<g>
+<g data-cell-id="0">
+<g data-cell-id="1">
+<g data-cell-id="c2">
+<g transform="translate(0.5,0.5)">
+<rect x="42.5" y="0" width="567.5" height="1315" rx="5.67" ry="5.67" fill="#ffffff" stroke="#000000" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="c3">
+<g>
+<rect x="0" y="50" width="297.5" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="149" y="71.84" text-anchor="middle" font-family="Helvetica" font-size="19" font-weight="bold" fill="#000000"><tspan x="149" y="71.84">Assembly Stage</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c4">
+<g transform="translate(0.5,0.5)">
+<rect x="277.5" y="12" width="297.5" height="128" fill="#f5f5f5" stroke="#666666"/>
+</g>
+<g>
+<g>
+<text x="427" y="30.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="427" y="30.52">Bundle content legend</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c5">
+<g transform="translate(0.5,0.5)">
+<path d="M 309.5 38 L 344.5 38 L 364.5 53 L 344.5 68 L 309.5 68 L 289.5 53 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="327.5" y="57.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="327.5" y="57.32">Static data</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c6">
+<g transform="translate(0.5,0.5)">
+<path d="M 388.5 43.29 C 388.5 37.61 405.29 33 426 33 C 435.95 33 445.48 34.08 452.52 36.01 C 459.55 37.94 463.5 40.56 463.5 43.29 L 463.5 62.71 C 463.5 65.44 459.55 68.06 452.52 69.99 C 445.48 71.92 435.95 73 426 73 C 416.05 73 406.52 71.92 399.48 69.99 C 392.45 68.06 388.5 65.44 388.5 62.71 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 463.5 43.29 C 463.5 46.01 459.55 48.63 452.52 50.56 C 445.48 52.49 435.95 53.57 426 53.57 C 416.05 53.57 406.52 52.49 399.48 50.56 C 392.45 48.63 388.5 46.01 388.5 43.29" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="426.5" y="66.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="426.5" y="66.32">Unsigned</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c7">
+<g>
+<path d="M 487.5 43.29 C 487.5 37.61 504.29 33 525 33 C 534.95 33 544.48 34.08 551.52 36.01 C 558.55 37.94 562.5 40.56 562.5 43.29 L 562.5 62.71 C 562.5 65.44 558.55 68.06 551.52 69.99 C 544.48 71.92 534.95 73 525 73 C 515.05 73 505.52 71.92 498.48 69.99 C 491.45 68.06 487.5 65.44 487.5 62.71 Z" fill="#ffffff" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M 562.5 43.29 C 562.5 46.01 558.55 48.63 551.52 50.56 C 544.48 52.49 534.95 53.57 525 53.57 C 515.05 53.57 505.52 52.49 498.48 50.56 C 491.45 48.63 487.5 46.01 487.5 43.29" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="525.5" y="66.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="525.5" y="66.32">Signed</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c8">
+<g transform="translate(0.5,0.5)">
+<rect x="289.5" y="95" width="98" height="24" rx="3.6" ry="3.6" fill="#6d8764" stroke="#3a5431"/>
+</g>
+<g>
+<g>
+<text x="339" y="111.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="339" y="111.32">No secrets</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c9">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 161 C 447.5 157.69 477.16 155 513.75 155 C 531.32 155 548.17 155.63 560.6 156.76 C 573.02 157.88 580 159.41 580 161 L 580 384 C 580 385.59 573.02 387.12 560.6 388.24 C 548.17 389.37 531.32 390 513.75 390 C 496.18 390 479.33 389.37 466.9 388.24 C 454.48 387.12 447.5 385.59 447.5 384 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 580 161 C 580 162.59 573.02 164.12 560.6 165.24 C 548.17 166.37 531.32 167 513.75 167 C 496.18 167 479.33 166.37 466.9 165.24 C 454.48 164.12 447.5 162.59 447.5 161" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="185.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="185.52">Bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c10">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 201 C 447.5 197.69 477.16 195 513.75 195 C 531.32 195 548.17 195.63 560.6 196.76 C 573.02 197.88 580 199.41 580 201 L 580 219 C 580 220.59 573.02 222.12 560.6 223.24 C 548.17 224.37 531.32 225 513.75 225 C 496.18 225 479.33 224.37 466.9 223.24 C 454.48 222.12 447.5 220.59 447.5 219 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+<path d="M 580 201 C 580 202.59 573.02 204.12 560.6 205.24 C 548.17 206.37 531.32 207 513.75 207 C 496.18 207 479.33 206.37 466.9 205.24 C 454.48 204.12 447.5 202.59 447.5 201" fill="none" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="219.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="219.32">Provisioning</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c11">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 228 L 560 228 L 580 239 L 560 250 L 467.5 250 L 447.5 239 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="243.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="243.32">Provision config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c12">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 253 L 560 253 L 580 264 L 560 275 L 467.5 275 L 447.5 264 Z" fill="#d5e8d4" stroke="#82b366" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="268.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="268.32">Image config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c13">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 279 L 560 279 L 580 290 L 560 301 L 467.5 301 L 447.5 290 Z" fill="#f8cecc" stroke="#b85450" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="294.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="294.32">Base config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c14">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 366 C 447.5 362.69 477.16 360 513.75 360 C 531.32 360 548.17 360.63 560.6 361.76 C 573.02 362.88 580 364.41 580 366 L 580 384 C 580 385.59 573.02 387.12 560.6 388.24 C 548.17 389.37 531.32 390 513.75 390 C 496.18 390 479.33 389.37 466.9 388.24 C 454.48 387.12 447.5 385.59 447.5 384 Z" fill="#f5f5f5" stroke="#666666" stroke-miterlimit="10"/>
+<path d="M 580 366 C 580 367.59 573.02 369.12 560.6 370.24 C 548.17 371.37 531.32 372 513.75 372 C 496.18 372 479.33 371.37 466.9 370.24 C 454.48 369.12 447.5 367.59 447.5 366" fill="none" stroke="#666666" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="384.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="514.5" y="384.32">IROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c15">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 349 C 447.5 345.69 477.16 343 513.75 343 C 531.32 343 548.17 343.63 560.6 344.76 C 573.02 345.88 580 347.41 580 349 L 580 367 C 580 368.59 573.02 370.12 560.6 371.24 C 548.17 372.37 531.32 373 513.75 373 C 496.18 373 479.33 372.37 466.9 371.24 C 454.48 370.12 447.5 368.59 447.5 367 Z" fill="#f8cecc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 349 C 580 350.59 573.02 352.12 560.6 353.24 C 548.17 354.37 531.32 355 513.75 355 C 496.18 355 479.33 354.37 466.9 353.24 C 454.48 352.12 447.5 350.59 447.5 349" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="367.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="367.32">UROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c16">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 331 C 447.5 327.69 477.16 325 513.75 325 C 531.32 325 548.17 325.63 560.6 326.76 C 573.02 327.88 580 329.41 580 331 L 580 349 C 580 350.59 573.02 352.12 560.6 353.24 C 548.17 354.37 531.32 355 513.75 355 C 496.18 355 479.33 354.37 466.9 353.24 C 454.48 352.12 447.5 350.59 447.5 349 Z" fill="#fff2cc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 331 C 580 332.59 573.02 334.12 560.6 335.24 C 548.17 336.37 531.32 337 513.75 337 C 496.18 337 479.33 336.37 466.9 335.24 C 454.48 334.12 447.5 332.59 447.5 331" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="349.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="349.32">IronSide DFU</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c17">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 313 C 447.5 309.69 477.16 307 513.75 307 C 531.32 307 548.17 307.63 560.6 308.76 C 573.02 309.88 580 311.41 580 313 L 580 331 C 580 332.59 573.02 334.12 560.6 335.24 C 548.17 336.37 531.32 337 513.75 337 C 496.18 337 479.33 336.37 466.9 335.24 C 454.48 334.12 447.5 332.59 447.5 331 Z" fill="#d5e8d4" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 313 C 580 314.59 573.02 316.12 560.6 317.24 C 548.17 318.37 531.32 319 513.75 319 C 496.18 319 479.33 318.37 466.9 317.24 C 454.48 316.12 447.5 314.59 447.5 313" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="331.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="331.32">APP</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c18">
+<g>
+<rect x="230" y="230" width="200" height="60" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="330" y="249.92" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="330" y="249.92">Assembly bundle of the</tspan><tspan x="330" y="264.32">deployed release.</tspan><tspan x="330" y="278.72">It holds no keys.</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c19">
+<g transform="translate(0.5,0.5)">
+<path d="M 60 470 L 230 470 L 230 520 L 152.04 520 L 140.07 536.65 L 132.04 520 L 60 520 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="145" y="492.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="145" y="492.12">Update the IronSide TE</tspan><tspan x="145" y="506.52">firmware in the bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c20">
+<g>
+<ellipse cx="145" cy="553.75" rx="15" ry="13.75" fill="#60a917" stroke="#2d7600" stroke-width="4"/>
+<path d="M 145 567.5 L 145 613.33 M 145 576.67 L 115 576.67 M 145 576.67 L 175 576.67 M 145 613.33 L 115 650 M 145 613.33 L 175 650" fill="none" stroke="#2d7600" stroke-width="4" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="145.5" y="668.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="145.5" y="668.52">Assembling Anne</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c21">
+<g transform="translate(0.5,0.5)">
+<path d="M 247.5 490 L 407.5 490 L 427.5 515 L 407.5 540 L 247.5 540 L 267.5 515 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="338" y="512.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="512.12">ironside_bundle.py</tspan><tspan x="338" y="526.52">update-component</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c22">
+<g transform="translate(0.5,0.5)">
+<path d="M 295 587.5 C 261 587.5 252.5 605 279.7 608.5 C 252.5 616.2 283.1 633 305.2 626 C 320.5 640 371.5 640 388.5 626 C 422.5 626 422.5 612 401.25 605 C 422.5 591 388.5 577 358.75 584 C 337.5 573.5 303.5 573.5 295 587.5 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="338" y="602.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="602.12">Nordic Semiconductor</tspan><tspan x="338" y="616.52">Artifactory</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c23">
+<g transform="translate(0.5,0.5)">
+<path d="M 337.5 546.37 L 337.5 560 L 337.5 550 L 337.5 570" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 337.5 541.12 L 341 548.12 L 337.5 546.37 L 334 548.12 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="c24">
+<g transform="translate(0.5,0.5)">
+<path d="M 513.75 390 L 513.8 425 L 337.5 425 L 337.5 483.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.5 488.88 L 334 481.88 L 337.5 483.63 L 341 481.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="c25">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 456 C 447.5 452.69 477.16 450 513.75 450 C 531.32 450 548.17 450.63 560.6 451.76 C 573.02 452.88 580 454.41 580 456 L 580 679 C 580 680.59 573.02 682.12 560.6 683.24 C 548.17 684.37 531.32 685 513.75 685 C 496.18 685 479.33 684.37 466.9 683.24 C 454.48 682.12 447.5 680.59 447.5 679 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 580 456 C 580 457.59 573.02 459.12 560.6 460.24 C 548.17 461.37 531.32 462 513.75 462 C 496.18 462 479.33 461.37 466.9 460.24 C 454.48 459.12 447.5 457.59 447.5 456" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="480.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="480.52">Bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c26">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 496 C 447.5 492.69 477.16 490 513.75 490 C 531.32 490 548.17 490.63 560.6 491.76 C 573.02 492.88 580 494.41 580 496 L 580 514 C 580 515.59 573.02 517.12 560.6 518.24 C 548.17 519.37 531.32 520 513.75 520 C 496.18 520 479.33 519.37 466.9 518.24 C 454.48 517.12 447.5 515.59 447.5 514 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+<path d="M 580 496 C 580 497.59 573.02 499.12 560.6 500.24 C 548.17 501.37 531.32 502 513.75 502 C 496.18 502 479.33 501.37 466.9 500.24 C 454.48 499.12 447.5 497.59 447.5 496" fill="none" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="514.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="514.32">Provisioning</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c27">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 523 L 560 523 L 580 534 L 560 545 L 467.5 545 L 447.5 534 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="538.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="538.32">Provision config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c28">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 548 L 560 548 L 580 559 L 560 570 L 467.5 570 L 447.5 559 Z" fill="#d5e8d4" stroke="#82b366" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="563.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="563.32">Image config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c29">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 574 L 560 574 L 580 585 L 560 596 L 467.5 596 L 447.5 585 Z" fill="#f8cecc" stroke="#b85450" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="589.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="589.32">Base config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c30">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 661 C 447.5 657.69 477.16 655 513.75 655 C 531.32 655 548.17 655.63 560.6 656.76 C 573.02 657.88 580 659.41 580 661 L 580 679 C 580 680.59 573.02 682.12 560.6 683.24 C 548.17 684.37 531.32 685 513.75 685 C 496.18 685 479.33 684.37 466.9 683.24 C 454.48 682.12 447.5 680.59 447.5 679 Z" fill="#f5f5f5" stroke="#666666" stroke-miterlimit="10"/>
+<path d="M 580 661 C 580 662.59 573.02 664.12 560.6 665.24 C 548.17 666.37 531.32 667 513.75 667 C 496.18 667 479.33 666.37 466.9 665.24 C 454.48 664.12 447.5 662.59 447.5 661" fill="none" stroke="#666666" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="679.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="514.5" y="679.32">IROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c31">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 644 C 447.5 640.69 477.16 638 513.75 638 C 531.32 638 548.17 638.63 560.6 639.76 C 573.02 640.88 580 642.41 580 644 L 580 662 C 580 663.59 573.02 665.12 560.6 666.24 C 548.17 667.37 531.32 668 513.75 668 C 496.18 668 479.33 667.37 466.9 666.24 C 454.48 665.12 447.5 663.59 447.5 662 Z" fill="#f8cecc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 644 C 580 645.59 573.02 647.12 560.6 648.24 C 548.17 649.37 531.32 650 513.75 650 C 496.18 650 479.33 649.37 466.9 648.24 C 454.48 647.12 447.5 645.59 447.5 644" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="662.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="662.32">UROT (new)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c32">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 626 C 447.5 622.69 477.16 620 513.75 620 C 531.32 620 548.17 620.63 560.6 621.76 C 573.02 622.88 580 624.41 580 626 L 580 644 C 580 645.59 573.02 647.12 560.6 648.24 C 548.17 649.37 531.32 650 513.75 650 C 496.18 650 479.33 649.37 466.9 648.24 C 454.48 647.12 447.5 645.59 447.5 644 Z" fill="#fff2cc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 626 C 580 627.59 573.02 629.12 560.6 630.24 C 548.17 631.37 531.32 632 513.75 632 C 496.18 632 479.33 631.37 466.9 630.24 C 454.48 629.12 447.5 627.59 447.5 626" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="644.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="644.32">IronSide DFU (new)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c33">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 608 C 447.5 604.69 477.16 602 513.75 602 C 531.32 602 548.17 602.63 560.6 603.76 C 573.02 604.88 580 606.41 580 608 L 580 626 C 580 627.59 573.02 629.12 560.6 630.24 C 548.17 631.37 531.32 632 513.75 632 C 496.18 632 479.33 631.37 466.9 630.24 C 454.48 629.12 447.5 627.59 447.5 626 Z" fill="#d5e8d4" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 608 C 580 609.59 573.02 611.12 560.6 612.24 C 548.17 613.37 531.32 614 513.75 614 C 496.18 614 479.33 613.37 466.9 612.24 C 454.48 611.12 447.5 609.59 447.5 608" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="626.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="626.32">APP</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c34">
+<g transform="translate(0.5,0.5)">
+<path d="M 60 765 L 230 765 L 230 815 L 152.04 815 L 140.07 831.65 L 132.04 815 L 60 815 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="145" y="787.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="145" y="787.12">Update the application</tspan><tspan x="145" y="801.52">firmware in the bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c35">
+<g>
+<ellipse cx="145" cy="848.75" rx="15" ry="13.75" fill="#60a917" stroke="#2d7600" stroke-width="4"/>
+<path d="M 145 862.5 L 145 908.33 M 145 871.67 L 115 871.67 M 145 871.67 L 175 871.67 M 145 908.33 L 115 945 M 145 908.33 L 175 945" fill="none" stroke="#2d7600" stroke-width="4" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="145.5" y="963.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="145.5" y="963.52">Assembling Anne</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c36">
+<g transform="translate(0.5,0.5)">
+<path d="M 247.5 790 L 407.5 790 L 427.5 815 L 407.5 840 L 247.5 840 L 267.5 815 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="338" y="812.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="812.12">ironside_bundle.py</tspan><tspan x="338" y="826.52">update-component</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c37">
+<g transform="translate(0.5,0.5)">
+<path d="M 271.25 871 C 271.25 867.69 300.91 865 337.5 865 C 355.07 865 371.92 865.63 384.35 866.76 C 396.77 867.88 403.75 869.41 403.75 871 L 403.75 889 C 403.75 890.59 396.77 892.12 384.35 893.24 C 371.92 894.37 355.07 895 337.5 895 C 319.93 895 303.08 894.37 290.65 893.24 C 278.23 892.12 271.25 890.59 271.25 889 Z" fill="#d5e8d4" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 403.75 871 C 403.75 872.59 396.77 874.12 384.35 875.24 C 371.92 876.37 355.07 877 337.5 877 C 319.93 877 303.08 876.37 290.65 875.24 C 278.23 874.12 271.25 872.59 271.25 871" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="337.5" y="889.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="337.5" y="889.32">APP</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c38">
+<g transform="translate(0.5,0.5)">
+<path d="M 237.5 915 L 417.5 915 L 437.5 940 L 417.5 965 L 237.5 965 L 257.5 940 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="338" y="944.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="944.32">create_component_archive.py</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c39">
+<g transform="translate(0.5,0.5)">
+<rect x="277.5" y="985" width="120" height="30" rx="4.5" ry="4.5" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="338" y="1004.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="1004.32">application_fw.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c40">
+<g transform="translate(0.5,0.5)">
+<path d="M 337.5 985 L 337.5 965 L 337.5 985 L 337.5 971.37" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.5 966.12 L 341 973.12 L 337.5 971.37 L 334 973.12 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="c41">
+<g transform="translate(0.5,0.5)">
+<path d="M 337.5 915 L 337.5 901.37" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.5 896.12 L 341 903.12 L 337.5 901.37 L 334 903.12 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="c42">
+<g transform="translate(0.5,0.5)">
+<path d="M 337.6 865 L 337.6 845 L 337.63 846.37" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.52 841.12 L 341.16 848.05 L 337.63 846.37 L 334.16 848.19 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="c43">
+<g transform="translate(0.5,0.5)">
+<path d="M 513.75 685 L 513.8 725 L 337.5 725 L 337.5 783.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.5 788.88 L 334 781.88 L 337.5 783.63 L 341 781.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="c44">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 756 C 447.5 752.69 477.16 750 513.75 750 C 531.32 750 548.17 750.63 560.6 751.76 C 573.02 752.88 580 754.41 580 756 L 580 979 C 580 980.59 573.02 982.12 560.6 983.24 C 548.17 984.37 531.32 985 513.75 985 C 496.18 985 479.33 984.37 466.9 983.24 C 454.48 982.12 447.5 980.59 447.5 979 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 580 756 C 580 757.59 573.02 759.12 560.6 760.24 C 548.17 761.37 531.32 762 513.75 762 C 496.18 762 479.33 761.37 466.9 760.24 C 454.48 759.12 447.5 757.59 447.5 756" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="780.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="780.52">Bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c45">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 796 C 447.5 792.69 477.16 790 513.75 790 C 531.32 790 548.17 790.63 560.6 791.76 C 573.02 792.88 580 794.41 580 796 L 580 814 C 580 815.59 573.02 817.12 560.6 818.24 C 548.17 819.37 531.32 820 513.75 820 C 496.18 820 479.33 819.37 466.9 818.24 C 454.48 817.12 447.5 815.59 447.5 814 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+<path d="M 580 796 C 580 797.59 573.02 799.12 560.6 800.24 C 548.17 801.37 531.32 802 513.75 802 C 496.18 802 479.33 801.37 466.9 800.24 C 454.48 799.12 447.5 797.59 447.5 796" fill="none" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="814.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="814.32">Provisioning</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c46">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 823 L 560 823 L 580 834 L 560 845 L 467.5 845 L 447.5 834 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="838.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="838.32">Provision config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c47">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 848 L 560 848 L 580 859 L 560 870 L 467.5 870 L 447.5 859 Z" fill="#d5e8d4" stroke="#82b366" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="863.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="863.32">Image config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c48">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 874 L 560 874 L 580 885 L 560 896 L 467.5 896 L 447.5 885 Z" fill="#f8cecc" stroke="#b85450" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="889.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="889.32">Base config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c49">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 961 C 447.5 957.69 477.16 955 513.75 955 C 531.32 955 548.17 955.63 560.6 956.76 C 573.02 957.88 580 959.41 580 961 L 580 979 C 580 980.59 573.02 982.12 560.6 983.24 C 548.17 984.37 531.32 985 513.75 985 C 496.18 985 479.33 984.37 466.9 983.24 C 454.48 982.12 447.5 980.59 447.5 979 Z" fill="#f5f5f5" stroke="#666666" stroke-miterlimit="10"/>
+<path d="M 580 961 C 580 962.59 573.02 964.12 560.6 965.24 C 548.17 966.37 531.32 967 513.75 967 C 496.18 967 479.33 966.37 466.9 965.24 C 454.48 964.12 447.5 962.59 447.5 961" fill="none" stroke="#666666" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="979.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="514.5" y="979.32">IROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c50">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 944 C 447.5 940.69 477.16 938 513.75 938 C 531.32 938 548.17 938.63 560.6 939.76 C 573.02 940.88 580 942.41 580 944 L 580 962 C 580 963.59 573.02 965.12 560.6 966.24 C 548.17 967.37 531.32 968 513.75 968 C 496.18 968 479.33 967.37 466.9 966.24 C 454.48 965.12 447.5 963.59 447.5 962 Z" fill="#f8cecc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 944 C 580 945.59 573.02 947.12 560.6 948.24 C 548.17 949.37 531.32 950 513.75 950 C 496.18 950 479.33 949.37 466.9 948.24 C 454.48 947.12 447.5 945.59 447.5 944" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="962.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="962.32">UROT (new)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c51">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 926 C 447.5 922.69 477.16 920 513.75 920 C 531.32 920 548.17 920.63 560.6 921.76 C 573.02 922.88 580 924.41 580 926 L 580 944 C 580 945.59 573.02 947.12 560.6 948.24 C 548.17 949.37 531.32 950 513.75 950 C 496.18 950 479.33 949.37 466.9 948.24 C 454.48 947.12 447.5 945.59 447.5 944 Z" fill="#fff2cc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 926 C 580 927.59 573.02 929.12 560.6 930.24 C 548.17 931.37 531.32 932 513.75 932 C 496.18 932 479.33 931.37 466.9 930.24 C 454.48 929.12 447.5 927.59 447.5 926" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="944.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="944.32">IronSide DFU (new)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c52">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 908 C 447.5 904.69 477.16 902 513.75 902 C 531.32 902 548.17 902.63 560.6 903.76 C 573.02 904.88 580 906.41 580 908 L 580 926 C 580 927.59 573.02 929.12 560.6 930.24 C 548.17 931.37 531.32 932 513.75 932 C 496.18 932 479.33 931.37 466.9 930.24 C 454.48 929.12 447.5 927.59 447.5 926 Z" fill="#d5e8d4" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 908 C 580 909.59 573.02 911.12 560.6 912.24 C 548.17 913.37 531.32 914 513.75 914 C 496.18 914 479.33 913.37 466.9 912.24 C 454.48 911.12 447.5 909.59 447.5 908" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="926.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="926.32">APP (new)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c53">
+<g transform="translate(0.5,0.5)">
+<path d="M 82.5 1065 L 222.5 1065 L 222.5 1115 L 160.06 1115 L 148.44 1131.65 L 140.06 1115 L 82.5 1115 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="153" y="1087.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="153" y="1087.12">Update the image</tspan><tspan x="153" y="1101.52">configuration</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c54">
+<g>
+<ellipse cx="147.5" cy="1143.75" rx="15" ry="13.75" fill="#60a917" stroke="#2d7600" stroke-width="4"/>
+<path d="M 147.5 1157.5 L 147.5 1203.33 M 147.5 1166.67 L 117.5 1166.67 M 147.5 1166.67 L 177.5 1166.67 M 147.5 1203.33 L 117.5 1240 M 147.5 1203.33 L 177.5 1240" fill="none" stroke="#2d7600" stroke-width="4" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="148.5" y="1258.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="148.5" y="1258.52">Assembling Anne</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c55">
+<g transform="translate(0.5,0.5)">
+<path d="M 247.5 1090 L 407.5 1090 L 427.5 1115 L 407.5 1140 L 247.5 1140 L 267.5 1115 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="338" y="1112.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="1112.12">ironside_bundle.py</tspan><tspan x="338" y="1126.52">update-config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c56">
+<g>
+<rect x="237.5" y="1148" width="200" height="34" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="338" y="1162.36" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#333333"><tspan x="338" y="1162.36">The base configuration stays</tspan><tspan x="338" y="1175.56">as programmed on the devices</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c57">
+<g transform="translate(0.5,0.5)">
+<path d="M 513.75 985 L 513.8 1025 L 337.5 1025 L 337.5 1083.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.5 1088.88 L 334 1081.88 L 337.5 1083.63 L 341 1081.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="c58">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 1056 C 447.5 1052.69 477.16 1050 513.75 1050 C 531.32 1050 548.17 1050.63 560.6 1051.76 C 573.02 1052.88 580 1054.41 580 1056 L 580 1279 C 580 1280.59 573.02 1282.12 560.6 1283.24 C 548.17 1284.37 531.32 1285 513.75 1285 C 496.18 1285 479.33 1284.37 466.9 1283.24 C 454.48 1282.12 447.5 1280.59 447.5 1279 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 580 1056 C 580 1057.59 573.02 1059.12 560.6 1060.24 C 548.17 1061.37 531.32 1062 513.75 1062 C 496.18 1062 479.33 1061.37 466.9 1060.24 C 454.48 1059.12 447.5 1057.59 447.5 1056" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1080.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1080.52">Bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c59">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 1096 C 447.5 1092.69 477.16 1090 513.75 1090 C 531.32 1090 548.17 1090.63 560.6 1091.76 C 573.02 1092.88 580 1094.41 580 1096 L 580 1114 C 580 1115.59 573.02 1117.12 560.6 1118.24 C 548.17 1119.37 531.32 1120 513.75 1120 C 496.18 1120 479.33 1119.37 466.9 1118.24 C 454.48 1117.12 447.5 1115.59 447.5 1114 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+<path d="M 580 1096 C 580 1097.59 573.02 1099.12 560.6 1100.24 C 548.17 1101.37 531.32 1102 513.75 1102 C 496.18 1102 479.33 1101.37 466.9 1100.24 C 454.48 1099.12 447.5 1097.59 447.5 1096" fill="none" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1114.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1114.32">Provisioning</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c60">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 1123 L 560 1123 L 580 1134 L 560 1145 L 467.5 1145 L 447.5 1134 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1138.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1138.32">Provision config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c61">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 1148 L 560 1148 L 580 1159 L 560 1170 L 467.5 1170 L 447.5 1159 Z" fill="#d5e8d4" stroke="#82b366" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1163.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1163.32">Image config (new)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c62">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 1174 L 560 1174 L 580 1185 L 560 1196 L 467.5 1196 L 447.5 1185 Z" fill="#f8cecc" stroke="#b85450" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1189.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1189.32">Base config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c63">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 1261 C 447.5 1257.69 477.16 1255 513.75 1255 C 531.32 1255 548.17 1255.63 560.6 1256.76 C 573.02 1257.88 580 1259.41 580 1261 L 580 1279 C 580 1280.59 573.02 1282.12 560.6 1283.24 C 548.17 1284.37 531.32 1285 513.75 1285 C 496.18 1285 479.33 1284.37 466.9 1283.24 C 454.48 1282.12 447.5 1280.59 447.5 1279 Z" fill="#f5f5f5" stroke="#666666" stroke-miterlimit="10"/>
+<path d="M 580 1261 C 580 1262.59 573.02 1264.12 560.6 1265.24 C 548.17 1266.37 531.32 1267 513.75 1267 C 496.18 1267 479.33 1266.37 466.9 1265.24 C 454.48 1264.12 447.5 1262.59 447.5 1261" fill="none" stroke="#666666" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1279.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="514.5" y="1279.32">IROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c64">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 1244 C 447.5 1240.69 477.16 1238 513.75 1238 C 531.32 1238 548.17 1238.63 560.6 1239.76 C 573.02 1240.88 580 1242.41 580 1244 L 580 1262 C 580 1263.59 573.02 1265.12 560.6 1266.24 C 548.17 1267.37 531.32 1268 513.75 1268 C 496.18 1268 479.33 1267.37 466.9 1266.24 C 454.48 1265.12 447.5 1263.59 447.5 1262 Z" fill="#f8cecc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 1244 C 580 1245.59 573.02 1247.12 560.6 1248.24 C 548.17 1249.37 531.32 1250 513.75 1250 C 496.18 1250 479.33 1249.37 466.9 1248.24 C 454.48 1247.12 447.5 1245.59 447.5 1244" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1262.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1262.32">UROT (new)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c65">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 1226 C 447.5 1222.69 477.16 1220 513.75 1220 C 531.32 1220 548.17 1220.63 560.6 1221.76 C 573.02 1222.88 580 1224.41 580 1226 L 580 1244 C 580 1245.59 573.02 1247.12 560.6 1248.24 C 548.17 1249.37 531.32 1250 513.75 1250 C 496.18 1250 479.33 1249.37 466.9 1248.24 C 454.48 1247.12 447.5 1245.59 447.5 1244 Z" fill="#fff2cc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 1226 C 580 1227.59 573.02 1229.12 560.6 1230.24 C 548.17 1231.37 531.32 1232 513.75 1232 C 496.18 1232 479.33 1231.37 466.9 1230.24 C 454.48 1229.12 447.5 1227.59 447.5 1226" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1244.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1244.32">IronSide DFU (new)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c66">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 1208 C 447.5 1204.69 477.16 1202 513.75 1202 C 531.32 1202 548.17 1202.63 560.6 1203.76 C 573.02 1204.88 580 1206.41 580 1208 L 580 1226 C 580 1227.59 573.02 1229.12 560.6 1230.24 C 548.17 1231.37 531.32 1232 513.75 1232 C 496.18 1232 479.33 1231.37 466.9 1230.24 C 454.48 1229.12 447.5 1227.59 447.5 1226 Z" fill="#d5e8d4" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 1208 C 580 1209.59 573.02 1211.12 560.6 1212.24 C 548.17 1213.37 531.32 1214 513.75 1214 C 496.18 1214 479.33 1213.37 466.9 1212.24 C 454.48 1211.12 447.5 1209.59 447.5 1208" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1226.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1226.32">APP (new)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c67">
+<g transform="translate(0.5,0.5)">
+<rect x="38.75" y="1340" width="575" height="810" rx="5.75" ry="5.75" fill="#ffffff" stroke="#000000" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="c68">
+<g>
+<rect x="47" y="1380" width="297.5" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="196" y="1401.84" text-anchor="middle" font-family="Helvetica" font-size="19" font-weight="bold" fill="#000000"><tspan x="196" y="1401.84">Packaging Stage</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c69">
+<g transform="translate(0.5,0.5)">
+<path d="M 62 1430 L 232 1430 L 232 1470 L 154.04 1470 L 142.07 1483.32 L 134.04 1470 L 62 1470 Z" fill="#ffffff" stroke="#b0b0b0" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="147" y="1454.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#999999"><tspan x="147" y="1454.32">Add key material to the bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c70">
+<g>
+<ellipse cx="147" cy="1498.75" rx="15" ry="13.75" fill="#e0e0e0" stroke="#b0b0b0" stroke-width="4"/>
+<path d="M 147 1512.5 L 147 1558.33 M 147 1521.67 L 117 1521.67 M 147 1521.67 L 177 1521.67 M 147 1558.33 L 117 1595 M 147 1558.33 L 177 1595" fill="none" stroke="#b0b0b0" stroke-width="4" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="147.5" y="1613.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#999999"><tspan x="147.5" y="1613.52">Secure Sunniva</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c71">
+<g transform="translate(0.5,0.5)">
+<path d="M 247.5 1470 L 407.5 1470 L 427.5 1495 L 407.5 1520 L 247.5 1520 L 267.5 1495 Z" fill="#ffffff" stroke="#b0b0b0" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="338" y="1492.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="1492.12">ironside_bundle.py</tspan><tspan x="338" y="1506.52">update-keys</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c72">
+<g>
+<rect x="237.5" y="1528" width="200" height="34" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="338" y="1542.36" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#999999"><tspan x="338" y="1542.36">Not used: no secret keys</tspan><tspan x="338" y="1555.56">enter the bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c73">
+<g transform="translate(0.5,0.5)">
+<path d="M 55 1650 L 235 1650 L 235 1690 L 151.87 1690 L 139.78 1703.32 L 131.87 1690 L 55 1690 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="145" y="1674.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="145" y="1674.32">Sign the firmware in the bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c74">
+<g>
+<ellipse cx="145" cy="1733.75" rx="15" ry="13.75" fill="#e51400" stroke="#b20000" stroke-width="4"/>
+<path d="M 145 1747.5 L 145 1793.33 M 145 1756.67 L 115 1756.67 M 145 1756.67 L 175 1756.67 M 145 1793.33 L 115 1830 M 145 1793.33 L 175 1830" fill="none" stroke="#b20000" stroke-width="4" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="145.5" y="1848.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="145.5" y="1848.52">Secure Sunniva</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c75">
+<g transform="translate(0.5,0.5)">
+<path d="M 247.5 1700 L 407.5 1700 L 427.5 1725 L 407.5 1750 L 247.5 1750 L 267.5 1725 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="338" y="1722.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="1722.12">ironside_bundle.py</tspan><tspan x="338" y="1736.52">sign-component --all</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c76">
+<g transform="translate(0.5,0.5)">
+<path d="M 304.38 1792.5 C 277.88 1792.5 271.25 1805 292.45 1807.5 C 271.25 1813 295.1 1825 312.32 1820 C 324.25 1830 364 1830 377.25 1820 C 403.75 1820 403.75 1810 387.19 1805 C 403.75 1795 377.25 1785 354.06 1790 C 337.5 1782.5 311 1782.5 304.38 1792.5 Z" fill="#e51400" stroke="#b20000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="337.5" y="1809.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="337.5" y="1809.32">KEY VAULT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c77">
+<g transform="translate(0.5,0.5)">
+<path d="M 337.5 1780 L 337.6 1760 L 337.56 1756.37" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.51 1751.12 L 341.08 1758.08 L 337.56 1756.37 L 334.08 1758.15 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="c78">
+<g transform="translate(0.5,0.5)">
+<path d="M 513.75 1285 L 513.8 1620 L 337.5 1620 L 337.5 1693.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.5 1698.88 L 334 1691.88 L 337.5 1693.63 L 341 1691.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="c79">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 1636 C 447.5 1632.69 477.16 1630 513.75 1630 C 531.32 1630 548.17 1630.63 560.6 1631.76 C 573.02 1632.88 580 1634.41 580 1636 L 580 1859 C 580 1860.59 573.02 1862.12 560.6 1863.24 C 548.17 1864.37 531.32 1865 513.75 1865 C 496.18 1865 479.33 1864.37 466.9 1863.24 C 454.48 1862.12 447.5 1860.59 447.5 1859 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 580 1636 C 580 1637.59 573.02 1639.12 560.6 1640.24 C 548.17 1641.37 531.32 1642 513.75 1642 C 496.18 1642 479.33 1641.37 466.9 1640.24 C 454.48 1639.12 447.5 1637.59 447.5 1636" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1660.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1660.52">Bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c80">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 1676 C 447.5 1672.69 477.16 1670 513.75 1670 C 531.32 1670 548.17 1670.63 560.6 1671.76 C 573.02 1672.88 580 1674.41 580 1676 L 580 1694 C 580 1695.59 573.02 1697.12 560.6 1698.24 C 548.17 1699.37 531.32 1700 513.75 1700 C 496.18 1700 479.33 1699.37 466.9 1698.24 C 454.48 1697.12 447.5 1695.59 447.5 1694 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+<path d="M 580 1676 C 580 1677.59 573.02 1679.12 560.6 1680.24 C 548.17 1681.37 531.32 1682 513.75 1682 C 496.18 1682 479.33 1681.37 466.9 1680.24 C 454.48 1679.12 447.5 1677.59 447.5 1676" fill="none" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1694.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1694.32">Provisioning</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c81">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 1703 L 560 1703 L 580 1714 L 560 1725 L 467.5 1725 L 447.5 1714 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1718.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1718.32">Provision config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c82">
+<g>
+<path d="M 467.5 1728 L 560 1728 L 580 1739 L 560 1750 L 467.5 1750 L 447.5 1739 Z" fill="#d5e8d4" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1743.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1743.32">Image config (new)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c83">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 1754 L 560 1754 L 580 1765 L 560 1776 L 467.5 1776 L 447.5 1765 Z" fill="#f8cecc" stroke="#b85450" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1769.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1769.32">Base config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c84">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 1841 C 447.5 1837.69 477.16 1835 513.75 1835 C 531.32 1835 548.17 1835.63 560.6 1836.76 C 573.02 1837.88 580 1839.41 580 1841 L 580 1859 C 580 1860.59 573.02 1862.12 560.6 1863.24 C 548.17 1864.37 531.32 1865 513.75 1865 C 496.18 1865 479.33 1864.37 466.9 1863.24 C 454.48 1862.12 447.5 1860.59 447.5 1859 Z" fill="#f5f5f5" stroke="#666666" stroke-miterlimit="10"/>
+<path d="M 580 1841 C 580 1842.59 573.02 1844.12 560.6 1845.24 C 548.17 1846.37 531.32 1847 513.75 1847 C 496.18 1847 479.33 1846.37 466.9 1845.24 C 454.48 1844.12 447.5 1842.59 447.5 1841" fill="none" stroke="#666666" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1859.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="514.5" y="1859.32">IROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c85">
+<g>
+<path d="M 447.5 1824 C 447.5 1820.69 477.16 1818 513.75 1818 C 531.32 1818 548.17 1818.63 560.6 1819.76 C 573.02 1820.88 580 1822.41 580 1824 L 580 1842 C 580 1843.59 573.02 1845.12 560.6 1846.24 C 548.17 1847.37 531.32 1848 513.75 1848 C 496.18 1848 479.33 1847.37 466.9 1846.24 C 454.48 1845.12 447.5 1843.59 447.5 1842 Z" fill="#f8cecc" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M 580 1824 C 580 1825.59 573.02 1827.12 560.6 1828.24 C 548.17 1829.37 531.32 1830 513.75 1830 C 496.18 1830 479.33 1829.37 466.9 1828.24 C 454.48 1827.12 447.5 1825.59 447.5 1824" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1842.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1842.32">UROT (new)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c86">
+<g>
+<path d="M 447.5 1806 C 447.5 1802.69 477.16 1800 513.75 1800 C 531.32 1800 548.17 1800.63 560.6 1801.76 C 573.02 1802.88 580 1804.41 580 1806 L 580 1824 C 580 1825.59 573.02 1827.12 560.6 1828.24 C 548.17 1829.37 531.32 1830 513.75 1830 C 496.18 1830 479.33 1829.37 466.9 1828.24 C 454.48 1827.12 447.5 1825.59 447.5 1824 Z" fill="#fff2cc" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M 580 1806 C 580 1807.59 573.02 1809.12 560.6 1810.24 C 548.17 1811.37 531.32 1812 513.75 1812 C 496.18 1812 479.33 1811.37 466.9 1810.24 C 454.48 1809.12 447.5 1807.59 447.5 1806" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1824.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1824.32">IronSide DFU (new)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c87">
+<g>
+<path d="M 447.5 1788 C 447.5 1784.69 477.16 1782 513.75 1782 C 531.32 1782 548.17 1782.63 560.6 1783.76 C 573.02 1784.88 580 1786.41 580 1788 L 580 1806 C 580 1807.59 573.02 1809.12 560.6 1810.24 C 548.17 1811.37 531.32 1812 513.75 1812 C 496.18 1812 479.33 1811.37 466.9 1810.24 C 454.48 1809.12 447.5 1807.59 447.5 1806 Z" fill="#d5e8d4" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M 580 1788 C 580 1789.59 573.02 1791.12 560.6 1792.24 C 548.17 1793.37 531.32 1794 513.75 1794 C 496.18 1794 479.33 1793.37 466.9 1792.24 C 454.48 1791.12 447.5 1789.59 447.5 1788" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="1806.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="1806.32">APP (new)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c88">
+<g transform="translate(0.5,0.5)">
+<path d="M 62.5 1905 L 232.5 1905 L 232.5 1950 L 154.54 1950 L 142.57 1964.98 L 134.54 1950 L 62.5 1950 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="148" y="1925.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="148" y="1925.12">Generate OTA packages</tspan><tspan x="148" y="1939.52">from the bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c89">
+<g>
+<ellipse cx="145" cy="1988.75" rx="15" ry="13.75" fill="#e51400" stroke="#b20000" stroke-width="4"/>
+<path d="M 145 2002.5 L 145 2048.33 M 145 2011.67 L 115 2011.67 M 145 2011.67 L 175 2011.67 M 145 2048.33 L 115 2085 M 145 2048.33 L 175 2085" fill="none" stroke="#b20000" stroke-width="4" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="145.5" y="2103.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="145.5" y="2103.52">Secure Sunniva</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c90">
+<g transform="translate(0.5,0.5)">
+<path d="M 184.5 1975 L 344.5 1975 L 364.5 2005 L 344.5 2035 L 184.5 2035 L 204.5 2005 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="275" y="1994.92" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="275" y="1994.92">ironside_bundle.py</tspan><tspan x="275" y="2009.32">build-ota-package</tspan><tspan x="275" y="2023.72">--kek-gen N</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c91">
+<g transform="translate(0.5,0.5)">
+<path d="M 241.38 2070 C 214.88 2070 208.25 2085 229.45 2088 C 208.25 2094.6 232.1 2109 249.32 2103 C 261.25 2115 301 2115 314.25 2103 C 340.75 2103 340.75 2091 324.19 2085 C 340.75 2073 314.25 2061 291.06 2067 C 274.5 2058 248 2058 241.38 2070 Z" fill="#e51400" stroke="#b20000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="274.5" y="2082.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="274.5" y="2082.12">KEY VAULT</tspan><tspan x="274.5" y="2096.52">OTA KEK gen N</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c92">
+<g transform="translate(0.5,0.5)">
+<path d="M 274.5 2055 L 274.57 2041.37" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 274.59 2036.12 L 278.06 2043.14 L 274.57 2041.37 L 271.06 2043.1 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="c105">
+<g transform="translate(0.5,0.5)">
+<path d="M 513.75 1865 L 513.8 1885 L 274.5 1885 L 274.5 1968.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 274.5 1973.88 L 271 1966.88 L 274.5 1968.63 L 278 1966.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="c93">
+<g transform="translate(0.5,0.5)">
+<rect x="372" y="1965" width="233" height="30" rx="4.5" ry="4.5" fill="#6d8764" stroke="#3a5431"/>
+</g>
+<g>
+<g>
+<text x="488.5" y="1984.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="488.5" y="1984.32">ironside-te-urot_&lt;soc&gt;-&lt;ver&gt;.ota.bin</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c94">
+<g transform="translate(0.5,0.5)">
+<rect x="372" y="2005" width="233" height="30" rx="4.5" ry="4.5" fill="#6d8764" stroke="#3a5431"/>
+</g>
+<g>
+<g>
+<text x="488.5" y="2024.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="488.5" y="2024.32">ironside-te-dfu-serial_&lt;soc&gt;-&lt;ver&gt;.ota.bin</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c95">
+<g transform="translate(0.5,0.5)">
+<rect x="372" y="2045" width="233" height="30" rx="4.5" ry="4.5" fill="#6d8764" stroke="#3a5431"/>
+</g>
+<g>
+<g>
+<text x="488.5" y="2064.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="488.5" y="2064.32">ironside-te-app_&lt;soc&gt;-&lt;ver&gt;.ota.bin</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c96">
+<g transform="translate(0.5,0.5)">
+<rect x="38.75" y="2175" width="575" height="290" rx="2.9" ry="2.9" fill="#ffffff" stroke="#000000" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="c97">
+<g>
+<rect x="20" y="2215" width="297.5" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="169" y="2236.84" text-anchor="middle" font-family="Helvetica" font-size="19" font-weight="bold" fill="#000000"><tspan x="169" y="2236.84">Deployment Stage</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c98">
+<g transform="translate(0.5,0.5)">
+<path d="M 62.5 2265 L 232.5 2265 L 232.5 2310 L 154.54 2310 L 142.57 2324.99 L 134.54 2310 L 62.5 2310 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="148" y="2285.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="148" y="2285.12">Deliver the OTA packages</tspan><tspan x="148" y="2299.52">to the devices</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c99">
+<g>
+<ellipse cx="145" cy="2343.75" rx="15" ry="13.75" fill="#3a78c2" stroke="#1f4f8a" stroke-width="4"/>
+<path d="M 145 2357.5 L 145 2403.33 M 145 2366.67 L 115 2366.67 M 145 2366.67 L 175 2366.67 M 145 2403.33 L 115 2440 M 145 2403.33 L 175 2440" fill="none" stroke="#1f4f8a" stroke-width="4" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="145.5" y="2458.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="145.5" y="2458.52">Delivering Dina</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c100">
+<g transform="translate(0.5,0.5)">
+<path d="M 227.5 2315 L 417.5 2315 L 437.5 2342.5 L 417.5 2370 L 227.5 2370 L 247.5 2342.5 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="333" y="2340.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="333" y="2340.12">ironside_update.py --ota-dir</tspan><tspan x="333" y="2354.52">app_update.py --ota-image</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c101">
+<g>
+<rect x="227.5" y="2376" width="210" height="20" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="333" y="2389.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#333333"><tspan x="333" y="2389.96">or the product's own DFU transport</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c102">
+<g transform="translate(0.5,0.5)">
+<rect x="475" y="2310" width="110" height="65" rx="3.9" ry="3.9" fill="#c0c0c0" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="530" y="2340.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="530" y="2340.12">nRF device</tspan><tspan x="530" y="2354.52">stays Secured</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c103">
+<g transform="translate(0.5,0.5)">
+<path d="M 485 2075 L 485 2285 L 332.5 2285 L 332.5 2308.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 332.5 2313.88 L 329 2306.88 L 332.5 2308.63 L 336 2306.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="c104">
+<g transform="translate(0.5,0.5)">
+<path d="M 437.5 2342.5 L 457.5 2342.5 L 455 2342.5 L 468.63 2342.5" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 473.88 2342.5 L 466.88 2346 L 468.63 2342.5 L 466.88 2339 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

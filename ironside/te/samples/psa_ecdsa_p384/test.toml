@@ -1,0 +1,5 @@
+# IronSide Integration Kit test metadata.
+description = "Import a secp384r1 user key pair, ECDSA-SHA-384 sign/verify + export public key via UROT"
+tier = "pr"    # fast pre-merge sweep: the asymmetric representative - user key
+               # import, sign/verify and public-key export in one pass.
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED (~0.5s)

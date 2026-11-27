@@ -1,0 +1,6 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+description = "Compute SHA-256 via UROT's PSA Crypto secure service over the NSC veneer"
+timeout = 5    # max wait for INTEGRATION_KIT_TEST_FINISHED; the runner exits early on it,
+               # so this is just the ceiling for a hung/failing run (~8x the
+               # ~0.5s a passing run actually takes).

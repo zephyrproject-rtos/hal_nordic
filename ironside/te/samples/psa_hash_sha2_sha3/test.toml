@@ -1,0 +1,5 @@
+# IronSide Integration Kit test metadata.
+description = "SHA-384, SHA-512 and SHA3-256 via UROT, vs FIPS vectors"
+tier = "pr"    # fast pre-merge sweep: the hashing representative - psa_sha256
+               # reaches the same service the same way.
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED

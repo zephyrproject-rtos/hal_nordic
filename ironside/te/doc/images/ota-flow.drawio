@@ -1,0 +1,353 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mxfile host="Electron" scale="1" border="0">
+  <diagram id="ota-flow" name="Page-1">
+    <mxGraphModel grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="c2" value="" style="rounded=1;whiteSpace=wrap;html=1;arcSize=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="492.5" y="70" width="567.5" height="1315" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" value="Assembly Stage" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1;fontSize=19;" vertex="1" parent="1">
+          <mxGeometry x="450" y="120" width="297.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" value="Bundle content legend" style="rounded=0;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="727.5" y="82" width="297.5" height="128" as="geometry" />
+        </mxCell>
+        <mxCell id="c5" value="Static data" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="739.5" y="108" width="75" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c6" value="Unsigned" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10.285714285714278;verticalAlign=middle;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="838.5" y="103" width="75" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c7" value="Signed" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10.285714285714278;verticalAlign=middle;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="937.5" y="103" width="75" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c8" value="No secrets" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6d8764;fontColor=#ffffff;strokeColor=#3A5431;" vertex="1" parent="1">
+          <mxGeometry x="739.5" y="165" width="98" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="c9" value="Bundle" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="225" width="132.5" height="235" as="geometry" />
+        </mxCell>
+        <mxCell id="c10" value="Provisioning" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="265" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c11" value="Provision config" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="298" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c12" value="Image config" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="323" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c13" value="Base config" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="349" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c14" value="IROT" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="430" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c15" value="UROT" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#f8cecc;strokeColor=#000000;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="413" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c16" value="IronSide DFU" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#fff2cc;strokeColor=#000000;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="395" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c17" value="APP" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#000000;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="377" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c18" value="Assembly bundle of the&lt;br&gt;deployed release.&lt;br&gt;It holds no keys." style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=12;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="680" y="300" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c19" value="Update the IronSide TE&lt;br&gt;firmware in the bundle" style="shape=wedgeCallout;whiteSpace=wrap;html=1;tipX=-0.029;tipY=0.833;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="510" y="540" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c20" value="Assembling Anne" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;strokeWidth=4;fillColor=#60a917;fontColor=#000000;strokeColor=#2D7600;" vertex="1" parent="1">
+          <mxGeometry x="565" y="610" width="60" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="c21" value="ironside_bundle.py&lt;br&gt;update-component" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="697.5" y="560" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c22" value="Nordic Semiconductor&lt;br&gt;Artifactory" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="702.5" y="640" width="170" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="c23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;startArrow=classic;startFill=1;endArrow=none;endFill=0;" edge="1" parent="1" source="c21" target="c22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c24" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="c14" target="c21">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="963.75" y="495" />
+              <mxPoint x="787.5" y="495" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c25" value="Bundle" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="520" width="132.5" height="235" as="geometry" />
+        </mxCell>
+        <mxCell id="c26" value="Provisioning" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="560" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c27" value="Provision config" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="593" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c28" value="Image config" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="618" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c29" value="Base config" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="644" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c30" value="IROT" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="725" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c31" value="UROT (new)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#f8cecc;strokeColor=#000000;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="708" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c32" value="IronSide DFU (new)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#fff2cc;strokeColor=#000000;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="690" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c33" value="APP" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#000000;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="672" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c34" value="Update the application&lt;br&gt;firmware in the bundle" style="shape=wedgeCallout;whiteSpace=wrap;html=1;tipX=-0.029;tipY=0.833;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="510" y="835" width="170" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c35" value="Assembling Anne" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;strokeWidth=4;fillColor=#60a917;fontColor=#000000;strokeColor=#2D7600;" vertex="1" parent="1">
+          <mxGeometry x="565" y="905" width="60" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="c36" value="ironside_bundle.py&lt;br&gt;update-component" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="697.5" y="860" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c37" value="APP" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#000000;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="721.25" y="935" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c38" value="create_component_archive.py" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="687.5" y="985" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c39" value="application_fw.hex" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="727.5" y="1055" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c40" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="c39" target="c38">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c41" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="c38" target="c37">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c42" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="c37" target="c36">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c43" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="c30" target="c36">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="963.75" y="795" />
+              <mxPoint x="787.5" y="795" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c44" value="Bundle" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="820" width="132.5" height="235" as="geometry" />
+        </mxCell>
+        <mxCell id="c45" value="Provisioning" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="860" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c46" value="Provision config" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="893" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c47" value="Image config" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="918" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c48" value="Base config" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="944" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c49" value="IROT" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1025" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c50" value="UROT (new)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#f8cecc;strokeColor=#000000;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1008" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c51" value="IronSide DFU (new)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#fff2cc;strokeColor=#000000;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="990" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c52" value="APP (new)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#000000;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="972" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c53" value="Update the image&lt;br&gt;configuration" style="shape=wedgeCallout;whiteSpace=wrap;html=1;tipX=-0.029;tipY=0.833;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="532.5" y="1135" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c54" value="Assembling Anne" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;strokeWidth=4;fillColor=#60a917;fontColor=#000000;strokeColor=#2D7600;" vertex="1" parent="1">
+          <mxGeometry x="567.5" y="1200" width="60" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="c55" value="ironside_bundle.py&lt;br&gt;update-config" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="697.5" y="1160" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c56" value="The base configuration stays&lt;br&gt;as programmed on the devices" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=11;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="687.5" y="1218" width="200" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="c57" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="c49" target="c55">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="963.75" y="1095" />
+              <mxPoint x="787.5" y="1095" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c58" value="Bundle" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1120" width="132.5" height="235" as="geometry" />
+        </mxCell>
+        <mxCell id="c59" value="Provisioning" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1160" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c60" value="Provision config" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1193" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c61" value="Image config (new)" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1218" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c62" value="Base config" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1244" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c63" value="IROT" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1325" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c64" value="UROT (new)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#f8cecc;strokeColor=#000000;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1308" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c65" value="IronSide DFU (new)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#fff2cc;strokeColor=#000000;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1290" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c66" value="APP (new)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#000000;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1272" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c67" value="" style="rounded=1;whiteSpace=wrap;html=1;arcSize=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="488.75" y="1410" width="575" height="810" as="geometry" />
+        </mxCell>
+        <mxCell id="c68" value="Packaging Stage" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1;fontSize=19;" vertex="1" parent="1">
+          <mxGeometry x="497" y="1450" width="297.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c69" value="Add key material to the bundle" style="shape=wedgeCallout;whiteSpace=wrap;html=1;tipX=-0.029;tipY=0.833;dashed=1;strokeColor=#b0b0b0;fontColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="512" y="1500" width="170" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c70" value="Secure Sunniva" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;strokeWidth=4;fillColor=#e0e0e0;fontColor=#999999;strokeColor=#b0b0b0;" vertex="1" parent="1">
+          <mxGeometry x="567" y="1555" width="60" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="c71" value="ironside_bundle.py&lt;br&gt;update-keys" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;strokeColor=#b0b0b0;fontColor=#999999;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="697.5" y="1540" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c72" value="Not used: no secret keys&lt;br&gt;enter the bundle" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=11;fontColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="687.5" y="1598" width="200" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="c73" value="Sign the firmware in the bundle" style="shape=wedgeCallout;whiteSpace=wrap;html=1;tipX=-0.029;tipY=0.833;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="505" y="1720" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="c74" value="Secure Sunniva" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;strokeWidth=4;fillColor=#e51400;fontColor=#000000;strokeColor=#B20000;" vertex="1" parent="1">
+          <mxGeometry x="565" y="1790" width="60" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="c75" value="ironside_bundle.py&lt;br&gt;sign-component --all" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="697.5" y="1770" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c76" value="KEY VAULT" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#e51400;fontColor=#ffffff;strokeColor=#B20000;" vertex="1" parent="1">
+          <mxGeometry x="721.25" y="1850" width="132.5" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c77" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="c76" target="c75">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c78" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="c63" target="c75">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="963.75" y="1690" />
+              <mxPoint x="787.5" y="1690" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c79" value="Bundle" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1700" width="132.5" height="235" as="geometry" />
+        </mxCell>
+        <mxCell id="c80" value="Provisioning" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1740" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c81" value="Provision config" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1773" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c82" value="Image config (new)" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#d5e8d4;strokeColor=#000000;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1798" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c83" value="Base config" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1824" width="132.5" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="c84" value="IROT" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1905" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c85" value="UROT (new)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#f8cecc;strokeColor=#000000;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1888" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c86" value="IronSide DFU (new)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#fff2cc;strokeColor=#000000;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1870" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c87" value="APP (new)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=6.000000000000028;verticalAlign=middle;fillColor=#d5e8d4;strokeColor=#000000;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="897.5" y="1852" width="132.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c88" value="Generate OTA packages&lt;br&gt;from the bundle" style="shape=wedgeCallout;whiteSpace=wrap;html=1;tipX=-0.029;tipY=0.833;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="512.5" y="1975" width="170" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="c89" value="Secure Sunniva" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;strokeWidth=4;fillColor=#e51400;fontColor=#000000;strokeColor=#B20000;" vertex="1" parent="1">
+          <mxGeometry x="565" y="2045" width="60" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="c90" value="ironside_bundle.py&lt;br&gt;build-ota-package&lt;br&gt;--kek-gen N" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="634.5" y="2045" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c91" value="KEY VAULT&lt;br&gt;OTA KEK gen N" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;fillColor=#e51400;fontColor=#ffffff;strokeColor=#B20000;" vertex="1" parent="1">
+          <mxGeometry x="658.25" y="2125" width="132.5" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c92" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="c91" target="c90">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="c105" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="c79" target="c90">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="963.75" y="1955" />
+              <mxPoint x="724.5" y="1955" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c93" value="ironside-te-urot_&amp;lt;soc&amp;gt;-&amp;lt;ver&amp;gt;.ota.bin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6d8764;fontColor=#ffffff;strokeColor=#3A5431;" vertex="1" parent="1">
+          <mxGeometry x="822" y="2035" width="233" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c94" value="ironside-te-dfu-serial_&amp;lt;soc&amp;gt;-&amp;lt;ver&amp;gt;.ota.bin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6d8764;fontColor=#ffffff;strokeColor=#3A5431;" vertex="1" parent="1">
+          <mxGeometry x="822" y="2075" width="233" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c95" value="ironside-te-app_&amp;lt;soc&amp;gt;-&amp;lt;ver&amp;gt;.ota.bin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6d8764;fontColor=#ffffff;strokeColor=#3A5431;" vertex="1" parent="1">
+          <mxGeometry x="822" y="2115" width="233" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c96" value="" style="rounded=1;whiteSpace=wrap;html=1;arcSize=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="488.75" y="2245" width="575" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="c97" value="Deployment Stage" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontStyle=1;fontSize=19;" vertex="1" parent="1">
+          <mxGeometry x="470" y="2285" width="297.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c98" value="Deliver the OTA packages&lt;br&gt;to the devices" style="shape=wedgeCallout;whiteSpace=wrap;html=1;tipX=-0.029;tipY=0.833;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="512.5" y="2335" width="170" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="c99" value="Delivering Dina" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;strokeWidth=4;fillColor=#3a78c2;fontColor=#000000;strokeColor=#1f4f8a;" vertex="1" parent="1">
+          <mxGeometry x="565" y="2400" width="60" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="c100" value="ironside_update.py --ota-dir&lt;br&gt;app_update.py --ota-image" style="shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;shapeInside=1;fixedSize=1;" vertex="1" parent="1">
+          <mxGeometry x="677.5" y="2385" width="210" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="c101" value="or the product's own DFU transport" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=11;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="677.5" y="2446" width="210" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="c102" value="nRF device&lt;br&gt;stays Secured" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c0c0c0;strokeColor=#000000;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="925" y="2380" width="110" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="c103" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="c95" target="c100">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="935" y="2355" />
+              <mxPoint x="782.5" y="2355" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="c104" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="c100" target="c102">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

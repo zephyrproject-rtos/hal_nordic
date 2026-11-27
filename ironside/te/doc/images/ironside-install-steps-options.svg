@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="300" viewBox="0 0 860 300" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#444"/>
+    </marker>
+  </defs>
+
+  <text x="430" y="26" text-anchor="middle" font-size="18" font-weight="bold" fill="#222">Installing IronSide TE</text>
+
+  <!-- Steps -->
+  <rect x="20" y="80" width="140" height="80" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="90" y="114" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Get bundle</text>
+  <text x="90" y="134" text-anchor="middle" font-size="10" fill="#555">init --soc SOC</text>
+
+  <rect x="190" y="80" width="140" height="80" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="260" y="108" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Add keys</text>
+  <text x="260" y="128" text-anchor="middle" font-size="10" fill="#555">update-keys</text>
+  <text x="260" y="142" text-anchor="middle" font-size="10" fill="#555">--keyset keyring:NAME</text>
+
+  <rect x="360" y="80" width="140" height="80" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="430" y="108" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Customize config</text>
+  <text x="430" y="128" text-anchor="middle" font-size="10" fill="#555">import-config</text>
+  <text x="430" y="144" text-anchor="middle" font-size="10" font-style="italic" fill="#555">optional</text>
+
+  <rect x="530" y="80" width="140" height="80" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="600" y="114" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Sign components</text>
+  <text x="600" y="134" text-anchor="middle" font-size="10" fill="#555">sign-component --all</text>
+
+  <rect x="700" y="80" width="140" height="80" rx="6" fill="#ffffff" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="770" y="114" text-anchor="middle" font-size="12" font-weight="bold" fill="#8e2a20">Install on device</text>
+  <text x="770" y="134" text-anchor="middle" font-size="10" fill="#555">ironside_install.py</text>
+
+  <line x1="160" y1="120" x2="188" y2="120" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="330" y1="120" x2="358" y2="120" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="500" y1="120" x2="528" y2="120" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="670" y1="120" x2="698" y2="120" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- init -S shortcut -->
+  <path d="M90,80 V52 H770 V78" fill="none" stroke="#444" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrow)"/>
+  <text x="430" y="46" text-anchor="middle" font-size="10" fill="#555">init -S keyring:NAME: get bundle, add keys, and sign in one step</text>
+
+  <!-- Alternatives -->
+  <rect x="28" y="200" width="124" height="54" rx="6" fill="#f7f7f7" stroke="#888" stroke-width="1.5"/>
+  <text x="90" y="216" text-anchor="middle" font-size="10" font-weight="bold" fill="#444">Local archives</text>
+  <text x="90" y="231" text-anchor="middle" font-size="10" fill="#555">init --from PATH</text>
+  <text x="90" y="244" text-anchor="middle" font-size="10" fill="#555">no download</text>
+
+  <rect x="198" y="200" width="124" height="54" rx="6" fill="#f7f7f7" stroke="#888" stroke-width="1.5"/>
+  <text x="260" y="222" text-anchor="middle" font-size="10" font-weight="bold" fill="#444">Directory keyset</text>
+  <text x="260" y="238" text-anchor="middle" font-size="10" fill="#555">--keyset dir:PATH</text>
+
+  <rect x="368" y="200" width="124" height="54" rx="6" fill="#f7f7f7" stroke="#888" stroke-width="1.5"/>
+  <text x="430" y="222" text-anchor="middle" font-size="10" font-weight="bold" fill="#444">Single fields</text>
+  <text x="430" y="238" text-anchor="middle" font-size="10" fill="#555">update-config</text>
+
+  <rect x="538" y="200" width="124" height="54" rx="6" fill="#f7f7f7" stroke="#888" stroke-width="1.5"/>
+  <text x="600" y="216" text-anchor="middle" font-size="10" font-weight="bold" fill="#444">Selective signing</text>
+  <text x="600" y="231" text-anchor="middle" font-size="10" fill="#555">--component urot|dfu</text>
+  <text x="600" y="244" text-anchor="middle" font-size="10" fill="#555">--gen 0|1|2</text>
+
+  <line x1="90" y1="200" x2="90" y2="163" stroke="#888" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <line x1="260" y1="200" x2="260" y2="163" stroke="#888" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <line x1="430" y1="200" x2="430" y2="163" stroke="#888" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <line x1="600" y1="200" x2="600" y2="163" stroke="#888" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <text x="96" y="186" font-size="10" font-style="italic" fill="#666">or</text>
+  <text x="266" y="186" font-size="10" font-style="italic" fill="#666">or</text>
+  <text x="436" y="186" font-size="10" font-style="italic" fill="#666">or</text>
+  <text x="606" y="186" font-size="10" font-style="italic" fill="#666">or</text>
+
+  <text x="430" y="284" text-anchor="middle" font-size="11" font-style="italic" fill="#555">Grey boxes are alternatives to the step above them. Every step that takes a keyset uses the same keyset.</text>
+</svg>

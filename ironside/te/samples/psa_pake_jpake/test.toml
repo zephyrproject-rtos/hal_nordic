@@ -1,0 +1,4 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+description = "EC-JPAKE (secp256r1, SHA-256): both roles run through the NSC, the two shared keys agree, a different password gives different keys, a SPAKE2+ variant the build does not admit is refused, the TLS 1.2 premaster and master secrets derived from the shared keys agree, and the TLS 1.2 PRF gives the published known answer"
+timeout = 20    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED

@@ -1,0 +1,97 @@
+// SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+//
+// IronSide TE two-phase provisioning, PHASE 2: PRoT Provisioning -> Secured.
+// Closes the non-secure AP. One operation, on the NON-SECURE firmware.
+//
+// Step 3 of 4, referencing no files.
+//
+//   1. (no erase -- ERASEPROTECT is engaged by now, and the images this phase
+//      runs on top of are the point)
+//   2. program production_two_phase_2.hex   -- RAM only; this bundle has no
+//      NVM/UICR sections at all, it IS the non-secure provisioning firmware and
+//      its one-operation batch. (A PRoT-Provisioning bundle carrying an App,
+//      without UICR.OTP data, or a DFU image would have an NVM half too;
+//      program that as well.)
+//   3. JLinkExe -nogui 1 -SelectEmuBySN <SN> -CommandFile two_phase_2.jlink \
+//              -Log results/two_phase_2.log
+//   4. check_prov_result.py --bundle production_two_phase_2.hex \
+//              --result results/result.bin
+//
+// Run two_phase_1.jlink first, and let the part BOOT -- this script redirects the
+// live non-secure image UROT handed off to, so that handover must have happened.
+//
+// !! THE ORDER HERE IS THE OPPOSITE OF THE SECURE PHASES, and it is the awkward
+// !! part of this flow. Those must not boot between programming and the script;
+// !! this one MUST have booted -- and the boot puts IronSide DFU in the very RAM
+// !! the programmed firmware occupies, overwriting it. So step 2 has to happen
+// !! AFTER the part has booted, not before: boot it, then program, then run this.
+// !! Which means for this phase alone the programmer must be able to write RAM
+// !! while an image is running, and must not reset when it is done.
+//
+// !! The live core may be running Thread mode on PSP_NS rather than MSP_NS
+// !! (CONTROL_NS.SPSEL is whatever the resident image left it at, unlike the
+// !! secure phases' post-reset core, which starts SPSEL=0). Register 13
+// !! resolves to whichever bank is selected, and only that bank's write takes
+// !! effect -- so both PSP_NS and MSP_NS are set below to the same value,
+// !! regardless of which one the redirect will actually use.
+//
+// !! The resident image's stack limits also stay set. Both MSPLIM_NS and
+// !! PSPLIM_NS are cleared below, since a stack pointer below either limit
+// !! faults the firmware's first push.
+//
+// The bundle comes from:
+//   ironside_bundle.py build-production-hex <bundle> -o <dir>
+//
+// which writes this phase's hex alongside two_phase_1's and the single-phase hex.
+
+EoE 1
+SelectInterface SWD
+Speed 4000
+// The secure AP is burned by now, so this attaches non-secure.
+Device Cortex-M33
+Connect
+
+// --- Halt the LIVE non-secure image. No reset: a Cortex-M33 always resets into
+// --- secure state, so a reset-and-halt can only ever catch the secure boot
+// --- entry, never the non-secure one. A reset would also boot IronSide DFU over
+// --- the firmware programmed in step 2.
+//
+// !! NO GUARD. The Python driver checks the halted PC lands in non-secure flash
+// !! and retries up to five times, because a single halt can land inside a
+// !! secure NSC excursion -- from which this redirect would not take. Commander
+// !! cannot branch on the read, so the PC is logged and the redirect proceeds
+// !! regardless. This is the weakest step in the whole set.
+Halt
+RReg R15
+
+// --- Clear the result header.
+W4 0x20071000, 0x00000000
+W4 0x20071004, 0x00000000
+W4 0x20071008, 0x00000000
+W4 0x2007100C, 0x00000000
+
+// --- Redirect into the non-secure provisioning firmware, which routes
+// --- set-approtect through UROT's device-management service over the secure
+// --- gateway -- the secure AP being gone is the whole reason for this phase.
+// ---
+// --- Banked non-secure VTOR, matching the Python driver. Both non-secure stack
+// --- pointer banks are set to the same value: Commander has no spelling for
+// --- register index 13 (see single_phase.jlink), so there is no way to write
+// --- only whichever bank CONTROL_NS.SPSEL currently selects.
+W4 0xE002ED08, 0x20013000
+WReg MSP_NS, 0x20032800
+WReg PSP_NS, 0x20032800
+WReg MSPLIM_NS, 0x00000000
+WReg PSPLIM_NS, 0x00000000
+SetPC 0x20012800
+WReg XPSR, 0x01000000
+Go
+
+WaitHalt 10000
+SaveBin results/result.bin, 0x20071000, 0x200
+
+// --- Commit with a pin reset -> Secured.
+WriteDP 2 0x02000000
+WriteAP 0 0x00000004
+WriteAP 0 0x00000000
+qc

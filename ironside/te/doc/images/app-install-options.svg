@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="270" viewBox="0 0 860 270" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#444"/>
+    </marker>
+  </defs>
+
+  <text x="430" y="26" text-anchor="middle" font-size="18" font-weight="bold" fill="#222">Installing application firmware</text>
+
+  <!-- Sign -->
+  <rect x="20" y="115" width="140" height="70" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="90" y="140" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Sign app</text>
+  <text x="90" y="157" text-anchor="middle" font-size="10" fill="#555">sign.py</text>
+  <text x="90" y="172" text-anchor="middle" font-size="10" fill="#555">app.hex -&gt; app.signed.hex</text>
+
+  <!-- Option 1 -->
+  <text x="300" y="58" text-anchor="middle" font-size="11" font-weight="bold" fill="#444">Option 1: firmware update</text>
+  <rect x="215" y="66" width="170" height="64" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="300" y="88" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Encrypt and upload</text>
+  <text x="300" y="104" text-anchor="middle" font-size="10" fill="#555">app_update.py</text>
+  <text x="300" y="119" text-anchor="middle" font-size="10" fill="#555">OTA KEK, SMP over serial</text>
+
+  <rect x="455" y="66" width="150" height="64" rx="6" fill="#e8f1fb" stroke="#3a78c2" stroke-width="1.5"/>
+  <text x="530" y="92" text-anchor="middle" font-size="12" font-weight="bold" fill="#23507f">IronSide DFU</text>
+  <text x="530" y="110" text-anchor="middle" font-size="10" fill="#333">writes the application</text>
+
+  <!-- Option 2 -->
+  <text x="300" y="178" text-anchor="middle" font-size="11" font-weight="bold" fill="#444">Option 2: direct overwrite</text>
+  <rect x="215" y="186" width="170" height="64" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="300" y="208" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Program directly</text>
+  <text x="300" y="224" text-anchor="middle" font-size="10" fill="#555">flash.py</text>
+  <text x="300" y="239" text-anchor="middle" font-size="10" fill="#555">unprotected device only</text>
+
+  <!-- Boot -->
+  <rect x="670" y="115" width="170" height="70" rx="6" fill="#fdeceb" stroke="#c0392b" stroke-width="1.5"/>
+  <text x="755" y="137" text-anchor="middle" font-size="12" font-weight="bold" fill="#8e2a20">UROT, on next boot</text>
+  <text x="755" y="155" text-anchor="middle" font-size="10" fill="#333">valid: boots the application</text>
+  <text x="755" y="171" text-anchor="middle" font-size="10" fill="#333">invalid: boots IronSide DFU</text>
+
+  <!-- Arrows -->
+  <line x1="160" y1="140" x2="213" y2="100" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="160" y1="160" x2="213" y2="215" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="385" y1="98" x2="453" y2="98" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="605" y1="110" x2="668" y2="138" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="385" y1="218" x2="668" y2="166" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="530" y="205" text-anchor="middle" font-size="10" fill="#555">debugger</text>
+</svg>

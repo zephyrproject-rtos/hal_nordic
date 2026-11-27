@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="740" height="190" viewBox="0 0 740 190" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#444"/>
+    </marker>
+  </defs>
+
+  <text x="370" y="26" text-anchor="middle" font-size="18" font-weight="bold" fill="#222">Signing application firmware</text>
+
+  <!-- Inputs -->
+  <rect x="20" y="45" width="170" height="50" rx="6" fill="#f7f7f7" stroke="#888" stroke-width="1.5"/>
+  <text x="105" y="66" text-anchor="middle" font-size="12" font-weight="bold" fill="#444">Application HEX</text>
+  <text x="105" y="83" text-anchor="middle" font-size="10" fill="#555">build/app.hex</text>
+
+  <rect x="20" y="120" width="170" height="50" rx="6" fill="#eef0f7" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="105" y="141" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">Keyset</text>
+  <text x="105" y="158" text-anchor="middle" font-size="10" fill="#555">application signing key</text>
+
+  <!-- sign.py -->
+  <rect x="270" y="55" width="200" height="105" rx="6" fill="#ffffff" stroke="#5a4fa0" stroke-width="1.5"/>
+  <text x="370" y="78" text-anchor="middle" font-size="12" font-weight="bold" fill="#3d3577">sign.py</text>
+  <text x="370" y="98" text-anchor="middle" font-size="10" fill="#555">--keyset keyring:NAME</text>
+  <text x="370" y="113" text-anchor="middle" font-size="10" fill="#555">--soc SOC</text>
+  <text x="370" y="128" text-anchor="middle" font-size="10" fill="#555">--version MAJOR.MINOR.PATCH</text>
+  <text x="370" y="143" text-anchor="middle" font-size="10" fill="#555">--gen 0|1|2</text>
+
+  <!-- Output -->
+  <rect x="550" y="80" width="170" height="55" rx="6" fill="#e8f1fb" stroke="#3a78c2" stroke-width="1.5"/>
+  <text x="635" y="103" text-anchor="middle" font-size="12" font-weight="bold" fill="#23507f">Signed image</text>
+  <text x="635" y="120" text-anchor="middle" font-size="10" fill="#333">app.signed.hex</text>
+
+  <line x1="190" y1="70" x2="268" y2="90" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="190" y1="145" x2="268" y2="125" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="470" y1="107" x2="548" y2="107" stroke="#444" stroke-width="2" marker-end="url(#arrow)"/>
+</svg>

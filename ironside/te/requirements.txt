@@ -1,0 +1,17 @@
+# Host-side Python deps for integration_kit/scripts/ (signing, provisioning, DFU upload).
+# Install from the unpacked release bundle root:
+#   pip install -r requirements.txt
+#
+# pylink-square provides the `pylink` import (J-Link / SWD tooling).
+# requests is only needed by ironside_download.py (fetching a release).
+# keyring is only needed for the default OS-keyring key flow (iron_keychain.py new
+# with no arguments, or --keyset keyring:<keyset>); use --keyset dir:<path> for on-disk keys.
+# cryptography 48 is the first release whose wheels provide ML-DSA, which the UROT
+# key pair and its signature need.
+cryptography>=48
+cbor2
+intelhex
+keyring
+pyserial
+pylink-square
+requests

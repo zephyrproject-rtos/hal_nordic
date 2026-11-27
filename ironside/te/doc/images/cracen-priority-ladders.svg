@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="942" height="474" viewBox="0 0 942 474" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#444"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="6" refY="2.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L6,2.5 L0,5 Z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="942" height="474" fill="#ffffff"/>
+  <text x="471" y="28" text-anchor="middle" font-size="17" font-weight="bold" fill="#222222">Where CRACEN sits for each calling context</text>
+  <text x="80" y="135" text-anchor="end" font-size="11" fill="#8e2a20" font-weight="bold">Secure 0</text>
+  <text x="80" y="165" text-anchor="end" font-size="11" fill="#8e2a20" font-weight="bold">Secure 1</text>
+  <text x="80" y="195" text-anchor="end" font-size="11" fill="#8e2a20" font-weight="bold">Secure 2</text>
+  <text x="80" y="225" text-anchor="end" font-size="11" fill="#8e2a20" font-weight="bold">Secure 3</text>
+  <text x="80" y="255" text-anchor="end" font-size="11" fill="#8e2a20" font-weight="bold">Secure 4</text>
+  <text x="80" y="285" text-anchor="end" font-size="11" fill="#8e2a20" font-weight="bold">Secure 5</text>
+  <text x="80" y="315" text-anchor="end" font-size="11" fill="#8e2a20" font-weight="bold">Secure 6</text>
+  <text x="80" y="345" text-anchor="end" font-size="11" fill="#8e2a20" font-weight="bold">Secure 7</text>
+  <text x="80" y="385" text-anchor="end" font-size="11" fill="#444" font-weight="bold">Thread (8)</text>
+  <line x1="86" y1="116" x2="86" y2="396" stroke="#999" stroke-width="1"/>
+  <text x="80" y="108" text-anchor="end" font-size="10" fill="#666" font-style="italic">more urgent</text>
+  <text x="161" y="78" text-anchor="middle" font-size="11" fill="#666">Caller</text>
+  <text x="161" y="94" text-anchor="middle" font-size="12" fill="#222222" font-weight="bold">Thread mode</text>
+  <rect x="92" y="118" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="92" y="148" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="92" y="178" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="92" y="208" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="92" y="238" width="138" height="26" rx="3" fill="#3a78c2" stroke="#3a78c2" stroke-width="1"/>
+  <text x="161" y="255" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">NS 0, 1</text>
+  <rect x="92" y="268" width="138" height="26" rx="3" fill="#3a78c2" stroke="#3a78c2" stroke-width="1"/>
+  <text x="161" y="285" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">NS 2, 3</text>
+  <rect x="92" y="298" width="138" height="26" rx="3" fill="#3a78c2" stroke="#3a78c2" stroke-width="1"/>
+  <text x="161" y="315" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">NS 4, 5</text>
+  <rect x="92" y="328" width="61.48" height="26" rx="3" fill="#c0392b" stroke="#c0392b" stroke-width="1"/>
+  <text x="122.74" y="345" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">CRACEN</text>
+  <rect x="157.48" y="328" width="72.52" height="26" rx="3" fill="#f5b041" stroke="#c98a1b" stroke-width="1"/>
+  <text x="193.74" y="345" text-anchor="middle" font-size="11" fill="#5a3d00" font-weight="bold">NS 6, 7</text>
+  <rect x="92" y="368" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="161" y="385" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">Thread mode</text>
+  <rect x="90" y="366" width="142" height="30" rx="5" fill="none" stroke="#222222" stroke-width="2.5"/>
+  <path d="M233,381 C251,381 251,341 237,341" fill="none" stroke="#c0392b" stroke-width="1.6" marker-end="url(#arrow-red)"/>
+  <text x="329" y="78" text-anchor="middle" font-size="11" fill="#666">Caller</text>
+  <text x="329" y="94" text-anchor="middle" font-size="12" fill="#222222" font-weight="bold">Level 6 or 7</text>
+  <rect x="260" y="118" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="260" y="148" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="260" y="178" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="260" y="208" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="260" y="238" width="138" height="26" rx="3" fill="#3a78c2" stroke="#3a78c2" stroke-width="1"/>
+  <text x="329" y="255" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">NS 0, 1</text>
+  <rect x="260" y="268" width="138" height="26" rx="3" fill="#3a78c2" stroke="#3a78c2" stroke-width="1"/>
+  <text x="329" y="285" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">NS 2, 3</text>
+  <rect x="260" y="298" width="61.48" height="26" rx="3" fill="#c0392b" stroke="#c0392b" stroke-width="1"/>
+  <text x="290.74" y="315" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">CRACEN</text>
+  <rect x="325.48" y="298" width="72.52" height="26" rx="3" fill="#f5b041" stroke="#c98a1b" stroke-width="1"/>
+  <text x="361.74" y="315" text-anchor="middle" font-size="11" fill="#5a3d00" font-weight="bold">NS 4, 5</text>
+  <rect x="260" y="328" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="329" y="345" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">NS 6, 7</text>
+  <rect x="258" y="326" width="142" height="30" rx="5" fill="none" stroke="#222222" stroke-width="2.5"/>
+  <rect x="260" y="368" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="329" y="385" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">Thread mode</text>
+  <path d="M401,341 C419,341 419,311 405,311" fill="none" stroke="#c0392b" stroke-width="1.6" marker-end="url(#arrow-red)"/>
+  <text x="497" y="78" text-anchor="middle" font-size="11" fill="#666">Caller</text>
+  <text x="497" y="94" text-anchor="middle" font-size="12" fill="#222222" font-weight="bold">Level 4 or 5</text>
+  <rect x="428" y="118" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="428" y="148" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="428" y="178" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="428" y="208" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="428" y="238" width="138" height="26" rx="3" fill="#3a78c2" stroke="#3a78c2" stroke-width="1"/>
+  <text x="497" y="255" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">NS 0, 1</text>
+  <rect x="428" y="268" width="61.48" height="26" rx="3" fill="#c0392b" stroke="#c0392b" stroke-width="1"/>
+  <text x="458.74" y="285" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">CRACEN</text>
+  <rect x="493.48" y="268" width="72.52" height="26" rx="3" fill="#f5b041" stroke="#c98a1b" stroke-width="1"/>
+  <text x="529.74" y="285" text-anchor="middle" font-size="11" fill="#5a3d00" font-weight="bold">NS 2, 3</text>
+  <rect x="428" y="298" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="497" y="315" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">NS 4, 5</text>
+  <rect x="426" y="296" width="142" height="30" rx="5" fill="none" stroke="#222222" stroke-width="2.5"/>
+  <rect x="428" y="328" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="497" y="345" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">NS 6, 7</text>
+  <rect x="428" y="368" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="497" y="385" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">Thread mode</text>
+  <path d="M569,311 C587,311 587,281 573,281" fill="none" stroke="#c0392b" stroke-width="1.6" marker-end="url(#arrow-red)"/>
+  <text x="665" y="78" text-anchor="middle" font-size="11" fill="#666">Caller</text>
+  <text x="665" y="94" text-anchor="middle" font-size="12" fill="#222222" font-weight="bold">Level 2 or 3</text>
+  <rect x="596" y="118" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="596" y="148" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="596" y="178" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="596" y="208" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="596" y="238" width="61.48" height="26" rx="3" fill="#c0392b" stroke="#c0392b" stroke-width="1"/>
+  <text x="626.74" y="255" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">CRACEN</text>
+  <rect x="661.48" y="238" width="72.52" height="26" rx="3" fill="#f5b041" stroke="#c98a1b" stroke-width="1"/>
+  <text x="697.74" y="255" text-anchor="middle" font-size="11" fill="#5a3d00" font-weight="bold">NS 0, 1</text>
+  <rect x="596" y="268" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="665" y="285" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">NS 2, 3</text>
+  <rect x="594" y="266" width="142" height="30" rx="5" fill="none" stroke="#222222" stroke-width="2.5"/>
+  <rect x="596" y="298" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="665" y="315" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">NS 4, 5</text>
+  <rect x="596" y="328" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="665" y="345" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">NS 6, 7</text>
+  <rect x="596" y="368" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="665" y="385" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">Thread mode</text>
+  <path d="M737,281 C755,281 755,251 741,251" fill="none" stroke="#c0392b" stroke-width="1.6" marker-end="url(#arrow-red)"/>
+  <text x="833" y="78" text-anchor="middle" font-size="11" fill="#666">Caller</text>
+  <text x="833" y="94" text-anchor="middle" font-size="12" fill="#222222" font-weight="bold">Level 0 or 1</text>
+  <text x="833" y="108" text-anchor="middle" font-size="11" fill="#222222">or masked</text>
+  <rect x="764" y="118" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="764" y="148" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="764" y="178" width="138" height="26" rx="3" fill="#fafafa" stroke="#dddddd" stroke-width="1"/>
+  <rect x="764" y="208" width="138" height="26" rx="3" fill="#c0392b" stroke="#c0392b" stroke-width="1"/>
+  <text x="833" y="225" text-anchor="middle" font-size="11" fill="#ffffff" font-weight="bold">CRACEN</text>
+  <rect x="764" y="238" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="833" y="255" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">NS 0, 1</text>
+  <rect x="762" y="236" width="142" height="30" rx="5" fill="none" stroke="#222222" stroke-width="2.5"/>
+  <rect x="764" y="268" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="833" y="285" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">NS 2, 3</text>
+  <rect x="764" y="298" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="833" y="315" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">NS 4, 5</text>
+  <rect x="764" y="328" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="833" y="345" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">NS 6, 7</text>
+  <rect x="764" y="368" width="138" height="26" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1"/>
+  <text x="833" y="385" text-anchor="middle" font-size="11" fill="#555555" font-weight="bold">Thread mode</text>
+  <path d="M905,251 C923,251 923,221 909,221" fill="none" stroke="#c0392b" stroke-width="1.6" marker-end="url(#arrow-red)"/>
+  <rect x="52" y="427" width="18" height="14" rx="3" fill="#3a78c2" stroke="#3a78c2" stroke-width="1.5"/>
+  <text x="77" y="438" text-anchor="start" font-size="12" fill="#222222">Preempts CRACEN's handler</text>
+  <rect x="256.5" y="427" width="18" height="14" rx="3" fill="#f5b041" stroke="#c98a1b" stroke-width="1.5"/>
+  <text x="281.5" y="438" text-anchor="start" font-size="12" fill="#222222">Held off by CRACEN's handler</text>
+  <rect x="479.9" y="427" width="18" height="14" rx="3" fill="#e3e3e3" stroke="#b5b5b5" stroke-width="1.5"/>
+  <text x="504.9" y="438" text-anchor="start" font-size="12" fill="#222222">Preempted by CRACEN's handler</text>
+  <rect x="709.6" y="427" width="18" height="14" rx="3" fill="none" stroke="#222222" stroke-width="1.5"/>
+  <text x="734.6" y="438" text-anchor="start" font-size="12" fill="#222222">Caller</text>
+  <text x="471" y="462" text-anchor="middle" font-size="11" fill="#666">Each pair of non-secure levels arbitrates as one secure level; CRACEN takes the secure level one step more urgent than the caller.</text>
+</svg>

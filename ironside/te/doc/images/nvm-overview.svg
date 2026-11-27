@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="223px" height="314px" viewBox="0 0 223 314">
+<g>
+<g data-cell-id="0">
+<g data-cell-id="1">
+<g data-cell-id="gCXtOzs0FpRMKWKg-IUy-1">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="1" width="120" height="310" fill="#ffffff" stroke="#000000"/>
+</g>
+</g>
+<g data-cell-id="gCXtOzs0FpRMKWKg-IUy-2">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="1" width="120" height="10" rx="2.4" ry="2.4" fill="#ffcccc" stroke="#b85450"/>
+</g>
+<g>
+<g>
+<text x="60" y="9.6" text-anchor="middle" font-family="Helvetica" font-size="10" fill="#000000"><tspan x="60" y="9.6">IROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="gCXtOzs0FpRMKWKg-IUy-3">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="11" width="120" height="30" fill="#ff9999" stroke="#b85450"/>
+</g>
+<g>
+<g>
+<text x="60" y="30.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="60" y="30.32">UROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="gCXtOzs0FpRMKWKg-IUy-4">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="292" width="120" height="20" fill="#ffffcc" stroke="#b85450"/>
+</g>
+<g>
+<g>
+<text x="60" y="306.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="60" y="306.32">IronSide DFU</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="gCXtOzs0FpRMKWKg-IUy-5">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="42" width="120" height="210" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+<g>
+<g>
+<text x="60" y="151.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="60" y="151.32">SLOT0</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="-oAaZcHNryMh6OYN2E5W-1">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="252" width="120" height="30" fill="#f5f5f5" stroke="#666666" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="60" y="271.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="60" y="271.32">SLOT1</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="urotstorage-box">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="282" width="120" height="10" fill="#ffcccc" stroke="#b85450"/>
+</g>
+<g>
+<g>
+<text x="60" y="290.6" text-anchor="middle" font-family="Helvetica" font-size="10" fill="#000000"><tspan x="60" y="290.6">UROT storage</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="urotstorage-label">
+<g>
+<rect x="140" y="277" width="60" height="20" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="170" y="290.6" text-anchor="middle" font-family="Helvetica" font-size="10" fill="#000000"><tspan x="170" y="290.6">Secure</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="A63m4sEJFc7TB93rzf_u-2">
+<g transform="translate(0.5,0.5)">
+<path d="M 130 41 L 220 41" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="A63m4sEJFc7TB93rzf_u-3">
+<g>
+<rect x="140" y="11" width="60" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="170" y="30.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="170" y="30.32">Secure</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="A63m4sEJFc7TB93rzf_u-5">
+<g>
+<rect x="130" y="41" width="80" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="170" y="60.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="170" y="60.32">Non-Secure</tspan></text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

@@ -1,0 +1,847 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="616px" height="1862px" viewBox="0 0 616 1862">
+<g>
+<g data-cell-id="0">
+<g data-cell-id="1">
+<g data-cell-id="jldBuh95T7VFsrGm8y0R-6">
+<g transform="translate(0.5,0.5)">
+<rect x="42.5" y="0" width="567.5" height="990" rx="5.67" ry="5.67" fill="#ffffff" stroke="#000000" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="jldBuh95T7VFsrGm8y0R-8">
+<g transform="translate(0.5,0.5)">
+<rect x="38.75" y="1020" width="575" height="840" rx="5.75" ry="5.75" fill="#ffffff" stroke="#000000" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-82">
+<g transform="translate(0.5,0.5)">
+<rect x="277.5" y="20" width="297.5" height="80" fill="#f5f5f5" stroke="#666666"/>
+</g>
+<g>
+<g>
+<text x="427" y="38.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="427" y="38.52">Bundle content legend </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-16">
+<g transform="translate(0.5,0.5)">
+<path d="M 337.5 660 L 337.5 640 L 337.5 660 L 337.5 646.37" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.5 641.12 L 341 648.12 L 337.5 646.37 L 334 648.12 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-2">
+<g transform="translate(0.5,0.5)">
+<rect x="277.5" y="660" width="120" height="30" rx="4.5" ry="4.5" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="338" y="679.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="679.32">application_fw.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-15">
+<g transform="translate(0.5,0.5)">
+<path d="M 347.5 248.63 L 347.5 235" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 347.5 253.88 L 344 246.88 L 347.5 248.63 L 351 246.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-5">
+<g transform="translate(0.5,0.5)">
+<path d="M 257.5 255 L 417.5 255 L 437.5 280 L 417.5 305 L 257.5 305 L 277.5 280 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="348" y="284.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="348" y="284.32">ironside_bundle.py init</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-6">
+<g transform="translate(0.5,0.5)">
+<path d="M 305 175 C 271 175 262.5 195 289.7 199 C 262.5 207.8 293.1 227 315.2 219 C 330.5 235 381.5 235 398.5 219 C 432.5 219 432.5 203 411.25 195 C 432.5 179 398.5 163 368.75 171 C 347.5 159 313.5 159 305 175 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="348" y="192.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="348" y="192.12">Nordic Semiconductor</tspan><tspan x="348" y="206.52">Artifactory</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-27">
+<g transform="translate(0.5,0.5)">
+<path d="M 337.5 590 L 337.5 576.37" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.5 571.12 L 341 578.12 L 337.5 576.37 L 334 578.12 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-14">
+<g transform="translate(0.5,0.5)">
+<path d="M 237.5 590 L 417.5 590 L 437.5 615 L 417.5 640 L 237.5 640 L 257.5 615 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="338" y="619.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="619.32">create_component_archive.py</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-18">
+<g transform="translate(0.5,0.5)">
+<path d="M 247.5 460 L 407.5 460 L 427.5 485 L 407.5 510 L 247.5 510 L 267.5 485 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="338" y="482.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="482.12">ironside_bundle.py</tspan><tspan x="338" y="496.52">add-component</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-29">
+<g>
+<ellipse cx="140" cy="258.75" rx="15" ry="13.75" fill="#60a917" stroke="#2d7600" stroke-width="4"/>
+<path d="M 140 272.5 L 140 318.33 M 140 281.67 L 110 281.67 M 140 281.67 L 170 281.67 M 140 318.33 L 110 355 M 140 318.33 L 170 355" fill="none" stroke="#2d7600" stroke-width="4" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="140.5" y="373.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="140.5" y="373.52">Assembling Anne</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-35">
+<g transform="translate(0.5,0.5)">
+<path d="M 247.5 1432.75 L 407.5 1432.75 L 427.5 1457.75 L 407.5 1482.75 L 247.5 1482.75 L 267.5 1457.75 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="338" y="1455.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="1455.12">ironside_bundle.py</tspan><tspan x="338" y="1469.52">sign-component --all</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-44">
+<g>
+<ellipse cx="147" cy="1445.75" rx="15" ry="13.75" fill="#e51400" stroke="#b20000" stroke-width="4"/>
+<path d="M 147 1459.5 L 147 1505.33 M 147 1468.67 L 117 1468.67 M 147 1468.67 L 177 1468.67 M 147 1505.33 L 117 1542 M 147 1505.33 L 177 1542" fill="none" stroke="#b20000" stroke-width="4" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="147.5" y="1560.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="147.5" y="1560.52">Secure Sunniva</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-45">
+<g transform="translate(0.5,0.5)">
+<path d="M 388.5 55.29 C 388.5 49.61 405.29 45 426 45 C 435.95 45 445.48 46.08 452.52 48.01 C 459.55 49.94 463.5 52.56 463.5 55.29 L 463.5 74.71 C 463.5 77.44 459.55 80.06 452.52 81.99 C 445.48 83.92 435.95 85 426 85 C 416.05 85 406.52 83.92 399.48 81.99 C 392.45 80.06 388.5 77.44 388.5 74.71 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 463.5 55.29 C 463.5 58.01 459.55 60.63 452.52 62.56 C 445.48 64.49 435.95 65.57 426 65.57 C 416.05 65.57 406.52 64.49 399.48 62.56 C 392.45 60.63 388.5 58.01 388.5 55.29" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="426.5" y="78.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="426.5" y="78.32">Unsigned</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-46">
+<g>
+<path d="M 487.5 55.29 C 487.5 49.61 504.29 45 525 45 C 534.95 45 544.48 46.08 551.52 48.01 C 558.55 49.94 562.5 52.56 562.5 55.29 L 562.5 74.71 C 562.5 77.44 558.55 80.06 551.52 81.99 C 544.48 83.92 534.95 85 525 85 C 515.05 85 505.52 83.92 498.48 81.99 C 491.45 80.06 487.5 77.44 487.5 74.71 Z" fill="#ffffff" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M 562.5 55.29 C 562.5 58.01 558.55 60.63 551.52 62.56 C 544.48 64.49 534.95 65.57 525 65.57 C 515.05 65.57 505.52 64.49 498.48 62.56 C 491.45 60.63 487.5 58.01 487.5 55.29" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="525.5" y="78.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="525.5" y="78.32">Signed</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="dpQXSH9rG4hIQSk2mrUu-10">
+<g transform="translate(0.5,0.5)">
+<path d="M 337.5 1528 L 337.6 1505.4 L 337.53 1489.12" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.5 1483.87 L 341.04 1490.85 L 337.53 1489.12 L 334.04 1490.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-47">
+<g transform="translate(0.5,0.5)">
+<path d="M 304.38 1540.5 C 277.88 1540.5 271.25 1553 292.45 1555.5 C 271.25 1561 295.1 1573 312.32 1568 C 324.25 1578 364 1578 377.25 1568 C 403.75 1568 403.75 1558 387.19 1553 C 403.75 1543 377.25 1533 354.06 1538 C 337.5 1530.5 311 1530.5 304.38 1540.5 Z" fill="#e51400" stroke="#b20000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="337.5" y="1557.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="337.5" y="1557.32">KEY VAULT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-49">
+<g transform="translate(0.5,0.5)">
+<path d="M 247.5 1162 L 407.5 1162 L 427.5 1187 L 407.5 1212 L 247.5 1212 L 267.5 1187 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="338" y="1184.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="1184.12">ironside_bundle.py</tspan><tspan x="338" y="1198.52">update-keys</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-66">
+<g transform="translate(0.5,0.5)">
+<path d="M 309.5 50 L 344.5 50 L 364.5 65 L 344.5 80 L 309.5 80 L 289.5 65 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="327.5" y="69.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="327.5" y="69.32">Static data</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-67">
+<g transform="translate(0.5,0.5)">
+<path d="M 184.5 1720 L 344.5 1720 L 364.5 1745 L 344.5 1770 L 184.5 1770 L 204.5 1745 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="275" y="1742.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="275" y="1742.12">ironside_bundle.py</tspan><tspan x="275" y="1756.52">build-production-hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-81">
+<g transform="translate(0.5,0.5)">
+<rect x="377" y="1770" width="218" height="30" rx="4.5" ry="4.5" fill="#e51400" stroke="#b20000"/>
+</g>
+<g>
+<g>
+<text x="486" y="1789.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="486" y="1789.32">production_single_phase.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-83">
+<g transform="translate(0.5,0.5)">
+<rect x="377" y="1730" width="218" height="30" rx="4.5" ry="4.5" fill="#e51400" stroke="#b20000"/>
+</g>
+<g>
+<g>
+<text x="486" y="1749.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="486" y="1749.32">production_two_phase_1.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="i62XY3ST1Wjxei-CvXTA-84">
+<g transform="translate(0.5,0.5)">
+<rect x="377" y="1690" width="218" height="30" rx="4.5" ry="4.5" fill="#6d8764" stroke="#3a5431"/>
+</g>
+<g>
+<g>
+<text x="486" y="1709.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="486" y="1709.32">production_two_phase_2.hex</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="7wrQXeociKR_nUSlogzM-1">
+<g>
+<ellipse cx="145" cy="553.75" rx="15" ry="13.75" fill="#60a917" stroke="#2d7600" stroke-width="4"/>
+<path d="M 145 567.5 L 145 613.33 M 145 576.67 L 115 576.67 M 145 576.67 L 175 576.67 M 145 613.33 L 115 650 M 145 613.33 L 175 650" fill="none" stroke="#2d7600" stroke-width="4" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="145.5" y="668.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="145.5" y="668.52">Assembling Anne</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="7wrQXeociKR_nUSlogzM-2">
+<g>
+<ellipse cx="145" cy="1198.75" rx="15" ry="13.75" fill="#e51400" stroke="#b20000" stroke-width="4"/>
+<path d="M 145 1212.5 L 145 1258.33 M 145 1221.67 L 115 1221.67 M 145 1221.67 L 175 1221.67 M 145 1258.33 L 115 1295 M 145 1258.33 L 175 1295" fill="none" stroke="#b20000" stroke-width="4" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="145.5" y="1313.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="145.5" y="1313.52">Secure Sunniva</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="7wrQXeociKR_nUSlogzM-3">
+<g>
+<ellipse cx="145" cy="1723.75" rx="15" ry="13.75" fill="#e51400" stroke="#b20000" stroke-width="4"/>
+<path d="M 145 1737.5 L 145 1783.33 M 145 1746.67 L 115 1746.67 M 145 1746.67 L 175 1746.67 M 145 1783.33 L 115 1820 M 145 1783.33 L 175 1820" fill="none" stroke="#b20000" stroke-width="4" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="145.5" y="1838.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="145.5" y="1838.52">Secure Sunniva</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="7wrQXeociKR_nUSlogzM-4">
+<g transform="translate(0.5,0.5)">
+<path d="M 60 145 L 230 145 L 230 215 L 152.04 215 L 140.07 238.31 L 132.04 215 L 60 215 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="145" y="162.72" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="145" y="162.72">Create initial bundle which</tspan><tspan x="145" y="177.12">contains IronSide TE firmware</tspan><tspan x="145" y="191.52">in addition to provisioning</tspan><tspan x="145" y="205.92">images</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="cEBl6ManrxFN8W05aEif-1">
+<g transform="translate(0.5,0.5)">
+<path d="M 80 460 L 200 460 L 200 520 L 157.47 520 L 149.96 530.02 L 137.47 520 L 80 520 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="140" y="479.92" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="140" y="479.92">Add application</tspan><tspan x="140" y="494.32">firmware to</tspan><tspan x="140" y="508.72">the bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="cEBl6ManrxFN8W05aEif-2">
+<g transform="translate(0.5,0.5)">
+<path d="M 62 1372.5 L 242 1372.5 L 242 1412.5 L 162 1412.5 L 152 1422.5 L 142 1412.5 L 62 1412.5 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="152" y="1397.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="152" y="1397.32">Sign the firmware in the bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="cEBl6ManrxFN8W05aEif-3">
+<g transform="translate(0.5,0.5)">
+<path d="M 55 1115 L 225 1115 L 225 1155 L 150 1155 L 140 1165 L 130 1155 L 55 1155 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="140" y="1139.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="140" y="1139.32">Add key material to the bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="cEBl6ManrxFN8W05aEif-4">
+<g transform="translate(0.5,0.5)">
+<path d="M 62.5 1650 L 232.5 1650 L 232.5 1690 L 154.21 1690 L 142.57 1700 L 134.21 1690 L 62.5 1690 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="148" y="1667.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="148" y="1667.12">Generate production artifacts</tspan><tspan x="148" y="1681.52">from the bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="jldBuh95T7VFsrGm8y0R-7">
+<g>
+<rect x="0" y="50" width="297.5" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="149" y="71.84" text-anchor="middle" font-family="Helvetica" font-size="19" font-weight="bold" fill="#000000"><tspan x="149" y="71.84">Assembly Stage</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="jldBuh95T7VFsrGm8y0R-9">
+<g>
+<rect x="0" y="1060" width="297.5" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="149" y="1081.84" text-anchor="middle" font-family="Helvetica" font-size="19" font-weight="bold" fill="#000000"><tspan x="149" y="1081.84">Packaging Stage</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-1">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 141 C 447.5 137.69 477.16 135 513.75 135 C 531.32 135 548.17 135.63 560.6 136.76 C 573.02 137.88 580 139.41 580 141 L 580 299 C 580 300.59 573.02 302.12 560.6 303.24 C 548.17 304.37 531.32 305 513.75 305 C 496.18 305 479.33 304.37 466.9 303.24 C 454.48 302.12 447.5 300.59 447.5 299 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 580 141 C 580 142.59 573.02 144.12 560.6 145.24 C 548.17 146.37 531.32 147 513.75 147 C 496.18 147 479.33 146.37 466.9 145.24 C 454.48 144.12 447.5 142.59 447.5 141" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="165.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="165.52">Bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-2">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 281 C 447.5 277.69 477.16 275 513.75 275 C 531.32 275 548.17 275.63 560.6 276.76 C 573.02 277.88 580 279.41 580 281 L 580 299 C 580 300.59 573.02 302.12 560.6 303.24 C 548.17 304.37 531.32 305 513.75 305 C 496.18 305 479.33 304.37 466.9 303.24 C 454.48 302.12 447.5 300.59 447.5 299 Z" fill="#f5f5f5" stroke="#666666" stroke-miterlimit="10"/>
+<path d="M 580 281 C 580 282.59 573.02 284.12 560.6 285.24 C 548.17 286.37 531.32 287 513.75 287 C 496.18 287 479.33 286.37 466.9 285.24 C 454.48 284.12 447.5 282.59 447.5 281" fill="none" stroke="#666666" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="299.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="514.5" y="299.32">IROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-3">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 263 C 447.5 259.69 477.16 257 513.75 257 C 531.32 257 548.17 257.63 560.6 258.76 C 573.02 259.88 580 261.41 580 263 L 580 281 C 580 282.59 573.02 284.12 560.6 285.24 C 548.17 286.37 531.32 287 513.75 287 C 496.18 287 479.33 286.37 466.9 285.24 C 454.48 284.12 447.5 282.59 447.5 281 Z" fill="#f8cecc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 263 C 580 264.59 573.02 266.12 560.6 267.24 C 548.17 268.37 531.32 269 513.75 269 C 496.18 269 479.33 268.37 466.9 267.24 C 454.48 266.12 447.5 264.59 447.5 263" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="281.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="281.32">UROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-4">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 245 C 447.5 241.69 477.16 239 513.75 239 C 531.32 239 548.17 239.63 560.6 240.76 C 573.02 241.88 580 243.41 580 245 L 580 263 C 580 264.59 573.02 266.12 560.6 267.24 C 548.17 268.37 531.32 269 513.75 269 C 496.18 269 479.33 268.37 466.9 267.24 C 454.48 266.12 447.5 264.59 447.5 263 Z" fill="#fff2cc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 245 C 580 246.59 573.02 248.12 560.6 249.24 C 548.17 250.37 531.32 251 513.75 251 C 496.18 251 479.33 250.37 466.9 249.24 C 454.48 248.12 447.5 246.59 447.5 245" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="263.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="263.32">IronSide DFU</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-5">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 186 C 447.5 182.69 477.16 180 513.75 180 C 531.32 180 548.17 180.63 560.6 181.76 C 573.02 182.88 580 184.41 580 186 L 580 204 C 580 205.59 573.02 207.12 560.6 208.24 C 548.17 209.37 531.32 210 513.75 210 C 496.18 210 479.33 209.37 466.9 208.24 C 454.48 207.12 447.5 205.59 447.5 204 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+<path d="M 580 186 C 580 187.59 573.02 189.12 560.6 190.24 C 548.17 191.37 531.32 192 513.75 192 C 496.18 192 479.33 191.37 466.9 190.24 C 454.48 189.12 447.5 187.59 447.5 186" fill="none" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="204.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="204.32">Provisioning</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-29">
+<g transform="translate(0.5,0.5)">
+<path d="M 337.6 540 L 337.6 520 L 337.56 516.37" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.51 511.12 L 341.08 518.08 L 337.56 516.37 L 334.08 518.15 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-17">
+<g transform="translate(0.5,0.5)">
+<path d="M 271.25 546 C 271.25 542.69 300.91 540 337.5 540 C 355.07 540 371.92 540.63 384.35 541.76 C 396.77 542.88 403.75 544.41 403.75 546 L 403.75 564 C 403.75 565.59 396.77 567.12 384.35 568.24 C 371.92 569.37 355.07 570 337.5 570 C 319.93 570 303.08 569.37 290.65 568.24 C 278.23 567.12 271.25 565.59 271.25 564 Z" fill="#d5e8d4" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 403.75 546 C 403.75 547.59 396.77 549.12 384.35 550.24 C 371.92 551.37 355.07 552 337.5 552 C 319.93 552 303.08 551.37 290.65 550.24 C 278.23 549.12 271.25 547.59 271.25 546" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="337.5" y="564.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="337.5" y="564.32">APP</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-20">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 396 C 447.5 392.69 477.16 390 513.75 390 C 531.32 390 548.17 390.63 560.6 391.76 C 573.02 392.88 580 394.41 580 396 L 580 554 C 580 555.59 573.02 557.12 560.6 558.24 C 548.17 559.37 531.32 560 513.75 560 C 496.18 560 479.33 559.37 466.9 558.24 C 454.48 557.12 447.5 555.59 447.5 554 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 580 396 C 580 397.59 573.02 399.12 560.6 400.24 C 548.17 401.37 531.32 402 513.75 402 C 496.18 402 479.33 401.37 466.9 400.24 C 454.48 399.12 447.5 397.59 447.5 396" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="420.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="420.52">Bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-21">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 536 C 447.5 532.69 477.16 530 513.75 530 C 531.32 530 548.17 530.63 560.6 531.76 C 573.02 532.88 580 534.41 580 536 L 580 554 C 580 555.59 573.02 557.12 560.6 558.24 C 548.17 559.37 531.32 560 513.75 560 C 496.18 560 479.33 559.37 466.9 558.24 C 454.48 557.12 447.5 555.59 447.5 554 Z" fill="#f5f5f5" stroke="#666666" stroke-miterlimit="10"/>
+<path d="M 580 536 C 580 537.59 573.02 539.12 560.6 540.24 C 548.17 541.37 531.32 542 513.75 542 C 496.18 542 479.33 541.37 466.9 540.24 C 454.48 539.12 447.5 537.59 447.5 536" fill="none" stroke="#666666" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="554.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="514.5" y="554.32">IROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-22">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 518 C 447.5 514.69 477.16 512 513.75 512 C 531.32 512 548.17 512.63 560.6 513.76 C 573.02 514.88 580 516.41 580 518 L 580 536 C 580 537.59 573.02 539.12 560.6 540.24 C 548.17 541.37 531.32 542 513.75 542 C 496.18 542 479.33 541.37 466.9 540.24 C 454.48 539.12 447.5 537.59 447.5 536 Z" fill="#f8cecc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 518 C 580 519.59 573.02 521.12 560.6 522.24 C 548.17 523.37 531.32 524 513.75 524 C 496.18 524 479.33 523.37 466.9 522.24 C 454.48 521.12 447.5 519.59 447.5 518" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="536.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="536.32">UROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-23">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 500 C 447.5 496.69 477.16 494 513.75 494 C 531.32 494 548.17 494.63 560.6 495.76 C 573.02 496.88 580 498.41 580 500 L 580 518 C 580 519.59 573.02 521.12 560.6 522.24 C 548.17 523.37 531.32 524 513.75 524 C 496.18 524 479.33 523.37 466.9 522.24 C 454.48 521.12 447.5 519.59 447.5 518 Z" fill="#fff2cc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 500 C 580 501.59 573.02 503.12 560.6 504.24 C 548.17 505.37 531.32 506 513.75 506 C 496.18 506 479.33 505.37 466.9 504.24 C 454.48 503.12 447.5 501.59 447.5 500" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="518.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="518.32">IronSide DFU</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-24">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 441 C 447.5 437.69 477.16 435 513.75 435 C 531.32 435 548.17 435.63 560.6 436.76 C 573.02 437.88 580 439.41 580 441 L 580 459 C 580 460.59 573.02 462.12 560.6 463.24 C 548.17 464.37 531.32 465 513.75 465 C 496.18 465 479.33 464.37 466.9 463.24 C 454.48 462.12 447.5 460.59 447.5 459 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+<path d="M 580 441 C 580 442.59 573.02 444.12 560.6 445.24 C 548.17 446.37 531.32 447 513.75 447 C 496.18 447 479.33 446.37 466.9 445.24 C 454.48 444.12 447.5 442.59 447.5 441" fill="none" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="459.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="459.32">Provisioning</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-25">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 482 C 447.5 478.69 477.16 476 513.75 476 C 531.32 476 548.17 476.63 560.6 477.76 C 573.02 478.88 580 480.41 580 482 L 580 500 C 580 501.59 573.02 503.12 560.6 504.24 C 548.17 505.37 531.32 506 513.75 506 C 496.18 506 479.33 505.37 466.9 504.24 C 454.48 503.12 447.5 501.59 447.5 500 Z" fill="#d5e8d4" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 482 C 580 483.59 573.02 485.12 560.6 486.24 C 548.17 487.37 531.32 488 513.75 488 C 496.18 488 479.33 487.37 466.9 486.24 C 454.48 485.12 447.5 483.59 447.5 482" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="500.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="500.32">APP</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-33">
+<g transform="translate(0.5,0.5)">
+<path d="M 247.5 770 L 407.5 770 L 427.5 795 L 407.5 820 L 247.5 820 L 267.5 795 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="338" y="792.12" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="792.12">ironside_bundle.py</tspan><tspan x="338" y="806.52">update-config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-34">
+<g>
+<ellipse cx="147.5" cy="781.75" rx="15" ry="13.75" fill="#60a917" stroke="#2d7600" stroke-width="4"/>
+<path d="M 147.5 795.5 L 147.5 841.33 M 147.5 804.67 L 117.5 804.67 M 147.5 804.67 L 177.5 804.67 M 147.5 841.33 L 117.5 878 M 147.5 841.33 L 177.5 878" fill="none" stroke="#2d7600" stroke-width="4" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="148.5" y="896.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="148.5" y="896.52">Assembling Anne</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-35">
+<g transform="translate(0.5,0.5)">
+<path d="M 82.5 688 L 202.5 688 L 202.5 748 L 159.97 748 L 152.46 758.02 L 139.97 748 L 82.5 748 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="143" y="722.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="143" y="722.32">Configure the bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-37">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 736 C 447.5 732.69 477.16 730 513.75 730 C 531.32 730 548.17 730.63 560.6 731.76 C 573.02 732.88 580 734.41 580 736 L 580 959 C 580 960.59 573.02 962.12 560.6 963.24 C 548.17 964.37 531.32 965 513.75 965 C 496.18 965 479.33 964.37 466.9 963.24 C 454.48 962.12 447.5 960.59 447.5 959 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 580 736 C 580 737.59 573.02 739.12 560.6 740.24 C 548.17 741.37 531.32 742 513.75 742 C 496.18 742 479.33 741.37 466.9 740.24 C 454.48 739.12 447.5 737.59 447.5 736" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="760.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="760.52">Bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-38">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 941 C 447.5 937.69 477.16 935 513.75 935 C 531.32 935 548.17 935.63 560.6 936.76 C 573.02 937.88 580 939.41 580 941 L 580 959 C 580 960.59 573.02 962.12 560.6 963.24 C 548.17 964.37 531.32 965 513.75 965 C 496.18 965 479.33 964.37 466.9 963.24 C 454.48 962.12 447.5 960.59 447.5 959 Z" fill="#f5f5f5" stroke="#666666" stroke-miterlimit="10"/>
+<path d="M 580 941 C 580 942.59 573.02 944.12 560.6 945.24 C 548.17 946.37 531.32 947 513.75 947 C 496.18 947 479.33 946.37 466.9 945.24 C 454.48 944.12 447.5 942.59 447.5 941" fill="none" stroke="#666666" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="959.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="514.5" y="959.32">IROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-39">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 924 C 447.5 920.69 477.16 918 513.75 918 C 531.32 918 548.17 918.63 560.6 919.76 C 573.02 920.88 580 922.41 580 924 L 580 942 C 580 943.59 573.02 945.12 560.6 946.24 C 548.17 947.37 531.32 948 513.75 948 C 496.18 948 479.33 947.37 466.9 946.24 C 454.48 945.12 447.5 943.59 447.5 942 Z" fill="#f8cecc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 924 C 580 925.59 573.02 927.12 560.6 928.24 C 548.17 929.37 531.32 930 513.75 930 C 496.18 930 479.33 929.37 466.9 928.24 C 454.48 927.12 447.5 925.59 447.5 924" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="942.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="942.32">UROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-40">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 906 C 447.5 902.69 477.16 900 513.75 900 C 531.32 900 548.17 900.63 560.6 901.76 C 573.02 902.88 580 904.41 580 906 L 580 924 C 580 925.59 573.02 927.12 560.6 928.24 C 548.17 929.37 531.32 930 513.75 930 C 496.18 930 479.33 929.37 466.9 928.24 C 454.48 927.12 447.5 925.59 447.5 924 Z" fill="#fff2cc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 906 C 580 907.59 573.02 909.12 560.6 910.24 C 548.17 911.37 531.32 912 513.75 912 C 496.18 912 479.33 911.37 466.9 910.24 C 454.48 909.12 447.5 907.59 447.5 906" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="924.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="924.32">IronSide DFU</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-41">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 776 C 447.5 772.69 477.16 770 513.75 770 C 531.32 770 548.17 770.63 560.6 771.76 C 573.02 772.88 580 774.41 580 776 L 580 794 C 580 795.59 573.02 797.12 560.6 798.24 C 548.17 799.37 531.32 800 513.75 800 C 496.18 800 479.33 799.37 466.9 798.24 C 454.48 797.12 447.5 795.59 447.5 794 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+<path d="M 580 776 C 580 777.59 573.02 779.12 560.6 780.24 C 548.17 781.37 531.32 782 513.75 782 C 496.18 782 479.33 781.37 466.9 780.24 C 454.48 779.12 447.5 777.59 447.5 776" fill="none" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="794.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="794.32">Provisioning</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-42">
+<g transform="translate(0.5,0.5)">
+<path d="M 447.5 888 C 447.5 884.69 477.16 882 513.75 882 C 531.32 882 548.17 882.63 560.6 883.76 C 573.02 884.88 580 886.41 580 888 L 580 906 C 580 907.59 573.02 909.12 560.6 910.24 C 548.17 911.37 531.32 912 513.75 912 C 496.18 912 479.33 911.37 466.9 910.24 C 454.48 909.12 447.5 907.59 447.5 906 Z" fill="#d5e8d4" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 580 888 C 580 889.59 573.02 891.12 560.6 892.24 C 548.17 893.37 531.32 894 513.75 894 C 496.18 894 479.33 893.37 466.9 892.24 C 454.48 891.12 447.5 889.59 447.5 888" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="906.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="906.32">APP</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-43">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 854 L 560 854 L 580 865 L 560 876 L 467.5 876 L 447.5 865 Z" fill="#f8cecc" stroke="#b85450" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="869.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="869.32">Base config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-45">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 828 L 560 828 L 580 839 L 560 850 L 467.5 850 L 447.5 839 Z" fill="#d5e8d4" stroke="#82b366" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="843.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="843.32">Image config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-46">
+<g transform="translate(0.5,0.5)">
+<path d="M 467.5 803 L 560 803 L 580 814 L 560 825 L 467.5 825 L 447.5 814 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="514.5" y="818.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="514.5" y="818.32">Provision config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-48">
+<g transform="translate(0.5,0.5)">
+<path d="M 452 1066 C 452 1062.69 481.66 1060 518.25 1060 C 535.82 1060 552.67 1060.63 565.1 1061.76 C 577.52 1062.88 584.5 1064.41 584.5 1066 L 584.5 1324.5 C 584.5 1327.81 554.84 1330.5 518.25 1330.5 C 481.66 1330.5 452 1327.81 452 1324.5 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 584.5 1066 C 584.5 1067.59 577.52 1069.12 565.1 1070.24 C 552.67 1071.37 535.82 1072 518.25 1072 C 500.68 1072 483.83 1071.37 471.4 1070.24 C 458.98 1069.12 452 1067.59 452 1066" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1090.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1090.52">Bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-49">
+<g transform="translate(0.5,0.5)">
+<path d="M 452 1306.5 C 452 1303.19 481.66 1300.5 518.25 1300.5 C 535.82 1300.5 552.67 1301.13 565.1 1302.26 C 577.52 1303.38 584.5 1304.91 584.5 1306.5 L 584.5 1324.5 C 584.5 1326.09 577.52 1327.62 565.1 1328.74 C 552.67 1329.87 535.82 1330.5 518.25 1330.5 C 500.68 1330.5 483.83 1329.87 471.4 1328.74 C 458.98 1327.62 452 1326.09 452 1324.5 Z" fill="#f5f5f5" stroke="#666666" stroke-miterlimit="10"/>
+<path d="M 584.5 1306.5 C 584.5 1308.09 577.52 1309.62 565.1 1310.74 C 552.67 1311.87 535.82 1312.5 518.25 1312.5 C 500.68 1312.5 483.83 1311.87 471.4 1310.74 C 458.98 1309.62 452 1308.09 452 1306.5" fill="none" stroke="#666666" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1325.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="518.5" y="1325.32">IROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-50">
+<g transform="translate(0.5,0.5)">
+<path d="M 452 1289.5 C 452 1286.19 481.66 1283.5 518.25 1283.5 C 535.82 1283.5 552.67 1284.13 565.1 1285.26 C 577.52 1286.38 584.5 1287.91 584.5 1289.5 L 584.5 1307.5 C 584.5 1309.09 577.52 1310.62 565.1 1311.74 C 552.67 1312.87 535.82 1313.5 518.25 1313.5 C 500.68 1313.5 483.83 1312.87 471.4 1311.74 C 458.98 1310.62 452 1309.09 452 1307.5 Z" fill="#f8cecc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 584.5 1289.5 C 584.5 1291.09 577.52 1292.62 565.1 1293.74 C 552.67 1294.87 535.82 1295.5 518.25 1295.5 C 500.68 1295.5 483.83 1294.87 471.4 1293.74 C 458.98 1292.62 452 1291.09 452 1289.5" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1308.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1308.32">UROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-51">
+<g transform="translate(0.5,0.5)">
+<path d="M 452 1271.5 C 452 1268.19 481.66 1265.5 518.25 1265.5 C 535.82 1265.5 552.67 1266.13 565.1 1267.26 C 577.52 1268.38 584.5 1269.91 584.5 1271.5 L 584.5 1289.5 C 584.5 1291.09 577.52 1292.62 565.1 1293.74 C 552.67 1294.87 535.82 1295.5 518.25 1295.5 C 500.68 1295.5 483.83 1294.87 471.4 1293.74 C 458.98 1292.62 452 1291.09 452 1289.5 Z" fill="#fff2cc" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 584.5 1271.5 C 584.5 1273.09 577.52 1274.62 565.1 1275.74 C 552.67 1276.87 535.82 1277.5 518.25 1277.5 C 500.68 1277.5 483.83 1276.87 471.4 1275.74 C 458.98 1274.62 452 1273.09 452 1271.5" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1290.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1290.32">IronSide DFU</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-52">
+<g transform="translate(0.5,0.5)">
+<path d="M 452 1141.5 C 452 1138.19 481.66 1135.5 518.25 1135.5 C 535.82 1135.5 552.67 1136.13 565.1 1137.26 C 577.52 1138.38 584.5 1139.91 584.5 1141.5 L 584.5 1159.5 C 584.5 1161.09 577.52 1162.62 565.1 1163.74 C 552.67 1164.87 535.82 1165.5 518.25 1165.5 C 500.68 1165.5 483.83 1164.87 471.4 1163.74 C 458.98 1162.62 452 1161.09 452 1159.5 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+<path d="M 584.5 1141.5 C 584.5 1143.09 577.52 1144.62 565.1 1145.74 C 552.67 1146.87 535.82 1147.5 518.25 1147.5 C 500.68 1147.5 483.83 1146.87 471.4 1145.74 C 458.98 1144.62 452 1143.09 452 1141.5" fill="none" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1160.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1160.32">Provisioning</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-53">
+<g transform="translate(0.5,0.5)">
+<path d="M 452 1253.5 C 452 1250.19 481.66 1247.5 518.25 1247.5 C 535.82 1247.5 552.67 1248.13 565.1 1249.26 C 577.52 1250.38 584.5 1251.91 584.5 1253.5 L 584.5 1271.5 C 584.5 1273.09 577.52 1274.62 565.1 1275.74 C 552.67 1276.87 535.82 1277.5 518.25 1277.5 C 500.68 1277.5 483.83 1276.87 471.4 1275.74 C 458.98 1274.62 452 1273.09 452 1271.5 Z" fill="#d5e8d4" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+<path d="M 584.5 1253.5 C 584.5 1255.09 577.52 1256.62 565.1 1257.74 C 552.67 1258.87 535.82 1259.5 518.25 1259.5 C 500.68 1259.5 483.83 1258.87 471.4 1257.74 C 458.98 1256.62 452 1255.09 452 1253.5" fill="none" stroke="#000000" stroke-miterlimit="10" stroke-dasharray="3 3"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1272.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1272.32">APP</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-54">
+<g transform="translate(0.5,0.5)">
+<path d="M 472 1219.5 L 564.5 1219.5 L 584.5 1230.5 L 564.5 1241.5 L 472 1241.5 L 452 1230.5 Z" fill="#f8cecc" stroke="#b85450" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1235.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1235.32">Base config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-55">
+<g transform="translate(0.5,0.5)">
+<path d="M 472 1193.5 L 564.5 1193.5 L 584.5 1204.5 L 564.5 1215.5 L 472 1215.5 L 452 1204.5 Z" fill="#d5e8d4" stroke="#82b366" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1209.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1209.32">Image config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-56">
+<g transform="translate(0.5,0.5)">
+<path d="M 472 1168.5 L 564.5 1168.5 L 584.5 1179.5 L 564.5 1190.5 L 472 1190.5 L 452 1179.5 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1184.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1184.32">Provision config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-57">
+<g transform="translate(0.5,0.5)">
+<path d="M 452 1388.5 C 452 1385.19 481.66 1382.5 518.25 1382.5 C 535.82 1382.5 552.67 1383.13 565.1 1384.26 C 577.52 1385.38 584.5 1386.91 584.5 1388.5 L 584.5 1647 C 584.5 1650.31 554.84 1653 518.25 1653 C 481.66 1653 452 1650.31 452 1647 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 584.5 1388.5 C 584.5 1390.09 577.52 1391.62 565.1 1392.74 C 552.67 1393.87 535.82 1394.5 518.25 1394.5 C 500.68 1394.5 483.83 1393.87 471.4 1392.74 C 458.98 1391.62 452 1390.09 452 1388.5" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1413.52" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1413.52">Bundle</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-58">
+<g transform="translate(0.5,0.5)">
+<path d="M 452 1629 C 452 1625.69 481.66 1623 518.25 1623 C 535.82 1623 552.67 1623.63 565.1 1624.76 C 577.52 1625.88 584.5 1627.41 584.5 1629 L 584.5 1647 C 584.5 1648.59 577.52 1650.12 565.1 1651.24 C 552.67 1652.37 535.82 1653 518.25 1653 C 500.68 1653 483.83 1652.37 471.4 1651.24 C 458.98 1650.12 452 1648.59 452 1647 Z" fill="#f5f5f5" stroke="#666666" stroke-miterlimit="10"/>
+<path d="M 584.5 1629 C 584.5 1630.59 577.52 1632.12 565.1 1633.24 C 552.67 1634.37 535.82 1635 518.25 1635 C 500.68 1635 483.83 1634.37 471.4 1633.24 C 458.98 1632.12 452 1630.59 452 1629" fill="none" stroke="#666666" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1647.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#333333"><tspan x="518.5" y="1647.32">IROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-59">
+<g>
+<path d="M 452 1612 C 452 1608.69 481.66 1606 518.25 1606 C 535.82 1606 552.67 1606.63 565.1 1607.76 C 577.52 1608.88 584.5 1610.41 584.5 1612 L 584.5 1630 C 584.5 1631.59 577.52 1633.12 565.1 1634.24 C 552.67 1635.37 535.82 1636 518.25 1636 C 500.68 1636 483.83 1635.37 471.4 1634.24 C 458.98 1633.12 452 1631.59 452 1630 Z" fill="#f8cecc" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M 584.5 1612 C 584.5 1613.59 577.52 1615.12 565.1 1616.24 C 552.67 1617.37 535.82 1618 518.25 1618 C 500.68 1618 483.83 1617.37 471.4 1616.24 C 458.98 1615.12 452 1613.59 452 1612" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1630.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1630.32">UROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-60">
+<g>
+<path d="M 452 1594 C 452 1590.69 481.66 1588 518.25 1588 C 535.82 1588 552.67 1588.63 565.1 1589.76 C 577.52 1590.88 584.5 1592.41 584.5 1594 L 584.5 1612 C 584.5 1613.59 577.52 1615.12 565.1 1616.24 C 552.67 1617.37 535.82 1618 518.25 1618 C 500.68 1618 483.83 1617.37 471.4 1616.24 C 458.98 1615.12 452 1613.59 452 1612 Z" fill="#fff2cc" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M 584.5 1594 C 584.5 1595.59 577.52 1597.12 565.1 1598.24 C 552.67 1599.37 535.82 1600 518.25 1600 C 500.68 1600 483.83 1599.37 471.4 1598.24 C 458.98 1597.12 452 1595.59 452 1594" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1612.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1612.32">IronSide DFU</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-61">
+<g transform="translate(0.5,0.5)">
+<path d="M 452 1464 C 452 1460.69 481.66 1458 518.25 1458 C 535.82 1458 552.67 1458.63 565.1 1459.76 C 577.52 1460.88 584.5 1462.41 584.5 1464 L 584.5 1482 C 584.5 1483.59 577.52 1485.12 565.1 1486.24 C 552.67 1487.37 535.82 1488 518.25 1488 C 500.68 1488 483.83 1487.37 471.4 1486.24 C 458.98 1485.12 452 1483.59 452 1482 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+<path d="M 584.5 1464 C 584.5 1465.59 577.52 1467.12 565.1 1468.24 C 552.67 1469.37 535.82 1470 518.25 1470 C 500.68 1470 483.83 1469.37 471.4 1468.24 C 458.98 1467.12 452 1465.59 452 1464" fill="none" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1482.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1482.32">Provisioning</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-62">
+<g>
+<path d="M 452 1576 C 452 1572.69 481.66 1570 518.25 1570 C 535.82 1570 552.67 1570.63 565.1 1571.76 C 577.52 1572.88 584.5 1574.41 584.5 1576 L 584.5 1594 C 584.5 1595.59 577.52 1597.12 565.1 1598.24 C 552.67 1599.37 535.82 1600 518.25 1600 C 500.68 1600 483.83 1599.37 471.4 1598.24 C 458.98 1597.12 452 1595.59 452 1594 Z" fill="#d5e8d4" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+<path d="M 584.5 1576 C 584.5 1577.59 577.52 1579.12 565.1 1580.24 C 552.67 1581.37 535.82 1582 518.25 1582 C 500.68 1582 483.83 1581.37 471.4 1580.24 C 458.98 1579.12 452 1577.59 452 1576" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1594.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1594.32">APP</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-63">
+<g transform="translate(0.5,0.5)">
+<path d="M 472 1542 L 564.5 1542 L 584.5 1553 L 564.5 1564 L 472 1564 L 452 1553 Z" fill="#f8cecc" stroke="#b85450" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1557.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1557.32">Base config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-64">
+<g>
+<path d="M 472 1516 L 564.5 1516 L 584.5 1527 L 564.5 1538 L 472 1538 L 452 1527 Z" fill="#d5e8d4" stroke="#000000" stroke-width="2" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1531.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1531.32">Image config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-65">
+<g transform="translate(0.5,0.5)">
+<path d="M 472 1491 L 564.5 1491 L 584.5 1502 L 564.5 1513 L 472 1513 L 452 1502 Z" fill="#dae8fc" stroke="#6c8ebf" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1506.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1506.32">Provision config</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-66">
+<g transform="translate(0.5,0.5)">
+<path d="M 472 1430.5 L 564.5 1430.5 L 584.5 1441.5 L 564.5 1452.5 L 472 1452.5 L 452 1441.5 Z" fill="#e51400" stroke="#b20000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1446.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1446.32">KEYS</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="dpQXSH9rG4hIQSk2mrUu-9">
+<g transform="translate(0.5,0.5)">
+<path d="M 337.5 1248 L 337.6 1228 L 337.54 1218.37" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.51 1213.12 L 341.05 1220.1 L 337.54 1218.37 L 334.05 1220.14 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-67">
+<g transform="translate(0.5,0.5)">
+<path d="M 304.38 1260.5 C 277.88 1260.5 271.25 1273 292.45 1275.5 C 271.25 1281 295.1 1293 312.32 1288 C 324.25 1298 364 1298 377.25 1288 C 403.75 1288 403.75 1278 387.19 1273 C 403.75 1263 377.25 1253 354.06 1258 C 337.5 1250.5 311 1250.5 304.38 1260.5 Z" fill="#e51400" stroke="#b20000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="337.5" y="1277.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="337.5" y="1277.32">KEY VAULT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="dpQXSH9rG4hIQSk2mrUu-1">
+<g transform="translate(0.5,0.5)">
+<path d="M 513.75 305 L 513.8 360 L 337.5 360 L 337.5 453.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.5 458.88 L 334 451.88 L 337.5 453.63 L 341 451.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="dpQXSH9rG4hIQSk2mrUu-2">
+<g transform="translate(0.5,0.5)">
+<path d="M 513.75 560 L 513.8 710 L 337.5 710 L 337.5 763.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.5 768.88 L 334 761.88 L 337.5 763.63 L 341 761.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="dpQXSH9rG4hIQSk2mrUu-4">
+<g transform="translate(0.5,0.5)">
+<path d="M 513.75 965 L 513.8 1050 L 337.5 1050 L 337.5 1155.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.5 1160.88 L 334 1153.88 L 337.5 1155.63 L 341 1153.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="dpQXSH9rG4hIQSk2mrUu-5">
+<g transform="translate(0.5,0.5)">
+<path d="M 518.25 1330.5 L 518.3 1357 L 337.5 1357 L 337.5 1426.38" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 337.5 1431.63 L 334 1424.63 L 337.5 1426.38 L 341 1424.63 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="YTLjom9hdm9G6-nYripa-90">
+<g transform="translate(0.5,0.5)">
+<path d="M 472 1108 L 564.5 1108 L 584.5 1119 L 564.5 1130 L 472 1130 L 452 1119 Z" fill="#e51400" stroke="#b20000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="518.5" y="1123.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="518.5" y="1123.32">KEYS</tspan></text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

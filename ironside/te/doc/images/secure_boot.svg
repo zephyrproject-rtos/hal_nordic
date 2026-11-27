@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="515px" height="702px" viewBox="0 0 515 702">
+<g>
+<g data-cell-id="0">
+<g data-cell-id="1">
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-123">
+<g transform="translate(0.5,0.5)">
+<rect x="363" y="230" width="150" height="150" fill="#ffffff" stroke="#000000" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-124">
+<g transform="translate(0.5,0.5)">
+<path d="M 93 30 L 93 50 L 93 40 L 93 53.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 93 58.88 L 89.5 51.88 L 93 53.63 L 96.5 51.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-125">
+<g transform="translate(0.5,0.5)">
+<rect x="48" y="0" width="90" height="30" rx="4.5" ry="4.5" fill="#dae8fc" stroke="#6c8ebf"/>
+</g>
+<g>
+<g>
+<text x="93" y="19.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="93" y="19.32">IROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-126">
+<g transform="translate(0.5,0.5)">
+<ellipse cx="93" cy="175" rx="60" ry="15" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="93" y="179.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="93" y="179.32">UROT valid?</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-127">
+<g transform="translate(0.5,0.5)">
+<path d="M 93 190 L 93 223.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 93 228.88 L 89.5 221.88 L 93 223.63 L 96.5 221.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-128">
+<g>
+<g>
+<text x="79.5" y="206.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="79.5" y="206.96">yes</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-129">
+<g transform="translate(0.5,0.5)">
+<path d="M 153 175 L 208.9 175.78" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 214.15 175.85 L 207.1 179.26 L 208.9 175.78 L 207.2 172.26 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-130">
+<g>
+<g>
+<text x="178.5" y="164.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="178.5" y="164.96">no</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-131">
+<g transform="translate(0.5,0.5)">
+<path d="M 238 160 L 393 160 L 413 175 L 393 190 L 238 190 L 218 175 Z" fill="#a20025" stroke="#6f0000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="315.5" y="179.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="315.5" y="179.32">report IROT error to MAILBOX</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-132">
+<g transform="translate(0.5,0.5)">
+<rect x="48" y="230" width="90" height="30" rx="4.5" ry="4.5" fill="#dae8fc" stroke="#6c8ebf"/>
+</g>
+<g>
+<g>
+<text x="93" y="249.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="93" y="249.32">UROT</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-133">
+<g transform="translate(0.5,0.5)">
+<ellipse cx="93" cy="455" rx="72.5" ry="15" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="93.5" y="459.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="93.5" y="459.32">DFU mode (explicit)?</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-134">
+<g transform="translate(0.5,0.5)">
+<path d="M 93 260 L 93 283.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 93 288.88 L 89.5 281.88 L 93 283.63 L 96.5 281.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-135">
+<g transform="translate(0.5,0.5)">
+<path d="M 93 470 L 93 503.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 93 508.88 L 89.5 501.88 L 93 503.63 L 96.5 501.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-136">
+<g>
+<g>
+<text x="79.5" y="486.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="79.5" y="486.96">yes</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-137">
+<g transform="translate(0.5,0.5)">
+<path d="M 165.5 455 L 190.63 455" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 195.88 455 L 188.88 458.5 L 190.63 455 L 188.88 451.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-138">
+<g>
+<g>
+<text x="177.5" y="444.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="177.5" y="444.96">no</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-139">
+<g transform="translate(0.5,0.5)">
+<ellipse cx="93" cy="525" rx="60" ry="15" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="93" y="529.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="93" y="529.32">IronSide DFU valid?</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-140">
+<g transform="translate(0.5,0.5)">
+<path d="M 153 525 L 275.39 616.2" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 279.6 619.33 L 271.9 617.96 L 275.39 616.2 L 276.08 612.34 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-141">
+<g>
+<g>
+<text x="199.5" y="548.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="199.5" y="548.96">yes</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-142">
+<g transform="translate(0.5,0.5)">
+<rect x="153" y="620" width="90" height="30" rx="4.5" ry="4.5" fill="#dae8fc" stroke="#6c8ebf"/>
+</g>
+<g>
+<g>
+<text x="198" y="639.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="198" y="639.32">application</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-143">
+<g transform="translate(0.5,0.5)">
+<ellipse cx="93" cy="595" rx="60" ry="15" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="93" y="599.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="93" y="599.32">application valid?</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-144">
+<g transform="translate(0.5,0.5)">
+<path d="M 153 595 L 192.43 616.91" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 197.02 619.46 L 189.2 619.12 L 192.43 616.91 L 192.6 613 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-145">
+<g>
+<g>
+<text x="177.5" y="599.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="177.5" y="599.96">yes</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-146">
+<g transform="translate(0.5,0.5)">
+<rect x="393" y="240" width="90" height="30" rx="4.5" ry="4.5" fill="#dae8fc" stroke="#6c8ebf"/>
+</g>
+<g>
+<g>
+<text x="438" y="259.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="438" y="259.32">booted image</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-147">
+<g transform="translate(0.5,0.5)">
+<ellipse cx="438" cy="305" rx="60" ry="15" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="438" y="309.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="438" y="309.32">condition</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-148">
+<g transform="translate(0.5,0.5)">
+<path d="M 398 340 L 478 340 L 498 355 L 478 370 L 398 370 L 378 355 Z" fill="#a20025" stroke="#6f0000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="438" y="359.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="438" y="359.32">action</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-149">
+<g transform="translate(0.5,0.5)">
+<path d="M 93 540 L 93 573.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 93 578.88 L 89.5 571.88 L 93 573.63 L 96.5 571.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-150">
+<g>
+<g>
+<text x="79.5" y="561.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="79.5" y="561.96">no</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-151">
+<g transform="translate(0.5,0.5)">
+<ellipse cx="272" cy="455" rx="75" ry="15" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="272" y="459.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="272" y="459.32">app valid &amp; no dfu trigger</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-152">
+<g transform="translate(0.5,0.5)">
+<path d="M 272 470 L 222.57 613.98" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 220.86 618.94 L 219.83 611.19 L 222.57 613.98 L 226.45 613.46 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-153">
+<g>
+<g>
+<text x="273.5" y="513.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="273.5" y="513.96">yes</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-154">
+<g transform="translate(0.5,0.5)">
+<path d="M 347 455 L 381.63 455" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 386.88 455 L 379.88 458.5 L 381.63 455 L 379.88 451.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-155">
+<g>
+<g>
+<text x="369.5" y="444.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="369.5" y="444.96">no</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-156">
+<g transform="translate(0.5,0.5)">
+<rect x="258" y="620" width="90" height="30" rx="4.5" ry="4.5" fill="#dae8fc" stroke="#6c8ebf"/>
+</g>
+<g>
+<g>
+<text x="303" y="639.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="303" y="639.32">IronSide DFU</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-157">
+<g transform="translate(0.5,0.5)">
+<ellipse cx="448" cy="455" rx="60" ry="15" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="448" y="459.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="448" y="459.32">IronSide DFU valid?</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-158">
+<g transform="translate(0.5,0.5)">
+<path d="M 402.64 465.29 L 306.45 614.65" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 303.61 619.06 L 304.45 611.28 L 306.45 614.65 L 310.34 615.07 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-159">
+<g>
+<g>
+<text x="388.5" y="513.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="388.5" y="513.96">yes</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-160">
+<g transform="translate(0.5,0.5)">
+<path d="M 448 470 L 448 685 L 194.37 685" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 189.12 685 L 196.12 681.5 L 194.37 685 L 196.12 688.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-161">
+<g>
+<g>
+<text x="459.5" y="510.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="459.5" y="510.96">no</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-162">
+<g transform="translate(0.5,0.5)">
+<path d="M 20.5 670 L 168 670 L 188 685 L 168 700 L 20.5 700 L 0.5 685 Z" fill="#a20025" stroke="#6f0000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="95" y="689.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="95" y="689.32">report UROT error to MAILBOX</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-163">
+<g transform="translate(0.5,0.5)">
+<path d="M 165.5 385 L 211.63 385" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 216.88 385 L 209.88 388.5 L 211.63 385 L 209.88 381.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-164">
+<g>
+<g>
+<text x="181.5" y="374.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="181.5" y="374.96">yes</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-165">
+<g transform="translate(0.5,0.5)">
+<ellipse cx="93" cy="385" rx="72.5" ry="15" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="93.5" y="389.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="93.5" y="389.32">ADAC mode?</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-166">
+<g transform="translate(0.5,0.5)">
+<path d="M 238 370 L 338 370 L 358 385 L 338 400 L 238 400 L 218 385 Z" fill="#a20025" stroke="#6f0000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="288" y="389.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="288" y="389.32">Trigger ADAC mode</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-167">
+<g transform="translate(0.5,0.5)">
+<path d="M 93 400 L 93 433.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 93 438.88 L 89.5 431.88 L 93 433.63 L 96.5 431.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-168">
+<g>
+<g>
+<text x="79.5" y="424.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="79.5" y="424.96">no</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-169">
+<g transform="translate(0.5,0.5)">
+<path d="M 93 610 L 94.12 663.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 94.23 668.88 L 90.58 661.96 L 94.12 663.63 L 97.58 661.81 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-170">
+<g>
+<g>
+<text x="79.5" y="638.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="79.5" y="638.96">no</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-171">
+<g transform="translate(0.5,0.5)">
+<path d="M 180.5 75 L 236.63 75" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 241.88 75 L 234.88 78.5 L 236.63 75 L 234.88 71.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-172">
+<g>
+<g>
+<text x="202.5" y="64.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="202.5" y="64.96">yes</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-173">
+<g transform="translate(0.5,0.5)">
+<path d="M 93 90 L 93 153.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 93 158.88 L 89.5 151.88 L 93 153.63 L 96.5 151.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="78.5" y="113.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="78.5" y="113.96">no</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-174">
+<g transform="translate(0.5,0.5)">
+<ellipse cx="93" cy="75" rx="87.5" ry="15" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="93.5" y="79.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="93.5" y="79.32">Valid Update Candidate?</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-175">
+<g transform="translate(0.5,0.5)">
+<path d="M 303 90 L 303 125 L 93 125 L 93 153.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 93 158.88 L 89.5 151.88 L 93 153.63 L 96.5 151.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-176">
+<g transform="translate(0.5,0.5)">
+<path d="M 263 60 L 343 60 L 363 75 L 343 90 L 263 90 L 243 75 Z" fill="#a20025" stroke="#6f0000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="303" y="79.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="303" y="79.32">Install Update</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-177">
+<g transform="translate(0.5,0.5)">
+<path d="M 176.75 305 L 221.63 305" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 226.88 305 L 219.88 308.5 L 221.63 305 L 219.88 301.5 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-178">
+<g>
+<g>
+<text x="197.5" y="294.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="197.5" y="294.96">yes</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-179">
+<g transform="translate(0.5,0.5)">
+<path d="M 93 320 L 93 363.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 93 368.88 L 89.5 361.88 L 93 363.63 L 96.5 361.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-180">
+<g>
+<g>
+<text x="79.5" y="334.96" text-anchor="middle" font-family="Helvetica" font-size="11" fill="#000000"><tspan x="79.5" y="334.96">no</tspan></text>
+</g>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-181">
+<g transform="translate(0.5,0.5)">
+<ellipse cx="93" cy="305" rx="83.75" ry="15" fill="#ffffff" stroke="#000000"/>
+</g>
+<g>
+<g>
+<text x="93" y="309.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="93" y="309.32">Valid Update Candidate?</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-182">
+<g transform="translate(0.5,0.5)">
+<path d="M 288 320 L 288 345 L 93 345 L 93 363.63" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 93 368.88 L 89.5 361.88 L 93 363.63 L 96.5 361.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="RsS0bPjKdHfW9RywCJX6-183">
+<g transform="translate(0.5,0.5)">
+<path d="M 248 290 L 328 290 L 348 305 L 328 320 L 248 320 L 228 305 Z" fill="#a20025" stroke="#6f0000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="288" y="309.32" text-anchor="middle" font-family="Helvetica" font-size="12" fill="#ffffff"><tspan x="288" y="309.32">Install Update</tspan></text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

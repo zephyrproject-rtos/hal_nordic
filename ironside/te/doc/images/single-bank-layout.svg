@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="452px" height="582px" viewBox="0 0 452 582">
+<g>
+<g data-cell-id="0">
+<g data-cell-id="1">
+<g data-cell-id="gCXtOzs0FpRMKWKg-IUy-1">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="0" width="230" height="560" fill="#ffffff" stroke="#000000"/>
+</g>
+</g>
+<g data-cell-id="gCXtOzs0FpRMKWKg-IUy-3">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="0" width="230" height="80" fill="#e6e6e6" stroke="#b85450"/>
+</g>
+</g>
+<g data-cell-id="gCXtOzs0FpRMKWKg-IUy-4">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="530" width="230" height="50" fill="#fff2cc" stroke="#b85450"/>
+</g>
+</g>
+<g data-cell-id="gCXtOzs0FpRMKWKg-IUy-5">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="80" width="230" height="340" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+</g>
+<g data-cell-id="-oAaZcHNryMh6OYN2E5W-1">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="411" width="230" height="59" fill="#f5f5f5" stroke="#666666" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="VujeNDfKBNHlHh1fycz5-1">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="461" width="230" height="39" fill="#f5f5f5" stroke="#666666" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="urotstorage-box">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="500" width="230" height="30" fill="#e6e6e6" stroke="#b85450"/>
+</g>
+</g>
+<g data-cell-id="VujeNDfKBNHlHh1fycz5-3">
+<g>
+<rect x="0" y="0" width="70" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="19.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="19.32">  Reserved</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="VujeNDfKBNHlHh1fycz5-4">
+<g>
+<rect x="0" y="80" width="60" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="99.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="99.32"> SLOT0</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="VujeNDfKBNHlHh1fycz5-6">
+<g>
+<rect x="0" y="410" width="60" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="429.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="429.32"> SLOT1</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="VujeNDfKBNHlHh1fycz5-7">
+<g>
+<rect x="0" y="460" width="90" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="479.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="479.32"> STORAGE</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="urotstorage-label">
+<g>
+<rect x="0" y="500" width="110" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="519.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="519.32"> UROTSTORAGE</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="VujeNDfKBNHlHh1fycz5-9">
+<g>
+<rect x="0" y="530" width="80" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="549.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="549.32"> DFUIMAGE</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="VujeNDfKBNHlHh1fycz5-12">
+<g>
+<rect x="100" y="80" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="99.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="228" y="99.32">RX (App) | RW (DFU)  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="VujeNDfKBNHlHh1fycz5-13">
+<g>
+<rect x="170" y="411" width="60" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="430.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="228" y="430.32">RW  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="VujeNDfKBNHlHh1fycz5-14">
+<g>
+<rect x="170" y="461" width="60" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="480.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="228" y="480.32">RW  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="DrvCCI5ZAthE3sg6wEV3-1">
+<g>
+<rect x="110" y="530" width="120" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="549.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="228" y="549.32">R (App) | RX (DFU)  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="7UTkIn-0q3vgznBaAazF-1">
+<g>
+<rect x="40" y="550" width="190" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="569.32" text-anchor="end" font-family="Helvetica" font-size="12" font-style="italic" fill="#000000"><tspan x="228" y="569.32">[RW (App) | RWX (DFU)]  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="7UTkIn-0q3vgznBaAazF-2">
+<g>
+<rect x="80" y="100" width="150" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="119.32" text-anchor="end" font-family="Helvetica" font-size="12" font-style="italic" fill="#000000"><tspan x="228" y="119.32">[RWX (App) | RW (DFU)]  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="7UTkIn-0q3vgznBaAazF-5">
+<g transform="translate(0.5,0.5)">
+<path d="M 310 0 L 420 0 L 450 30 L 450 150 L 310 150 L 310 0 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 420 0 L 420 30 L 450 30 Z" fill-opacity="0.05" fill="#000000" stroke="none"/>
+<path d="M 420 0 L 420 30 L 450 30" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="312" y="18.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="312" y="18.52"><tspan font-style="italic"> </tspan></tspan><tspan x="312" y="32.92"></tspan><tspan x="312" y="47.32"><tspan font-style="italic">  [perm]</tspan>:</tspan><tspan x="312" y="61.72">  <tspan font-weight="bold">Open</tspan>,</tspan><tspan x="312" y="76.12">  <tspan font-weight="bold">PRoT Provisioning</tspan></tspan><tspan x="312" y="90.52"></tspan><tspan x="312" y="104.92"><tspan font-weight="bold">  </tspan><tspan font-style="italic">perm (M):</tspan></tspan><tspan x="312" y="119.32"><tspan font-weight="bold">  </tspan>Permission for boot</tspan><tspan x="312" y="133.72">  mode <tspan font-style="italic">M</tspan></tspan></text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

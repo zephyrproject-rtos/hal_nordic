@@ -1,0 +1,9 @@
+{
+  "name": "ironside-integration-kit",
+  "channel": "nightly",
+  "ref": "a1b044a",
+  "timestamp": "2026-11-20T00:29:43+00:00",
+  "supported_feature_level": 1,
+  "version": "2026.10.1",
+  "download_base_url": "https://files.nordicsemi.com/artifactory/IronSide/internal/te"
+}

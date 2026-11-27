@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="904px" height="563px" viewBox="0 0 904 563">
+<g>
+<g data-cell-id="0">
+<g data-cell-id="1">
+<g data-cell-id="gCXtOzs0FpRMKWKg-IUy-1">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="0" width="230" height="560" fill="#ffffff" stroke="#000000"/>
+</g>
+</g>
+<g data-cell-id="gCXtOzs0FpRMKWKg-IUy-3">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="0" width="230" height="50" fill="#e6e6e6" stroke="#b85450"/>
+</g>
+</g>
+<g data-cell-id="gCXtOzs0FpRMKWKg-IUy-5">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="50" width="230" height="430" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+</g>
+<g data-cell-id="VujeNDfKBNHlHh1fycz5-4">
+<g>
+<rect x="0" y="50" width="65" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="69.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="69.32"> APP-RAM</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="VujeNDfKBNHlHh1fycz5-12">
+<g>
+<rect x="100" y="50" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="69.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="228" y="69.32">RW  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="t5kSoKTHLFtv5Nx6ur5L-6">
+<g>
+<rect x="0" y="0" width="77" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="19.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="19.32"> Reserved</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="7Rhx-x5jGUxvLek0Qdhc-1">
+<g>
+<rect x="100" y="77" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="96.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="228" y="96.32"><tspan font-style="italic">[RWX]</tspan>  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="7Rhx-x5jGUxvLek0Qdhc-3">
+<g transform="translate(0.5,0.5)">
+<path d="M 763 0 L 872 0 L 902 30 L 902 142 L 763 142 L 763 0 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+<path d="M 872 0 L 872 30 L 902 30 Z" fill-opacity="0.05" fill="#000000" stroke="none"/>
+<path d="M 872 0 L 872 30 L 902 30" fill="none" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+<g>
+<g>
+<text x="765" y="18.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="765" y="18.52"></tspan><tspan x="765" y="32.92"></tspan><tspan x="765" y="47.32"><tspan font-style="italic">  [perm]:</tspan></tspan><tspan x="765" y="61.72"><tspan font-style="italic">  </tspan><tspan font-weight="bold">Open,</tspan></tspan><tspan x="765" y="76.12"><tspan font-weight="bold">  PRoT Provisioning</tspan></tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="13FZWUvePW5hqLkcWIZR-12">
+<g transform="translate(0.5,0.5)">
+<rect x="470" y="1" width="230" height="560" fill="#ffffff" stroke="#000000"/>
+</g>
+</g>
+<g data-cell-id="13FZWUvePW5hqLkcWIZR-13">
+<g transform="translate(0.5,0.5)">
+<rect x="470" y="1" width="230" height="50" fill="#e6e6e6" stroke="#b85450"/>
+</g>
+</g>
+<g data-cell-id="13FZWUvePW5hqLkcWIZR-14">
+<g transform="translate(0.5,0.5)">
+<rect x="470" y="51" width="230" height="321" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+</g>
+<g data-cell-id="13FZWUvePW5hqLkcWIZR-15">
+<g>
+<rect x="470" y="51" width="65" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="472" y="70.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="472" y="70.32"> APP-RAM</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="13FZWUvePW5hqLkcWIZR-16">
+<g>
+<rect x="570" y="51" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="698" y="70.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="698" y="70.32">RW  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="13FZWUvePW5hqLkcWIZR-17">
+<g transform="translate(0.5,0.5)">
+<rect x="470" y="372" width="230" height="109" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+</g>
+<g data-cell-id="13FZWUvePW5hqLkcWIZR-18">
+<g>
+<rect x="470" y="1" width="77" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="472" y="20.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="472" y="20.32"> Reserved</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="13FZWUvePW5hqLkcWIZR-19">
+<g>
+<rect x="470" y="372" width="71" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="472" y="391.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="472" y="391.32"> APP-XRAM</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="13FZWUvePW5hqLkcWIZR-20">
+<g>
+<rect x="570" y="372" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="698" y="391.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="698" y="391.32">RX  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="13FZWUvePW5hqLkcWIZR-21">
+<g>
+<rect x="570" y="78" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="698" y="97.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="698" y="97.32"><tspan font-style="italic">[RWX]</tspan>  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="13FZWUvePW5hqLkcWIZR-23">
+<g transform="translate(0.5,0.5)">
+<path d="M 270.5 315 L 270.5 305 L 410.5 305 L 410.5 294.5 L 429.5 310 L 410.5 325.5 L 410.5 315 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10"/>
+</g>
+</g>
+<g data-cell-id="13FZWUvePW5hqLkcWIZR-25">
+<g>
+<rect x="320" y="260" width="60" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="350" y="280.04" text-anchor="middle" font-family="Helvetica" font-size="14" fill="#000000"><tspan x="350" y="280.04">ironside_devmgmt_xram_region_define(...)</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="vprctx-l-box">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="480" width="230" height="50" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+</g>
+<g data-cell-id="vprctx-l-name">
+<g>
+<rect x="0" y="480" width="120" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="499.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="499.32"> VPRCTX-RAM</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="vprctx-l-perm">
+<g>
+<rect x="100" y="480" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="499.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="228" y="499.32">RW  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="vprctx-l-br">
+<g>
+<rect x="100" y="507" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="228" y="526.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="228" y="526.32"><tspan font-style="italic">[RWX]</tspan>  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="protram-l-box">
+<g transform="translate(0.5,0.5)">
+<rect x="0" y="530" width="230" height="30" fill="#e6e6e6" stroke="#666666" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="protram-l-name">
+<g>
+<rect x="0" y="530" width="120" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="2" y="549.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="2" y="549.32"> Reserved</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="protram-l-perm">
+<g>
+<rect x="100" y="530" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+</g>
+</g>
+<g data-cell-id="vprctx-r-box">
+<g transform="translate(0.5,0.5)">
+<rect x="470" y="481" width="230" height="50" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+</g>
+<g data-cell-id="vprctx-r-name">
+<g>
+<rect x="470" y="481" width="120" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="472" y="500.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="472" y="500.32"> VPRCTX-RAM</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="vprctx-r-perm">
+<g>
+<rect x="570" y="481" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="698" y="500.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="698" y="500.32">RW  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="vprctx-r-br">
+<g>
+<rect x="570" y="508" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="698" y="527.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="698" y="527.32"><tspan font-style="italic">[RWX]</tspan>  </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="protram-r-box">
+<g transform="translate(0.5,0.5)">
+<rect x="470" y="531" width="230" height="30" fill="#e6e6e6" stroke="#666666" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="protram-r-name">
+<g>
+<rect x="470" y="531" width="120" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="472" y="550.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="472" y="550.32"> Reserved</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="protram-r-perm">
+<g>
+<rect x="570" y="531" width="130" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

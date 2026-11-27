@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="956px" height="451px" viewBox="0 0 956 451">
+<g>
+<g data-cell-id="0">
+<g data-cell-id="1">
+<g data-cell-id="c1">
+<g>
+<rect x="0" y="0" width="340" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="338" y="19.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="19.32">0x20000000 </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c2">
+<g transform="translate(0.5,0.5)">
+<rect x="350" y="15" width="230" height="80" fill="#e6e6e6" stroke="#b85450"/>
+</g>
+</g>
+<g data-cell-id="c3">
+<g>
+<rect x="350" y="15" width="150" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="352" y="33.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="352" y="33.52"> Reserved</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c4">
+<g>
+<rect x="595" y="15" width="360" height="80" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="597" y="44.92" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="597" y="44.92">31232 B + key slot storage size</tspan><tspan x="597" y="59.32">--key-slot-storage-size-bytes: 1536 plus a</tspan><tspan x="597" y="73.72">multiple of the RAM split granule, at most 42496</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c5">
+<g>
+<rect x="0" y="80" width="340" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="338" y="99.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="99.32">0x20008000 to 0x20012000 </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c6">
+<g transform="translate(0.5,0.5)">
+<rect x="350" y="95" width="230" height="200" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+</g>
+<g data-cell-id="c7">
+<g>
+<rect x="350" y="95" width="150" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="352" y="113.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="352" y="113.52"> APP-RAM</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c8">
+<g>
+<rect x="595" y="95" width="360" height="200" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="597" y="184.92" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="597" y="184.92">The rest, up to APP-XRAM or VPRCTX-RAM</tspan><tspan x="597" y="199.32">Starts at 0x20008000 by default,</tspan><tspan x="597" y="213.72">and at 0x20012000 at the latest</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c9">
+<g transform="translate(0.5,0.5)">
+<rect x="350" y="295" width="230" height="70" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+</g>
+<g data-cell-id="c10">
+<g>
+<rect x="350" y="295" width="150" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="352" y="313.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="352" y="313.52"> APP-XRAM</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c11">
+<g>
+<rect x="595" y="295" width="360" height="70" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="597" y="319.92" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="597" y="319.92">size argument of ironside_devmgmt_xram_region_define()</tspan><tspan x="597" y="334.32">Non-zero multiple of 4 kB, smaller than APP-RAM</tspan><tspan x="597" y="348.72">Only once defined at runtime, not on nRF54L15</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c12">
+<g>
+<rect x="0" y="350" width="340" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="338" y="369.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="369.32">RAM end - 1 kB </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c13">
+<g transform="translate(0.5,0.5)">
+<rect x="350" y="365" width="230" height="40" fill="#d5e8d4" stroke="#82b366"/>
+</g>
+</g>
+<g data-cell-id="c14">
+<g>
+<rect x="350" y="365" width="150" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="352" y="383.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="352" y="383.52"> VPRCTX-RAM</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c15">
+<g>
+<rect x="595" y="365" width="360" height="40" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="597" y="389.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="597" y="389.32">736 B, not linked, not on nRF54L15</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c16">
+<g>
+<rect x="0" y="390" width="340" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="338" y="409.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="409.32">RAM end - 288 B </tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c17">
+<g transform="translate(0.5,0.5)">
+<rect x="350" y="405" width="230" height="30" fill="#e6e6e6" stroke="#666666" stroke-dasharray="3 3"/>
+</g>
+</g>
+<g data-cell-id="c18">
+<g>
+<rect x="350" y="405" width="150" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="352" y="423.52" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="352" y="423.52"> Reserved</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c19">
+<g>
+<rect x="595" y="405" width="360" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="597" y="424.32" text-anchor="start" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="597" y="424.32">288 B, not on nRF54L15</tspan></text>
+</g>
+</g>
+</g>
+<g data-cell-id="c20">
+<g>
+<rect x="0" y="420" width="340" height="30" fill="none" stroke="none"/>
+</g>
+<g>
+<g>
+<text x="338" y="439.32" text-anchor="end" font-family="Helvetica" font-size="12" fill="#000000"><tspan x="338" y="439.32">RAM end </tspan></text>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</svg>

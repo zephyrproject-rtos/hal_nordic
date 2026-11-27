@@ -1,0 +1,4 @@
+# IronSide Integration Kit test metadata.
+# Presence of this file marks the sample as a HW test in the suite.
+description = "Deterministic ECDSA P-256/SHA-256 reproduces the RFC 6979 A.2.5 signature byte for byte and verifies"
+timeout = 5    # ceiling only - the runner exits early on INTEGRATION_KIT_TEST_FINISHED

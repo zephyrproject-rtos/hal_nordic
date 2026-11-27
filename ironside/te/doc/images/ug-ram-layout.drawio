@@ -1,0 +1,64 @@
+<mxfile host="ac.draw.io">
+  <diagram id="OzC1xu2c7uBdnc8wm10z" name="Page-1">
+    <mxGraphModel dx="1214" dy="789" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="7Rhx-x5jGUxvLek0Qdhc-3" parent="1" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=light-dark(#FFFFFF,#000033);align=left;verticalAlign=top;" value="&lt;i&gt;&lt;br&gt;&lt;br&gt;&amp;nbsp; [perm]:&lt;br&gt;&amp;nbsp; &lt;/i&gt;&lt;b&gt;Open,&lt;/b&gt;&lt;div&gt;&lt;b&gt;&amp;nbsp; PRoT Provisioning&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp; &lt;i&gt;APP-XRAM:&lt;/i&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp; Only once defined&lt;/div&gt;&lt;div&gt;&amp;nbsp; at runtime&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp; &lt;i&gt;Reserved:&lt;/i&gt;&lt;/div&gt;&lt;div&gt;&amp;nbsp; Size set by the&lt;/div&gt;&lt;div&gt;&amp;nbsp; base configuration&lt;/div&gt;" vertex="1">
+          <mxGeometry height="210" width="140" x="680" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="13FZWUvePW5hqLkcWIZR-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=0;" value="" vertex="1">
+          <mxGeometry height="560" width="230" x="370" y="731" as="geometry" />
+        </mxCell>
+        <mxCell id="13FZWUvePW5hqLkcWIZR-13" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6E6E6;strokeColor=#b85450;arcSize=0;align=left;" value="" vertex="1">
+          <mxGeometry height="50" width="230" x="370" y="731" as="geometry" />
+        </mxCell>
+        <mxCell id="13FZWUvePW5hqLkcWIZR-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;arcSize=0;" value="" vertex="1">
+          <mxGeometry height="321" width="230" x="370" y="781" as="geometry" />
+        </mxCell>
+        <mxCell id="13FZWUvePW5hqLkcWIZR-15" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&amp;nbsp;APP-RAM" vertex="1">
+          <mxGeometry height="30" width="65" x="370" y="781" as="geometry" />
+        </mxCell>
+        <mxCell id="13FZWUvePW5hqLkcWIZR-16" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;rounded=0;" value="RW&amp;nbsp;&amp;nbsp;" vertex="1">
+          <mxGeometry height="30" width="130" x="470" y="781" as="geometry" />
+        </mxCell>
+        <mxCell id="13FZWUvePW5hqLkcWIZR-17" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#D5E8D4,#330000);strokeColor=#82b366;arcSize=0;" value="" vertex="1">
+          <mxGeometry height="109" width="230" x="370" y="1102" as="geometry" />
+        </mxCell>
+        <mxCell id="13FZWUvePW5hqLkcWIZR-18" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&amp;nbsp;Reserved" vertex="1">
+          <mxGeometry height="30" width="77" x="370" y="731" as="geometry" />
+        </mxCell>
+        <mxCell id="13FZWUvePW5hqLkcWIZR-19" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&amp;nbsp;APP-XRAM" vertex="1">
+          <mxGeometry height="30" width="71" x="370" y="1102" as="geometry" />
+        </mxCell>
+        <mxCell id="13FZWUvePW5hqLkcWIZR-20" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;rounded=0;" value="RX&amp;nbsp;&amp;nbsp;" vertex="1">
+          <mxGeometry height="30" width="130" x="470" y="1102" as="geometry" />
+        </mxCell>
+        <mxCell id="13FZWUvePW5hqLkcWIZR-21" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;rounded=0;" value="&lt;i&gt;[RWX]&lt;/i&gt;&amp;nbsp;&amp;nbsp;" vertex="1">
+          <mxGeometry height="30" width="130" x="470" y="808" as="geometry" />
+        </mxCell>
+        <mxCell id="vprctx-r-box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;arcSize=0;align=left;" value="" vertex="1">
+          <mxGeometry height="50" width="230" x="370" y="1211" as="geometry" />
+        </mxCell>
+        <mxCell id="vprctx-r-name" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&amp;nbsp;VPRCTX-RAM" vertex="1">
+          <mxGeometry height="30" width="120" x="370" y="1211" as="geometry" />
+        </mxCell>
+        <mxCell id="vprctx-r-perm" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;rounded=0;" value="RW&amp;nbsp;&amp;nbsp;" vertex="1">
+          <mxGeometry height="30" width="130" x="470" y="1211" as="geometry" />
+        </mxCell>
+        <mxCell id="vprctx-r-br" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;rounded=0;" value="&lt;i&gt;[RWX]&lt;/i&gt;&amp;nbsp;&amp;nbsp;" vertex="1">
+          <mxGeometry height="30" width="130" x="470" y="1238" as="geometry" />
+        </mxCell>
+        <mxCell id="protram-r-box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E6E6E6;strokeColor=#666666;arcSize=0;align=left;dashed=1;" value="" vertex="1">
+          <mxGeometry height="30" width="230" x="370" y="1261" as="geometry" />
+        </mxCell>
+        <mxCell id="protram-r-name" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&amp;nbsp;Reserved" vertex="1">
+          <mxGeometry height="30" width="120" x="370" y="1261" as="geometry" />
+        </mxCell>
+        <mxCell id="protram-r-perm" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;rounded=0;" value="&amp;nbsp;&amp;nbsp;" vertex="1">
+          <mxGeometry height="30" width="130" x="470" y="1261" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
